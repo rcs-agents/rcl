@@ -1,0 +1,187 @@
+# Test file for all RCL language features
+import MyLibrary / UtilityFunctions as Utils;
+import Common.Helpers;
+
+agent TestBotCompany/CustomerService
+displayName: "Customer Service Bot"
+brandName: "TestBotCompany"
+
+Config
+    description: "A comprehensive customer service bot for testing"
+    logoUri: "https://example.com/logo.png"
+    heroUri: "https://example.com/hero.jpg"
+    color: "#FF5722"
+    agentUseCase: :MULTI_USE
+    hostingRegion: :NORTH_AMERICA
+    
+    phoneNumberEntry
+        number: <phone "+1-555-123-4567">
+        label: "Customer Support"
+        
+    emailEntry
+        address: <email "support@testbot.com">
+        label: "Support Email"
+        
+    websiteEntry
+        url: <url "https://www.testbot.com">
+        label: "Main Website"
+        
+    privacy
+        url: <url "https://www.testbot.com/privacy">
+        label: "Privacy Policy"
+        
+    termsConditions
+        url: <url "https://www.testbot.com/terms">
+        label: "Terms of Service"
+        
+    billingConfig
+        billingCategory: :CONVERSATIONAL
+
+Defaults
+    fallback_message: "I'm sorry, I didn't understand that. Could you please rephrase?"
+    messageTrafficType: :TRANSACTION
+    ttl: "3600s"
+    postbackData: "default_postback"
+    timeZone: "America/New_York"
+    expressions
+        language: :javascript
+
+flow MainFlow
+    :start -> checkUserType
+    checkUserType -> when user.type == "premium" -> :premium_support
+    checkUserType -> when user.type == "basic" -> :basic_support
+    checkUserType -> :general_support
+    
+    :premium_support -> handlePremiumRequest with input: "priority", data: True
+    :basic_support -> handleBasicRequest
+    :general_support -> showOptions
+
+flow SupportFlow
+    :greet -> collectInfo
+    collectInfo -> when info.complete is True -> :process
+    collectInfo -> when info.missing != Null -> :ask_more
+    :process -> :complete
+    :ask_more -> collectInfo
+
+Messages
+    agentMessage welcomeMessage
+        messageTrafficType: :PROMOTION
+        ttl: "7200s"
+        contentMessage
+            text: "Welcome! How can I help you today?"
+            suggestions
+                suggestion
+                    reply text: "Get Support", postbackData: "support_request"
+                suggestion
+                    action text: "Call Us", postbackData: "call_action"
+                        dialAction phoneNumber: <phone "+1-555-123-4567">
+                suggestion
+                    action text: "Visit Website", postbackData: "website_visit"
+                        openUrlAction url: <url "https://www.testbot.com">
+
+    agentMessage richCardDemo
+        contentMessage
+            richCard
+                standaloneCard
+                    cardOrientation: :HORIZONTAL
+                    thumbnailImageAlignment: :LEFT
+                    cardContent
+                        title: "Product Information"
+                        description: "Learn more about our products and services"
+                        media
+                            height: :MEDIUM
+                            contentInfo fileUrl: "https://example.com/product.jpg", altText: "Product image"
+                        suggestions
+                            suggestion
+                                reply text: "Learn More", postbackData: "learn_more"
+                            suggestion
+                                action text: "Schedule Call", postbackData: "schedule_call"
+                                    createCalendarEventAction
+                                        title: "Product Demo"
+                                        startTime: <datetime "2024-01-15T10:00:00Z">
+                                        endTime: <datetime "2024-01-15T11:00:00Z">
+                                        description: "Product demonstration call"
+
+    agentMessage carouselDemo
+        contentMessage
+            richCard
+                carouselCard
+                    cardWidth: :MEDIUM
+                    cardContents
+                        cardContent
+                            title: "Option A"
+                            description: "First choice description"
+                            suggestions
+                                suggestion
+                                    reply text: "Choose A", postbackData: "option_a"
+                        cardContent
+                            title: "Option B" 
+                            description: "Second choice description"
+                            suggestions
+                                suggestion
+                                    reply text: "Choose B", postbackData: "option_b"
+
+    agentMessage fileDemo
+        contentMessage
+            uploadedRbmFile fileName: "document.pdf", thumbnailName: "doc_thumb.jpg"
+
+    # Message shortcuts
+    text "Quick hello message"
+        reply "Hello" "hello_postback"
+        dial "Call Support" <phone "+1-555-123-4567">
+        openUrl "Visit Site" <url "https://www.testbot.com"> "Check our website"
+        
+    uploadedRbmFile "attachment.pdf" "thumb.jpg"
+        shareLocation "Share Location"
+        
+    richCard "Special Offer"
+        "Limited time deal on our premium service"
+        reply "Get Offer" "offer_postback"
+        createCalendarEvent "Book Demo" 
+            event "Product Demo" <datetime "2024-02-01T14:00:00Z"> <datetime "2024-02-01T15:00:00Z"> "Live product demonstration"
+
+    # Testing various data types
+    agentMessage dataTypesDemo
+        contentMessage
+            text: "Testing data types and collections"
+            
+    # Testing collections and complex data structures
+    agentMessage complexDataDemo
+        contentMessage
+            richCard
+                standaloneCard
+                    cardOrientation: :VERTICAL
+                    cardContent
+                        title: "Complex Data Test"
+                        description: |
+                            This is a multi-line string
+                            that spans several lines
+                            and tests string handling
+                        
+    # Testing expressions and parameters
+    agentMessage expressionDemo
+        messageTrafficType: :TRANSACTION
+        contentMessage
+            text: $js> `Hello ${user.name}, your account balance is ${user.balance}`
+
+# Testing mapped types
+CustomerData list of (name, email, <phone number>):
+    - "John Doe", "john@example.com", <phone "+1-555-0001">
+    - "Jane Smith", "jane@example.com", <phone "+1-555-0002">
+    - "Bob Wilson", "bob@example.com", <phone "+1-555-0003">
+
+# Testing explicit maps and dictionaries
+SupportCategories:
+    "technical": "Technical Support Issues"
+    "billing": "Billing and Payment Questions"
+    "general": "General Information"
+
+# Testing various value types
+ConfigValues: %{
+    timeout: 30
+    retries: 3
+    enabled: True
+    fallback: Null
+    priority: :high
+    endpoint: <url "https://api.example.com">
+} 

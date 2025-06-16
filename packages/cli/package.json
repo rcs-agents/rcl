@@ -1,0 +1,32 @@
+{
+    "name": "rcl-cli",
+    "description": "The cli specific package",
+    "version": "0.0.1",
+    "type": "module",
+    "engines": {
+        "node": ">=20.10.0",
+        "bun": ">=1.0.0"
+    },
+    "files": [
+        "bin",
+        "out",
+        "src"
+    ],
+    "bin": {
+        "rcl-cli": "./bin/cli.js"
+    },
+    "scripts": {
+        "clean": "shx rm -fr *.tsbuildinfo out",
+        "build": "echo 'No build step'",
+        "build:clean": "bun run clean && bun run build"
+    },
+    "dependencies": {
+        "rcl-language": "0.0.1",
+        "chalk": "~5.3.0",
+        "commander": "~11.1.0"
+    },
+    "volta": {
+        "node": "20.19.2",
+        "bun": "1.1.42"
+    }
+}

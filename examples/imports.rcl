@@ -1,0 +1,7 @@
+import My Brand / A as Sample
+import My Brand / A / Hello as Sample
+import My Brand / Abracadabra as Sample
+
+agent BMW Agent
+  displayName: "BMW Messaging Agent"
+  brandName: "BMW"
