@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rich Communication Language (RCL) - Formal Specification</title>
+    <script src="https://www.w3.org/Tools/respec/respec-w3c" async class="remove"></script>
+    <script class="remove">
+      // ReSpec Configuration
+      var respecConfig = {
+        specStatus: "ED", // Editor's Draft
+        shortName: "rcl-spec",
+        edDraftURI: "https://github.com/tokilabs/rcs-language/blob/main/docs/index.html", // Link to the latest version
+        github: "https://github.com/tokilabs/rcs-language",
+        editors: [
+          {
+            name: "Saulo Vallory",
+            url: "https://saulo.engineer",
+          },
+        ],
+        wg: "RCL Working Group",
+        wgURI: "https://github.com/tokilabs/rcs-language",
+        localBiblio: {
+            "RCL-PLAN": {
+                title: "RCL Implementation Plan 2",
+                href: "about:blank",
+                authors: ["Saulo Vallory"],
+                status: "Internal Document",
+            }
+        },
+      };
+    </script>
+    <style>
+      /* Styles for EBNF */
+      pre.ebnf {
+        background-color: #f7f7f7;
+        border-left: 3px solid #005a9c;
+        padding: 1em;
+        white-space: pre-wrap;
+        font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+      }
+      pre.ebnf-comment {
+        color: #6a737d;
+        font-style: italic;
+      }
+    </style>
+    <link rel="stylesheet" href="diagrams/diagrams.css">
+  </head>
+  <body>
+    <section id="abstract">
+      This document provides the formal specification for the Rich Communication Language (RCL) using an Extended Backus-Naur Form (EBNF)-like notation. This specification is derived from the Langium grammar files and the design decisions outlined in the [[RCL-PLAN]]. Its primary purpose is to define the valid syntax of an RCL document. Semantic rules, error recovery, and the precise behavior of the underlying expression language are outside the scope of this EBNF specification.
+    </section>
+
+    <section id="sotd">
+      <!-- Status of This Document section -->
+      <p>
+        This document is an unofficial draft and is not a W3C Standard. It is intended for discussion and implementation guidance.
+      </p>
+    </section>
+
+    <section id="conformance">
+      <h2>Conformance</h2>
+      <p>[[!RFC2119]]</p>
+      <p>TBD</p>
+    </section>
+    
+    <section>
+        <h2>Introduction</h2>
+        <p>This document provides the formal specification for the Rich Communication Language (RCL) using an Extended Backus-Naur Form (EBNF)-like notation. This specification is derived from the Langium grammar files and the design decisions outlined in the `rcl-implementation-plan-2.md`.</p>
+        <p>Its primary purpose is to define the valid syntax of an RCL document. Semantic rules, error recovery, and the precise behavior of the underlying expression language are outside the scope of this EBNF specification and are covered by other parts of the language design (e.g., validators, interpreter/transpiler logic).</p>
+
+        <section>
+            <h3>Notation Conventions</h3>
+            <p>The grammar is specified using EBNF-like notation:</p>
+            <ul>
+                <li><code><a>RuleName</a> ::= Definition</code> : Defines a rule.</li>
+                <li><code>'literal'</code> : Represents a literal string or keyword (e.g., <code>'Agent'</code>, <code>':'</code>).</li>
+                <li><code>TERMINAL_NAME</code> : Represents a terminal symbol, a basic token recognized by the lexer (e.g., <a href="#IDENTIFIER_def">IDENTIFIER</a>, <a href="#STRING_def">STRING</a>).</li>
+                <li><code><a>RuleName</a></code> : (When on the right-hand side) Represents a non-terminal symbol, a reference to another rule (e.g., <a>AgentDefinition</a>, <a>SimpleValue</a>).</li>
+                <li><code>A | B</code> : Represents an alternative (A or B).</li>
+                <li><code>(A B)</code> : Represents a sequence of A followed by B.</li>
+                <li><code>A?</code> : Represents zero or one occurrence of A (optional).</li>
+                <li><code>A*</code> : Represents zero or more occurrences of A.</li>
+                <li><code>A+</code> : Represents one or more occurrences of A.</li>
+                <li><code>// comment</code> : Explanatory comments.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Note on AST Mapping:</strong> While this EBNF does not explicitly use <code>property_name: RuleCall</code> syntax, it is implied that in a corresponding Abstract Syntax Tree (AST), sequenced elements or named terminals/non-terminals would map to named properties of the AST node for the rule. For example, <code><a>Parameter</a> ::= <a href="#IDENTIFIER_def">IDENTIFIER</a> ':' <a>SimpleValue</a></code> would likely result in an AST node for `Parameter` with properties corresponding to the captured <a href="#IDENTIFIER_def">IDENTIFIER</a> and <a>SimpleValue</a>.</p>
+            </div>
+        </section>
+    </section>
+
+    <section>
+        <h2>Lexical Specification (Terminals)</h2>
+        <p>These are the fundamental building blocks (tokens) of the RCL, recognized by the lexer.</p>
+        
+        <section>
+            <h3>Indentation Terminals (Synthetic)</h3>
+            <p>These tokens are not directly present as characters in the input text but are generated by the lexer based on changes in leading whitespace.</p>
+            <pre class="ebnf"><dfn id="INDENT_def">INDENT</dfn> ::= /* Marks a significant increase in indentation level. */</pre>
+            <pre class="ebnf"><dfn id="DEDENT_def">DEDENT</dfn> ::= /* Marks a significant decrease in indentation level, closing one or more blocks. */</pre>
+        </section>
+
+        <section>
+            <h3>Hidden Terminals (Ignored by the parser)</h3>
+            <p>These tokens are recognized but do not form part of the structural syntax passed to the parser, except for their role in separating other tokens.</p>
+            <pre class="ebnf">WS ::= /[\t ]+/         // Whitespace (one or more spaces or tabs), does not include newlines.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/WS.svg" alt="Railroad diagram for WS">
+              <figcaption>Railroad diagram for <code>WS</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#WS">diagrams/index.html#WS</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#WS" title="WS">WS</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#WS_CHAR" title="WS_CHAR">WS_CHAR</a>+</div>
+              </code></div>
+            </div>
+            <pre class="ebnf">NL ::= /[\r\n]+/        // Newlines (one or more).</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/NL.svg" alt="Railroad diagram for NL">
+              <figcaption>Railroad diagram for <code>NL</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#NL">diagrams/index.html#NL</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#NL" title="NL">NL</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#EOL" title="EOL">EOL</a>+</div>
+              </code></div>
+            </div>
+            <pre class="ebnf">SL_COMMENT ::= /#.*/    // Single-line comments (from '#' to end of line).</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/SL_COMMENT.svg" alt="Railroad diagram for SL_COMMENT">
+              <figcaption>Railroad diagram for <code>SL_COMMENT</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#SL_COMMENT">diagrams/index.html#SL_COMMENT</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#SL_COMMENT" title="SL_COMMENT">SL_COMMENT</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '#' <a href="diagrams/index.html#SL_COMMENT_CHAR" title="SL_COMMENT_CHAR">SL_COMMENT_CHAR</a>* <a href="diagrams/index.html#EOL" title="EOL">EOL</a>?</div>
+              </code></div>
+            </div>
+            <div class="note">
+                <p><strong>Note on Whitespace within Rules:</strong> The `WS` hidden terminal allows for optional spaces and tabs between any adjacent non-hidden terminals or literal keywords within a parser rule sequence. Newlines (`NL`) primarily act as statement terminators and are crucial for the lexer's indentation analysis. This EBNF does not explicitly notate whitespace between all elements, as this is implied.</p>
+            </div>
+        </section>
+        
+        <section>
+            <h3>Common Terminals</h3>
+            <pre class="ebnf"><dfn id="IDENTIFIER_def">IDENTIFIER</dfn> ::= /[A-Z]([A-Za-z0-9-]|(\s(?=[A-Z0-9])))*/ // Defined in Section 4.1.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/IDENTIFIER.svg" alt="Railroad diagram for IDENTIFIER">
+              <figcaption>Railroad diagram for <code>IDENTIFIER</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#IDENTIFIER">diagrams/index.html#IDENTIFIER</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#IDENTIFIER_START_CHAR" title="IDENTIFIER_START_CHAR">IDENTIFIER_START_CHAR</a><a href="diagrams/index.html#IDENTIFIER_CONT_UNIT" title="IDENTIFIER_CONT_UNIT">IDENTIFIER_CONT_UNIT</a>*</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="ATOM_def">ATOM</dfn> ::= /:([_a-zA-Z][\w_]*|\"[^\"\\]*\")/ // e.g., :symbol or :"quoted symbol".</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/ATOM.svg" alt="Railroad diagram for ATOM">
+              <figcaption>Railroad diagram for <code>ATOM</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#ATOM">diagrams/index.html#ATOM</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= ':' ( <a href="diagrams/index.html#ATOM_UNQUOTED_PART" title="ATOM_UNQUOTED_PART">ATOM_UNQUOTED_PART</a> | <a href="diagrams/index.html#ATOM_QUOTED_PART" title="ATOM_QUOTED_PART">ATOM_QUOTED_PART</a> )</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="STRING_def">STRING</dfn> ::= /\"(\\.|\[^\"\\])*\"/           // Double-quoted strings with standard escape sequences.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/STRING.svg" alt="Railroad diagram for STRING">
+              <figcaption>Railroad diagram for <code>STRING</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#STRING">diagrams/index.html#STRING</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#STRING" title="STRING">STRING</a>&nbsp;&nbsp;&nbsp;::= '\"' <a href="diagrams/index.html#STRING_CONTENT_CHAR" title="STRING_CONTENT_CHAR">STRING_CONTENT_CHAR</a>* '\"'</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="NUMBER_def">NUMBER</dfn> ::= /[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?/ // Integer or floating-point numbers.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/NUMBER.svg" alt="Railroad diagram for NUMBER">
+              <figcaption>Railroad diagram for <code>NUMBER</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#NUMBER">diagrams/index.html#NUMBER</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#NUMBER" title="NUMBER">NUMBER</a>&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#INTEGER_PART" title="INTEGER_PART">INTEGER_PART</a><a href="diagrams/index.html#DECIMAL_PART" title="DECIMAL_PART">DECIMAL_PART</a>? <a href="diagrams/index.html#EXPONENT_PART" title="EXPONENT_PART">EXPONENT_PART</a>?</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="TIME_LITERAL_def">TIME_LITERAL</dfn> ::= /~T\\[[0-9]{2}:[0-9]{2}\\]/      // Format: ~T[HH:MM].</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/TIME_LITERAL.svg" alt="Railroad diagram for TIME_LITERAL">
+              <figcaption>Railroad diagram for <code>TIME_LITERAL</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#TIME_LITERAL">diagrams/index.html#TIME_LITERAL</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#TIME_LITERAL" title="TIME_LITERAL">TIME_LITERAL</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= "'~T['" <a href="diagrams/index.html#DIGIT" title="DIGIT">DIGIT</a><a href="diagrams/index.html#DIGIT" title="DIGIT">DIGIT</a> ':' <a href="diagrams/index.html#DIGIT" title="DIGIT">DIGIT</a><a href="diagrams/index.html#DIGIT" title="DIGIT">DIGIT</a> "']'"</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="ISO_DURATION_LITERAL_def">ISO_DURATION_LITERAL</dfn> ::= /(P(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(\d+H)?(\d+M)?(\d+(\.\d+)?S)?)?)|([0-9]+(\.[0-9]+)?s)/ // ISO 8601 duration or simple seconds (e.g., "3.5s").</pre>
+        </section>
+        
+        <section>
+            <h3>Expression Terminals</h3>
+            <p>The content within these expressions is treated as raw text by the RCL parser.</p>
+            <pre class="ebnf"><dfn id="SINGLE_LINE_EXPRESSION_def">SINGLE_LINE_EXPRESSION</dfn> ::= /\$([a-z]*>)\s*[^\r\n]*/     // e.g., $js> console.log('hello'), $> someValue.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/SINGLE_LINE_EXPRESSION.svg" alt="Railroad diagram for SINGLE_LINE_EXPRESSION">
+              <figcaption>Railroad diagram for <code>SINGLE_LINE_EXPRESSION</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#SINGLE_LINE_EXPRESSION">diagrams/index.html#SINGLE_LINE_EXPRESSION</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#SINGLE_LINE_EXPRESSION" title="SINGLE_LINE_EXPRESSION">SINGLE_LINE_EXPRESSION</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#SINGLE_LINE_EXPRESSION_MARKER" title="SINGLE_LINE_EXPRESSION_MARKER">SINGLE_LINE_EXPRESSION_MARKER</a><a href="diagrams/index.html#WS" title="WS">WS</a>* <a href="diagrams/index.html#SINGLE_LINE_EXPRESSION_CONTENT_CHAR" title="SINGLE_LINE_EXPRESSION_CONTENT_CHAR">SINGLE_LINE_EXPRESSION_CONTENT_CHAR</a>*</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="MULTI_LINE_EXPRESSION_START_def">MULTI_LINE_EXPRESSION_START</dfn> ::= /\$([a-z]*>>>)/          // e.g., $ts>>>, $>>>.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/MULTI_LINE_EXPRESSION_START.svg" alt="Railroad diagram for MULTI_LINE_EXPRESSION_START">
+              <figcaption>Railroad diagram for <code>MULTI_LINE_EXPRESSION_START</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#MULTI_LINE_EXPRESSION_START">diagrams/index.html#MULTI_LINE_EXPRESSION_START</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#MULTI_LINE_EXPRESSION_START" title="MULTI_LINE_EXPRESSION_START">MULTI_LINE_EXPRESSION_START</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '$' <a href="diagrams/index.html#EXPRESSION_LANG_TAG" title="EXPRESSION_LANG_TAG">EXPRESSION_LANG_TAG</a> '&gt;' '&gt;' '&gt;'</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="MULTI_LINE_EXPRESSION_CONTENT_def">MULTI_LINE_EXPRESSION_CONTENT</dfn> ::= /[^]*/                 // Raw content of a multi-line block, terminated by a DEDENT.</pre>
+        </section>
+        
+        <section>
+            <h3>Multi-line String Terminals</h3>
+            <pre class="ebnf"><dfn id="MULTILINE_STRING_CLEAN_def">MULTILINE_STRING_CLEAN</dfn> ::= /\|\s*$/        // Marker: | (at end of line, possibly with trailing whitespace).</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/MULTILINE_STRING_CLEAN.svg" alt="Railroad diagram for MULTILINE_STRING_CLEAN">
+              <figcaption>Railroad diagram for <code>MULTILINE_STRING_CLEAN</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#MULTILINE_STRING_CLEAN">diagrams/index.html#MULTILINE_STRING_CLEAN</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#MULTILINE_STRING_CLEAN" title="MULTILINE_STRING_CLEAN">MULTILINE_STRING_CLEAN</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '|' <a href="diagrams/index.html#WS" title="WS">WS</a>* <a href="diagrams/index.html#EOL" title="EOL">EOL</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="MULTILINE_STRING_TRIM_def">MULTILINE_STRING_TRIM</dfn> ::= /\|-\s*$/         // Marker: |- (at end of line, possibly with trailing whitespace).</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/MULTILINE_STRING_TRIM.svg" alt="Railroad diagram for MULTILINE_STRING_TRIM">
+              <figcaption>Railroad diagram for <code>MULTILINE_STRING_TRIM</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#MULTILINE_STRING_TRIM">diagrams/index.html#MULTILINE_STRING_TRIM</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#MULTILINE_STRING_TRIM" title="MULTILINE_STRING_TRIM">MULTILINE_STRING_TRIM</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '|' '-' <a href="diagrams/index.html#WS" title="WS">WS</a>* <a href="diagrams/index.html#EOL" title="EOL">EOL</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="MULTILINE_STRING_PRESERVE_def">MULTILINE_STRING_PRESERVE</dfn> ::= /\+\|\s*$/    // Marker: +| (at end of line, possibly with trailing whitespace).</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/MULTILINE_STRING_PRESERVE.svg" alt="Railroad diagram for MULTILINE_STRING_PRESERVE">
+              <figcaption>Railroad diagram for <code>MULTILINE_STRING_PRESERVE</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#MULTILINE_STRING_PRESERVE">diagrams/index.html#MULTILINE_STRING_PRESERVE</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#MULTILINE_STRING_PRESERVE" title="MULTILINE_STRING_PRESERVE">MULTILINE_STRING_PRESERVE</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '+' '|' <a href="diagrams/index.html#WS" title="WS">WS</a>* <a href="diagrams/index.html#EOL" title="EOL">EOL</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="MULTILINE_STRING_PRESERVE_ALL_def">MULTILINE_STRING_PRESERVE_ALL</dfn> ::= /\+\|\+\s*$/ // Marker: +|+ (at end of line, possibly with trailing whitespace).</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/MULTILINE_STRING_PRESERVE_ALL.svg" alt="Railroad diagram for MULTILINE_STRING_PRESERVE_ALL">
+              <figcaption>Railroad diagram for <code>MULTILINE_STRING_PRESERVE_ALL</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#MULTILINE_STRING_PRESERVE_ALL">diagrams/index.html#MULTILINE_STRING_PRESERVE_ALL</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#MULTILINE_STRING_PRESERVE_ALL" title="MULTILINE_STRING_PRESERVE_ALL">MULTILINE_STRING_PRESERVE_ALL</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '+' '|' '+' <a href="diagrams/index.html#WS" title="WS">WS</a>* <a href="diagrams/index.html#EOL" title="EOL">EOL</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn id="STRING_CONTENT_def">STRING_CONTENT</dfn> ::= /[^]*/                   // Raw content of a multi-line string, terminated by a DEDENT.</pre>
+        </section>
+        
+        <section>
+            <h3>Type Conversion Terminals</h3>
+            <pre class="ebnf">// Literals '<', '>', and '|' are used directly in the TypeConversion rule.
+<dfn id="TYPE_NAME_def">TYPE_NAME</dfn> ::= /[a-zA-Z]+/                   // e.g., phone, email, date (used within TypeConversion rule).</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/TYPE_NAME.svg" alt="Railroad diagram for TYPE_NAME">
+              <figcaption>Railroad diagram for <code>TYPE_NAME</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#TYPE_NAME">diagrams/index.html#TYPE_NAME</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#TYPE_NAME" title="TYPE_NAME">TYPE_NAME</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#LETTER" title="LETTER">LETTER</a>+</div>
+              </code></div>
+            </div>
+        </section>
+    </section>
+
+    <section>
+        <h2>Syntactic Specification (Parser Rules)</h2>
+        <section>
+            <h3>Core &amp; Common Rules</h3>
+            <pre class="ebnf"><dfn>QualifiedName</dfn> ::= <a href="#IDENTIFIER_def">IDENTIFIER</a> ('.' <a href="#IDENTIFIER_def">IDENTIFIER</a>)*</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/qualifiedName.svg" alt="Railroad diagram for QualifiedName">
+              <figcaption>Railroad diagram for <code>QualifiedName</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#qualifiedName">diagrams/index.html#qualifiedName</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#qualifiedName" title="qualifiedName">qualifiedName</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> ( '.' <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> )*</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>BooleanLiteral</dfn> ::= 'true' | 'false'</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/booleanLiteral.svg" alt="Railroad diagram for BooleanLiteral">
+              <figcaption>Railroad diagram for <code>BooleanLiteral</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#booleanLiteral">diagrams/index.html#booleanLiteral</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#booleanLiteral" title="booleanLiteral">booleanLiteral</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'true'</div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'false'</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>SimpleValue</dfn> ::= <a href="#STRING_def">STRING</a> | <a href="#NUMBER_def">NUMBER</a> | <a>BooleanLiteral</a> | <a href="#ATOM_def">ATOM</a> | <a href="#TIME_LITERAL_def">TIME_LITERAL</a> | <a href="#ISO_DURATION_LITERAL_def">ISO_DURATION_LITERAL</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/simpleValue.svg" alt="Railroad diagram for SimpleValue">
+              <figcaption>Railroad diagram for <code>SimpleValue</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#simpleValue">diagrams/index.html#simpleValue</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#simpleValue" title="simpleValue">simpleValue</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#STRING" title="STRING">STRING</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#NUMBER" title="NUMBER">NUMBER</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#booleanLiteral" title="booleanLiteral">booleanLiteral</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#TIME_LITERAL" title="TIME_LITERAL">TIME_LITERAL</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL">ISO_DURATION_LITERAL</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>Parameter</dfn> ::= <a href="#IDENTIFIER_def">IDENTIFIER</a> ':' <a>SimpleValue</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/parameter.svg" alt="Railroad diagram for Parameter">
+              <figcaption>Railroad diagram for <code>Parameter</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#parameter">diagrams/index.html#parameter</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#parameter" title="parameter">parameter</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> ':' <a href="diagrams/index.html#simpleValue" title="simpleValue">simpleValue</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>PropertyAssignment</dfn> ::= <a href="#IDENTIFIER_def">IDENTIFIER</a> ':' <a>Value</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/propertyAssignment.svg" alt="Railroad diagram for PropertyAssignment">
+              <figcaption>Railroad diagram for <code>PropertyAssignment</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#propertyAssignment">diagrams/index.html#propertyAssignment</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#propertyAssignment" title="propertyAssignment">propertyAssignment</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> ':' <a href="diagrams/index.html#value" title="value">value</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>ExplicitMap</dfn> ::= '%' '{' (<a>PropertyAssignment</a>)* '}'</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/explicitMap.svg" alt="Railroad diagram for ExplicitMap">
+              <figcaption>Railroad diagram for <code>ExplicitMap</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#explicitMap">diagrams/index.html#explicitMap</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#explicitMap" title="explicitMap">explicitMap</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '%' '{' <a href="diagrams/index.html#propertyAssignment" title="propertyAssignment">propertyAssignment</a>* '}'</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>InlineParameterList</dfn> ::= <a>Parameter</a> (',' <a>Parameter</a>)*</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/inlineParameterList.svg" alt="Railroad diagram for InlineParameterList">
+              <figcaption>Railroad diagram for <code>InlineParameterList</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#inlineParameterList">diagrams/index.html#inlineParameterList</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#parameter" title="parameter">parameter</a> ( ',' <a href="diagrams/index.html#parameter" title="parameter">parameter</a> )*</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>Value</dfn> ::= <a>SimpleValue</a> | <a>ExplicitMap</a> | <a>InlineParameterList</a> | <a>Ref</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/value.svg" alt="Railroad diagram for Value">
+              <figcaption>Railroad diagram for <code>Value</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#value">diagrams/index.html#value</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#value" title="value">value</a>&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#simpleValue" title="simpleValue">simpleValue</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#explicitMap" title="explicitMap">explicitMap</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#ref" title="ref">ref</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>Ref</dfn> ::= <a href="#IDENTIFIER_def">IDENTIFIER</a> // This IDENTIFIER references another named entity.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/ref.svg" alt="Railroad diagram for Ref">
+              <figcaption>Railroad diagram for <code>Ref</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#ref">diagrams/index.html#ref</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#ref" title="ref">ref</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div>
+              </code></div>
+            </div>
+        </section>
+        
+        <section>
+            <h3>Expression Rules</h3>
+             <pre class="ebnf"><dfn>SingleLineExpression</dfn> ::= <a href="#SINGLE_LINE_EXPRESSION_def">SINGLE_LINE_EXPRESSION</a></pre>
+             <figure class="railroad-diagram">
+               <img src="diagrams/diagram/singleLineExpression.svg" alt="Railroad diagram for SingleLineExpression">
+               <figcaption>Railroad diagram for <code>SingleLineExpression</code>.</figcaption>
+             </figure>
+             <div class="note informative diagram-ebnf">
+               <p>EBNF for diagram generation (from <a href="diagrams/index.html#singleLineExpression">diagrams/index.html#singleLineExpression</a>):</p>
+               <div class="ebnf"><code>
+                     <div><a href="diagrams/index.html#singleLineExpression" title="singleLineExpression">singleLineExpression</a></div>
+                     <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#SINGLE_LINE_EXPRESSION" title="SINGLE_LINE_EXPRESSION">SINGLE_LINE_EXPRESSION</a></div>
+               </code></div>
+             </div>
+             <pre class="ebnf"><dfn>MultiLineExpression</dfn> ::= <a href="#MULTI_LINE_EXPRESSION_START_def">MULTI_LINE_EXPRESSION_START</a> <a href="#INDENT_def">INDENT</a> <a href="#MULTI_LINE_EXPRESSION_CONTENT_def">MULTI_LINE_EXPRESSION_CONTENT</a> <a href="#DEDENT_def">DEDENT</a></pre>
+             <figure class="railroad-diagram">
+               <img src="diagrams/diagram/multiLineExpression.svg" alt="Railroad diagram for MultiLineExpression">
+               <figcaption>Railroad diagram for <code>MultiLineExpression</code>.</figcaption>
+             </figure>
+             <div class="note informative diagram-ebnf">
+               <p>EBNF for diagram generation (from <a href="diagrams/index.html#multiLineExpression">diagrams/index.html#multiLineExpression</a>):</p>
+               <div class="ebnf"><code>
+                     <div><a href="diagrams/index.html#multiLineExpression" title="multiLineExpression">multiLineExpression</a></div>
+                     <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#MULTI_LINE_EXPRESSION_START" title="MULTI_LINE_EXPRESSION_START">MULTI_LINE_EXPRESSION_START</a> '' <a href="diagrams/index.html#MULTI_LINE_EXPRESSION_CONTENT" title="MULTI_LINE_EXPRESSION_CONTENT">MULTI_LINE_EXPRESSION_CONTENT</a> ''</div>
+               </code></div>
+             </div>
+             <pre class="ebnf"><dfn>Expression</dfn> ::= <a>SingleLineExpression</a> | <a>MultiLineExpression</a></pre>
+             <figure class="railroad-diagram">
+               <img src="diagrams/diagram/expression.svg" alt="Railroad diagram for Expression">
+               <figcaption>Railroad diagram for <code>Expression</code>.</figcaption>
+             </figure>
+             <div class="note informative diagram-ebnf">
+               <p>EBNF for diagram generation (from <a href="diagrams/index.html#expression">diagrams/index.html#expression</a>):</p>
+               <div class="ebnf"><code>
+                     <div><a href="diagrams/index.html#expression" title="expression">expression</a></div>
+                     <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#singleLineExpression" title="singleLineExpression">singleLineExpression</a></div>
+                     <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#multiLineExpression" title="multiLineExpression">multiLineExpression</a></div>
+               </code></div>
+             </div>
+             <pre class="ebnf"><dfn>ExpressionValue</dfn> ::= <a>Expression</a> | <a>SimpleValue</a> // A value can be a direct expression or a simple literal.</pre>
+             <figure class="railroad-diagram">
+               <img src="diagrams/diagram/expressionValue.svg" alt="Railroad diagram for ExpressionValue">
+               <figcaption>Railroad diagram for <code>ExpressionValue</code>.</figcaption>
+             </figure>
+             <div class="note informative diagram-ebnf">
+               <p>EBNF for diagram generation (from <a href="diagrams/index.html#expressionValue">diagrams/index.html#expressionValue</a>):</p>
+               <div class="ebnf"><code>
+                     <div><a href="diagrams/index.html#expressionValue" title="expressionValue">expressionValue</a></div>
+                     <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#expression" title="expression">expression</a></div>
+                     <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#simpleValue" title="simpleValue">simpleValue</a></div>
+               </code></div>
+             </div>
+        </section>
+        
+        <section>
+            <h3>Multi-line String Rules</h3>
+            <pre class="ebnf"><dfn>MultiLineString</dfn> ::= ( <a href="#MULTILINE_STRING_CLEAN_def">MULTILINE_STRING_CLEAN</a> | <a href="#MULTILINE_STRING_TRIM_def">MULTILINE_STRING_TRIM</a> | <a href="#MULTILINE_STRING_PRESERVE_def">MULTILINE_STRING_PRESERVE</a> | <a href="#MULTILINE_STRING_PRESERVE_ALL_def">MULTILINE_STRING_PRESERVE_ALL</a> ) <a href="#INDENT_def">INDENT</a> <a href="#STRING_CONTENT_def">STRING_CONTENT</a> <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/multiLineString.svg" alt="Railroad diagram for MultiLineString">
+              <figcaption>Railroad diagram for <code>MultiLineString</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#multiLineString">diagrams/index.html#multiLineString</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#multiLineString" title="multiLineString">multiLineString</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= ( <a href="diagrams/index.html#MULTILINE_STRING_CLEAN" title="MULTILINE_STRING_CLEAN">MULTILINE_STRING_CLEAN</a> | <a href="diagrams/index.html#MULTILINE_STRING_TRIM" title="MULTILINE_STRING_TRIM">MULTILINE_STRING_TRIM</a> | <a href="diagrams/index.html#MULTILINE_STRING_PRESERVE" title="MULTILINE_STRING_PRESERVE">MULTILINE_STRING_PRESERVE</a> | <a href="diagrams/index.html#MULTILINE_STRING_PRESERVE_ALL" title="MULTILINE_STRING_PRESERVE_ALL">MULTILINE_STRING_PRESERVE_ALL</a> ) '' <a href="diagrams/index.html#STRING_CONTENT" title="STRING_CONTENT">STRING_CONTENT</a> ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>EnhancedSimpleValue</dfn> ::= <a href="#STRING_def">STRING</a> | <a href="#NUMBER_def">NUMBER</a> | <a>BooleanLiteral</a> | <a href="#ATOM_def">ATOM</a> | <a href="#TIME_LITERAL_def">TIME_LITERAL</a> | <a href="#ISO_DURATION_LITERAL_def">ISO_DURATION_LITERAL</a> | <a>MultiLineString</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/enhancedSimpleValue.svg" alt="Railroad diagram for EnhancedSimpleValue">
+              <figcaption>Railroad diagram for <code>EnhancedSimpleValue</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#enhancedSimpleValue">diagrams/index.html#enhancedSimpleValue</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#STRING" title="STRING">STRING</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#NUMBER" title="NUMBER">NUMBER</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#booleanLiteral" title="booleanLiteral">booleanLiteral</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#TIME_LITERAL" title="TIME_LITERAL">TIME_LITERAL</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL">ISO_DURATION_LITERAL</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#multiLineString" title="multiLineString">multiLineString</a></div>
+              </code></div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Type Conversion Rules</h3>
+            <pre class="ebnf"><dfn>TypeConversionValue</dfn> ::= <a href="#STRING_def">STRING</a> | <a href="#NUMBER_def">NUMBER</a> | <a href="#ATOM_def">ATOM</a> | <a href="#IDENTIFIER_def">IDENTIFIER</a> // The raw value part inside a type conversion tag.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/typeConversionValue.svg" alt="Railroad diagram for TypeConversionValue">
+              <figcaption>Railroad diagram for <code>TypeConversionValue</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#typeConversionValue">diagrams/index.html#typeConversionValue</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#typeConversionValue" title="typeConversionValue">typeConversionValue</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#STRING" title="STRING">STRING</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#NUMBER" title="NUMBER">NUMBER</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>TypeConversion</dfn> ::= '&lt;' <a href="#TYPE_NAME_def">TYPE_NAME</a> <a>TypeConversionValue</a> ('|' <a href="#STRING_def">STRING</a>)? '>' // e.g., &lt;email "user@example.com"&gt;</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/typeConversion.svg" alt="Railroad diagram for TypeConversion">
+              <figcaption>Railroad diagram for <code>TypeConversion</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#typeConversion">diagrams/index.html#typeConversion</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#typeConversion" title="typeConversion">typeConversion</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '&lt;' <a href="diagrams/index.html#TYPE_NAME" title="TYPE_NAME">TYPE_NAME</a><a href="diagrams/index.html#typeConversionValue" title="typeConversionValue">typeConversionValue</a> ( '|' <a href="diagrams/index.html#STRING" title="STRING">STRING</a> )? '&gt;'</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>TypedValue</dfn> ::= <a>TypeConversion</a> | <a>EnhancedSimpleValue</a> // A value can be a type conversion or an enhanced simple value.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/typedValue.svg" alt="Railroad diagram for TypedValue">
+              <figcaption>Railroad diagram for <code>TypedValue</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#typedValue">diagrams/index.html#typedValue</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#typeConversion" title="typeConversion">typeConversion</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div>
+              </code></div>
+            </div>
+        </section>
+        
+        <section>
+            <h3>Main RCL Structure</h3>
+            <pre class="ebnf"><dfn>RclFile</dfn> ::= (<a>ImportStatement</a>)* <a>AgentDefinition</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/rclFile.svg" alt="Railroad diagram for RclFile">
+              <figcaption>Railroad diagram for <code>RclFile</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#rclFile">diagrams/index.html#rclFile</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#rclFile" title="rclFile">rclFile</a>&nbsp;&nbsp;::= <a href="diagrams/index.html#importStatement" title="importStatement">importStatement</a>* <a href="diagrams/index.html#agentDefinition" title="agentDefinition">agentDefinition</a></div>
+              </code></div>
+            </div>
+
+            <pre class="ebnf"><dfn>ImportStatement</dfn> ::= 'import' <a href="#STRING_def">STRING</a> ('as' <a href="#IDENTIFIER_def">IDENTIFIER</a>)? ';'</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/importStatement.svg" alt="Railroad diagram for ImportStatement">
+              <figcaption>Railroad diagram for <code>ImportStatement</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#importStatement">diagrams/index.html#importStatement</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#importStatement" title="importStatement">importStatement</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'import' <a href="diagrams/index.html#STRING" title="STRING">STRING</a> ( 'as' <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> )? ';'</div>
+              </code></div>
+            </div>
+
+            <pre class="ebnf"><dfn>AgentDefinition</dfn> ::= 'Agent' <a>QualifiedName</a> <a href="#INDENT_def">INDENT</a> ('displayName' ':' <a href="#STRING_def">STRING</a>) ('brandName' ':' <a href="#STRING_def">STRING</a>)? (<a>ConfigSection</a>)? (<a>DefaultsSection</a>)? (<a>EnhancedFlowSection</a>)+ <a>MessagesSection</a> <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/agentDefinition.svg" alt="Railroad diagram for AgentDefinition">
+              <figcaption>Railroad diagram for <code>AgentDefinition</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#agentDefinition">diagrams/index.html#agentDefinition</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#agentDefinition" title="agentDefinition">agentDefinition</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'Agent' <a href="diagrams/index.html#qualifiedName" title="qualifiedName">qualifiedName</a> '' 'displayName' ':' <a href="diagrams/index.html#STRING" title="STRING">STRING</a> ( 'brandName' ':' <a href="diagrams/index.html#STRING" title="STRING">STRING</a> )? <a href="diagrams/index.html#configSection" title="configSection">configSection</a>? <a href="diagrams/index.html#defaultsSection" title="defaultsSection">defaultsSection</a>? <a href="diagrams/index.html#enhancedFlowSection" title="enhancedFlowSection">enhancedFlowSection</a>+ <a href="diagrams/index.html#messagesSection" title="messagesSection">messagesSection</a> ''</div>
+              </code></div>
+            </div>
+
+            <pre class="ebnf"><dfn>DefaultsSection</dfn> ::= 'Defaults' <a href="#INDENT_def">INDENT</a> ( <a>DefaultProperty</a> )* <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/defaultsSection.svg" alt="Railroad diagram for DefaultsSection">
+              <figcaption>Railroad diagram for <code>DefaultsSection</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#defaultsSection">diagrams/index.html#defaultsSection</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#defaultsSection" title="defaultsSection">defaultsSection</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'Defaults' '' <a href="diagrams/index.html#defaultProperty" title="defaultProperty">defaultProperty</a>* ''</div>
+              </code></div>
+            </div>
+
+            <pre class="ebnf"><dfn>DefaultProperty</dfn> ::= ('fallback_message' ':' <a>EnhancedSimpleValue</a>) | ('messageTrafficType' ':' <a href="#ATOM_def">ATOM</a>) | ('ttl' ':' <a href="#ISO_DURATION_LITERAL_def">ISO_DURATION_LITERAL</a>) | ('postbackData' ':' <a>Expression</a>) | ('expressions' <a href="#INDENT_def">INDENT</a> ('language' ':' <a href="#ATOM_def">ATOM</a>) <a href="#DEDENT_def">DEDENT</a>) | ('timeZone' ':' (<a href="#STRING_def">STRING</a> | <a>Expression</a>) )</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/defaultProperty.svg" alt="Railroad diagram for DefaultProperty">
+              <figcaption>Railroad diagram for <code>DefaultProperty</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#defaultProperty">diagrams/index.html#defaultProperty</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#defaultProperty" title="defaultProperty">defaultProperty</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'fallback_message' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'messageTrafficType' ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'ttl' ':' <a href="diagrams/index.html#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL">ISO_DURATION_LITERAL</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'postbackData' ':' <a href="diagrams/index.html#expression" title="expression">expression</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'expressions' '' 'language' ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a> ''</div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'timeZone' ':' ( <a href="diagrams/index.html#STRING" title="STRING">STRING</a> | <a href="diagrams/index.html#expression" title="expression">expression</a> )</div>
+              </code></div>
+            </div>
+
+            <pre class="ebnf"><dfn>MessagesSection</dfn> ::= 'Messages' <a href="#INDENT_def">INDENT</a> (<a>AgentMessage</a> | <a>MessageShortcut</a>)+ <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/messagesSection.svg" alt="Railroad diagram for MessagesSection">
+              <figcaption>Railroad diagram for <code>MessagesSection</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#messagesSection">diagrams/index.html#messagesSection</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#messagesSection" title="messagesSection">messagesSection</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'Messages' '' ( <a href="diagrams/index.html#agentMessage" title="agentMessage">agentMessage</a> | <a href="diagrams/index.html#messageShortcut" title="messageShortcut">messageShortcut</a> )+ ''</div>
+              </code></div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Flow System Rules</h3>
+             <div class="note">
+                <p><strong>Note on Precedence:</strong> In <a>EnhancedFlowRule</a>, the arrow sequence <a>FlowOperandOrExpression</a> ('->' <a>FlowOperandOrExpression</a>)+ is parsed as a complete unit. The <a>EnhancedWithClause</a>, if present, applies to this entire preceding arrow sequence.</p>
+            </div>
+            <pre class="ebnf"><dfn>EnhancedFlowSection</dfn> ::= 'flow' <a href="#IDENTIFIER_def">IDENTIFIER</a> <a href="#INDENT_def">INDENT</a> (<a>EnhancedFlowRule</a>)* <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/enhancedFlowSection.svg" alt="Railroad diagram for EnhancedFlowSection">
+              <figcaption>Railroad diagram for <code>EnhancedFlowSection</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#enhancedFlowSection">diagrams/index.html#enhancedFlowSection</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#enhancedFlowSection" title="enhancedFlowSection">enhancedFlowSection</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'flow' <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> '' <a href="diagrams/index.html#enhancedFlowRule" title="enhancedFlowRule">enhancedFlowRule</a>* ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>EnhancedFlowRule</dfn> ::= <a>FlowOperandOrExpression</a> ('->' <a>FlowOperandOrExpression</a>)+ (<a>EnhancedWithClause</a>)?</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/enhancedFlowRule.svg" alt="Railroad diagram for EnhancedFlowRule">
+              <figcaption>Railroad diagram for <code>EnhancedFlowRule</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#enhancedFlowRule">diagrams/index.html#enhancedFlowRule</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#enhancedFlowRule" title="enhancedFlowRule">enhancedFlowRule</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a> ( '-&gt;' <a href="diagrams/index.html#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a> )+ <a href="diagrams/index.html#enhancedWithClause" title="enhancedWithClause">enhancedWithClause</a>?</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>FlowOperand</dfn> ::= <a href="#ATOM_def">ATOM</a> | <a href="#IDENTIFIER_def">IDENTIFIER</a> | <a href="#STRING_def">STRING</a> // Literal operands in a flow.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/flowOperand.svg" alt="Railroad diagram for FlowOperand">
+              <figcaption>Railroad diagram for <code>FlowOperand</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#flowOperand">diagrams/index.html#flowOperand</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#flowOperand" title="flowOperand">flowOperand</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#STRING" title="STRING">STRING</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>FlowActionText</dfn> ::= 'text' <a>EnhancedSimpleValue</a> // A direct text output action in a flow.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/flowActionText.svg" alt="Railroad diagram for FlowActionText">
+              <figcaption>Railroad diagram for <code>FlowActionText</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#flowActionText">diagrams/index.html#flowActionText</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#flowActionText" title="flowActionText">flowActionText</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'text' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>FlowOperandOrExpression</dfn> ::= <a>FlowOperand</a> | <a>FlowActionText</a> | <a>Expression</a> | ('ref' <a href="#IDENTIFIER_def">IDENTIFIER</a>)</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/flowOperandOrExpression.svg" alt="Railroad diagram for FlowOperandOrExpression">
+              <figcaption>Railroad diagram for <code>FlowOperandOrExpression</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#flowOperandOrExpression">diagrams/index.html#flowOperandOrExpression</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#flowOperand" title="flowOperand">flowOperand</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#flowActionText" title="flowActionText">flowActionText</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#expression" title="expression">expression</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'ref' <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>EnhancedWithClause</dfn> ::= 'with' <a>EnhancedParameter</a> (',' <a>EnhancedParameter</a>)*</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/enhancedWithClause.svg" alt="Railroad diagram for EnhancedWithClause">
+              <figcaption>Railroad diagram for <code>EnhancedWithClause</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#enhancedWithClause">diagrams/index.html#enhancedWithClause</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#enhancedWithClause" title="enhancedWithClause">enhancedWithClause</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'with' <a href="diagrams/index.html#enhancedParameter" title="enhancedParameter">enhancedParameter</a> ( ',' <a href="diagrams/index.html#enhancedParameter" title="enhancedParameter">enhancedParameter</a> )*</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>EnhancedParameter</dfn> ::= <a href="#IDENTIFIER_def">IDENTIFIER</a> ':' <a>ExpressionValue</a> // Parameter name and its value.</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/enhancedParameter.svg" alt="Railroad diagram for EnhancedParameter">
+              <figcaption>Railroad diagram for <code>EnhancedParameter</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#enhancedParameter">diagrams/index.html#enhancedParameter</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#enhancedParameter" title="enhancedParameter">enhancedParameter</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> ':' <a href="diagrams/index.html#expressionValue" title="expressionValue">expressionValue</a></div>
+              </code></div>
+            </div>
+        </section>
+        
+        <section>
+            <h3>Agent Configuration Rules</h3>
+            <p>Properties within this section map to `rcsBusinessMessagingAgent` in `agent-config.schema.json`.</p>
+            <pre class="ebnf"><dfn>ConfigSection</dfn> ::= 'Config' <a href="#INDENT_def">INDENT</a> ( <a>ConfigProperty</a> )* <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/configSection.svg" alt="Railroad diagram for ConfigSection">
+              <figcaption>Railroad diagram for <code>ConfigSection</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#configSection">diagrams/index.html#configSection</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#configSection" title="configSection">configSection</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'Config' '' <a href="diagrams/index.html#configProperty" title="configProperty">configProperty</a>* ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>ConfigProperty</dfn> ::= ('description' ':' <a>EnhancedSimpleValue</a>) | ('logoUri' ':' <a href="#STRING_def">STRING</a>) | ('heroUri' ':' <a href="#STRING_def">STRING</a>) | <a>PhoneNumberProperty</a> | <a>EmailProperty</a> | <a>WebsiteProperty</a> | <a>PrivacyProperty</a> | <a>TermsConditionsProperty</a> | ('color' ':' <a href="#STRING_def">STRING</a>) | <a>BillingConfigProperty</a> | ('agentUseCase' ':' <a href="#ATOM_def">ATOM</a>)? | ('hostingRegion' ':' <a href="#ATOM_def">ATOM</a>)?</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/configProperty.svg" alt="Railroad diagram for ConfigProperty">
+              <figcaption>Railroad diagram for <code>ConfigProperty</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#configProperty">diagrams/index.html#configProperty</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#configProperty" title="configProperty">configProperty</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= ( 'description' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> | ( 'logoUri' | 'heroUri' | 'color' ) ':' <a href="diagrams/index.html#STRING" title="STRING">STRING</a> | <a href="diagrams/index.html#phoneNumberProperty" title="phoneNumberProperty">phoneNumberProperty</a> | <a href="diagrams/index.html#emailProperty" title="emailProperty">emailProperty</a> | <a href="diagrams/index.html#websiteProperty" title="websiteProperty">websiteProperty</a> | <a href="diagrams/index.html#privacyProperty" title="privacyProperty">privacyProperty</a> | <a href="diagrams/index.html#termsConditionsProperty" title="termsConditionsProperty">termsConditionsProperty</a> | <a href="diagrams/index.html#billingConfigProperty" title="billingConfigProperty">billingConfigProperty</a> | ( 'agentUseCase' | 'hostingRegion' ) ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a> )?</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>PhoneNumberProperty</dfn> ::= 'phoneNumberEntry' <a href="#INDENT_def">INDENT</a> ('number' ':' <a>TypedValue</a>) ('label' ':' <a>EnhancedSimpleValue</a>)? <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/phoneNumberProperty.svg" alt="Railroad diagram for PhoneNumberProperty">
+              <figcaption>Railroad diagram for <code>PhoneNumberProperty</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#phoneNumberProperty">diagrams/index.html#phoneNumberProperty</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#phoneNumberProperty" title="phoneNumberProperty">phoneNumberProperty</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'phoneNumberEntry' '' 'number' ':' <a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>EmailProperty</dfn> ::= 'emailEntry' <a href="#INDENT_def">INDENT</a> ('address' ':' <a>TypedValue</a>) ('label' ':' <a>EnhancedSimpleValue</a>)? <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/emailProperty.svg" alt="Railroad diagram for EmailProperty">
+              <figcaption>Railroad diagram for <code>EmailProperty</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#emailProperty">diagrams/index.html#emailProperty</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#emailProperty" title="emailProperty">emailProperty</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'emailEntry' '' 'address' ':' <a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>WebsiteProperty</dfn> ::= 'websiteEntry' <a href="#INDENT_def">INDENT</a> ('url' ':' <a>TypedValue</a>) ('label' ':' <a>EnhancedSimpleValue</a>)? <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/websiteProperty.svg" alt="Railroad diagram for WebsiteProperty">
+              <figcaption>Railroad diagram for <code>WebsiteProperty</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#websiteProperty">diagrams/index.html#websiteProperty</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#websiteProperty" title="websiteProperty">websiteProperty</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'websiteEntry' '' 'url' ':' <a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>PrivacyProperty</dfn> ::= 'privacy' <a href="#INDENT_def">INDENT</a> ('url' ':' <a>TypedValue</a>) ('label' ':' <a>EnhancedSimpleValue</a>)? <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/privacyProperty.svg" alt="Railroad diagram for PrivacyProperty">
+              <figcaption>Railroad diagram for <code>PrivacyProperty</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#privacyProperty">diagrams/index.html#privacyProperty</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#privacyProperty" title="privacyProperty">privacyProperty</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'privacy' '' 'url' ':' <a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>TermsConditionsProperty</dfn> ::= 'termsConditions' <a href="#INDENT_def">INDENT</a> ('url' ':' <a>TypedValue</a>) ('label' ':' <a>EnhancedSimpleValue</a>)? <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/termsConditionsProperty.svg" alt="Railroad diagram for TermsConditionsProperty">
+              <figcaption>Railroad diagram for <code>TermsConditionsProperty</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#termsConditionsProperty">diagrams/index.html#termsConditionsProperty</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#termsConditionsProperty" title="termsConditionsProperty">termsConditionsProperty</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'termsConditions' '' 'url' ':' <a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>BillingConfigProperty</dfn> ::= 'billingConfig' <a href="#INDENT_def">INDENT</a> ('billingCategory' ':' <a href="#ATOM_def">ATOM</a>)? <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/billingConfigProperty.svg" alt="Railroad diagram for BillingConfigProperty">
+              <figcaption>Railroad diagram for <code>BillingConfigProperty</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#billingConfigProperty">diagrams/index.html#billingConfigProperty</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#billingConfigProperty" title="billingConfigProperty">billingConfigProperty</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'billingConfig' '' ( 'billingCategory' ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a> )? ''</div>
+              </code></div>
+            </div>
+        </section>
+        
+        <section>
+            <h3>Agent Message Rules</h3>
+             <pre class="ebnf"><dfn>AgentMessage</dfn> ::= 'agentMessage' (<a href="#IDENTIFIER_def">IDENTIFIER</a>)? <a href="#INDENT_def">INDENT</a> ('messageTrafficType' ':' <a href="#ATOM_def">ATOM</a>)? ( ('expireTime' ':' <a href="#STRING_def">STRING</a>) | ('ttl' ':' <a href="#ISO_DURATION_LITERAL_def">ISO_DURATION_LITERAL</a>) )? <a>ContentMessage</a> <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/agentMessage.svg" alt="Railroad diagram for AgentMessage">
+              <figcaption>Railroad diagram for <code>AgentMessage</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#agentMessage">diagrams/index.html#agentMessage</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#agentMessage" title="agentMessage">agentMessage</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'agentMessage' <a href="diagrams/index.html#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a>? '' ( 'messageTrafficType' ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a> )? ( 'expireTime' ':' <a href="diagrams/index.html#STRING" title="STRING">STRING</a> | 'ttl' ':' <a href="diagrams/index.html#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL">ISO_DURATION_LITERAL</a> )? <a href="diagrams/index.html#contentMessage" title="contentMessage">contentMessage</a> ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>ContentMessage</dfn> ::= 'contentMessage' <a href="#INDENT_def">INDENT</a> ( ('text' ':' (<a>EnhancedSimpleValue</a> | <a>ExpressionValue</a>) ) | ('fileName' ':' <a href="#STRING_def">STRING</a>) | ('uploadedRbmFile' <a>UploadedRbmFile</a>) | ('richCard' <a>RichCard</a>) | ('contentInfo' <a>ContentInfo</a>) ) (<a>Suggestion</a>)* <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/contentMessage.svg" alt="Railroad diagram for ContentMessage">
+              <figcaption>Railroad diagram for <code>ContentMessage</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#contentMessage">diagrams/index.html#contentMessage</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#contentMessage" title="contentMessage">contentMessage</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'contentMessage' '' ( 'text' ':' ( <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> | <a href="diagrams/index.html#expressionValue" title="expressionValue">expressionValue</a> ) | 'fileName' ':' <a href="diagrams/index.html#STRING" title="STRING">STRING</a> | 'uploadedRbmFile' <a href="diagrams/index.html#uploadedRbmFile" title="uploadedRbmFile">uploadedRbmFile</a> | 'richCard' <a href="diagrams/index.html#richCard" title="richCard">richCard</a> | 'contentInfo' <a href="diagrams/index.html#contentInfo" title="contentInfo">contentInfo</a> ) <a href="diagrams/index.html#suggestion" title="suggestion">suggestion</a>* ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>Suggestion</dfn> ::= 'suggestion' <a href="#INDENT_def">INDENT</a> ( ('reply' <a>SuggestedReply</a>) | ('action' <a>SuggestedAction</a>) ) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/suggestion.svg" alt="Railroad diagram for Suggestion">
+              <figcaption>Railroad diagram for <code>Suggestion</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#suggestion">diagrams/index.html#suggestion</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#suggestion" title="suggestion">suggestion</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'suggestion' '' ( 'reply' <a href="diagrams/index.html#suggestedReply" title="suggestedReply">suggestedReply</a> | 'action' <a href="diagrams/index.html#suggestedAction" title="suggestedAction">suggestedAction</a> ) ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>SuggestedReply</dfn> ::= <a>InlineParameterList</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/suggestedReply.svg" alt="Railroad diagram for SuggestedReply">
+              <figcaption>Railroad diagram for <code>SuggestedReply</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#suggestedReply">diagrams/index.html#suggestedReply</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#suggestedReply" title="suggestedReply">suggestedReply</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>SuggestedAction</dfn> ::= (<a>InlineParameterList</a>)? <a href="#INDENT_def">INDENT</a> ( <a>DialAction</a> | <a>ViewLocationAction</a> | <a>CreateCalendarEventAction</a> | <a>OpenUrlAction</a> | <a>ShareLocationAction</a> | <a>ComposeAction</a> ) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/suggestedAction.svg" alt="Railroad diagram for SuggestedAction">
+              <figcaption>Railroad diagram for <code>SuggestedAction</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#suggestedAction">diagrams/index.html#suggestedAction</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#suggestedAction" title="suggestedAction">suggestedAction</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a>? '' ( <a href="diagrams/index.html#dialAction" title="dialAction">dialAction</a> | <a href="diagrams/index.html#viewLocationAction" title="viewLocationAction">viewLocationAction</a> | <a href="diagrams/index.html#createCalendarEventAction" title="createCalendarEventAction">createCalendarEventAction</a> | <a href="diagrams/index.html#openUrlAction" title="openUrlAction">openUrlAction</a> | 'shareLocationAction' | <a href="diagrams/index.html#composeAction" title="composeAction">composeAction</a> ) ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>DialAction</dfn> ::= 'dialAction' <a href="#INDENT_def">INDENT</a> ('phoneNumber' ':' <a>TypedValue</a>) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/dialAction.svg" alt="Railroad diagram for DialAction">
+              <figcaption>Railroad diagram for <code>DialAction</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#dialAction">diagrams/index.html#dialAction</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#dialAction" title="dialAction">dialAction</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'dialAction' '' 'phoneNumber' ':' <a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a> ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>LatLongObject</dfn> ::= <a>InlineParameterList</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/latLongObject.svg" alt="Railroad diagram for LatLongObject">
+              <figcaption>Railroad diagram for <code>LatLongObject</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#latLongObject">diagrams/index.html#latLongObject</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#latLongObject" title="latLongObject">latLongObject</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>ViewLocationAction</dfn> ::= 'viewLocationAction' <a href="#INDENT_def">INDENT</a> ('label' ':' <a>EnhancedSimpleValue</a>)? ( ('latLong' <a>LatLongObject</a>) | ('query' ':' <a>EnhancedSimpleValue</a>) ) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/viewLocationAction.svg" alt="Railroad diagram for ViewLocationAction">
+              <figcaption>Railroad diagram for <code>ViewLocationAction</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#viewLocationAction">diagrams/index.html#viewLocationAction</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#viewLocationAction" title="viewLocationAction">viewLocationAction</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'viewLocationAction' '' ( 'label' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ( 'latLong' <a href="diagrams/index.html#latLongObject" title="latLongObject">latLongObject</a> | 'query' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> ) ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>CreateCalendarEventAction</dfn> ::= 'createCalendarEventAction' <a href="#INDENT_def">INDENT</a> <a>InlineParameterList</a> <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/createCalendarEventAction.svg" alt="Railroad diagram for CreateCalendarEventAction">
+              <figcaption>Railroad diagram for <code>CreateCalendarEventAction</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#createCalendarEventAction">diagrams/index.html#createCalendarEventAction</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#createCalendarEventAction" title="createCalendarEventAction">createCalendarEventAction</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'createCalendarEventAction' '' <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a> ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>ShareLocationAction</dfn> ::= 'shareLocationAction'</pre>
+             <!-- No specific diagram for ShareLocationAction in diagrams/index.html -->
+             <pre class="ebnf"><dfn>OpenUrlAction</dfn> ::= 'openUrlAction' <a href="#INDENT_def">INDENT</a> ('url' ':' <a>TypedValue</a>) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/openUrlAction.svg" alt="Railroad diagram for OpenUrlAction">
+              <figcaption>Railroad diagram for <code>OpenUrlAction</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#openUrlAction">diagrams/index.html#openUrlAction</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#openUrlAction" title="openUrlAction">openUrlAction</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'openUrlAction' '' 'url' ':' <a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a> ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>ComposeAction</dfn> ::= 'composeAction' <a href="#INDENT_def">INDENT</a> ( <a>ComposeTextMessage</a> | <a>ComposeRecordingMessage</a> ) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/composeAction.svg" alt="Railroad diagram for ComposeAction">
+              <figcaption>Railroad diagram for <code>ComposeAction</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#composeAction">diagrams/index.html#composeAction</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#composeAction" title="composeAction">composeAction</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'composeAction' '' ( <a href="diagrams/index.html#composeTextMessage" title="composeTextMessage">composeTextMessage</a> | <a href="diagrams/index.html#composeRecordingMessage" title="composeRecordingMessage">composeRecordingMessage</a> ) ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>ComposeTextMessage</dfn> ::= 'composeTextMessage' <a href="#INDENT_def">INDENT</a> <a>InlineParameterList</a> <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/composeTextMessage.svg" alt="Railroad diagram for ComposeTextMessage">
+              <figcaption>Railroad diagram for <code>ComposeTextMessage</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#composeTextMessage">diagrams/index.html#composeTextMessage</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#composeTextMessage" title="composeTextMessage">composeTextMessage</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'composeTextMessage' '' <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a> ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>ComposeRecordingMessage</dfn> ::= 'composeRecordingMessage' <a href="#INDENT_def">INDENT</a> <a>InlineParameterList</a> <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/composeRecordingMessage.svg" alt="Railroad diagram for ComposeRecordingMessage">
+              <figcaption>Railroad diagram for <code>ComposeRecordingMessage</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#composeRecordingMessage">diagrams/index.html#composeRecordingMessage</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#composeRecordingMessage" title="composeRecordingMessage">composeRecordingMessage</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'composeRecordingMessage' '' <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a> ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>UploadedRbmFile</dfn> ::= <a>ExplicitMap</a> | <a>InlineParameterList</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/uploadedRbmFile.svg" alt="Railroad diagram for UploadedRbmFile">
+              <figcaption>Railroad diagram for <code>UploadedRbmFile</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#uploadedRbmFile">diagrams/index.html#uploadedRbmFile</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#uploadedRbmFile" title="uploadedRbmFile">uploadedRbmFile</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#explicitMap" title="explicitMap">explicitMap</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>ContentInfo</dfn> ::= <a>ExplicitMap</a> | <a>InlineParameterList</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/contentInfo.svg" alt="Railroad diagram for ContentInfo">
+              <figcaption>Railroad diagram for <code>ContentInfo</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#contentInfo">diagrams/index.html#contentInfo</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#contentInfo" title="contentInfo">contentInfo</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#explicitMap" title="explicitMap">explicitMap</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>RichCard</dfn> ::= 'richCard' <a href="#INDENT_def">INDENT</a> ( <a>StandaloneCard</a> | <a>CarouselCard</a> ) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/richCard.svg" alt="Railroad diagram for RichCard">
+              <figcaption>Railroad diagram for <code>RichCard</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#richCard">diagrams/index.html#richCard</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#richCard" title="richCard">richCard</a>&nbsp;::= 'richCard' '' ( <a href="diagrams/index.html#standaloneCard" title="standaloneCard">standaloneCard</a> | <a href="diagrams/index.html#carouselCard" title="carouselCard">carouselCard</a> ) ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>StandaloneCard</dfn> ::= 'standaloneCard' <a href="#INDENT_def">INDENT</a> ('cardOrientation' ':' <a href="#ATOM_def">ATOM</a>)? ('thumbnailImageAlignment' ':' <a href="#ATOM_def">ATOM</a>)? <a>CardContent</a> <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/standaloneCard.svg" alt="Railroad diagram for StandaloneCard">
+              <figcaption>Railroad diagram for <code>StandaloneCard</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#standaloneCard">diagrams/index.html#standaloneCard</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#standaloneCard" title="standaloneCard">standaloneCard</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'standaloneCard' '' ( 'cardOrientation' ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a> )? ( 'thumbnailImageAlignment' ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a> )? <a href="diagrams/index.html#cardContent" title="cardContent">cardContent</a> ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>CarouselCard</dfn> ::= 'carouselCard' <a href="#INDENT_def">INDENT</a> ('cardWidth' ':' <a href="#ATOM_def">ATOM</a>)? <a>CardContent</a> <a>CardContent</a>+ <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/carouselCard.svg" alt="Railroad diagram for CarouselCard">
+              <figcaption>Railroad diagram for <code>CarouselCard</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#carouselCard">diagrams/index.html#carouselCard</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#carouselCard" title="carouselCard">carouselCard</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'carouselCard' '' ( 'cardWidth' ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a> )? <a href="diagrams/index.html#cardContent" title="cardContent">cardContent</a><a href="diagrams/index.html#cardContent" title="cardContent">cardContent</a>+ ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>CardContent</dfn> ::= 'cardContent' <a href="#INDENT_def">INDENT</a> ('title' ':' <a>EnhancedSimpleValue</a>)? ('description' ':' <a>EnhancedSimpleValue</a>)? (<a>Media</a>)? (<a>CardSuggestion</a>)* <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/cardContent.svg" alt="Railroad diagram for CardContent">
+              <figcaption>Railroad diagram for <code>CardContent</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#cardContent">diagrams/index.html#cardContent</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#cardContent" title="cardContent">cardContent</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'cardContent' '' ( 'title' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ( 'description' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? <a href="diagrams/index.html#media" title="media">media</a>? <a href="diagrams/index.html#cardSuggestion" title="cardSuggestion">cardSuggestion</a>* ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>CardSuggestion</dfn> ::= 'suggestion' <a href="#INDENT_def">INDENT</a> ( ('reply' <a>SuggestedReply</a>) | ('action' <a>SuggestedAction</a>) ) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/cardSuggestion.svg" alt="Railroad diagram for CardSuggestion">
+              <figcaption>Railroad diagram for <code>CardSuggestion</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#cardSuggestion">diagrams/index.html#cardSuggestion</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#cardSuggestion" title="cardSuggestion">cardSuggestion</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'suggestion' '' ( 'reply' <a href="diagrams/index.html#suggestedReply" title="suggestedReply">suggestedReply</a> | 'action' <a href="diagrams/index.html#suggestedAction" title="suggestedAction">suggestedAction</a> ) ''</div>
+              </code></div>
+            </div>
+             <pre class="ebnf"><dfn>Media</dfn> ::= 'media' <a href="#INDENT_def">INDENT</a> ('height' ':' <a href="#ATOM_def">ATOM</a>)? ( ('file' <a>UploadedRbmFile</a>) | ('contentInfo' <a>ContentInfo</a>) ) <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/media.svg" alt="Railroad diagram for Media">
+              <figcaption>Railroad diagram for <code>Media</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#media">diagrams/index.html#media</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#media" title="media">media</a>&nbsp;&nbsp;&nbsp;&nbsp;::= 'media' '' ( 'height' ':' <a href="diagrams/index.html#ATOM" title="ATOM">ATOM</a> )? ( 'file' <a href="diagrams/index.html#uploadedRbmFile" title="uploadedRbmFile">uploadedRbmFile</a> | 'contentInfo' <a href="diagrams/index.html#contentInfo" title="contentInfo">contentInfo</a> ) ''</div>
+              </code></div>
+            </div>
+        </section>
+        
+        <section>
+            <h3>RCS Spec Shortcut Rules</h3>
+            <p>These rules describe syntactic sugar. Their transformation into full structures is a separate semantic process.</p>
+            <pre class="ebnf"><dfn>MessageShortcut</dfn> ::= <a>TextShortcut</a> | <a>FileShortcut</a> | <a>RichCardShortcut</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/messageShortcut.svg" alt="Railroad diagram for MessageShortcut">
+              <figcaption>Railroad diagram for <code>MessageShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#messageShortcut">diagrams/index.html#messageShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#messageShortcut" title="messageShortcut">messageShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#textShortcut" title="textShortcut">textShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#fileShortcut" title="fileShortcut">fileShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#richCardShortcut" title="richCardShortcut">richCardShortcut</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>TextShortcut</dfn> ::= 'text' (<a>EnhancedSimpleValue</a> | <a>ExpressionValue</a>) ( <a href="#INDENT_def">INDENT</a> (<a>SuggestionShortcut</a>)* <a href="#DEDENT_def">DEDENT</a> )?</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/textShortcut.svg" alt="Railroad diagram for TextShortcut">
+              <figcaption>Railroad diagram for <code>TextShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#textShortcut">diagrams/index.html#textShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#textShortcut" title="textShortcut">textShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'text' ( <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> | <a href="diagrams/index.html#expressionValue" title="expressionValue">expressionValue</a> ) ( '' <a href="diagrams/index.html#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a>* '' )?</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>FileShortcut</dfn> ::= 'uploadedRbmFile' <a href="#STRING_def">STRING</a> (<a href="#STRING_def">STRING</a>)? ( <a href="#INDENT_def">INDENT</a> (<a>SuggestionShortcut</a>)* <a href="#DEDENT_def">DEDENT</a> )?</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/fileShortcut.svg" alt="Railroad diagram for FileShortcut">
+              <figcaption>Railroad diagram for <code>FileShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#fileShortcut">diagrams/index.html#fileShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#fileShortcut" title="fileShortcut">fileShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'uploadedRbmFile' <a href="diagrams/index.html#STRING" title="STRING">STRING</a><a href="diagrams/index.html#STRING" title="STRING">STRING</a>? ( '' <a href="diagrams/index.html#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a>* '' )?</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>RichCardShortcut</dfn> ::= 'richCard' <a>EnhancedSimpleValue</a> (<a>EnhancedSimpleValue</a>)? ( <a href="#INDENT_def">INDENT</a> (<a>Media</a>)? (<a>SuggestionShortcut</a>)* <a href="#DEDENT_def">DEDENT</a> )?</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/richCardShortcut.svg" alt="Railroad diagram for RichCardShortcut">
+              <figcaption>Railroad diagram for <code>RichCardShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#richCardShortcut">diagrams/index.html#richCardShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#richCardShortcut" title="richCardShortcut">richCardShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'richCard' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a>? ( '' <a href="diagrams/index.html#media" title="media">media</a>? <a href="diagrams/index.html#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a>* '' )?</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>SuggestionShortcut</dfn> ::= <a>ReplyShortcut</a> | <a>DialShortcut</a> | <a>OpenUrlShortcut</a> | <a>ShareLocationShortcut</a> | <a>CreateCalendarEventShortcut</a> | <a>ViewLocationShortcut</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/suggestionShortcut.svg" alt="Railroad diagram for SuggestionShortcut">
+              <figcaption>Railroad diagram for <code>SuggestionShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#suggestionShortcut">diagrams/index.html#suggestionShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="diagrams/index.html#replyShortcut" title="replyShortcut">replyShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#dialShortcut" title="dialShortcut">dialShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#openUrlShortcut" title="openUrlShortcut">openUrlShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#shareLocationShortcut" title="shareLocationShortcut">shareLocationShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#createCalendarEventShortcut" title="createCalendarEventShortcut">createCalendarEventShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="diagrams/index.html#viewLocationShortcut" title="viewLocationShortcut">viewLocationShortcut</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>ReplyShortcut</dfn> ::= 'reply' <a>EnhancedSimpleValue</a> (<a href="#STRING_def">STRING</a>)?</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/replyShortcut.svg" alt="Railroad diagram for ReplyShortcut">
+              <figcaption>Railroad diagram for <code>ReplyShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#replyShortcut">diagrams/index.html#replyShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#replyShortcut" title="replyShortcut">replyShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'reply' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="diagrams/index.html#STRING" title="STRING">STRING</a>?</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>DialShortcut</dfn> ::= 'dial' <a>EnhancedSimpleValue</a> <a>TypedValue</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/dialShortcut.svg" alt="Railroad diagram for DialShortcut">
+              <figcaption>Railroad diagram for <code>DialShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#dialShortcut">diagrams/index.html#dialShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#dialShortcut" title="dialShortcut">dialShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'dial' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>OpenUrlShortcut</dfn> ::= 'openUrl' <a>EnhancedSimpleValue</a> <a>TypedValue</a> (<a>EnhancedSimpleValue</a>)? ( (':BROWSER' | ':WEBVIEW') ( (':FULL' | ':HALF' | ':TALL') )? )?</pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/openUrlShortcut.svg" alt="Railroad diagram for OpenUrlShortcut">
+              <figcaption>Railroad diagram for <code>OpenUrlShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#openUrlShortcut">diagrams/index.html#openUrlShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#openUrlShortcut" title="openUrlShortcut">openUrlShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'openUrl' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a><a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a>? ( ( ':BROWSER' | ':WEBVIEW' ) ( ':FULL' | ':HALF' | ':TALL' )? )?</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>ShareLocationShortcut</dfn> ::= 'shareLocation' <a>EnhancedSimpleValue</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/shareLocationShortcut.svg" alt="Railroad diagram for ShareLocationShortcut">
+              <figcaption>Railroad diagram for <code>ShareLocationShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#shareLocationShortcut">diagrams/index.html#shareLocationShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#shareLocationShortcut" title="shareLocationShortcut">shareLocationShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'shareLocation' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>CreateCalendarEventShortcut</dfn> ::= 'createCalendarEvent' <a>EnhancedSimpleValue</a> <a href="#INDENT_def">INDENT</a> 'event' <a>EnhancedSimpleValue</a> <a>TypedValue</a> <a>TypedValue</a> <a>EnhancedSimpleValue</a> <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/createCalendarEventShortcut.svg" alt="Railroad diagram for CreateCalendarEventShortcut">
+              <figcaption>Railroad diagram for <code>CreateCalendarEventShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#createCalendarEventShortcut">diagrams/index.html#createCalendarEventShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#createCalendarEventShortcut" title="createCalendarEventShortcut">createCalendarEventShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'createCalendarEvent' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> '' 'event' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a><a href="diagrams/index.html#typedValue" title="typedValue">typedValue</a><a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> ''</div>
+              </code></div>
+            </div>
+            <pre class="ebnf"><dfn>ViewLocationShortcut</dfn> ::= 'viewLocation' <a>EnhancedSimpleValue</a> <a href="#INDENT_def">INDENT</a> ( (('latLng' <a href="#NUMBER_def">NUMBER</a> <a href="#NUMBER_def">NUMBER</a>)) | (('query' ':' <a>EnhancedSimpleValue</a>)) ) ('label' ':' <a>EnhancedSimpleValue</a>)? <a href="#DEDENT_def">DEDENT</a></pre>
+            <figure class="railroad-diagram">
+              <img src="diagrams/diagram/viewLocationShortcut.svg" alt="Railroad diagram for ViewLocationShortcut">
+              <figcaption>Railroad diagram for <code>ViewLocationShortcut</code>.</figcaption>
+            </figure>
+            <div class="note informative diagram-ebnf">
+              <p>EBNF for diagram generation (from <a href="diagrams/index.html#viewLocationShortcut">diagrams/index.html#viewLocationShortcut</a>):</p>
+              <div class="ebnf"><code>
+                    <div><a href="diagrams/index.html#viewLocationShortcut" title="viewLocationShortcut">viewLocationShortcut</a></div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'viewLocation' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> '' ( 'latLng' <a href="diagrams/index.html#NUMBER" title="NUMBER">NUMBER</a><a href="diagrams/index.html#NUMBER" title="NUMBER">NUMBER</a> | 'query' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> ) ( 'label' ':' <a href="diagrams/index.html#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div>
+              </code></div>
+            </div>
+        </section>
+    </section>
+
+    <section>
+        <h2>Identifier Rules</h2>
+        <section>
+            <h3>Valid Identifier Definition (Lexical Rule: <a href="#IDENTIFIER_def">IDENTIFIER</a>)</h3>
+            <p>Identifiers are names used for variables, functions, sections, and other named entities within RCL.</p>
+            <ul>
+                <li><strong>Start</strong>: An identifier MUST start with an uppercase letter (A-Z).</li>
+                <li><strong>Subsequent Characters</strong>: Subsequent characters MAY be uppercase letters (A-Z), lowercase letters (a-z), numbers (0-9), or hyphens (`-`).</li>
+                <li><strong>Spaces</strong>: Spaces are allowed within an identifier, but ONLY if the character immediately following the space is an uppercase letter or a number (e.g., <code>User ID</code>, <code>Order Number 123</code>).</li>
+                <li><strong>Hyphens</strong>: Hyphens are allowed but MUST NOT be preceded or followed by a space. They MUST be part of a continuous sequence of non-space characters (e.g., <code>Calculate-Total-Amount</code>).</li>
+                <li><strong>Case Sensitivity</strong>: Identifiers are case-sensitive.</li>
+                <li><strong>Reserved Names</strong>: System-level primary keywords (like `Agent`, `Config`, `Defaults`, `Messages`, `flow` when used to start a section) MUST NOT be used as IDENTIFIERs if it creates ambiguity with the grammar structure. However, these words MAY appear within a valid IDENTIFIER (e.g., `My Config Settings`, `Default Flow Start`). Validation rules SHOULD ensure clarity.</li>
+            </ul>
+        </section>
+        <section class="informative">
+            <h3>Examples of Valid Identifiers</h3>
+            <pre>MyVariable
+CustomerName
+ProcessOrder
+User ID
+Order Number 123
+Calculate-Total-Amount</pre>
+        </section>
+    </section>
+    
+    <section>
+        <h2>Type System</h2>
+        <section>
+            <h3>Built-in Type Conversions (Syntax Rule: <a>TypeConversion</a>)</h3>
+            <p>RCL supports explicit type conversion syntax for certain values. The rule is defined as: <code><a>TypeConversion</a> ::= '&lt;' <a href="#TYPE_NAME_def">TYPE_NAME</a> <a>TypeConversionValue</a> ('|' <a href="#STRING_def">STRING</a>)? '>'</code>.</p>
+            <p>Examples:</p>
+            <ul>
+                <li><code>&lt;email "user@example.com"&gt;</code></li>
+                <li><code>&lt;phone "+1234567890"&gt;</code></li>
+                <li><code>&lt;time "14:30" | "Europe/Berlin"&gt;</code></li>
+                <li><code>&lt;date "2024-07-26"&gt;</code></li>
+            </ul>
+            <p>The <a href="#TYPE_NAME_def">TYPE_NAME</a> terminal captures the type keyword (e.g., "email", "phone"). The semantic validity of the <a href="#TYPE_NAME_def">TYPE_NAME</a> and the <a>TypeConversionValue</a> against the specified type, including timezone handling, is subject to semantic validation handled by language services, not purely by this EBNF.</p>
+        </section>
+        <section class="informative">
+            <h3>Supported Types (Semantic Interpretation)</h3>
+            <p>The following type names are recognized by the RCL system for validation and potential transformation:</p>
+            <ul>
+                <li>`email`: Validates email format.</li>
+                <li>`phone`/`msisdn`: Validates and potentially formats phone numbers.</li>
+                <li>`url`: Validates URL format.</li>
+                <li>`time`: Parses time, with optional timezone support.</li>
+                <li>`datetime`/`date`: Parses dates.</li>
+                <li>`zipcode`/`zip`: Validates postal codes.</li>
+            </ul>
+        </section>
+    </section>
+
+    <section id="indentation-layout">
+        <h2>Indentation and Layout</h2>
+        <p>RCL is indentation-sensitive. The structure of blocks is defined by <a href="#INDENT_def">INDENT</a> and <a href="#DEDENT_def">DEDENT</a> tokens, which are generated by the lexer based on changes in leading whitespace.</p>
+        <section>
+            <h3>Indentation Significance</h3>
+            <p>The lexer is responsible for tracking the current indentation level. It emits <a href="#INDENT_def">INDENT</a> when indentation increases significantly relative to the parent block and <a href="#DEDENT_def">DEDENT</a> when indentation decreases. Multiple <a href="#DEDENT_def">DEDENT</a> tokens may be emitted if un-indenting multiple levels. The precise algorithm for <a href="#INDENT_def">INDENT</a>/<a href="#DEDENT_def">DEDENT</a> generation (e.g., how many spaces constitute a new level, consistent use of spaces vs. tabs) is a lexer implementation detail. Consistent use of spaces (e.g., 2 or 4 spaces per level) is strongly recommended for readability and predictable lexer behavior.</p>
+        </section>
+        <section>
+            <h3>Lexer Responsibility</h3>
+            <ul>
+                <li>Tracking the current indentation level.</li>
+                <li>Emitting <a href="#INDENT_def">INDENT</a> when indentation increases significantly relative to the parent block.</li>
+                <li>Emitting <a href="#DEDENT_def">DEDENT</a> when indentation decreases, potentially emitting multiple <a href="#DEDENT_def">DEDENT</a> tokens if un-indenting multiple levels.</li>
+                <li>Handling newlines (<code>NL</code>) and whitespace (<code>WS</code>) between tokens.</li>
+                <li>The precise algorithm for <a href="#INDENT_def">INDENT</a>/<a href="#DEDENT_def">DEDENT</a> generation (e.g., how many spaces constitute a new level, consistent use of spaces vs. tabs) is a lexer implementation detail. Consistent use of spaces (e.g., 2 or 4 spaces per level) is strongly recommended for readability and predictable lexer behavior.</li>
+            </ul>
+        </section>
+        <section>
+            <h3>Blank Lines</h3>
+            <p>Blank lines (containing only <code>WS</code> and/or <code>NL</code> tokens) are typically ignored in terms of structural parsing, except where they might terminate a preceding construct if the language defines such a rule (not explicitly the case in RCL general block structure, which relies on <a href="#DEDENT_def">DEDENT</a>).</p>
+        </section>
+    </section>
+
+    <section id="expression-system">
+        <h2>Expression System</h2>
+        <p>RCL allows embedding expressions in specified parts of the language. These expressions are defined by the lexical tokens <a href="#SINGLE_LINE_EXPRESSION_def">SINGLE_LINE_EXPRESSION</a>, <a href="#MULTI_LINE_EXPRESSION_START_def">MULTI_LINE_EXPRESSION_START</a>, and <a href="#MULTI_LINE_EXPRESSION_CONTENT_def">MULTI_LINE_EXPRESSION_CONTENT</a>.</p>
+        <section>
+            <h3>Expression Syntax</h3>
+            <p>RCL supports both single-line and multi-line expressions:</p>
+            <ul>
+                <li><strong>Single-line</strong>: Starts with <code>$</code> followed by an optional language identifier (e.g., <code>js</code>, <code>ts</code>) and <code>&gt;</code>, then the expression code on the same line. Examples: <code>$js&gt; context.user.name</code>, <code>$&gt; someDefaultExpression()</code>.</li>
+                <li><strong>Multi-line</strong>: Starts with <code>$</code> followed by an optional language identifier and <code>&gt;&gt;&gt;</code>, then an indented block of code.
+                    <pre class="rcl"><code>$ts&gt;&gt;&gt;
+    let x = 10;
+    return x * 2;</code></pre>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <h3>Content Handling</h3>
+            <p>The RCL parser treats the content of these expressions as opaque strings (captured by <a href="#SINGLE_LINE_EXPRESSION_def">SINGLE_LINE_EXPRESSION</a> or <a href="#MULTI_LINE_EXPRESSION_CONTENT_def">MULTI_LINE_EXPRESSION_CONTENT</a>). The actual parsing, validation, and execution of the expression code (e.g., as JavaScript/TypeScript) are responsibilities of a separate expression evaluation engine or transpilation step, not the RCL grammar itself.</p>
+        </section>
+        <section>
+            <h3>Available Context (Semantic)</h3>
+            <p>Semantically, when these expressions are evaluated, they are expected to have access to:</p>
+            <ul>
+                <li>A <code>context</code> variable (providing information about the current flow, state, user data, etc.).</li>
+                <li>A set of <code>RclUtils</code> global utility functions.</li>
+                <li>Standard features of the target expression language (e.g., ECMAScript 6 for JavaScript).</li>
+            </ul>
+        </section>
+    </section>
+
+    <section id="multi-line-string-system">
+        <h2>Multi-line String System</h2>
+        <p>RCL supports several syntaxes for multi-line string literals, primarily differing in whitespace handling. These are defined by lexical tokens such as <a href="#MULTILINE_STRING_CLEAN_def">MULTILINE_STRING_CLEAN</a>, <a href="#MULTILINE_STRING_TRIM_def">MULTILINE_STRING_TRIM</a>, <a href="#MULTILINE_STRING_PRESERVE_def">MULTILINE_STRING_PRESERVE</a>, and <a href="#MULTILINE_STRING_PRESERVE_ALL_def">MULTILINE_STRING_PRESERVE_ALL</a>.</p>
+        <section>
+            <h3>String Variants and Markers</h3>
+            <ul>
+                <li><code>|</code> (<a href="#MULTILINE_STRING_CLEAN_def">MULTILINE_STRING_CLEAN</a>): Typically trims common leading whitespace from each line (based on the indentation of the least indented line within the block or the marker's own column) and results in a single newline at the end of the entire string.</li>
+                <li><code>|-</code> (<a href="#MULTILINE_STRING_TRIM_def">MULTILINE_STRING_TRIM</a>): Similar to <code>|</code>, but ensures no trailing newline at the end of the entire string.</li>
+                <li><code>+|</code> (<a href="#MULTILINE_STRING_PRESERVE_def">MULTILINE_STRING_PRESERVE</a>): Preserves leading whitespace relative to the marker's column and ensures a single newline at the end.</li>
+                <li><code>+|+</code> (<a href="#MULTILINE_STRING_PRESERVE_ALL_def">MULTILINE_STRING_PRESERVE_ALL</a>): Preserves all whitespace, including leading and trailing newlines exactly as they appear in the indented block.</li>
+            </ul>
+        </section>
+        <section>
+            <h3>Content Handling</h3>
+            <p>The content of multi-line strings (captured by <a href="#STRING_CONTENT_def">STRING_CONTENT</a>) is determined by the indented block following the marker, up to the corresponding <a href="#DEDENT_def">DEDENT</a>. The lexer and parser work together to capture this content, with whitespace processing rules applied semantically based on the chosen marker during a later transformation or interpretation phase.</p>
+        </section>
+    </section>
+    
+    <section class="appendix">
+        <h2>Further Considerations and Out-of-Scope Items for EBNF</h2>
+        <ul>
+            <li><strong>Operator Precedence within Embedded Expressions</strong>: Governed by the rules of the embedded language (e.g., JavaScript), not RCL's EBNF.</li>
+            <li><strong>Ambiguity Resolution</strong>: Assumed to be handled by the chosen parsing technology.</li>
+            <li><strong>Error Recovery</strong>: Parser implementation details are not defined in this specification.</li>
+            <li><strong>Semantic Validation</strong>: Type checking, reference resolution, circular dependency detection, and schema constraint enforcement are handled by other language services.</li>
+            <li><strong>Transformation of Shortcuts</strong>: The conversion of shortcuts to their full structures is a separate desugaring step.</li>
+        </ul>
+    </section>
+
+    <section class="appendix">
+        <h2>Error Classification (Syntax vs. Semantic)</h2>
+        <p>This section outlines the distinction between syntax errors (violations of this EBNF) and semantic errors (violations of rules beyond pure syntax, often context-dependent or related to external schemas).</p>
+        <section>
+            <h3>Syntax Errors</h3>
+            <p>Syntax errors occur when the input RCL document does not conform to the EBNF rules defined in this specification. The parser will typically be unable to construct a valid Abstract Syntax Tree (AST). Examples include:</p>
+            <ul>
+                <li><strong>Missing or Misplaced Keywords</strong>: e.g., `AgentName` instead of `'Agent' AgentName`.</li>
+                <li><strong>Incorrect Token Types</strong>: e.g., Using a <a href="#NUMBER_def">NUMBER</a> where an <a href="#IDENTIFIER_def">IDENTIFIER</a> is expected for a flow name.</li>
+                <li><strong>Malformed Terminals</strong>: e.g., An unclosed <a href="#STRING_def">STRING</a> literal like `"Hello world`.</li>
+                <li><strong>Incorrect Sequence of Elements</strong>: e.g., Defining an <a>EnhancedWithClause</a> before the `'->'` in an <a>EnhancedFlowRule</a>.</li>
+                <li><strong>Invalid Block Structure</strong>: e.g., Mismatched <a href="#INDENT_def">INDENT</a>/<a href="#DEDENT_def">DEDENT</a> pairs, or properties not correctly indented under their parent section keyword.</li>
+                <li><strong>Lexical Errors</strong>: e.g., An <a href="#IDENTIFIER_def">IDENTIFIER</a> starting with a lowercase letter (violates the <a href="#IDENTIFIER_def">IDENTIFIER</a> terminal rule), an <a href="#ATOM_def">ATOM</a> without a leading colon.</li>
+                <li><strong>Violation of Cardinality</strong>: e.g., Providing two `displayName` properties in an <a>AgentDefinition</a> where only one is allowed (`?` or no quantifier implies one).</li>
+            </ul>
+        </section>
+        <section>
+            <h3>Semantic Errors</h3>
+            <p>Semantic errors occur when the RCL document is syntactically correct according to the EBNF, but violates other rules of the language or external constraints. These are typically caught by validators or during other language processing stages (like linking or code generation).</p>
+            <ul>
+                <li><strong>Undefined References</strong>: e.g., `ref NonExistentFlow` where `NonExistentFlow` is not defined anywhere.</li>
+                <li><strong>Type Mismatches (Beyond Basic Syntax)</strong>: e.g., In `&lt;phone "not-a-number"&gt;`, the syntax `&lt;<a href="#TYPE_NAME_def">TYPE_NAME</a> <a href="#STRING_def">STRING</a>&gt;` is valid, but `"not-a-number"` is semantically incorrect for the `phone` type.</li>
+                <li><strong>Schema Constraint Violations</strong>: 
+                    <ul>
+                        <li>Exceeding maximum string lengths (e.g., <a>SuggestedReply</a> text > 25 characters).</li>
+                        <li>Exceeding array limits (e.g., more than 11 <a>Suggestion</a>s in an <a>AgentContentMessage</a>).</li>
+                        <li>Invalid <a href="#ATOM_def">ATOM</a> values for a specific context (e.g., `messageTrafficType: :NOT_A_VALID_TYPE`).</li>
+                        <li>Missing a schema-required field that RCL made syntactically optional (e.g., omitting `messageTrafficType` from both <a>AgentMessage</a> and <a>DefaultsSection</a> would be a semantic error upon generation if the API truly requires it).</li>
+                    </ul>
+                </li>
+                <li><strong>Circular Dependencies</strong>: e.g., `flow A -> ref B; flow B -> ref A`.</li>
+                <li><strong>Logical Errors in Expressions</strong>: e.g., `$js> let x = 1 / 0;` is syntactically valid JS but can lead to runtime issues or produce `Infinity`.</li>
+                <li><strong>Contextual Rule Violations</strong>: e.g., A flow name that is a reserved section name like "Config" (if validation rules disallow this).</li>
+                <li><strong>Use of Deprecated Features</strong>: If a feature is syntactically allowed but marked as deprecated by semantic validators.</li>
+                <li><strong>Invalid <a href="#TYPE_NAME_def">TYPE_NAME</a> in <a>TypeConversion</a></strong>: e.g., `&lt;nonexistenttype "value"&gt;`.</li>
+            </ul>
+        </section>
+    </section>
+
+  </body>
+</html>

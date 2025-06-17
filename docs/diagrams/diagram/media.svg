@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="709" height="81">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #003322; stroke-width: 1;}
+    .bold-line            {stroke: #00140E; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #001F14; shape-rendering: crispEdges}
+    .filled               {fill: #003322; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00140E;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001A11;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001F14;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #003322; stroke: #003322;}
+    rect.terminal         {fill: #4DFFC3; stroke: #003322; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EFFDF; stroke: #003322; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7FFEC; stroke: #003322; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 17 1 13 1 21"/>
+   <polygon points="17 17 9 13 9 21"/>
+   <rect x="31" y="3" width="60" height="32" rx="10"/>
+   <rect x="29"
+         y="1"
+         width="60"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="39" y="21">media</text>
+   <rect x="111" y="3" width="20" height="32" rx="10"/>
+   <rect x="109"
+         y="1"
+         width="20"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="119" y="21"/>
+   <rect x="171" y="35" width="62" height="32" rx="10"/>
+   <rect x="169"
+         y="33"
+         width="62"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="179" y="53">height</text>
+   <rect x="253" y="35" width="24" height="32" rx="10"/>
+   <rect x="251"
+         y="33"
+         width="24"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="261" y="53">:</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#ATOM"
+      xlink:title="ATOM">
+      <rect x="297" y="35" width="54" height="32"/>
+      <rect x="295" y="33" width="54" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="305" y="53">ATOM</text>
+   </a>
+   <rect x="411" y="3" width="40" height="32" rx="10"/>
+   <rect x="409"
+         y="1"
+         width="40"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="419" y="21">file</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#uploadedRbmFile"
+      xlink:title="uploadedRbmFile">
+      <rect x="471" y="3" width="128" height="32"/>
+      <rect x="469" y="1" width="128" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="479" y="21">uploadedRbmFile</text>
+   </a>
+   <rect x="411" y="47" width="98" height="32" rx="10"/>
+   <rect x="409"
+         y="45"
+         width="98"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="419" y="65">contentInfo</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#contentInfo"
+      xlink:title="contentInfo">
+      <rect x="529" y="47" width="92" height="32"/>
+      <rect x="527" y="45" width="92" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="537" y="65">contentInfo</text>
+   </a>
+   <rect x="661" y="3" width="20" height="32" rx="10"/>
+   <rect x="659"
+         y="1"
+         width="20"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="669" y="21"/>
+   <path class="line"
+         d="m17 17 h2 m0 0 h10 m60 0 h10 m0 0 h10 m20 0 h10 m20 0 h10 m0 0 h190 m-220 0 h20 m200 0 h20 m-240 0 q10 0 10 10 m220 0 q0 -10 10 -10 m-230 10 v12 m220 0 v-12 m-220 12 q0 10 10 10 m200 0 q10 0 10 -10 m-210 10 h10 m62 0 h10 m0 0 h10 m24 0 h10 m0 0 h10 m54 0 h10 m40 -32 h10 m40 0 h10 m0 0 h10 m128 0 h10 m0 0 h22 m-250 0 h20 m230 0 h20 m-270 0 q10 0 10 10 m250 0 q0 -10 10 -10 m-260 10 v24 m250 0 v-24 m-250 24 q0 10 10 10 m230 0 q10 0 10 -10 m-240 10 h10 m98 0 h10 m0 0 h10 m92 0 h10 m20 -44 h10 m20 0 h10 m3 0 h-3"/>
+   <polygon points="699 17 707 13 707 21"/>
+   <polygon points="699 17 691 13 691 21"/>
+</svg>

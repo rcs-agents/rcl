@@ -53,7 +53,7 @@ EqualityExpression returns RclExpression:
 
 // Comparisons
 ComparisonExpression returns RclExpression:
-    AdditiveExpression ({BinaryRclExpression.left=current} operator=('<' | '<=' | '>' | '>=') right=AdditiveExpression)*;
+    AdditiveExpression ({BinaryRclExpression.left=current} operator=(LT | '<=' | GT | '>=') right=AdditiveExpression)*;
 
 // Additive operations (+, -)
 AdditiveExpression returns RclExpression:
@@ -61,7 +61,7 @@ AdditiveExpression returns RclExpression:
 
 // Multiplicative operations (*, /, %)
 MultiplicativeExpression returns RclExpression:
-    UnaryExpression ({BinaryRclExpression.left=current} operator=('*' | '/' | '%') right=UnaryExpression)*;
+    UnaryExpression ({BinaryRclExpression.left=current} operator=('*' | SLASH | '%') right=UnaryExpression)*;
 
 // Unary operations (not, -, +)
 UnaryExpression returns RclExpression:

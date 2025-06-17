@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="249" height="169">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #003322; stroke-width: 1;}
+    .bold-line            {stroke: #00140E; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #001F14; shape-rendering: crispEdges}
+    .filled               {fill: #003322; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00140E;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001A11;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001F14;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #003322; stroke: #003322;}
+    rect.terminal         {fill: #4DFFC3; stroke: #003322; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EFFDF; stroke: #003322; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7FFEC; stroke: #003322; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 17 1 13 1 21"/>
+   <polygon points="17 17 9 13 9 21"/>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#flowOperand"
+      xlink:title="flowOperand">
+      <rect x="51" y="3" width="100" height="32"/>
+      <rect x="49" y="1" width="100" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="21">flowOperand</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#flowActionText"
+      xlink:title="flowActionText">
+      <rect x="51" y="47" width="110" height="32"/>
+      <rect x="49" y="45" width="110" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="65">flowActionText</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#expression"
+      xlink:title="expression">
+      <rect x="51" y="91" width="90" height="32"/>
+      <rect x="49" y="89" width="90" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="109">expression</text>
+   </a>
+   <rect x="51" y="135" width="38" height="32" rx="10"/>
+   <rect x="49"
+         y="133"
+         width="38"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="59" y="153">ref</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#IDENTIFIER"
+      xlink:title="IDENTIFIER">
+      <rect x="109" y="135" width="92" height="32"/>
+      <rect x="107" y="133" width="92" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="117" y="153">IDENTIFIER</text>
+   </a>
+   <path class="line"
+         d="m17 17 h2 m20 0 h10 m100 0 h10 m0 0 h50 m-190 0 h20 m170 0 h20 m-210 0 q10 0 10 10 m190 0 q0 -10 10 -10 m-200 10 v24 m190 0 v-24 m-190 24 q0 10 10 10 m170 0 q10 0 10 -10 m-180 10 h10 m110 0 h10 m0 0 h40 m-180 -10 v20 m190 0 v-20 m-190 20 v24 m190 0 v-24 m-190 24 q0 10 10 10 m170 0 q10 0 10 -10 m-180 10 h10 m90 0 h10 m0 0 h60 m-180 -10 v20 m190 0 v-20 m-190 20 v24 m190 0 v-24 m-190 24 q0 10 10 10 m170 0 q10 0 10 -10 m-180 10 h10 m38 0 h10 m0 0 h10 m92 0 h10 m23 -132 h-3"/>
+   <polygon points="239 17 247 13 247 21"/>
+   <polygon points="239 17 231 13 231 21"/>
+</svg>

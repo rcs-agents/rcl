@@ -25,17 +25,20 @@ describe('Linking tests', () => {
 
     test('linking of agent definition', async () => {
         document = await parse(`
-            agent Test Agent "Test display name"
-                flow Main
-                    :start -> :end
+            agent Test Agent
+                displayName: "Test Display Name"
+                brandName: "Test Brand"
         `);
+
+        const agentSection = document.parseResult.value?.agentSection;
+        const agentName = agentSection?.sectionName;
 
         expect(
             // here we first check for validity of the parsed document object by means of the reusable function
             //  'checkDocumentValid()' to sort out (critical) typos first,
             // and then evaluate the basic structure we're interested in
             checkDocumentValid(document)
-                || document.parseResult.value.agentDefinition?.name
+                || agentName
         ).toBe(s`
             Test Agent
         `);

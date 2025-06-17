@@ -1,0 +1,60 @@
+agent BMW Support Agent
+
+  displayName: "BMW Digital Support Assistant"
+  brandName: "BMW"
+
+  flow Default
+    :start -> WelcomeMessage
+
+    WelcomeMessage -> MainMenu
+
+    MainMenu -> TechIssueSelectedMessage
+
+    MainMenu -> BillingInquirySelectedMessage
+
+    MainMenu -> ConfirmAgentTransferMessage
+
+    ConfirmAgentTransferMessage -> AgentTransferInProgressMessage
+
+    ConfirmAgentTransferMessage -> MainMenu
+
+    MainMenu -> InvalidOptionMessage
+
+  Config
+
+
+  Defaults
+
+  messages Messages
+
+    message WelcomeMessage
+      text: "Welcome to BMW Digital Support! I'm here to help you. What would you like to do?"
+
+      suggestion
+        reply "See options"
+
+    MainMenu:
+      text: "How can I assist you today? Please choose an option:"
+      suggestions: ("Technical Issue", "Billing Inquiry", "Speak to Agent")
+
+    TechIssueSelectedMessage:
+      text: "You've selected Technical Issue. Please describe the problem so I can assist further."
+
+    BillingInquirySelectedMessage:
+      text: "You've selected Billing Inquiry. What is your specific billing question?"
+
+    AgentTransferSelectedMessage:
+      text: "You'd like to speak to an agent. I will connect you now."
+
+    ConfirmAgentTransferMessage:
+      text: "Just to confirm, you wish to be transferred to a live agent?"
+      suggestions: ("Yes, transfer me", "No, not now")
+
+    AgentTransferInProgressMessage:
+      text: "Thank you. Connecting you to an available agent. Please wait a moment."
+
+    InvalidOptionMessage:
+      text: "I'm sorry, that wasn't a recognized option. Please select from the main menu choices."
+
+    EndConversationThanksMessage:
+      text: "Thank you for contacting BMW Digital Support! Have a wonderful day."

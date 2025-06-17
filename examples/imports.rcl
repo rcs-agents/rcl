@@ -1,7 +1,17 @@
-import My Brand / A as Sample
-import My Brand / A / Hello as Sample
-import My Brand / Abracadabra as Sample
+import MyBrand / Common / Utils as UCU
+import MyBrand / Specific / Actions as ActionLib
+import AnotherBrand / Public / SharedComponents as APSC
 
 agent BMW Agent
   displayName: "BMW Messaging Agent"
   brandName: "BMW"
+
+  Config
+    description: "Test agent configuration"
+
+  Messages
+    message Welcome
+      text: "Hello, how can I help you today?"
+
+  flow Default
+    :start -> Welcome

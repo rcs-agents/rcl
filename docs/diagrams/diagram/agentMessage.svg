@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="693" height="211">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #003322; stroke-width: 1;}
+    .bold-line            {stroke: #00140E; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #001F14; shape-rendering: crispEdges}
+    .filled               {fill: #003322; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00140E;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001A11;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001F14;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #003322; stroke: #003322;}
+    rect.terminal         {fill: #4DFFC3; stroke: #003322; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EFFDF; stroke: #003322; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7FFEC; stroke: #003322; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 17 1 13 1 21"/>
+   <polygon points="17 17 9 13 9 21"/>
+   <rect x="31" y="3" width="116" height="32" rx="10"/>
+   <rect x="29"
+         y="1"
+         width="116"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="39" y="21">agentMessage</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#IDENTIFIER"
+      xlink:title="IDENTIFIER">
+      <rect x="187" y="35" width="92" height="32"/>
+      <rect x="185" y="33" width="92" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="195" y="53">IDENTIFIER</text>
+   </a>
+   <rect x="319" y="3" width="20" height="32" rx="10"/>
+   <rect x="317"
+         y="1"
+         width="20"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="327" y="21"/>
+   <rect x="379" y="35" width="154" height="32" rx="10"/>
+   <rect x="377"
+         y="33"
+         width="154"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="387" y="53">messageTrafficType</text>
+   <rect x="553" y="35" width="24" height="32" rx="10"/>
+   <rect x="551"
+         y="33"
+         width="24"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="561" y="53">:</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#ATOM"
+      xlink:title="ATOM">
+      <rect x="597" y="35" width="54" height="32"/>
+      <rect x="595" y="33" width="54" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="605" y="53">ATOM</text>
+   </a>
+   <rect x="189" y="133" width="96" height="32" rx="10"/>
+   <rect x="187"
+         y="131"
+         width="96"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="197" y="151">expireTime</text>
+   <rect x="305" y="133" width="24" height="32" rx="10"/>
+   <rect x="303"
+         y="131"
+         width="24"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="313" y="151">:</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#STRING"
+      xlink:title="STRING">
+      <rect x="349" y="133" width="66" height="32"/>
+      <rect x="347" y="131" width="66" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="357" y="151">STRING</text>
+   </a>
+   <rect x="189" y="177" width="34" height="32" rx="10"/>
+   <rect x="187"
+         y="175"
+         width="34"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="197" y="195">ttl</text>
+   <rect x="243" y="177" width="24" height="32" rx="10"/>
+   <rect x="241"
+         y="175"
+         width="24"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="251" y="195">:</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#ISO_DURATION_LITERAL"
+      xlink:title="ISO_DURATION_LITERAL">
+      <rect x="287" y="177" width="174" height="32"/>
+      <rect x="285" y="175" width="174" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="295" y="195">ISO_DURATION_LITERAL</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#contentMessage"
+      xlink:title="contentMessage">
+      <rect x="501" y="101" width="124" height="32"/>
+      <rect x="499" y="99" width="124" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="509" y="119">contentMessage</text>
+   </a>
+   <rect x="645" y="101" width="20" height="32" rx="10"/>
+   <rect x="643"
+         y="99"
+         width="20"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="653" y="119"/>
+   <path class="line"
+         d="m17 17 h2 m0 0 h10 m116 0 h10 m20 0 h10 m0 0 h102 m-132 0 h20 m112 0 h20 m-152 0 q10 0 10 10 m132 0 q0 -10 10 -10 m-142 10 v12 m132 0 v-12 m-132 12 q0 10 10 10 m112 0 q10 0 10 -10 m-122 10 h10 m92 0 h10 m20 -32 h10 m20 0 h10 m20 0 h10 m0 0 h282 m-312 0 h20 m292 0 h20 m-332 0 q10 0 10 10 m312 0 q0 -10 10 -10 m-322 10 v12 m312 0 v-12 m-312 12 q0 10 10 10 m292 0 q10 0 10 -10 m-302 10 h10 m154 0 h10 m0 0 h10 m24 0 h10 m0 0 h10 m54 0 h10 m22 -32 l2 0 m2 0 l2 0 m2 0 l2 0 m-546 98 l2 0 m2 0 l2 0 m2 0 l2 0 m22 0 h10 m0 0 h282 m-312 0 h20 m292 0 h20 m-332 0 q10 0 10 10 m312 0 q0 -10 10 -10 m-322 10 v12 m312 0 v-12 m-312 12 q0 10 10 10 m292 0 q10 0 10 -10 m-302 10 h10 m96 0 h10 m0 0 h10 m24 0 h10 m0 0 h10 m66 0 h10 m0 0 h46 m-302 -10 v20 m312 0 v-20 m-312 20 v24 m312 0 v-24 m-312 24 q0 10 10 10 m292 0 q10 0 10 -10 m-302 10 h10 m34 0 h10 m0 0 h10 m24 0 h10 m0 0 h10 m174 0 h10 m20 -76 h10 m124 0 h10 m0 0 h10 m20 0 h10 m3 0 h-3"/>
+   <polygon points="683 115 691 111 691 119"/>
+   <polygon points="683 115 675 111 675 119"/>
+</svg>

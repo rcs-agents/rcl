@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="417" height="541">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #003322; stroke-width: 1;}
+    .bold-line            {stroke: #00140E; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #001F14; shape-rendering: crispEdges}
+    .filled               {fill: #003322; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00140E;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001A11;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001F14;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #003322; stroke: #003322;}
+    rect.terminal         {fill: #4DFFC3; stroke: #003322; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EFFDF; stroke: #003322; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7FFEC; stroke: #003322; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 5 1 1 1 9"/>
+   <polygon points="17 5 9 1 9 9"/>
+   <rect x="51" y="23" width="94" height="32" rx="10"/>
+   <rect x="49"
+         y="21"
+         width="94"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="59" y="41">description</text>
+   <rect x="165" y="23" width="24" height="32" rx="10"/>
+   <rect x="163"
+         y="21"
+         width="24"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="173" y="41">:</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#enhancedSimpleValue"
+      xlink:title="enhancedSimpleValue">
+      <rect x="209" y="23" width="160" height="32"/>
+      <rect x="207" y="21" width="160" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="217" y="41">enhancedSimpleValue</text>
+   </a>
+   <rect x="71" y="67" width="68" height="32" rx="10"/>
+   <rect x="69"
+         y="65"
+         width="68"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="79" y="85">logoUri</text>
+   <rect x="71" y="111" width="70" height="32" rx="10"/>
+   <rect x="69"
+         y="109"
+         width="70"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="79" y="129">heroUri</text>
+   <rect x="71" y="155" width="54" height="32" rx="10"/>
+   <rect x="69"
+         y="153"
+         width="54"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="79" y="173">color</text>
+   <rect x="181" y="67" width="24" height="32" rx="10"/>
+   <rect x="179"
+         y="65"
+         width="24"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="189" y="85">:</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#STRING"
+      xlink:title="STRING">
+      <rect x="225" y="67" width="66" height="32"/>
+      <rect x="223" y="65" width="66" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="233" y="85">STRING</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#phoneNumberProperty"
+      xlink:title="phoneNumberProperty">
+      <rect x="51" y="199" width="164" height="32"/>
+      <rect x="49" y="197" width="164" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="217">phoneNumberProperty</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#emailProperty"
+      xlink:title="emailProperty">
+      <rect x="51" y="243" width="108" height="32"/>
+      <rect x="49" y="241" width="108" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="261">emailProperty</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#websiteProperty"
+      xlink:title="websiteProperty">
+      <rect x="51" y="287" width="122" height="32"/>
+      <rect x="49" y="285" width="122" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="305">websiteProperty</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#privacyProperty"
+      xlink:title="privacyProperty">
+      <rect x="51" y="331" width="118" height="32"/>
+      <rect x="49" y="329" width="118" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="349">privacyProperty</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#termsConditionsProperty"
+      xlink:title="termsConditionsProperty">
+      <rect x="51" y="375" width="178" height="32"/>
+      <rect x="49" y="373" width="178" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="393">termsConditionsProperty</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#billingConfigProperty"
+      xlink:title="billingConfigProperty">
+      <rect x="51" y="419" width="152" height="32"/>
+      <rect x="49" y="417" width="152" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="437">billingConfigProperty</text>
+   </a>
+   <rect x="71" y="463" width="114" height="32" rx="10"/>
+   <rect x="69"
+         y="461"
+         width="114"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="79" y="481">agentUseCase</text>
+   <rect x="71" y="507" width="116" height="32" rx="10"/>
+   <rect x="69"
+         y="505"
+         width="116"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="79" y="525">hostingRegion</text>
+   <rect x="227" y="463" width="24" height="32" rx="10"/>
+   <rect x="225"
+         y="461"
+         width="24"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="235" y="481">:</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#ATOM"
+      xlink:title="ATOM">
+      <rect x="271" y="463" width="54" height="32"/>
+      <rect x="269" y="461" width="54" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="279" y="481">ATOM</text>
+   </a>
+   <path class="line"
+         d="m17 5 h2 m20 0 h10 m0 0 h328 m-358 0 h20 m338 0 h20 m-378 0 q10 0 10 10 m358 0 q0 -10 10 -10 m-368 10 v12 m358 0 v-12 m-358 12 q0 10 10 10 m338 0 q10 0 10 -10 m-348 10 h10 m94 0 h10 m0 0 h10 m24 0 h10 m0 0 h10 m160 0 h10 m-348 -10 v20 m358 0 v-20 m-358 20 v24 m358 0 v-24 m-358 24 q0 10 10 10 m338 0 q10 0 10 -10 m-328 10 h10 m68 0 h10 m0 0 h2 m-110 0 h20 m90 0 h20 m-130 0 q10 0 10 10 m110 0 q0 -10 10 -10 m-120 10 v24 m110 0 v-24 m-110 24 q0 10 10 10 m90 0 q10 0 10 -10 m-100 10 h10 m70 0 h10 m-100 -10 v20 m110 0 v-20 m-110 20 v24 m110 0 v-24 m-110 24 q0 10 10 10 m90 0 q10 0 10 -10 m-100 10 h10 m54 0 h10 m0 0 h16 m20 -88 h10 m24 0 h10 m0 0 h10 m66 0 h10 m0 0 h78 m-348 -10 v20 m358 0 v-20 m-358 20 v112 m358 0 v-112 m-358 112 q0 10 10 10 m338 0 q10 0 10 -10 m-348 10 h10 m164 0 h10 m0 0 h154 m-348 -10 v20 m358 0 v-20 m-358 20 v24 m358 0 v-24 m-358 24 q0 10 10 10 m338 0 q10 0 10 -10 m-348 10 h10 m108 0 h10 m0 0 h210 m-348 -10 v20 m358 0 v-20 m-358 20 v24 m358 0 v-24 m-358 24 q0 10 10 10 m338 0 q10 0 10 -10 m-348 10 h10 m122 0 h10 m0 0 h196 m-348 -10 v20 m358 0 v-20 m-358 20 v24 m358 0 v-24 m-358 24 q0 10 10 10 m338 0 q10 0 10 -10 m-348 10 h10 m118 0 h10 m0 0 h200 m-348 -10 v20 m358 0 v-20 m-358 20 v24 m358 0 v-24 m-358 24 q0 10 10 10 m338 0 q10 0 10 -10 m-348 10 h10 m178 0 h10 m0 0 h140 m-348 -10 v20 m358 0 v-20 m-358 20 v24 m358 0 v-24 m-358 24 q0 10 10 10 m338 0 q10 0 10 -10 m-348 10 h10 m152 0 h10 m0 0 h166 m-348 -10 v20 m358 0 v-20 m-358 20 v24 m358 0 v-24 m-358 24 q0 10 10 10 m338 0 q10 0 10 -10 m-328 10 h10 m114 0 h10 m0 0 h2 m-156 0 h20 m136 0 h20 m-176 0 q10 0 10 10 m156 0 q0 -10 10 -10 m-166 10 v24 m156 0 v-24 m-156 24 q0 10 10 10 m136 0 q10 0 10 -10 m-146 10 h10 m116 0 h10 m20 -44 h10 m24 0 h10 m0 0 h10 m54 0 h10 m0 0 h44 m23 -472 h-3"/>
+   <polygon points="407 5 415 1 415 9"/>
+   <polygon points="407 5 399 1 399 9"/>
+</svg>

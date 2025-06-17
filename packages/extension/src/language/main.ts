@@ -1,13 +1,17 @@
-import { startLanguageServer } from 'langium/lsp';
-import { NodeFileSystem } from 'langium/node';
 import { createConnection, ProposedFeatures } from 'vscode-languageserver/node.js';
-import { createRclServices } from 'rcl-language';
 
-// Create a connection to the client
-const connection = createConnection(ProposedFeatures.all);
+Promise.all([
+  import('langium/node'),
+  import('rcl-language'),
+  import('langium/lsp')
+]).then(([{ NodeFileSystem }, { createRclServices }, { startLanguageServer }]) => {
+  // Create a connection to the client
 
-// Inject the shared services and language-specific services
-const { shared } = createRclServices({ connection, ...NodeFileSystem });
+  const connection = createConnection(ProposedFeatures.all);
 
-// Start the language server with the shared services
-startLanguageServer(shared);
+  // Inject the shared services and language-specific services
+  const { shared } = createRclServices({ connection, ...NodeFileSystem });
+
+  // Start the language server with the shared services
+  startLanguageServer(shared);
+})

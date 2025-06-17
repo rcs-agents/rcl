@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="401" height="103">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #003322; stroke-width: 1;}
+    .bold-line            {stroke: #00140E; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #001F14; shape-rendering: crispEdges}
+    .filled               {fill: #003322; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00140E;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001A11;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001F14;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #003322; stroke: #003322;}
+    rect.terminal         {fill: #4DFFC3; stroke: #003322; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EFFDF; stroke: #003322; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7FFEC; stroke: #003322; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 51 1 47 1 55"/>
+   <polygon points="17 51 9 47 9 55"/>
+   <rect x="31" y="37" width="30" height="32" rx="10"/>
+   <rect x="29"
+         y="35"
+         width="30"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="39" y="55">#</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#SL_COMMENT_CHAR"
+      xlink:title="SL_COMMENT_CHAR">
+      <rect x="101" y="3" width="148" height="32"/>
+      <rect x="99" y="1" width="148" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="109" y="21">SL_COMMENT_CHAR</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#EOL"
+      xlink:title="EOL">
+      <rect x="309" y="69" width="44" height="32"/>
+      <rect x="307" y="67" width="44" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="317" y="87">EOL</text>
+   </a>
+   <path class="line"
+         d="m17 51 h2 m0 0 h10 m30 0 h10 m20 0 h10 m0 0 h158 m-188 0 l20 0 m-1 0 q-9 0 -9 -10 l0 -14 q0 -10 10 -10 m168 34 l20 0 m-20 0 q10 0 10 -10 l0 -14 q0 -10 -10 -10 m-168 0 h10 m148 0 h10 m40 34 h10 m0 0 h54 m-84 0 h20 m64 0 h20 m-104 0 q10 0 10 10 m84 0 q0 -10 10 -10 m-94 10 v12 m84 0 v-12 m-84 12 q0 10 10 10 m64 0 q10 0 10 -10 m-74 10 h10 m44 0 h10 m23 -32 h-3"/>
+   <polygon points="391 51 399 47 399 55"/>
+   <polygon points="391 51 383 47 383 55"/>
+</svg>

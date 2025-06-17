@@ -1,0 +1,1409 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <meta name="generator" content="Railroad Diagram Generator 2.5">
+      <style type="text/css">
+    ::-moz-selection
+    {
+      color: #F0FFFA;
+      background: #000F0A;
+    }
+    ::selection
+    {
+      color: #F0FFFA;
+      background: #000F0A;
+    }
+    body
+    {
+      font: normal 12px Verdana, sans-serif;
+      color: #000F0A;
+      background: #F0FFFA;
+    }
+    .ebnf a
+    {
+      text-decoration: none;
+    }
+    .ebnf a:hover
+    {
+      color: #000503;
+      text-decoration: underline;
+    }
+    .signature
+    {
+      color: #008055;
+      font-size: 11px;
+      text-align: right;
+    }
+    a:link, a:visited
+    {
+      color: #000F0A;
+    }
+    a:link.signature, a:visited.signature
+    {
+      color: #008055;
+    }
+    div.ebnf
+    {
+      padding: 10px;
+      background: #D1FFF0;
+      width: 992px;
+    }
+    .ebnf div
+    {
+      padding-left: 13ch;
+      text-indent: -13ch;
+    }
+    .ebnf code
+    {
+      font:12px SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+    }
+  </style>
+   </head>
+   <body>
+      <p style="font-size: 14px; font-weight:bold"><a name="UPPERCASE_LETTER">UPPERCASE_LETTER:</a></p><img border="0" src="diagram/UPPERCASE_LETTER.svg" height="37" width="121"><p>
+         <div class="ebnf"><code>
+               <div><a href="#UPPERCASE_LETTER" title="UPPERCASE_LETTER">UPPERCASE_LETTER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= [A-Z]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#IDENTIFIER_SPACE_CONDITION_CHAR" title="IDENTIFIER_SPACE_CONDITION_CHAR">IDENTIFIER_SPACE_CONDITION_CHAR</a></li>
+            <li><a href="#IDENTIFIER_START_CHAR" title="IDENTIFIER_START_CHAR">IDENTIFIER_START_CHAR</a></li>
+            <li><a href="#LETTER" title="LETTER">LETTER</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="LOWERCASE_LETTER">LOWERCASE_LETTER:</a></p><img border="0" src="diagram/LOWERCASE_LETTER.svg" height="37" width="119"><p>
+         <div class="ebnf"><code>
+               <div><a href="#LOWERCASE_LETTER" title="LOWERCASE_LETTER">LOWERCASE_LETTER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= [a-z]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#EXPRESSION_LANG_TAG_CHAR" title="EXPRESSION_LANG_TAG_CHAR">EXPRESSION_LANG_TAG_CHAR</a></li>
+            <li><a href="#LETTER" title="LETTER">LETTER</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="LETTER">LETTER:</a></p><img border="0" src="diagram/LETTER.svg" height="81" width="251" usemap="#LETTER.map"><map name="LETTER.map"><area shape="rect" coords="49,1,197,33" href="#UPPERCASE_LETTER" title="UPPERCASE_LETTER"><area shape="rect" coords="49,45,201,77" href="#LOWERCASE_LETTER" title="LOWERCASE_LETTER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#LETTER" title="LETTER">LETTER</a>&nbsp;&nbsp;&nbsp;::= <a href="#UPPERCASE_LETTER" title="UPPERCASE_LETTER">UPPERCASE_LETTER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#LOWERCASE_LETTER" title="LOWERCASE_LETTER">LOWERCASE_LETTER</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#ATOM_UNQUOTED_CONT_CHAR" title="ATOM_UNQUOTED_CONT_CHAR">ATOM_UNQUOTED_CONT_CHAR</a></li>
+            <li><a href="#ATOM_UNQUOTED_START_CHAR" title="ATOM_UNQUOTED_START_CHAR">ATOM_UNQUOTED_START_CHAR</a></li>
+            <li><a href="#IDENTIFIER_REGULAR_CONT_CHAR" title="IDENTIFIER_REGULAR_CONT_CHAR">IDENTIFIER_REGULAR_CONT_CHAR</a></li>
+            <li><a href="#TYPE_NAME" title="TYPE_NAME">TYPE_NAME</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="DIGIT">DIGIT:</a></p><img border="0" src="diagram/DIGIT.svg" height="37" width="121"><p>
+         <div class="ebnf"><code>
+               <div><a href="#DIGIT" title="DIGIT">DIGIT</a>&nbsp;&nbsp;&nbsp;&nbsp;::= [0-9]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#ATOM_UNQUOTED_CONT_CHAR" title="ATOM_UNQUOTED_CONT_CHAR">ATOM_UNQUOTED_CONT_CHAR</a></li>
+            <li><a href="#HEX_DIGIT" title="HEX_DIGIT">HEX_DIGIT</a></li>
+            <li><a href="#IDENTIFIER_REGULAR_CONT_CHAR" title="IDENTIFIER_REGULAR_CONT_CHAR">IDENTIFIER_REGULAR_CONT_CHAR</a></li>
+            <li><a href="#IDENTIFIER_SPACE_CONDITION_CHAR" title="IDENTIFIER_SPACE_CONDITION_CHAR">IDENTIFIER_SPACE_CONDITION_CHAR</a></li>
+            <li><a href="#INTEGER_PART" title="INTEGER_PART">INTEGER_PART</a></li>
+            <li><a href="#TIME_LITERAL" title="TIME_LITERAL">TIME_LITERAL</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="HEX_DIGIT">HEX_DIGIT:</a></p><img border="0" src="diagram/HEX_DIGIT.svg" height="125" width="159" usemap="#HEX_DIGIT.map"><map name="HEX_DIGIT.map"><area shape="rect" coords="49,1,105,33" href="#DIGIT" title="DIGIT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#HEX_DIGIT" title="HEX_DIGIT">HEX_DIGIT</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#DIGIT" title="DIGIT">DIGIT</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [a-fA-F]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#STRING_HEX_ESCAPE" title="STRING_HEX_ESCAPE">STRING_HEX_ESCAPE</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="SPACE">SPACE:</a></p><img border="0" src="diagram/SPACE.svg" height="37" width="133"><p>
+         <div class="ebnf"><code>
+               <div><a href="#SPACE" title="SPACE">SPACE</a>&nbsp;&nbsp;&nbsp;&nbsp;::= #x20</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#IDENTIFIER_CONT_UNIT" title="IDENTIFIER_CONT_UNIT">IDENTIFIER_CONT_UNIT</a></li>
+            <li><a href="#WS_CHAR" title="WS_CHAR">WS_CHAR</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="TAB">TAB:</a></p><img border="0" src="diagram/TAB.svg" height="37" width="133"><p>
+         <div class="ebnf"><code>
+               <div><a href="#TAB" title="TAB">TAB</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= #x09</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#WS_CHAR" title="WS_CHAR">WS_CHAR</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="EOL">EOL:</a></p><img border="0" src="diagram/EOL.svg" height="81" width="165"><p>
+         <div class="ebnf"><code>
+               <div><a href="#EOL" title="EOL">EOL</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= [#xA#xD]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#MULTILINE_STRING_CLEAN" title="MULTILINE_STRING_CLEAN">MULTILINE_STRING_CLEAN</a></li>
+            <li><a href="#MULTILINE_STRING_PRESERVE" title="MULTILINE_STRING_PRESERVE">MULTILINE_STRING_PRESERVE</a></li>
+            <li><a href="#MULTILINE_STRING_PRESERVE_ALL" title="MULTILINE_STRING_PRESERVE_ALL">MULTILINE_STRING_PRESERVE_ALL</a></li>
+            <li><a href="#MULTILINE_STRING_TRIM" title="MULTILINE_STRING_TRIM">MULTILINE_STRING_TRIM</a></li>
+            <li><a href="#NL" title="NL">NL</a></li>
+            <li><a href="#SL_COMMENT" title="SL_COMMENT">SL_COMMENT</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="WS_CHAR">WS_CHAR:</a></p><img border="0" src="diagram/WS_CHAR.svg" height="81" width="159" usemap="#WS_CHAR.map"><map name="WS_CHAR.map"><area shape="rect" coords="49,1,109,33" href="#SPACE" title="SPACE"><area shape="rect" coords="49,45,91,77" href="#TAB" title="TAB"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#WS_CHAR" title="WS_CHAR">WS_CHAR</a>&nbsp;&nbsp;::= <a href="#SPACE" title="SPACE">SPACE</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#TAB" title="TAB">TAB</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#WS" title="WS">WS</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="WS">WS:</a></p><img border="0" src="diagram/WS.svg" height="53" width="183" usemap="#WS.map"><map name="WS.map"><area shape="rect" coords="49,17,133,49" href="#WS_CHAR" title="WS_CHAR"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#WS" title="WS">WS</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#WS_CHAR" title="WS_CHAR">WS_CHAR</a>+</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#MULTILINE_STRING_CLEAN" title="MULTILINE_STRING_CLEAN">MULTILINE_STRING_CLEAN</a></li>
+            <li><a href="#MULTILINE_STRING_PRESERVE" title="MULTILINE_STRING_PRESERVE">MULTILINE_STRING_PRESERVE</a></li>
+            <li><a href="#MULTILINE_STRING_PRESERVE_ALL" title="MULTILINE_STRING_PRESERVE_ALL">MULTILINE_STRING_PRESERVE_ALL</a></li>
+            <li><a href="#MULTILINE_STRING_TRIM" title="MULTILINE_STRING_TRIM">MULTILINE_STRING_TRIM</a></li>
+            <li><a href="#SINGLE_LINE_EXPRESSION" title="SINGLE_LINE_EXPRESSION">SINGLE_LINE_EXPRESSION</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="NL">NL:</a></p><img border="0" src="diagram/NL.svg" height="53" width="143" usemap="#NL.map"><map name="NL.map"><area shape="rect" coords="49,17,93,49" href="#EOL" title="EOL"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#NL" title="NL">NL</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#EOL" title="EOL">EOL</a>+</div></code></div>
+      </p>
+      <p>no references</p><br><p style="font-size: 14px; font-weight:bold"><a name="SL_COMMENT_CHAR">SL_COMMENT_CHAR:</a></p><img border="0" src="diagram/SL_COMMENT_CHAR.svg" height="37" width="161"><p>
+         <div class="ebnf"><code>
+               <div><a href="#SL_COMMENT_CHAR" title="SL_COMMENT_CHAR">SL_COMMENT_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= [^#xA#xD]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#SL_COMMENT" title="SL_COMMENT">SL_COMMENT</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="SL_COMMENT">SL_COMMENT:</a></p><img border="0" src="diagram/SL_COMMENT.svg" height="103" width="401" usemap="#SL_COMMENT.map"><map name="SL_COMMENT.map"><area shape="rect" coords="99,1,247,33" href="#SL_COMMENT_CHAR" title="SL_COMMENT_CHAR"><area shape="rect" coords="307,67,351,99" href="#EOL" title="EOL"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#SL_COMMENT" title="SL_COMMENT">SL_COMMENT</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '#' <a href="#SL_COMMENT_CHAR" title="SL_COMMENT_CHAR">SL_COMMENT_CHAR</a>* <a href="#EOL" title="EOL">EOL</a>?</div></code></div>
+      </p>
+      <p>no references</p><br><p style="font-size: 14px; font-weight:bold"><a name="IDENTIFIER_START_CHAR">IDENTIFIER_START_CHAR:</a></p><img border="0" src="diagram/IDENTIFIER_START_CHAR.svg" height="37" width="207" usemap="#IDENTIFIER_START_CHAR.map"><map name="IDENTIFIER_START_CHAR.map"><area shape="rect" coords="29,1,177,33" href="#UPPERCASE_LETTER" title="UPPERCASE_LETTER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#IDENTIFIER_START_CHAR" title="IDENTIFIER_START_CHAR">IDENTIFIER_START_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#UPPERCASE_LETTER" title="UPPERCASE_LETTER">UPPERCASE_LETTER</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="IDENTIFIER_REGULAR_CONT_CHAR">IDENTIFIER_REGULAR_CONT_CHAR:</a></p><img border="0" src="diagram/IDENTIFIER_REGULAR_CONT_CHAR.svg" height="125" width="163" usemap="#IDENTIFIER_REGULAR_CONT_CHAR.map"><map name="IDENTIFIER_REGULAR_CONT_CHAR.map"><area shape="rect" coords="49,1,113,33" href="#LETTER" title="LETTER"><area shape="rect" coords="49,45,105,77" href="#DIGIT" title="DIGIT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#IDENTIFIER_REGULAR_CONT_CHAR" title="IDENTIFIER_REGULAR_CONT_CHAR">IDENTIFIER_REGULAR_CONT_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#LETTER" title="LETTER">LETTER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#DIGIT" title="DIGIT">DIGIT</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| '-'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#IDENTIFIER_CONT_UNIT" title="IDENTIFIER_CONT_UNIT">IDENTIFIER_CONT_UNIT</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="IDENTIFIER_SPACE_CONDITION_CHAR">IDENTIFIER_SPACE_CONDITION_CHAR:</a></p><img border="0" src="diagram/IDENTIFIER_SPACE_CONDITION_CHAR.svg" height="81" width="247" usemap="#IDENTIFIER_SPACE_CONDITION_CHAR.map"><map name="IDENTIFIER_SPACE_CONDITION_CHAR.map"><area shape="rect" coords="49,1,197,33" href="#UPPERCASE_LETTER" title="UPPERCASE_LETTER"><area shape="rect" coords="49,45,105,77" href="#DIGIT" title="DIGIT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#IDENTIFIER_SPACE_CONDITION_CHAR" title="IDENTIFIER_SPACE_CONDITION_CHAR">IDENTIFIER_SPACE_CONDITION_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#UPPERCASE_LETTER" title="UPPERCASE_LETTER">UPPERCASE_LETTER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#DIGIT" title="DIGIT">DIGIT</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#IDENTIFIER_CONT_UNIT" title="IDENTIFIER_CONT_UNIT">IDENTIFIER_CONT_UNIT</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="IDENTIFIER_CONT_UNIT">IDENTIFIER_CONT_UNIT:</a></p><img border="0" src="diagram/IDENTIFIER_CONT_UNIT.svg" height="81" width="441" usemap="#IDENTIFIER_CONT_UNIT.map"><map name="IDENTIFIER_CONT_UNIT.map"><area shape="rect" coords="49,1,291,33" href="#IDENTIFIER_REGULAR_CONT_CHAR" title="IDENTIFIER_REGULAR_CONT_CHAR"><area shape="rect" coords="49,45,109,77" href="#SPACE" title="SPACE"><area shape="rect" coords="129,45,391,77" href="#IDENTIFIER_SPACE_CONDITION_CHAR" title="IDENTIFIER_SPACE_CONDITION_CHAR"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#IDENTIFIER_CONT_UNIT" title="IDENTIFIER_CONT_UNIT">IDENTIFIER_CONT_UNIT</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#IDENTIFIER_REGULAR_CONT_CHAR" title="IDENTIFIER_REGULAR_CONT_CHAR">IDENTIFIER_REGULAR_CONT_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#SPACE" title="SPACE">SPACE</a><a href="#IDENTIFIER_SPACE_CONDITION_CHAR" title="IDENTIFIER_SPACE_CONDITION_CHAR">IDENTIFIER_SPACE_CONDITION_CHAR</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="IDENTIFIER">IDENTIFIER:</a></p><img border="0" src="diagram/IDENTIFIER.svg" height="71" width="471" usemap="#IDENTIFIER.map"><map name="IDENTIFIER.map"><area shape="rect" coords="29,35,209,67" href="#IDENTIFIER_START_CHAR" title="IDENTIFIER_START_CHAR"><area shape="rect" coords="249,1,421,33" href="#IDENTIFIER_CONT_UNIT" title="IDENTIFIER_CONT_UNIT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#IDENTIFIER_START_CHAR" title="IDENTIFIER_START_CHAR">IDENTIFIER_START_CHAR</a><a href="#IDENTIFIER_CONT_UNIT" title="IDENTIFIER_CONT_UNIT">IDENTIFIER_CONT_UNIT</a>*</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentMessage" title="agentMessage">agentMessage</a></li>
+            <li><a href="#enhancedFlowSection" title="enhancedFlowSection">enhancedFlowSection</a></li>
+            <li><a href="#enhancedParameter" title="enhancedParameter">enhancedParameter</a></li>
+            <li><a href="#flowOperand" title="flowOperand">flowOperand</a></li>
+            <li><a href="#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a></li>
+            <li><a href="#importStatement" title="importStatement">importStatement</a></li>
+            <li><a href="#parameter" title="parameter">parameter</a></li>
+            <li><a href="#propertyAssignment" title="propertyAssignment">propertyAssignment</a></li>
+            <li><a href="#qualifiedName" title="qualifiedName">qualifiedName</a></li>
+            <li><a href="#ref" title="ref">ref</a></li>
+            <li><a href="#typeConversionValue" title="typeConversionValue">typeConversionValue</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="ATOM_UNQUOTED_START_CHAR">ATOM_UNQUOTED_START_CHAR:</a></p><img border="0" src="diagram/ATOM_UNQUOTED_START_CHAR.svg" height="81" width="163" usemap="#ATOM_UNQUOTED_START_CHAR.map"><map name="ATOM_UNQUOTED_START_CHAR.map"><area shape="rect" coords="49,45,113,77" href="#LETTER" title="LETTER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#ATOM_UNQUOTED_START_CHAR" title="ATOM_UNQUOTED_START_CHAR">ATOM_UNQUOTED_START_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '_'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#LETTER" title="LETTER">LETTER</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#ATOM_UNQUOTED_PART" title="ATOM_UNQUOTED_PART">ATOM_UNQUOTED_PART</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="ATOM_UNQUOTED_CONT_CHAR">ATOM_UNQUOTED_CONT_CHAR:</a></p><img border="0" src="diagram/ATOM_UNQUOTED_CONT_CHAR.svg" height="125" width="163" usemap="#ATOM_UNQUOTED_CONT_CHAR.map"><map name="ATOM_UNQUOTED_CONT_CHAR.map"><area shape="rect" coords="49,45,113,77" href="#LETTER" title="LETTER"><area shape="rect" coords="49,89,105,121" href="#DIGIT" title="DIGIT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#ATOM_UNQUOTED_CONT_CHAR" title="ATOM_UNQUOTED_CONT_CHAR">ATOM_UNQUOTED_CONT_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '_'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#LETTER" title="LETTER">LETTER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#DIGIT" title="DIGIT">DIGIT</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#ATOM_UNQUOTED_PART" title="ATOM_UNQUOTED_PART">ATOM_UNQUOTED_PART</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="ATOM_UNQUOTED_PART">ATOM_UNQUOTED_PART:</a></p><img border="0" src="diagram/ATOM_UNQUOTED_PART.svg" height="71" width="559" usemap="#ATOM_UNQUOTED_PART.map"><map name="ATOM_UNQUOTED_PART.map"><area shape="rect" coords="29,35,251,67" href="#ATOM_UNQUOTED_START_CHAR" title="ATOM_UNQUOTED_START_CHAR"><area shape="rect" coords="291,1,509,33" href="#ATOM_UNQUOTED_CONT_CHAR" title="ATOM_UNQUOTED_CONT_CHAR"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#ATOM_UNQUOTED_PART" title="ATOM_UNQUOTED_PART">ATOM_UNQUOTED_PART</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#ATOM_UNQUOTED_START_CHAR" title="ATOM_UNQUOTED_START_CHAR">ATOM_UNQUOTED_START_CHAR</a><a href="#ATOM_UNQUOTED_CONT_CHAR" title="ATOM_UNQUOTED_CONT_CHAR">ATOM_UNQUOTED_CONT_CHAR</a>*</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#ATOM" title="ATOM">ATOM</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="ATOM_QUOTED_INNER_CHAR">ATOM_QUOTED_INNER_CHAR:</a></p><img border="0" src="diagram/ATOM_QUOTED_INNER_CHAR.svg" height="37" width="149"><p>
+         <div class="ebnf"><code>
+               <div><a href="#ATOM_QUOTED_INNER_CHAR" title="ATOM_QUOTED_INNER_CHAR">ATOM_QUOTED_INNER_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= [^"#x5C]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#ATOM_QUOTED_PART" title="ATOM_QUOTED_PART">ATOM_QUOTED_PART</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="ATOM_QUOTED_PART">ATOM_QUOTED_PART:</a></p><img border="0" src="diagram/ATOM_QUOTED_PART.svg" height="71" width="395" usemap="#ATOM_QUOTED_PART.map"><map name="ATOM_QUOTED_PART.map"><area shape="rect" coords="95,1,299,33" href="#ATOM_QUOTED_INNER_CHAR" title="ATOM_QUOTED_INNER_CHAR"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#ATOM_QUOTED_PART" title="ATOM_QUOTED_PART">ATOM_QUOTED_PART</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '"' <a href="#ATOM_QUOTED_INNER_CHAR" title="ATOM_QUOTED_INNER_CHAR">ATOM_QUOTED_INNER_CHAR</a>* '"'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#ATOM" title="ATOM">ATOM</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="ATOM">ATOM:</a></p><img border="0" src="diagram/ATOM.svg" height="81" width="315" usemap="#ATOM.map"><map name="ATOM.map"><area shape="rect" coords="93,1,265,33" href="#ATOM_UNQUOTED_PART" title="ATOM_UNQUOTED_PART"><area shape="rect" coords="93,45,247,77" href="#ATOM_QUOTED_PART" title="ATOM_QUOTED_PART"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#ATOM" title="ATOM">ATOM</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= ':' ( <a href="#ATOM_UNQUOTED_PART" title="ATOM_UNQUOTED_PART">ATOM_UNQUOTED_PART</a> | <a href="#ATOM_QUOTED_PART" title="ATOM_QUOTED_PART">ATOM_QUOTED_PART</a> )</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentMessage" title="agentMessage">agentMessage</a></li>
+            <li><a href="#billingConfigProperty" title="billingConfigProperty">billingConfigProperty</a></li>
+            <li><a href="#carouselCard" title="carouselCard">carouselCard</a></li>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+            <li><a href="#defaultProperty" title="defaultProperty">defaultProperty</a></li>
+            <li><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></li>
+            <li><a href="#flowOperand" title="flowOperand">flowOperand</a></li>
+            <li><a href="#media" title="media">media</a></li>
+            <li><a href="#simpleValue" title="simpleValue">simpleValue</a></li>
+            <li><a href="#standaloneCard" title="standaloneCard">standaloneCard</a></li>
+            <li><a href="#typeConversionValue" title="typeConversionValue">typeConversionValue</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="STRING_CHAR_NO_ESCAPE">STRING_CHAR_NO_ESCAPE:</a></p><img border="0" src="diagram/STRING_CHAR_NO_ESCAPE.svg" height="37" width="149"><p>
+         <div class="ebnf"><code>
+               <div><a href="#STRING_CHAR_NO_ESCAPE" title="STRING_CHAR_NO_ESCAPE">STRING_CHAR_NO_ESCAPE</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= [^"#x5C]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#STRING_CONTENT_CHAR" title="STRING_CONTENT_CHAR">STRING_CONTENT_CHAR</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="STRING_HEX_ESCAPE">STRING_HEX_ESCAPE:</a></p><img border="0" src="diagram/STRING_HEX_ESCAPE.svg" height="37" width="519" usemap="#STRING_HEX_ESCAPE.map"><map name="STRING_HEX_ESCAPE.map"><area shape="rect" coords="77,1,165,33" href="#HEX_DIGIT" title="HEX_DIGIT"><area shape="rect" coords="185,1,273,33" href="#HEX_DIGIT" title="HEX_DIGIT"><area shape="rect" coords="293,1,381,33" href="#HEX_DIGIT" title="HEX_DIGIT"><area shape="rect" coords="401,1,489,33" href="#HEX_DIGIT" title="HEX_DIGIT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#STRING_HEX_ESCAPE" title="STRING_HEX_ESCAPE">STRING_HEX_ESCAPE</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'u' <a href="#HEX_DIGIT" title="HEX_DIGIT">HEX_DIGIT</a><a href="#HEX_DIGIT" title="HEX_DIGIT">HEX_DIGIT</a><a href="#HEX_DIGIT" title="HEX_DIGIT">HEX_DIGIT</a><a href="#HEX_DIGIT" title="HEX_DIGIT">HEX_DIGIT</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#STRING_ESCAPE_SEQUENCE" title="STRING_ESCAPE_SEQUENCE">STRING_ESCAPE_SEQUENCE</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="STRING_COMMON_ESCAPE">STRING_COMMON_ESCAPE:</a></p><img border="0" src="diagram/STRING_COMMON_ESCAPE.svg" height="345" width="135"><p>
+         <div class="ebnf"><code>
+               <div><a href="#STRING_COMMON_ESCAPE" title="STRING_COMMON_ESCAPE">STRING_COMMON_ESCAPE</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '"'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| '\\'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| '/'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'b'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'f'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'n'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'r'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 't'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#STRING_ESCAPE_SEQUENCE" title="STRING_ESCAPE_SEQUENCE">STRING_ESCAPE_SEQUENCE</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="STRING_ESCAPE_SEQUENCE">STRING_ESCAPE_SEQUENCE:</a></p><img border="0" src="diagram/STRING_ESCAPE_SEQUENCE.svg" height="81" width="343" usemap="#STRING_ESCAPE_SEQUENCE.map"><map name="STRING_ESCAPE_SEQUENCE.map"><area shape="rect" coords="105,1,293,33" href="#STRING_COMMON_ESCAPE" title="STRING_COMMON_ESCAPE"><area shape="rect" coords="105,45,261,77" href="#STRING_HEX_ESCAPE" title="STRING_HEX_ESCAPE"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#STRING_ESCAPE_SEQUENCE" title="STRING_ESCAPE_SEQUENCE">STRING_ESCAPE_SEQUENCE</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '\\' ( <a href="#STRING_COMMON_ESCAPE" title="STRING_COMMON_ESCAPE">STRING_COMMON_ESCAPE</a> | <a href="#STRING_HEX_ESCAPE" title="STRING_HEX_ESCAPE">STRING_HEX_ESCAPE</a> )</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#STRING_CONTENT_CHAR" title="STRING_CONTENT_CHAR">STRING_CONTENT_CHAR</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="STRING_CONTENT_CHAR">STRING_CONTENT_CHAR:</a></p><img border="0" src="diagram/STRING_CONTENT_CHAR.svg" height="81" width="299" usemap="#STRING_CONTENT_CHAR.map"><map name="STRING_CONTENT_CHAR.map"><area shape="rect" coords="49,1,241,33" href="#STRING_CHAR_NO_ESCAPE" title="STRING_CHAR_NO_ESCAPE"><area shape="rect" coords="49,45,249,77" href="#STRING_ESCAPE_SEQUENCE" title="STRING_ESCAPE_SEQUENCE"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#STRING_CONTENT_CHAR" title="STRING_CONTENT_CHAR">STRING_CONTENT_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#STRING_CHAR_NO_ESCAPE" title="STRING_CHAR_NO_ESCAPE">STRING_CHAR_NO_ESCAPE</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#STRING_ESCAPE_SEQUENCE" title="STRING_ESCAPE_SEQUENCE">STRING_ESCAPE_SEQUENCE</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#STRING" title="STRING">STRING</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="STRING">STRING:</a></p><img border="0" src="diagram/STRING.svg" height="71" width="367" usemap="#STRING.map"><map name="STRING.map"><area shape="rect" coords="95,1,271,33" href="#STRING_CONTENT_CHAR" title="STRING_CONTENT_CHAR"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#STRING" title="STRING">STRING</a>&nbsp;&nbsp;&nbsp;::= '"' <a href="#STRING_CONTENT_CHAR" title="STRING_CONTENT_CHAR">STRING_CONTENT_CHAR</a>* '"'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentDefinition" title="agentDefinition">agentDefinition</a></li>
+            <li><a href="#agentMessage" title="agentMessage">agentMessage</a></li>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+            <li><a href="#contentMessage" title="contentMessage">contentMessage</a></li>
+            <li><a href="#defaultProperty" title="defaultProperty">defaultProperty</a></li>
+            <li><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></li>
+            <li><a href="#fileShortcut" title="fileShortcut">fileShortcut</a></li>
+            <li><a href="#flowOperand" title="flowOperand">flowOperand</a></li>
+            <li><a href="#importStatement" title="importStatement">importStatement</a></li>
+            <li><a href="#replyShortcut" title="replyShortcut">replyShortcut</a></li>
+            <li><a href="#simpleValue" title="simpleValue">simpleValue</a></li>
+            <li><a href="#typeConversion" title="typeConversion">typeConversion</a></li>
+            <li><a href="#typeConversionValue" title="typeConversionValue">typeConversionValue</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="INTEGER_PART">INTEGER_PART:</a></p><img border="0" src="diagram/INTEGER_PART.svg" height="53" width="155" usemap="#INTEGER_PART.map"><map name="INTEGER_PART.map"><area shape="rect" coords="49,17,105,49" href="#DIGIT" title="DIGIT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#INTEGER_PART" title="INTEGER_PART">INTEGER_PART</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#DIGIT" title="DIGIT">DIGIT</a>+</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#DECIMAL_PART" title="DECIMAL_PART">DECIMAL_PART</a></li>
+            <li><a href="#EXPONENT_PART" title="EXPONENT_PART">EXPONENT_PART</a></li>
+            <li><a href="#NUMBER" title="NUMBER">NUMBER</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="DECIMAL_PART">DECIMAL_PART:</a></p><img border="0" src="diagram/DECIMAL_PART.svg" height="37" width="217" usemap="#DECIMAL_PART.map"><map name="DECIMAL_PART.map"><area shape="rect" coords="73,1,187,33" href="#INTEGER_PART" title="INTEGER_PART"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#DECIMAL_PART" title="DECIMAL_PART">DECIMAL_PART</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '.' <a href="#INTEGER_PART" title="INTEGER_PART">INTEGER_PART</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#NUMBER" title="NUMBER">NUMBER</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="SIGN">SIGN:</a></p><img border="0" src="diagram/SIGN.svg" height="81" width="129"><p>
+         <div class="ebnf"><code>
+               <div><a href="#SIGN" title="SIGN">SIGN</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '+'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| '-'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#EXPONENT_PART" title="EXPONENT_PART">EXPONENT_PART</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="EXPONENT_MARKER">EXPONENT_MARKER:</a></p><img border="0" src="diagram/EXPONENT_MARKER.svg" height="81" width="127"><p>
+         <div class="ebnf"><code>
+               <div><a href="#EXPONENT_MARKER" title="EXPONENT_MARKER">EXPONENT_MARKER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'e'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'E'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#EXPONENT_PART" title="EXPONENT_PART">EXPONENT_PART</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="EXPONENT_PART">EXPONENT_PART:</a></p><img border="0" src="diagram/EXPONENT_PART.svg" height="69" width="449" usemap="#EXPONENT_PART.map"><map name="EXPONENT_PART.map"><area shape="rect" coords="29,1,175,33" href="#EXPONENT_MARKER" title="EXPONENT_MARKER"><area shape="rect" coords="215,33,265,65" href="#SIGN" title="SIGN"><area shape="rect" coords="305,1,419,33" href="#INTEGER_PART" title="INTEGER_PART"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#EXPONENT_PART" title="EXPONENT_PART">EXPONENT_PART</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#EXPONENT_MARKER" title="EXPONENT_MARKER">EXPONENT_MARKER</a><a href="#SIGN" title="SIGN">SIGN</a>? <a href="#INTEGER_PART" title="INTEGER_PART">INTEGER_PART</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#NUMBER" title="NUMBER">NUMBER</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="NUMBER">NUMBER:</a></p><img border="0" src="diagram/NUMBER.svg" height="69" width="535" usemap="#NUMBER.map"><map name="NUMBER.map"><area shape="rect" coords="29,1,143,33" href="#INTEGER_PART" title="INTEGER_PART"><area shape="rect" coords="183,33,299,65" href="#DECIMAL_PART" title="DECIMAL_PART"><area shape="rect" coords="359,33,485,65" href="#EXPONENT_PART" title="EXPONENT_PART"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#NUMBER" title="NUMBER">NUMBER</a>&nbsp;&nbsp;&nbsp;::= <a href="#INTEGER_PART" title="INTEGER_PART">INTEGER_PART</a><a href="#DECIMAL_PART" title="DECIMAL_PART">DECIMAL_PART</a>? <a href="#EXPONENT_PART" title="EXPONENT_PART">EXPONENT_PART</a>?</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></li>
+            <li><a href="#simpleValue" title="simpleValue">simpleValue</a></li>
+            <li><a href="#typeConversionValue" title="typeConversionValue">typeConversionValue</a></li>
+            <li><a href="#viewLocationShortcut" title="viewLocationShortcut">viewLocationShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="TIME_LITERAL">TIME_LITERAL:</a></p><img border="0" src="diagram/TIME_LITERAL.svg" height="37" width="513" usemap="#TIME_LITERAL.map"><map name="TIME_LITERAL.map"><area shape="rect" coords="101,1,157,33" href="#DIGIT" title="DIGIT"><area shape="rect" coords="177,1,233,33" href="#DIGIT" title="DIGIT"><area shape="rect" coords="297,1,353,33" href="#DIGIT" title="DIGIT"><area shape="rect" coords="373,1,429,33" href="#DIGIT" title="DIGIT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#TIME_LITERAL" title="TIME_LITERAL">TIME_LITERAL</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= "'~T['" <a href="#DIGIT" title="DIGIT">DIGIT</a><a href="#DIGIT" title="DIGIT">DIGIT</a> ':' <a href="#DIGIT" title="DIGIT">DIGIT</a><a href="#DIGIT" title="DIGIT">DIGIT</a> "']'"</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></li>
+            <li><a href="#simpleValue" title="simpleValue">simpleValue</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="EXPRESSION_LANG_TAG_CHAR">EXPRESSION_LANG_TAG_CHAR:</a></p><img border="0" src="diagram/EXPRESSION_LANG_TAG_CHAR.svg" height="37" width="211" usemap="#EXPRESSION_LANG_TAG_CHAR.map"><map name="EXPRESSION_LANG_TAG_CHAR.map"><area shape="rect" coords="29,1,181,33" href="#LOWERCASE_LETTER" title="LOWERCASE_LETTER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#EXPRESSION_LANG_TAG_CHAR" title="EXPRESSION_LANG_TAG_CHAR">EXPRESSION_LANG_TAG_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#LOWERCASE_LETTER" title="LOWERCASE_LETTER">LOWERCASE_LETTER</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#EXPRESSION_LANG_TAG" title="EXPRESSION_LANG_TAG">EXPRESSION_LANG_TAG</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="EXPRESSION_LANG_TAG">EXPRESSION_LANG_TAG:</a></p><img border="0" src="diagram/EXPRESSION_LANG_TAG.svg" height="57" width="315" usemap="#EXPRESSION_LANG_TAG.map"><map name="EXPRESSION_LANG_TAG.map"><area shape="rect" coords="49,1,265,33" href="#EXPRESSION_LANG_TAG_CHAR" title="EXPRESSION_LANG_TAG_CHAR"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#EXPRESSION_LANG_TAG" title="EXPRESSION_LANG_TAG">EXPRESSION_LANG_TAG</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#EXPRESSION_LANG_TAG_CHAR" title="EXPRESSION_LANG_TAG_CHAR">EXPRESSION_LANG_TAG_CHAR</a>*</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#MULTI_LINE_EXPRESSION_START" title="MULTI_LINE_EXPRESSION_START">MULTI_LINE_EXPRESSION_START</a></li>
+            <li><a href="#SINGLE_LINE_EXPRESSION_MARKER" title="SINGLE_LINE_EXPRESSION_MARKER">SINGLE_LINE_EXPRESSION_MARKER</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="SINGLE_LINE_EXPRESSION_MARKER">SINGLE_LINE_EXPRESSION_MARKER:</a></p><img border="0" src="diagram/SINGLE_LINE_EXPRESSION_MARKER.svg" height="37" width="331" usemap="#SINGLE_LINE_EXPRESSION_MARKER.map"><map name="SINGLE_LINE_EXPRESSION_MARKER.map"><area shape="rect" coords="77,1,251,33" href="#EXPRESSION_LANG_TAG" title="EXPRESSION_LANG_TAG"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#SINGLE_LINE_EXPRESSION_MARKER" title="SINGLE_LINE_EXPRESSION_MARKER">SINGLE_LINE_EXPRESSION_MARKER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '$' <a href="#EXPRESSION_LANG_TAG" title="EXPRESSION_LANG_TAG">EXPRESSION_LANG_TAG</a> '&gt;'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#SINGLE_LINE_EXPRESSION" title="SINGLE_LINE_EXPRESSION">SINGLE_LINE_EXPRESSION</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="SINGLE_LINE_EXPRESSION_CONTENT_CHAR">SINGLE_LINE_EXPRESSION_CONTENT_CHAR:</a></p><img border="0" src="diagram/SINGLE_LINE_EXPRESSION_CONTENT_CHAR.svg" height="37" width="161"><p>
+         <div class="ebnf"><code>
+               <div><a href="#SINGLE_LINE_EXPRESSION_CONTENT_CHAR" title="SINGLE_LINE_EXPRESSION_CONTENT_CHAR">SINGLE_LINE_EXPRESSION_CONTENT_CHAR</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= [^#xA#xD]</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#SINGLE_LINE_EXPRESSION" title="SINGLE_LINE_EXPRESSION">SINGLE_LINE_EXPRESSION</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="SINGLE_LINE_EXPRESSION">SINGLE_LINE_EXPRESSION:</a></p><img border="0" src="diagram/SINGLE_LINE_EXPRESSION.svg" height="71" width="769" usemap="#SINGLE_LINE_EXPRESSION.map"><map name="SINGLE_LINE_EXPRESSION.map"><area shape="rect" coords="29,35,279,67" href="#SINGLE_LINE_EXPRESSION_MARKER" title="SINGLE_LINE_EXPRESSION_MARKER"><area shape="rect" coords="319,1,359,33" href="#WS" title="WS"><area shape="rect" coords="419,1,719,33" href="#SINGLE_LINE_EXPRESSION_CONTENT_CHAR" title="SINGLE_LINE_EXPRESSION_CONTENT_CHAR"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#SINGLE_LINE_EXPRESSION" title="SINGLE_LINE_EXPRESSION">SINGLE_LINE_EXPRESSION</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#SINGLE_LINE_EXPRESSION_MARKER" title="SINGLE_LINE_EXPRESSION_MARKER">SINGLE_LINE_EXPRESSION_MARKER</a><a href="#WS" title="WS">WS</a>* <a href="#SINGLE_LINE_EXPRESSION_CONTENT_CHAR" title="SINGLE_LINE_EXPRESSION_CONTENT_CHAR">SINGLE_LINE_EXPRESSION_CONTENT_CHAR</a>*</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#singleLineExpression" title="singleLineExpression">singleLineExpression</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="MULTI_LINE_EXPRESSION_START">MULTI_LINE_EXPRESSION_START:</a></p><img border="0" src="diagram/MULTI_LINE_EXPRESSION_START.svg" height="37" width="431" usemap="#MULTI_LINE_EXPRESSION_START.map"><map name="MULTI_LINE_EXPRESSION_START.map"><area shape="rect" coords="77,1,251,33" href="#EXPRESSION_LANG_TAG" title="EXPRESSION_LANG_TAG"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#MULTI_LINE_EXPRESSION_START" title="MULTI_LINE_EXPRESSION_START">MULTI_LINE_EXPRESSION_START</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '$' <a href="#EXPRESSION_LANG_TAG" title="EXPRESSION_LANG_TAG">EXPRESSION_LANG_TAG</a> '&gt;' '&gt;' '&gt;'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#multiLineExpression" title="multiLineExpression">multiLineExpression</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="MULTILINE_STRING_CLEAN">MULTILINE_STRING_CLEAN:</a></p><img border="0" src="diagram/MULTILINE_STRING_CLEAN.svg" height="71" width="249" usemap="#MULTILINE_STRING_CLEAN.map"><map name="MULTILINE_STRING_CLEAN.map"><area shape="rect" coords="95,1,135,33" href="#WS" title="WS"><area shape="rect" coords="175,35,219,67" href="#EOL" title="EOL"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#MULTILINE_STRING_CLEAN" title="MULTILINE_STRING_CLEAN">MULTILINE_STRING_CLEAN</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '|' <a href="#WS" title="WS">WS</a>* <a href="#EOL" title="EOL">EOL</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#multiLineString" title="multiLineString">multiLineString</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="MULTILINE_STRING_TRIM">MULTILINE_STRING_TRIM:</a></p><img border="0" src="diagram/MULTILINE_STRING_TRIM.svg" height="71" width="295" usemap="#MULTILINE_STRING_TRIM.map"><map name="MULTILINE_STRING_TRIM.map"><area shape="rect" coords="141,1,181,33" href="#WS" title="WS"><area shape="rect" coords="221,35,265,67" href="#EOL" title="EOL"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#MULTILINE_STRING_TRIM" title="MULTILINE_STRING_TRIM">MULTILINE_STRING_TRIM</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '|' '-' <a href="#WS" title="WS">WS</a>* <a href="#EOL" title="EOL">EOL</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#multiLineString" title="multiLineString">multiLineString</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="MULTILINE_STRING_PRESERVE">MULTILINE_STRING_PRESERVE:</a></p><img border="0" src="diagram/MULTILINE_STRING_PRESERVE.svg" height="71" width="299" usemap="#MULTILINE_STRING_PRESERVE.map"><map name="MULTILINE_STRING_PRESERVE.map"><area shape="rect" coords="145,1,185,33" href="#WS" title="WS"><area shape="rect" coords="225,35,269,67" href="#EOL" title="EOL"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#MULTILINE_STRING_PRESERVE" title="MULTILINE_STRING_PRESERVE">MULTILINE_STRING_PRESERVE</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '+' '|' <a href="#WS" title="WS">WS</a>* <a href="#EOL" title="EOL">EOL</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#multiLineString" title="multiLineString">multiLineString</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="MULTILINE_STRING_PRESERVE_ALL">MULTILINE_STRING_PRESERVE_ALL:</a></p><img border="0" src="diagram/MULTILINE_STRING_PRESERVE_ALL.svg" height="71" width="349" usemap="#MULTILINE_STRING_PRESERVE_ALL.map"><map name="MULTILINE_STRING_PRESERVE_ALL.map"><area shape="rect" coords="195,1,235,33" href="#WS" title="WS"><area shape="rect" coords="275,35,319,67" href="#EOL" title="EOL"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#MULTILINE_STRING_PRESERVE_ALL" title="MULTILINE_STRING_PRESERVE_ALL">MULTILINE_STRING_PRESERVE_ALL</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '+' '|' '+' <a href="#WS" title="WS">WS</a>* <a href="#EOL" title="EOL">EOL</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#multiLineString" title="multiLineString">multiLineString</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="TYPE_NAME">TYPE_NAME:</a></p><img border="0" src="diagram/TYPE_NAME.svg" height="53" width="163" usemap="#TYPE_NAME.map"><map name="TYPE_NAME.map"><area shape="rect" coords="49,17,113,49" href="#LETTER" title="LETTER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#TYPE_NAME" title="TYPE_NAME">TYPE_NAME</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#LETTER" title="LETTER">LETTER</a>+</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#typeConversion" title="typeConversion">typeConversion</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="qualifiedName">qualifiedName:</a></p><img border="0" src="diagram/qualifiedName.svg" height="81" width="191" usemap="#qualifiedName.map"><map name="qualifiedName.map"><area shape="rect" coords="49,45,141,77" href="#IDENTIFIER" title="IDENTIFIER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#qualifiedName" title="qualifiedName">qualifiedName</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> ( '.' <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> )*</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentDefinition" title="agentDefinition">agentDefinition</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="booleanLiteral">booleanLiteral:</a></p><img border="0" src="diagram/booleanLiteral.svg" height="81" width="151"><p>
+         <div class="ebnf"><code>
+               <div><a href="#booleanLiteral" title="booleanLiteral">booleanLiteral</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'true'</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'false'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></li>
+            <li><a href="#simpleValue" title="simpleValue">simpleValue</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="simpleValue">simpleValue:</a></p><img border="0" src="diagram/simpleValue.svg" height="257" width="273" usemap="#simpleValue.map"><map name="simpleValue.map"><area shape="rect" coords="49,1,115,33" href="#STRING" title="STRING"><area shape="rect" coords="49,45,121,77" href="#NUMBER" title="NUMBER"><area shape="rect" coords="49,89,159,121" href="#booleanLiteral" title="booleanLiteral"><area shape="rect" coords="49,133,103,165" href="#ATOM" title="ATOM"><area shape="rect" coords="49,177,157,209" href="#TIME_LITERAL" title="TIME_LITERAL"><area shape="rect" coords="49,221,223,253" href="#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#simpleValue" title="simpleValue">simpleValue</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#STRING" title="STRING">STRING</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#NUMBER" title="NUMBER">NUMBER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#booleanLiteral" title="booleanLiteral">booleanLiteral</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#ATOM" title="ATOM">ATOM</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#TIME_LITERAL" title="TIME_LITERAL">TIME_LITERAL</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL">ISO_DURATION_LITERAL</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#expressionValue" title="expressionValue">expressionValue</a></li>
+            <li><a href="#parameter" title="parameter">parameter</a></li>
+            <li><a href="#value" title="value">value</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="parameter">parameter:</a></p><img border="0" src="diagram/parameter.svg" height="37" width="311" usemap="#parameter.map"><map name="parameter.map"><area shape="rect" coords="29,1,121,33" href="#IDENTIFIER" title="IDENTIFIER"><area shape="rect" coords="185,1,281,33" href="#simpleValue" title="simpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#parameter" title="parameter">parameter</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> ':' <a href="#simpleValue" title="simpleValue">simpleValue</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="propertyAssignment">propertyAssignment:</a></p><img border="0" src="diagram/propertyAssignment.svg" height="37" width="269" usemap="#propertyAssignment.map"><map name="propertyAssignment.map"><area shape="rect" coords="29,1,121,33" href="#IDENTIFIER" title="IDENTIFIER"><area shape="rect" coords="185,1,239,33" href="#value" title="value"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#propertyAssignment" title="propertyAssignment">propertyAssignment</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> ':' <a href="#value" title="value">value</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#explicitMap" title="explicitMap">explicitMap</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="explicitMap">explicitMap:</a></p><img border="0" src="diagram/explicitMap.svg" height="71" width="397" usemap="#explicitMap.map"><map name="explicitMap.map"><area shape="rect" coords="151,1,299,33" href="#propertyAssignment" title="propertyAssignment"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#explicitMap" title="explicitMap">explicitMap</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '%' '{' <a href="#propertyAssignment" title="propertyAssignment">propertyAssignment</a>* '}'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#contentInfo" title="contentInfo">contentInfo</a></li>
+            <li><a href="#uploadedRbmFile" title="uploadedRbmFile">uploadedRbmFile</a></li>
+            <li><a href="#value" title="value">value</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="inlineParameterList">inlineParameterList:</a></p><img border="0" src="diagram/inlineParameterList.svg" height="81" width="185" usemap="#inlineParameterList.map"><map name="inlineParameterList.map"><area shape="rect" coords="49,45,135,77" href="#parameter" title="parameter"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#parameter" title="parameter">parameter</a> ( ',' <a href="#parameter" title="parameter">parameter</a> )*</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#composeRecordingMessage" title="composeRecordingMessage">composeRecordingMessage</a></li>
+            <li><a href="#composeTextMessage" title="composeTextMessage">composeTextMessage</a></li>
+            <li><a href="#contentInfo" title="contentInfo">contentInfo</a></li>
+            <li><a href="#createCalendarEventAction" title="createCalendarEventAction">createCalendarEventAction</a></li>
+            <li><a href="#latLongObject" title="latLongObject">latLongObject</a></li>
+            <li><a href="#suggestedAction" title="suggestedAction">suggestedAction</a></li>
+            <li><a href="#suggestedReply" title="suggestedReply">suggestedReply</a></li>
+            <li><a href="#uploadedRbmFile" title="uploadedRbmFile">uploadedRbmFile</a></li>
+            <li><a href="#value" title="value">value</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="value">value:</a></p><img border="0" src="diagram/value.svg" height="169" width="241" usemap="#value.map"><map name="value.map"><area shape="rect" coords="49,1,145,33" href="#simpleValue" title="simpleValue"><area shape="rect" coords="49,45,139,77" href="#explicitMap" title="explicitMap"><area shape="rect" coords="49,89,191,121" href="#inlineParameterList" title="inlineParameterList"><area shape="rect" coords="49,133,85,165" href="#ref" title="ref"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#value" title="value">value</a>&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#simpleValue" title="simpleValue">simpleValue</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#explicitMap" title="explicitMap">explicitMap</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#ref" title="ref">ref</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#propertyAssignment" title="propertyAssignment">propertyAssignment</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="ref">ref:</a></p><img border="0" src="diagram/ref.svg" height="37" width="151" usemap="#ref.map"><map name="ref.map"><area shape="rect" coords="29,1,121,33" href="#IDENTIFIER" title="IDENTIFIER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#ref" title="ref">ref</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#value" title="value">value</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="singleLineExpression">singleLineExpression:</a></p><img border="0" src="diagram/singleLineExpression.svg" height="37" width="251" usemap="#singleLineExpression.map"><map name="singleLineExpression.map"><area shape="rect" coords="29,1,221,33" href="#SINGLE_LINE_EXPRESSION" title="SINGLE_LINE_EXPRESSION"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#singleLineExpression" title="singleLineExpression">singleLineExpression</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#SINGLE_LINE_EXPRESSION" title="SINGLE_LINE_EXPRESSION">SINGLE_LINE_EXPRESSION</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#expression" title="expression">expression</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="multiLineExpression">multiLineExpression:</a></p><img border="0" src="diagram/multiLineExpression.svg" height="37" width="639" usemap="#multiLineExpression.map"><map name="multiLineExpression.map"><area shape="rect" coords="29,1,259,33" href="#MULTI_LINE_EXPRESSION_START" title="MULTI_LINE_EXPRESSION_START"><area shape="rect" coords="319,1,569,33" href="#MULTI_LINE_EXPRESSION_CONTENT" title="MULTI_LINE_EXPRESSION_CONTENT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#multiLineExpression" title="multiLineExpression">multiLineExpression</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#MULTI_LINE_EXPRESSION_START" title="MULTI_LINE_EXPRESSION_START">MULTI_LINE_EXPRESSION_START</a> '' <a href="#MULTI_LINE_EXPRESSION_CONTENT" title="MULTI_LINE_EXPRESSION_CONTENT">MULTI_LINE_EXPRESSION_CONTENT</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#expression" title="expression">expression</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="expression">expression:</a></p><img border="0" src="diagram/expression.svg" height="81" width="251" usemap="#expression.map"><map name="expression.map"><area shape="rect" coords="49,1,201,33" href="#singleLineExpression" title="singleLineExpression"><area shape="rect" coords="49,45,195,77" href="#multiLineExpression" title="multiLineExpression"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#expression" title="expression">expression</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#singleLineExpression" title="singleLineExpression">singleLineExpression</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#multiLineExpression" title="multiLineExpression">multiLineExpression</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#defaultProperty" title="defaultProperty">defaultProperty</a></li>
+            <li><a href="#expressionValue" title="expressionValue">expressionValue</a></li>
+            <li><a href="#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="expressionValue">expressionValue:</a></p><img border="0" src="diagram/expressionValue.svg" height="81" width="195" usemap="#expressionValue.map"><map name="expressionValue.map"><area shape="rect" coords="49,1,139,33" href="#expression" title="expression"><area shape="rect" coords="49,45,145,77" href="#simpleValue" title="simpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#expressionValue" title="expressionValue">expressionValue</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#expression" title="expression">expression</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#simpleValue" title="simpleValue">simpleValue</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#contentMessage" title="contentMessage">contentMessage</a></li>
+            <li><a href="#enhancedParameter" title="enhancedParameter">enhancedParameter</a></li>
+            <li><a href="#textShortcut" title="textShortcut">textShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="multiLineString">multiLineString:</a></p><img border="0" src="diagram/multiLineString.svg" height="169" width="575" usemap="#multiLineString.map"><map name="multiLineString.map"><area shape="rect" coords="49,1,239,33" href="#MULTILINE_STRING_CLEAN" title="MULTILINE_STRING_CLEAN"><area shape="rect" coords="49,45,229,77" href="#MULTILINE_STRING_TRIM" title="MULTILINE_STRING_TRIM"><area shape="rect" coords="49,89,263,121" href="#MULTILINE_STRING_PRESERVE" title="MULTILINE_STRING_PRESERVE"><area shape="rect" coords="49,133,293,165" href="#MULTILINE_STRING_PRESERVE_ALL" title="MULTILINE_STRING_PRESERVE_ALL"><area shape="rect" coords="373,1,505,33" href="#STRING_CONTENT" title="STRING_CONTENT"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#multiLineString" title="multiLineString">multiLineString</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= ( <a href="#MULTILINE_STRING_CLEAN" title="MULTILINE_STRING_CLEAN">MULTILINE_STRING_CLEAN</a> | <a href="#MULTILINE_STRING_TRIM" title="MULTILINE_STRING_TRIM">MULTILINE_STRING_TRIM</a> | <a href="#MULTILINE_STRING_PRESERVE" title="MULTILINE_STRING_PRESERVE">MULTILINE_STRING_PRESERVE</a> | <a href="#MULTILINE_STRING_PRESERVE_ALL" title="MULTILINE_STRING_PRESERVE_ALL">MULTILINE_STRING_PRESERVE_ALL</a> ) '' <a href="#STRING_CONTENT" title="STRING_CONTENT">STRING_CONTENT</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="enhancedSimpleValue">enhancedSimpleValue:</a></p><img border="0" src="diagram/enhancedSimpleValue.svg" height="301" width="273" usemap="#enhancedSimpleValue.map"><map name="enhancedSimpleValue.map"><area shape="rect" coords="49,1,115,33" href="#STRING" title="STRING"><area shape="rect" coords="49,45,121,77" href="#NUMBER" title="NUMBER"><area shape="rect" coords="49,89,159,121" href="#booleanLiteral" title="booleanLiteral"><area shape="rect" coords="49,133,103,165" href="#ATOM" title="ATOM"><area shape="rect" coords="49,177,157,209" href="#TIME_LITERAL" title="TIME_LITERAL"><area shape="rect" coords="49,221,223,253" href="#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL"><area shape="rect" coords="49,265,163,297" href="#multiLineString" title="multiLineString"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#STRING" title="STRING">STRING</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#NUMBER" title="NUMBER">NUMBER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#booleanLiteral" title="booleanLiteral">booleanLiteral</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#ATOM" title="ATOM">ATOM</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#TIME_LITERAL" title="TIME_LITERAL">TIME_LITERAL</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL">ISO_DURATION_LITERAL</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#multiLineString" title="multiLineString">multiLineString</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#cardContent" title="cardContent">cardContent</a></li>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+            <li><a href="#contentMessage" title="contentMessage">contentMessage</a></li>
+            <li><a href="#createCalendarEventShortcut" title="createCalendarEventShortcut">createCalendarEventShortcut</a></li>
+            <li><a href="#defaultProperty" title="defaultProperty">defaultProperty</a></li>
+            <li><a href="#dialShortcut" title="dialShortcut">dialShortcut</a></li>
+            <li><a href="#emailProperty" title="emailProperty">emailProperty</a></li>
+            <li><a href="#flowActionText" title="flowActionText">flowActionText</a></li>
+            <li><a href="#openUrlShortcut" title="openUrlShortcut">openUrlShortcut</a></li>
+            <li><a href="#phoneNumberProperty" title="phoneNumberProperty">phoneNumberProperty</a></li>
+            <li><a href="#privacyProperty" title="privacyProperty">privacyProperty</a></li>
+            <li><a href="#replyShortcut" title="replyShortcut">replyShortcut</a></li>
+            <li><a href="#richCardShortcut" title="richCardShortcut">richCardShortcut</a></li>
+            <li><a href="#shareLocationShortcut" title="shareLocationShortcut">shareLocationShortcut</a></li>
+            <li><a href="#termsConditionsProperty" title="termsConditionsProperty">termsConditionsProperty</a></li>
+            <li><a href="#textShortcut" title="textShortcut">textShortcut</a></li>
+            <li><a href="#typedValue" title="typedValue">typedValue</a></li>
+            <li><a href="#viewLocationAction" title="viewLocationAction">viewLocationAction</a></li>
+            <li><a href="#viewLocationShortcut" title="viewLocationShortcut">viewLocationShortcut</a></li>
+            <li><a href="#websiteProperty" title="websiteProperty">websiteProperty</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="typeConversionValue">typeConversionValue:</a></p><img border="0" src="diagram/typeConversionValue.svg" height="169" width="191" usemap="#typeConversionValue.map"><map name="typeConversionValue.map"><area shape="rect" coords="49,1,115,33" href="#STRING" title="STRING"><area shape="rect" coords="49,45,121,77" href="#NUMBER" title="NUMBER"><area shape="rect" coords="49,89,103,121" href="#ATOM" title="ATOM"><area shape="rect" coords="49,133,141,165" href="#IDENTIFIER" title="IDENTIFIER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#typeConversionValue" title="typeConversionValue">typeConversionValue</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#STRING" title="STRING">STRING</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#NUMBER" title="NUMBER">NUMBER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#ATOM" title="ATOM">ATOM</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#typeConversion" title="typeConversion">typeConversion</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="typeConversion">typeConversion:</a></p><img border="0" src="diagram/typeConversion.svg" height="69" width="599" usemap="#typeConversion.map"><map name="typeConversion.map"><area shape="rect" coords="79,1,173,33" href="#TYPE_NAME" title="TYPE_NAME"><area shape="rect" coords="193,1,347,33" href="#typeConversionValue" title="typeConversionValue"><area shape="rect" coords="433,33,499,65" href="#STRING" title="STRING"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#typeConversion" title="typeConversion">typeConversion</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= '&lt;' <a href="#TYPE_NAME" title="TYPE_NAME">TYPE_NAME</a><a href="#typeConversionValue" title="typeConversionValue">typeConversionValue</a> ( '|' <a href="#STRING" title="STRING">STRING</a> )? '&gt;'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#typedValue" title="typedValue">typedValue</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="typedValue">typedValue:</a></p><img border="0" src="diagram/typedValue.svg" height="81" width="259" usemap="#typedValue.map"><map name="typedValue.map"><area shape="rect" coords="49,1,169,33" href="#typeConversion" title="typeConversion"><area shape="rect" coords="49,45,209,77" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#typedValue" title="typedValue">typedValue</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#typeConversion" title="typeConversion">typeConversion</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#createCalendarEventShortcut" title="createCalendarEventShortcut">createCalendarEventShortcut</a></li>
+            <li><a href="#dialAction" title="dialAction">dialAction</a></li>
+            <li><a href="#dialShortcut" title="dialShortcut">dialShortcut</a></li>
+            <li><a href="#emailProperty" title="emailProperty">emailProperty</a></li>
+            <li><a href="#openUrlAction" title="openUrlAction">openUrlAction</a></li>
+            <li><a href="#openUrlShortcut" title="openUrlShortcut">openUrlShortcut</a></li>
+            <li><a href="#phoneNumberProperty" title="phoneNumberProperty">phoneNumberProperty</a></li>
+            <li><a href="#privacyProperty" title="privacyProperty">privacyProperty</a></li>
+            <li><a href="#termsConditionsProperty" title="termsConditionsProperty">termsConditionsProperty</a></li>
+            <li><a href="#websiteProperty" title="websiteProperty">websiteProperty</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="rclFile">rclFile:</a></p><img border="0" src="diagram/rclFile.svg" height="71" width="363" usemap="#rclFile.map"><map name="rclFile.map"><area shape="rect" coords="49,1,177,33" href="#importStatement" title="importStatement"><area shape="rect" coords="217,35,333,67" href="#agentDefinition" title="agentDefinition"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#rclFile" title="rclFile">rclFile</a>&nbsp;&nbsp;::= <a href="#importStatement" title="importStatement">importStatement</a>* <a href="#agentDefinition" title="agentDefinition">agentDefinition</a></div></code></div>
+      </p>
+      <p>no references</p><br><p style="font-size: 14px; font-weight:bold"><a name="importStatement">importStatement:</a></p><img border="0" src="diagram/importStatement.svg" height="69" width="459" usemap="#importStatement.map"><map name="importStatement.map"><area shape="rect" coords="113,1,179,33" href="#STRING" title="STRING"><area shape="rect" coords="273,33,365,65" href="#IDENTIFIER" title="IDENTIFIER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#importStatement" title="importStatement">importStatement</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'import' <a href="#STRING" title="STRING">STRING</a> ( 'as' <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> )? ';'</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#rclFile" title="rclFile">rclFile</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="agentDefinition">agentDefinition:</a></p><img border="0" src="diagram/agentDefinition.svg" height="183" width="991" usemap="#agentDefinition.map"><map name="agentDefinition.map"><area shape="rect" coords="109,1,219,33" href="#qualifiedName" title="qualifiedName"><area shape="rect" coords="449,1,515,33" href="#STRING" title="STRING"><area shape="rect" coords="717,33,783,65" href="#STRING" title="STRING"><area shape="rect" coords="843,33,947,65" href="#configSection" title="configSection"><area shape="rect" coords="417,147,535,179" href="#defaultsSection" title="defaultsSection"><area shape="rect" coords="595,115,751,147" href="#enhancedFlowSection" title="enhancedFlowSection"><area shape="rect" coords="791,115,921,147" href="#messagesSection" title="messagesSection"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#agentDefinition" title="agentDefinition">agentDefinition</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'Agent' <a href="#qualifiedName" title="qualifiedName">qualifiedName</a> '' 'displayName' ':' <a href="#STRING" title="STRING">STRING</a> ( 'brandName' ':' <a href="#STRING" title="STRING">STRING</a> )? <a href="#configSection" title="configSection">configSection</a>? <a href="#defaultsSection" title="defaultsSection">defaultsSection</a>? <a href="#enhancedFlowSection" title="enhancedFlowSection">enhancedFlowSection</a>+ <a href="#messagesSection" title="messagesSection">messagesSection</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#rclFile" title="rclFile">rclFile</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="defaultsSection">defaultsSection:</a></p><img border="0" src="diagram/defaultsSection.svg" height="71" width="393" usemap="#defaultsSection.map"><map name="defaultsSection.map"><area shape="rect" coords="185,1,303,33" href="#defaultProperty" title="defaultProperty"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#defaultsSection" title="defaultsSection">defaultsSection</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'Defaults' '' <a href="#defaultProperty" title="defaultProperty">defaultProperty</a>* ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentDefinition" title="agentDefinition">agentDefinition</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="defaultProperty">defaultProperty:</a></p><img border="0" src="diagram/defaultProperty.svg" height="301" width="499" usemap="#defaultProperty.map"><map name="defaultProperty.map"><area shape="rect" coords="253,1,413,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="267,45,321,77" href="#ATOM" title="ATOM"><area shape="rect" coords="147,89,321,121" href="#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL"><area shape="rect" coords="225,133,315,165" href="#expression" title="expression"><area shape="rect" coords="355,177,409,209" href="#ATOM" title="ATOM"><area shape="rect" coords="215,221,281,253" href="#STRING" title="STRING"><area shape="rect" coords="215,265,305,297" href="#expression" title="expression"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#defaultProperty" title="defaultProperty">defaultProperty</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'fallback_message' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'messageTrafficType' ':' <a href="#ATOM" title="ATOM">ATOM</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'ttl' ':' <a href="#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL">ISO_DURATION_LITERAL</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'postbackData' ':' <a href="#expression" title="expression">expression</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'expressions' '' 'language' ':' <a href="#ATOM" title="ATOM">ATOM</a> ''</div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'timeZone' ':' ( <a href="#STRING" title="STRING">STRING</a> | <a href="#expression" title="expression">expression</a> )</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#defaultsSection" title="defaultsSection">defaultsSection</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="messagesSection">messagesSection:</a></p><img border="0" src="diagram/messagesSection.svg" height="97" width="453" usemap="#messagesSection.map"><map name="messagesSection.map"><area shape="rect" coords="213,17,325,49" href="#agentMessage" title="agentMessage"><area shape="rect" coords="213,61,343,93" href="#messageShortcut" title="messageShortcut"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#messagesSection" title="messagesSection">messagesSection</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'Messages' '' ( <a href="#agentMessage" title="agentMessage">agentMessage</a> | <a href="#messageShortcut" title="messageShortcut">messageShortcut</a> )+ ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentDefinition" title="agentDefinition">agentDefinition</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="enhancedFlowSection">enhancedFlowSection:</a></p><img border="0" src="diagram/enhancedFlowSection.svg" height="71" width="497" usemap="#enhancedFlowSection.map"><map name="enhancedFlowSection.map"><area shape="rect" coords="97,35,189,67" href="#IDENTIFIER" title="IDENTIFIER"><area shape="rect" coords="269,1,407,33" href="#enhancedFlowRule" title="enhancedFlowRule"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#enhancedFlowSection" title="enhancedFlowSection">enhancedFlowSection</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'flow' <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> '' <a href="#enhancedFlowRule" title="enhancedFlowRule">enhancedFlowRule</a>* ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentDefinition" title="agentDefinition">agentDefinition</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="enhancedFlowRule">enhancedFlowRule:</a></p><img border="0" src="diagram/enhancedFlowRule.svg" height="85" width="757" usemap="#enhancedFlowRule.map"><map name="enhancedFlowRule.map"><area shape="rect" coords="29,17,213,49" href="#flowOperandOrExpression" title="flowOperandOrExpression"><area shape="rect" coords="309,17,493,49" href="#flowOperandOrExpression" title="flowOperandOrExpression"><area shape="rect" coords="553,49,707,81" href="#enhancedWithClause" title="enhancedWithClause"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#enhancedFlowRule" title="enhancedFlowRule">enhancedFlowRule</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a> ( '-&gt;' <a href="#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a> )+ <a href="#enhancedWithClause" title="enhancedWithClause">enhancedWithClause</a>?</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#enhancedFlowSection" title="enhancedFlowSection">enhancedFlowSection</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="flowOperand">flowOperand:</a></p><img border="0" src="diagram/flowOperand.svg" height="125" width="191" usemap="#flowOperand.map"><map name="flowOperand.map"><area shape="rect" coords="49,1,103,33" href="#ATOM" title="ATOM"><area shape="rect" coords="49,45,141,77" href="#IDENTIFIER" title="IDENTIFIER"><area shape="rect" coords="49,89,115,121" href="#STRING" title="STRING"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#flowOperand" title="flowOperand">flowOperand</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#ATOM" title="ATOM">ATOM</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#STRING" title="STRING">STRING</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="flowActionText">flowActionText:</a></p><img border="0" src="diagram/flowActionText.svg" height="37" width="285" usemap="#flowActionText.map"><map name="flowActionText.map"><area shape="rect" coords="95,1,255,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#flowActionText" title="flowActionText">flowActionText</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'text' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="flowOperandOrExpression">flowOperandOrExpression:</a></p><img border="0" src="diagram/flowOperandOrExpression.svg" height="169" width="249" usemap="#flowOperandOrExpression.map"><map name="flowOperandOrExpression.map"><area shape="rect" coords="49,1,149,33" href="#flowOperand" title="flowOperand"><area shape="rect" coords="49,45,159,77" href="#flowActionText" title="flowActionText"><area shape="rect" coords="49,89,139,121" href="#expression" title="expression"><area shape="rect" coords="107,133,199,165" href="#IDENTIFIER" title="IDENTIFIER"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#flowOperandOrExpression" title="flowOperandOrExpression">flowOperandOrExpression</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#flowOperand" title="flowOperand">flowOperand</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#flowActionText" title="flowActionText">flowActionText</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#expression" title="expression">expression</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 'ref' <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#enhancedFlowRule" title="enhancedFlowRule">enhancedFlowRule</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="enhancedWithClause">enhancedWithClause:</a></p><img border="0" src="diagram/enhancedWithClause.svg" height="81" width="317" usemap="#enhancedWithClause.map"><map name="enhancedWithClause.map"><area shape="rect" coords="119,45,267,77" href="#enhancedParameter" title="enhancedParameter"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#enhancedWithClause" title="enhancedWithClause">enhancedWithClause</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'with' <a href="#enhancedParameter" title="enhancedParameter">enhancedParameter</a> ( ',' <a href="#enhancedParameter" title="enhancedParameter">enhancedParameter</a> )*</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#enhancedFlowRule" title="enhancedFlowRule">enhancedFlowRule</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="enhancedParameter">enhancedParameter:</a></p><img border="0" src="diagram/enhancedParameter.svg" height="37" width="339" usemap="#enhancedParameter.map"><map name="enhancedParameter.map"><area shape="rect" coords="29,1,121,33" href="#IDENTIFIER" title="IDENTIFIER"><area shape="rect" coords="185,1,309,33" href="#expressionValue" title="expressionValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#enhancedParameter" title="enhancedParameter">enhancedParameter</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a> ':' <a href="#expressionValue" title="expressionValue">expressionValue</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#enhancedWithClause" title="enhancedWithClause">enhancedWithClause</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="configSection">configSection:</a></p><img border="0" src="diagram/configSection.svg" height="71" width="373" usemap="#configSection.map"><map name="configSection.map"><area shape="rect" coords="171,1,283,33" href="#configProperty" title="configProperty"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#configSection" title="configSection">configSection</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'Config' '' <a href="#configProperty" title="configProperty">configProperty</a>* ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentDefinition" title="agentDefinition">agentDefinition</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="configProperty">configProperty:</a></p><img border="0" src="diagram/configProperty.svg" height="541" width="417" usemap="#configProperty.map"><map name="configProperty.map"><area shape="rect" coords="207,21,367,53" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="223,65,289,97" href="#STRING" title="STRING"><area shape="rect" coords="49,197,213,229" href="#phoneNumberProperty" title="phoneNumberProperty"><area shape="rect" coords="49,241,157,273" href="#emailProperty" title="emailProperty"><area shape="rect" coords="49,285,171,317" href="#websiteProperty" title="websiteProperty"><area shape="rect" coords="49,329,167,361" href="#privacyProperty" title="privacyProperty"><area shape="rect" coords="49,373,227,405" href="#termsConditionsProperty" title="termsConditionsProperty"><area shape="rect" coords="49,417,201,449" href="#billingConfigProperty" title="billingConfigProperty"><area shape="rect" coords="269,461,323,493" href="#ATOM" title="ATOM"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#configProperty" title="configProperty">configProperty</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= ( 'description' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> | ( 'logoUri' | 'heroUri' | 'color' ) ':' <a href="#STRING" title="STRING">STRING</a> | <a href="#phoneNumberProperty" title="phoneNumberProperty">phoneNumberProperty</a> | <a href="#emailProperty" title="emailProperty">emailProperty</a> | <a href="#websiteProperty" title="websiteProperty">websiteProperty</a> | <a href="#privacyProperty" title="privacyProperty">privacyProperty</a> | <a href="#termsConditionsProperty" title="termsConditionsProperty">termsConditionsProperty</a> | <a href="#billingConfigProperty" title="billingConfigProperty">billingConfigProperty</a> | ( 'agentUseCase' | 'hostingRegion' ) ':' <a href="#ATOM" title="ATOM">ATOM</a> )?</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#configSection" title="configSection">configSection</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="phoneNumberProperty">phoneNumberProperty:</a></p><img border="0" src="diagram/phoneNumberProperty.svg" height="69" width="873" usemap="#phoneNumberProperty.map"><map name="phoneNumberProperty.map"><area shape="rect" coords="375,1,467,33" href="#typedValue" title="typedValue"><area shape="rect" coords="623,33,783,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#phoneNumberProperty" title="phoneNumberProperty">phoneNumberProperty</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'phoneNumberEntry' '' 'number' ':' <a href="#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="emailProperty">emailProperty:</a></p><img border="0" src="diagram/emailProperty.svg" height="69" width="815" usemap="#emailProperty.map"><map name="emailProperty.map"><area shape="rect" coords="317,1,409,33" href="#typedValue" title="typedValue"><area shape="rect" coords="565,33,725,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#emailProperty" title="emailProperty">emailProperty</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'emailEntry' '' 'address' ':' <a href="#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="websiteProperty">websiteProperty:</a></p><img border="0" src="diagram/websiteProperty.svg" height="69" width="797" usemap="#websiteProperty.map"><map name="websiteProperty.map"><area shape="rect" coords="299,1,391,33" href="#typedValue" title="typedValue"><area shape="rect" coords="547,33,707,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#websiteProperty" title="websiteProperty">websiteProperty</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'websiteEntry' '' 'url' ':' <a href="#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="privacyProperty">privacyProperty:</a></p><img border="0" src="diagram/privacyProperty.svg" height="69" width="759" usemap="#privacyProperty.map"><map name="privacyProperty.map"><area shape="rect" coords="261,1,353,33" href="#typedValue" title="typedValue"><area shape="rect" coords="509,33,669,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#privacyProperty" title="privacyProperty">privacyProperty</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'privacy' '' 'url' ':' <a href="#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="termsConditionsProperty">termsConditionsProperty:</a></p><img border="0" src="diagram/termsConditionsProperty.svg" height="69" width="819" usemap="#termsConditionsProperty.map"><map name="termsConditionsProperty.map"><area shape="rect" coords="321,1,413,33" href="#typedValue" title="typedValue"><area shape="rect" coords="569,33,729,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#termsConditionsProperty" title="termsConditionsProperty">termsConditionsProperty</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'termsConditions' '' 'url' ':' <a href="#typedValue" title="typedValue">typedValue</a> ( 'label' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="billingConfigProperty">billingConfigProperty:</a></p><img border="0" src="diagram/billingConfigProperty.svg" height="69" width="543" usemap="#billingConfigProperty.map"><map name="billingConfigProperty.map"><area shape="rect" coords="399,33,453,65" href="#ATOM" title="ATOM"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#billingConfigProperty" title="billingConfigProperty">billingConfigProperty</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'billingConfig' '' ( 'billingCategory' ':' <a href="#ATOM" title="ATOM">ATOM</a> )? ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#configProperty" title="configProperty">configProperty</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="agentMessage">agentMessage:</a></p><img border="0" src="diagram/agentMessage.svg" height="211" width="693" usemap="#agentMessage.map"><map name="agentMessage.map"><area shape="rect" coords="185,33,277,65" href="#IDENTIFIER" title="IDENTIFIER"><area shape="rect" coords="595,33,649,65" href="#ATOM" title="ATOM"><area shape="rect" coords="347,131,413,163" href="#STRING" title="STRING"><area shape="rect" coords="285,175,459,207" href="#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL"><area shape="rect" coords="499,99,623,131" href="#contentMessage" title="contentMessage"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#agentMessage" title="agentMessage">agentMessage</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'agentMessage' <a href="#IDENTIFIER" title="IDENTIFIER">IDENTIFIER</a>? '' ( 'messageTrafficType' ':' <a href="#ATOM" title="ATOM">ATOM</a> )? ( 'expireTime' ':' <a href="#STRING" title="STRING">STRING</a> | 'ttl' ':' <a href="#ISO_DURATION_LITERAL" title="ISO_DURATION_LITERAL">ISO_DURATION_LITERAL</a> )? <a href="#contentMessage" title="contentMessage">contentMessage</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#messagesSection" title="messagesSection">messagesSection</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="contentMessage">contentMessage:</a></p><img border="0" src="diagram/contentMessage.svg" height="291" width="787" usemap="#contentMessage.map"><map name="contentMessage.map"><area shape="rect" coords="367,35,527,67" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="367,79,491,111" href="#expressionValue" title="expressionValue"><area shape="rect" coords="381,123,447,155" href="#STRING" title="STRING"><area shape="rect" coords="393,167,521,199" href="#uploadedRbmFile" title="uploadedRbmFile"><area shape="rect" coords="333,211,405,243" href="#richCard" title="richCard"><area shape="rect" coords="355,255,447,287" href="#contentInfo" title="contentInfo"><area shape="rect" coords="607,1,697,33" href="#suggestion" title="suggestion"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#contentMessage" title="contentMessage">contentMessage</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'contentMessage' '' ( 'text' ':' ( <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> | <a href="#expressionValue" title="expressionValue">expressionValue</a> ) | 'fileName' ':' <a href="#STRING" title="STRING">STRING</a> | 'uploadedRbmFile' <a href="#uploadedRbmFile" title="uploadedRbmFile">uploadedRbmFile</a> | 'richCard' <a href="#richCard" title="richCard">richCard</a> | 'contentInfo' <a href="#contentInfo" title="contentInfo">contentInfo</a> ) <a href="#suggestion" title="suggestion">suggestion</a>* ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#agentMessage" title="agentMessage">agentMessage</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="suggestion">suggestion:</a></p><img border="0" src="diagram/suggestion.svg" height="81" width="499" usemap="#suggestion.map"><map name="suggestion.map"><area shape="rect" coords="277,1,399,33" href="#suggestedReply" title="suggestedReply"><area shape="rect" coords="283,45,409,77" href="#suggestedAction" title="suggestedAction"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#suggestion" title="suggestion">suggestion</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'suggestion' '' ( 'reply' <a href="#suggestedReply" title="suggestedReply">suggestedReply</a> | 'action' <a href="#suggestedAction" title="suggestedAction">suggestedAction</a> ) ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#contentMessage" title="contentMessage">contentMessage</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="suggestedReply">suggestedReply:</a></p><img border="0" src="diagram/suggestedReply.svg" height="37" width="201" usemap="#suggestedReply.map"><map name="suggestedReply.map"><area shape="rect" coords="29,1,171,33" href="#inlineParameterList" title="inlineParameterList"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#suggestedReply" title="suggestedReply">suggestedReply</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#cardSuggestion" title="cardSuggestion">cardSuggestion</a></li>
+            <li><a href="#suggestion" title="suggestion">suggestion</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="suggestedAction">suggestedAction:</a></p><img border="0" src="diagram/suggestedAction.svg" height="257" width="573" usemap="#suggestedAction.map"><map name="suggestedAction.map"><area shape="rect" coords="49,33,191,65" href="#inlineParameterList" title="inlineParameterList"><area shape="rect" coords="291,1,371,33" href="#dialAction" title="dialAction"><area shape="rect" coords="291,45,431,77" href="#viewLocationAction" title="viewLocationAction"><area shape="rect" coords="291,89,483,121" href="#createCalendarEventAction" title="createCalendarEventAction"><area shape="rect" coords="291,133,399,165" href="#openUrlAction" title="openUrlAction"><area shape="rect" coords="291,221,407,253" href="#composeAction" title="composeAction"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#suggestedAction" title="suggestedAction">suggestedAction</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a>? '' ( <a href="#dialAction" title="dialAction">dialAction</a> | <a href="#viewLocationAction" title="viewLocationAction">viewLocationAction</a> | <a href="#createCalendarEventAction" title="createCalendarEventAction">createCalendarEventAction</a> | <a href="#openUrlAction" title="openUrlAction">openUrlAction</a> | 'shareLocationAction' | <a href="#composeAction" title="composeAction">composeAction</a> ) ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#cardSuggestion" title="cardSuggestion">cardSuggestion</a></li>
+            <li><a href="#suggestion" title="suggestion">suggestion</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="dialAction">dialAction:</a></p><img border="0" src="diagram/dialAction.svg" height="37" width="515" usemap="#dialAction.map"><map name="dialAction.map"><area shape="rect" coords="353,1,445,33" href="#typedValue" title="typedValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#dialAction" title="dialAction">dialAction</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'dialAction' '' 'phoneNumber' ':' <a href="#typedValue" title="typedValue">typedValue</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestedAction" title="suggestedAction">suggestedAction</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="latLongObject">latLongObject:</a></p><img border="0" src="diagram/latLongObject.svg" height="37" width="201" usemap="#latLongObject.map"><map name="latLongObject.map"><area shape="rect" coords="29,1,171,33" href="#inlineParameterList" title="inlineParameterList"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#latLongObject" title="latLongObject">latLongObject</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#viewLocationAction" title="viewLocationAction">viewLocationAction</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="viewLocationAction">viewLocationAction:</a></p><img border="0" src="diagram/viewLocationAction.svg" height="81" width="969" usemap="#viewLocationAction.map"><map name="viewLocationAction.map"><area shape="rect" coords="377,33,537,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="687,1,795,33" href="#latLongObject" title="latLongObject"><area shape="rect" coords="719,45,879,77" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#viewLocationAction" title="viewLocationAction">viewLocationAction</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'viewLocationAction' '' ( 'label' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ( 'latLong' <a href="#latLongObject" title="latLongObject">latLongObject</a> | 'query' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> ) ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestedAction" title="suggestedAction">suggestedAction</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="createCalendarEventAction">createCalendarEventAction:</a></p><img border="0" src="diagram/createCalendarEventAction.svg" height="37" width="503" usemap="#createCalendarEventAction.map"><map name="createCalendarEventAction.map"><area shape="rect" coords="291,1,433,33" href="#inlineParameterList" title="inlineParameterList"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#createCalendarEventAction" title="createCalendarEventAction">createCalendarEventAction</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'createCalendarEventAction' '' <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestedAction" title="suggestedAction">suggestedAction</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="openUrlAction">openUrlAction:</a></p><img border="0" src="diagram/openUrlAction.svg" height="37" width="467" usemap="#openUrlAction.map"><map name="openUrlAction.map"><area shape="rect" coords="305,1,397,33" href="#typedValue" title="typedValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#openUrlAction" title="openUrlAction">openUrlAction</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'openUrlAction' '' 'url' ':' <a href="#typedValue" title="typedValue">typedValue</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestedAction" title="suggestedAction">suggestedAction</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="composeAction">composeAction:</a></p><img border="0" src="diagram/composeAction.svg" height="81" width="517" usemap="#composeAction.map"><map name="composeAction.map"><area shape="rect" coords="231,1,391,33" href="#composeTextMessage" title="composeTextMessage"><area shape="rect" coords="231,45,427,77" href="#composeRecordingMessage" title="composeRecordingMessage"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#composeAction" title="composeAction">composeAction</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'composeAction' '' ( <a href="#composeTextMessage" title="composeTextMessage">composeTextMessage</a> | <a href="#composeRecordingMessage" title="composeRecordingMessage">composeRecordingMessage</a> ) ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestedAction" title="suggestedAction">suggestedAction</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="composeTextMessage">composeTextMessage:</a></p><img border="0" src="diagram/composeTextMessage.svg" height="37" width="467" usemap="#composeTextMessage.map"><map name="composeTextMessage.map"><area shape="rect" coords="255,1,397,33" href="#inlineParameterList" title="inlineParameterList"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#composeTextMessage" title="composeTextMessage">composeTextMessage</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'composeTextMessage' '' <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#composeAction" title="composeAction">composeAction</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="composeRecordingMessage">composeRecordingMessage:</a></p><img border="0" src="diagram/composeRecordingMessage.svg" height="37" width="507" usemap="#composeRecordingMessage.map"><map name="composeRecordingMessage.map"><area shape="rect" coords="295,1,437,33" href="#inlineParameterList" title="inlineParameterList"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#composeRecordingMessage" title="composeRecordingMessage">composeRecordingMessage</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'composeRecordingMessage' '' <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#composeAction" title="composeAction">composeAction</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="uploadedRbmFile">uploadedRbmFile:</a></p><img border="0" src="diagram/uploadedRbmFile.svg" height="81" width="241" usemap="#uploadedRbmFile.map"><map name="uploadedRbmFile.map"><area shape="rect" coords="49,1,139,33" href="#explicitMap" title="explicitMap"><area shape="rect" coords="49,45,191,77" href="#inlineParameterList" title="inlineParameterList"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#uploadedRbmFile" title="uploadedRbmFile">uploadedRbmFile</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#explicitMap" title="explicitMap">explicitMap</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#contentMessage" title="contentMessage">contentMessage</a></li>
+            <li><a href="#media" title="media">media</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="contentInfo">contentInfo:</a></p><img border="0" src="diagram/contentInfo.svg" height="81" width="241" usemap="#contentInfo.map"><map name="contentInfo.map"><area shape="rect" coords="49,1,139,33" href="#explicitMap" title="explicitMap"><area shape="rect" coords="49,45,191,77" href="#inlineParameterList" title="inlineParameterList"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#contentInfo" title="contentInfo">contentInfo</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#explicitMap" title="explicitMap">explicitMap</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#inlineParameterList" title="inlineParameterList">inlineParameterList</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#contentMessage" title="contentMessage">contentMessage</a></li>
+            <li><a href="#media" title="media">media</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="richCard">richCard:</a></p><img border="0" src="diagram/richCard.svg" height="81" width="395" usemap="#richCard.map"><map name="richCard.map"><area shape="rect" coords="185,1,305,33" href="#standaloneCard" title="standaloneCard"><area shape="rect" coords="185,45,289,77" href="#carouselCard" title="carouselCard"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#richCard" title="richCard">richCard</a>&nbsp;::= 'richCard' '' ( <a href="#standaloneCard" title="standaloneCard">standaloneCard</a> | <a href="#carouselCard" title="carouselCard">carouselCard</a> ) ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#contentMessage" title="contentMessage">contentMessage</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="standaloneCard">standaloneCard:</a></p><img border="0" src="diagram/standaloneCard.svg" height="135" width="901" usemap="#standaloneCard.map"><map name="standaloneCard.map"><area shape="rect" coords="425,33,479,65" href="#ATOM" title="ATOM"><area shape="rect" coords="803,33,857,65" href="#ATOM" title="ATOM"><area shape="rect" coords="733,99,831,131" href="#cardContent" title="cardContent"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#standaloneCard" title="standaloneCard">standaloneCard</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'standaloneCard' '' ( 'cardOrientation' ':' <a href="#ATOM" title="ATOM">ATOM</a> )? ( 'thumbnailImageAlignment' ':' <a href="#ATOM" title="ATOM">ATOM</a> )? <a href="#cardContent" title="cardContent">cardContent</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#richCard" title="richCard">richCard</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="carouselCard">carouselCard:</a></p><img border="0" src="diagram/carouselCard.svg" height="85" width="791" usemap="#carouselCard.map"><map name="carouselCard.map"><area shape="rect" coords="371,49,425,81" href="#ATOM" title="ATOM"><area shape="rect" coords="465,17,563,49" href="#cardContent" title="cardContent"><area shape="rect" coords="603,17,701,49" href="#cardContent" title="cardContent"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#carouselCard" title="carouselCard">carouselCard</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'carouselCard' '' ( 'cardWidth' ':' <a href="#ATOM" title="ATOM">ATOM</a> )? <a href="#cardContent" title="cardContent">cardContent</a><a href="#cardContent" title="cardContent">cardContent</a>+ ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#richCard" title="richCard">richCard</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="cardContent">cardContent:</a></p><img border="0" src="diagram/cardContent.svg" height="201" width="903" usemap="#cardContent.map"><map name="cardContent.map"><area shape="rect" coords="321,33,481,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="699,33,859,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="577,165,635,197" href="#media" title="media"><area shape="rect" coords="695,99,813,131" href="#cardSuggestion" title="cardSuggestion"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#cardContent" title="cardContent">cardContent</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'cardContent' '' ( 'title' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ( 'description' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? <a href="#media" title="media">media</a>? <a href="#cardSuggestion" title="cardSuggestion">cardSuggestion</a>* ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#carouselCard" title="carouselCard">carouselCard</a></li>
+            <li><a href="#standaloneCard" title="standaloneCard">standaloneCard</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="cardSuggestion">cardSuggestion:</a></p><img border="0" src="diagram/cardSuggestion.svg" height="81" width="499" usemap="#cardSuggestion.map"><map name="cardSuggestion.map"><area shape="rect" coords="277,1,399,33" href="#suggestedReply" title="suggestedReply"><area shape="rect" coords="283,45,409,77" href="#suggestedAction" title="suggestedAction"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#cardSuggestion" title="cardSuggestion">cardSuggestion</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'suggestion' '' ( 'reply' <a href="#suggestedReply" title="suggestedReply">suggestedReply</a> | 'action' <a href="#suggestedAction" title="suggestedAction">suggestedAction</a> ) ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#cardContent" title="cardContent">cardContent</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="media">media:</a></p><img border="0" src="diagram/media.svg" height="81" width="709" usemap="#media.map"><map name="media.map"><area shape="rect" coords="295,33,349,65" href="#ATOM" title="ATOM"><area shape="rect" coords="469,1,597,33" href="#uploadedRbmFile" title="uploadedRbmFile"><area shape="rect" coords="527,45,619,77" href="#contentInfo" title="contentInfo"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#media" title="media">media</a>&nbsp;&nbsp;&nbsp;&nbsp;::= 'media' '' ( 'height' ':' <a href="#ATOM" title="ATOM">ATOM</a> )? ( 'file' <a href="#uploadedRbmFile" title="uploadedRbmFile">uploadedRbmFile</a> | 'contentInfo' <a href="#contentInfo" title="contentInfo">contentInfo</a> ) ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#cardContent" title="cardContent">cardContent</a></li>
+            <li><a href="#richCardShortcut" title="richCardShortcut">richCardShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="messageShortcut">messageShortcut:</a></p><img border="0" src="diagram/messageShortcut.svg" height="125" width="225" usemap="#messageShortcut.map"><map name="messageShortcut.map"><area shape="rect" coords="49,1,147,33" href="#textShortcut" title="textShortcut"><area shape="rect" coords="49,45,141,77" href="#fileShortcut" title="fileShortcut"><area shape="rect" coords="49,89,175,121" href="#richCardShortcut" title="richCardShortcut"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#messageShortcut" title="messageShortcut">messageShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#textShortcut" title="textShortcut">textShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#fileShortcut" title="fileShortcut">fileShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#richCardShortcut" title="richCardShortcut">richCardShortcut</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#messagesSection" title="messagesSection">messagesSection</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="textShortcut">textShortcut:</a></p><img border="0" src="diagram/textShortcut.svg" height="115" width="649" usemap="#textShortcut.map"><map name="textShortcut.map"><area shape="rect" coords="115,35,275,67" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="115,79,239,111" href="#expressionValue" title="expressionValue"><area shape="rect" coords="395,1,539,33" href="#suggestionShortcut" title="suggestionShortcut"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#textShortcut" title="textShortcut">textShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'text' ( <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> | <a href="#expressionValue" title="expressionValue">expressionValue</a> ) ( '' <a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a>* '' )?</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#messageShortcut" title="messageShortcut">messageShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="fileShortcut">fileShortcut:</a></p><img border="0" src="diagram/fileShortcut.svg" height="103" width="731" usemap="#fileShortcut.map"><map name="fileShortcut.map"><area shape="rect" coords="185,35,251,67" href="#STRING" title="STRING"><area shape="rect" coords="291,67,357,99" href="#STRING" title="STRING"><area shape="rect" coords="477,1,621,33" href="#suggestionShortcut" title="suggestionShortcut"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#fileShortcut" title="fileShortcut">fileShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'uploadedRbmFile' <a href="#STRING" title="STRING">STRING</a><a href="#STRING" title="STRING">STRING</a>? ( '' <a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a>* '' )?</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#messageShortcut" title="messageShortcut">messageShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="richCardShortcut">richCardShortcut:</a></p><img border="0" src="diagram/richCardShortcut.svg" height="119" width="977" usemap="#richCardShortcut.map"><map name="richCardShortcut.map"><area shape="rect" coords="125,35,285,67" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="325,67,485,99" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="605,67,663,99" href="#media" title="media"><area shape="rect" coords="723,1,867,33" href="#suggestionShortcut" title="suggestionShortcut"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#richCardShortcut" title="richCardShortcut">richCardShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'richCard' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a>? ( '' <a href="#media" title="media">media</a>? <a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a>* '' )?</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#messageShortcut" title="messageShortcut">messageShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="suggestionShortcut">suggestionShortcut:</a></p><img border="0" src="diagram/suggestionShortcut.svg" height="257" width="305" usemap="#suggestionShortcut.map"><map name="suggestionShortcut.map"><area shape="rect" coords="49,1,153,33" href="#replyShortcut" title="replyShortcut"><area shape="rect" coords="49,45,145,77" href="#dialShortcut" title="dialShortcut"><area shape="rect" coords="49,89,171,121" href="#openUrlShortcut" title="openUrlShortcut"><area shape="rect" coords="49,133,211,165" href="#shareLocationShortcut" title="shareLocationShortcut"><area shape="rect" coords="49,177,255,209" href="#createCalendarEventShortcut" title="createCalendarEventShortcut"><area shape="rect" coords="49,221,203,253" href="#viewLocationShortcut" title="viewLocationShortcut"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= <a href="#replyShortcut" title="replyShortcut">replyShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#dialShortcut" title="dialShortcut">dialShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#openUrlShortcut" title="openUrlShortcut">openUrlShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#shareLocationShortcut" title="shareLocationShortcut">shareLocationShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#createCalendarEventShortcut" title="createCalendarEventShortcut">createCalendarEventShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a href="#viewLocationShortcut" title="viewLocationShortcut">viewLocationShortcut</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#fileShortcut" title="fileShortcut">fileShortcut</a></li>
+            <li><a href="#richCardShortcut" title="richCardShortcut">richCardShortcut</a></li>
+            <li><a href="#textShortcut" title="textShortcut">textShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="replyShortcut">replyShortcut:</a></p><img border="0" src="diagram/replyShortcut.svg" height="69" width="419" usemap="#replyShortcut.map"><map name="replyShortcut.map"><area shape="rect" coords="103,1,263,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="303,33,369,65" href="#STRING" title="STRING"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#replyShortcut" title="replyShortcut">replyShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'reply' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="#STRING" title="STRING">STRING</a>?</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="dialShortcut">dialShortcut:</a></p><img border="0" src="diagram/dialShortcut.svg" height="37" width="395" usemap="#dialShortcut.map"><map name="dialShortcut.map"><area shape="rect" coords="93,1,253,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="273,1,365,33" href="#typedValue" title="typedValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#dialShortcut" title="dialShortcut">dialShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'dial' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="#typedValue" title="typedValue">typedValue</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="openUrlShortcut">openUrlShortcut:</a></p><img border="0" src="diagram/openUrlShortcut.svg" height="189" width="957" usemap="#openUrlShortcut.map"><map name="openUrlShortcut.map"><area shape="rect" coords="121,1,281,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="301,1,393,33" href="#typedValue" title="typedValue"><area shape="rect" coords="433,33,593,65" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#openUrlShortcut" title="openUrlShortcut">openUrlShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'openUrl' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="#typedValue" title="typedValue">typedValue</a><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a>? ( ( ':BROWSER' | ':WEBVIEW' ) ( ':FULL' | ':HALF' | ':TALL' )? )?</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="shareLocationShortcut">shareLocationShortcut:</a></p><img border="0" src="diagram/shareLocationShortcut.svg" height="37" width="353" usemap="#shareLocationShortcut.map"><map name="shareLocationShortcut.map"><area shape="rect" coords="163,1,323,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#shareLocationShortcut" title="shareLocationShortcut">shareLocationShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'shareLocation' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a></div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="createCalendarEventShortcut">createCalendarEventShortcut:</a></p><img border="0" src="diagram/createCalendarEventShortcut.svg" height="103" width="915" usemap="#createCalendarEventShortcut.map"><map name="createCalendarEventShortcut.map"><area shape="rect" coords="209,1,369,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="507,1,667,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="687,1,779,33" href="#typedValue" title="typedValue"><area shape="rect" coords="799,1,891,33" href="#typedValue" title="typedValue"><area shape="rect" coords="685,67,845,99" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#createCalendarEventShortcut" title="createCalendarEventShortcut">createCalendarEventShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'createCalendarEvent' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> '' 'event' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a><a href="#typedValue" title="typedValue">typedValue</a><a href="#typedValue" title="typedValue">typedValue</a><a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a></li>
+         </ul>
+      </p><br><p style="font-size: 14px; font-weight:bold"><a name="viewLocationShortcut">viewLocationShortcut:</a></p><img border="0" src="diagram/viewLocationShortcut.svg" height="179" width="725" usemap="#viewLocationShortcut.map"><map name="viewLocationShortcut.map"><area shape="rect" coords="159,1,319,33" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="481,1,553,33" href="#NUMBER" title="NUMBER"><area shape="rect" coords="573,1,645,33" href="#NUMBER" title="NUMBER"><area shape="rect" coords="521,45,681,77" href="#enhancedSimpleValue" title="enhancedSimpleValue"><area shape="rect" coords="475,143,635,175" href="#enhancedSimpleValue" title="enhancedSimpleValue"></map><p>
+         <div class="ebnf"><code>
+               <div><a href="#viewLocationShortcut" title="viewLocationShortcut">viewLocationShortcut</a></div>
+               <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::= 'viewLocation' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> '' ( 'latLng' <a href="#NUMBER" title="NUMBER">NUMBER</a><a href="#NUMBER" title="NUMBER">NUMBER</a> | 'query' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> ) ( 'label' ':' <a href="#enhancedSimpleValue" title="enhancedSimpleValue">enhancedSimpleValue</a> )? ''</div></code></div>
+      </p>
+      <p>referenced by:
+         
+         <ul>
+            <li><a href="#suggestionShortcut" title="suggestionShortcut">suggestionShortcut</a></li>
+         </ul>
+      </p><br><hr>
+      <p>
+         <table border="0" class="signature">
+            <tr>
+               <td style="width: 100%">&nbsp;</td>
+               <td valign="top">
+                  <nobr class="signature">... generated by <a name="Railroad-Diagram-Generator" class="signature" title="https://www.bottlecaps.de/rr/ui" href="https://www.bottlecaps.de/rr/ui" target="_blank">RR - Railroad Diagram Generator</a></nobr>
+               </td>
+               <td><a name="Railroad-Diagram-Generator" title="https://www.bottlecaps.de/rr/ui" href="https://www.bottlecaps.de/rr/ui" target="_blank"><img border="0" src="diagram/rr-2.5.svg" height="16" width="16"></a></td>
+            </tr>
+         </table>
+      </p>
+   </body>
+</html>

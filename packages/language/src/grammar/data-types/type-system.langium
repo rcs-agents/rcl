@@ -18,7 +18,7 @@ TypeConversion infers TypeConversion:
 
 // ======== Type Tag Rules ========
 TypeTag infers TypeTag:
-    '<' type=TYPE_TAG_NAME value=TYPE_TAG_VALUE_CONTENT ('|' modifier=TYPE_TAG_MODIFIER_CONTENT)? '>';
+    LT type=TYPE_TAG_NAME value=TYPE_TAG_VALUE_CONTENT ('|' modifier=TYPE_TAG_MODIFIER_CONTENT)? GT;
 
 TypedValue infers TypedValue:
     TypeConversion | LiteralValue; 

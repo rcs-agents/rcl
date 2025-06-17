@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="575" height="169">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #003322; stroke-width: 1;}
+    .bold-line            {stroke: #00140E; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #001F14; shape-rendering: crispEdges}
+    .filled               {fill: #003322; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00140E;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001A11;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001F14;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #003322; stroke: #003322;}
+    rect.terminal         {fill: #4DFFC3; stroke: #003322; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EFFDF; stroke: #003322; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7FFEC; stroke: #003322; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 17 1 13 1 21"/>
+   <polygon points="17 17 9 13 9 21"/>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#MULTILINE_STRING_CLEAN"
+      xlink:title="MULTILINE_STRING_CLEAN">
+      <rect x="51" y="3" width="190" height="32"/>
+      <rect x="49" y="1" width="190" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="21">MULTILINE_STRING_CLEAN</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#MULTILINE_STRING_TRIM"
+      xlink:title="MULTILINE_STRING_TRIM">
+      <rect x="51" y="47" width="180" height="32"/>
+      <rect x="49" y="45" width="180" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="65">MULTILINE_STRING_TRIM</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#MULTILINE_STRING_PRESERVE"
+      xlink:title="MULTILINE_STRING_PRESERVE">
+      <rect x="51" y="91" width="214" height="32"/>
+      <rect x="49" y="89" width="214" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="109">MULTILINE_STRING_PRESERVE</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#MULTILINE_STRING_PRESERVE_ALL"
+      xlink:title="MULTILINE_STRING_PRESERVE_ALL">
+      <rect x="51" y="135" width="244" height="32"/>
+      <rect x="49" y="133" width="244" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="153">MULTILINE_STRING_PRESERVE_ALL</text>
+   </a>
+   <rect x="335" y="3" width="20" height="32" rx="10"/>
+   <rect x="333"
+         y="1"
+         width="20"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="343" y="21"/>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#STRING_CONTENT"
+      xlink:title="STRING_CONTENT">
+      <rect x="375" y="3" width="132" height="32"/>
+      <rect x="373" y="1" width="132" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="383" y="21">STRING_CONTENT</text>
+   </a>
+   <rect x="527" y="3" width="20" height="32" rx="10"/>
+   <rect x="525"
+         y="1"
+         width="20"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="535" y="21"/>
+   <path class="line"
+         d="m17 17 h2 m20 0 h10 m190 0 h10 m0 0 h54 m-284 0 h20 m264 0 h20 m-304 0 q10 0 10 10 m284 0 q0 -10 10 -10 m-294 10 v24 m284 0 v-24 m-284 24 q0 10 10 10 m264 0 q10 0 10 -10 m-274 10 h10 m180 0 h10 m0 0 h64 m-274 -10 v20 m284 0 v-20 m-284 20 v24 m284 0 v-24 m-284 24 q0 10 10 10 m264 0 q10 0 10 -10 m-274 10 h10 m214 0 h10 m0 0 h30 m-274 -10 v20 m284 0 v-20 m-284 20 v24 m284 0 v-24 m-284 24 q0 10 10 10 m264 0 q10 0 10 -10 m-274 10 h10 m244 0 h10 m20 -132 h10 m20 0 h10 m0 0 h10 m132 0 h10 m0 0 h10 m20 0 h10 m3 0 h-3"/>
+   <polygon points="565 17 573 13 573 21"/>
+   <polygon points="565 17 557 13 557 21"/>
+</svg>

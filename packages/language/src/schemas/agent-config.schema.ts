@@ -1,0 +1,280 @@
+/**
+ * Agent configuration JSON schema for RCS Business Messaging
+ * Imported from the official specification
+ */
+export const AGENT_CONFIG_SCHEMA = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://developers.google.com/business-communications/rcs-business-messaging/schemas/agent.json",
+  "title": "RCS Business Messaging Agent",
+  "description": "A conversational entity that represents a brand in RCS Business Messaging",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The unique identifier of the agent. Read-only. Defined by the platform.",
+      "readOnly": true
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Required. The name that the agent displays to users. Maximum 100 characters. Not modifiable after agent verification.",
+      "maxLength": 100
+    },
+    "brandName": {
+      "type": "string",
+      "description": "Output only. The name of the brand associated with the agent.",
+      "readOnly": true
+    },
+    "rcsBusinessMessagingAgent": {
+      "$ref": "#/$defs/RcsBusinessMessagingAgent"
+    }
+  },
+  "required": ["displayName", "rcsBusinessMessagingAgent"],
+  "additionalProperties": false,
+  "$defs": {
+    "RcsBusinessMessagingAgent": {
+      "type": "object",
+      "description": "Agent information specifically related to RCS Business Messaging",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Description of the agent"
+        },
+        "logoUri": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI for the agent's logo"
+        },
+        "heroUri": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI for the agent's hero image"
+        },
+        "phoneNumbers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PhoneEntry"
+          },
+          "description": "Phone numbers associated with the agent"
+        },
+        "emails": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EmailEntry"
+          },
+          "description": "Email addresses associated with the agent"
+        },
+        "websites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WebEntry"
+          },
+          "description": "Websites associated with the agent"
+        },
+        "privacy": {
+          "$ref": "#/$defs/WebEntry",
+          "description": "Privacy policy information"
+        },
+        "termsConditions": {
+          "$ref": "#/$defs/WebEntry",
+          "description": "Terms and conditions information"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "Brand color in hex format"
+        },
+        "billingConfig": {
+          "$ref": "#/$defs/RcsBusinessMessagingAgentBillingConfig",
+          "description": "Billing configuration for the agent"
+        },
+        "agentUseCase": {
+          "$ref": "#/$defs/AgentUseCase",
+          "description": "The use case type for the agent"
+        },
+        "hostingRegion": {
+          "$ref": "#/$defs/HostingRegion",
+          "description": "The hosting region for the agent"
+        },
+        "partner": {
+          "$ref": "#/$defs/PartnerEntry",
+          "description": "Partner associated with the agent"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PhoneEntry": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string",
+          "description": "Phone number in E.164 format"
+        },
+        "label": {
+          "type": "string",
+          "description": "Label for the phone number"
+        }
+      },
+      "required": ["number"],
+      "additionalProperties": false
+    },
+    "EmailEntry": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address"
+        },
+        "label": {
+          "type": "string",
+          "description": "Label for the email address"
+        }
+      },
+      "required": ["address"],
+      "additionalProperties": false
+    },
+    "WebEntry": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Website URL"
+        },
+        "label": {
+          "type": "string",
+          "description": "Label for the website"
+        }
+      },
+      "required": ["url"],
+      "additionalProperties": false
+    },
+    "RcsBusinessMessagingAgentBillingConfig": {
+      "type": "object",
+      "properties": {
+        "billingCategory": {
+          "$ref": "#/$defs/BillingCategory",
+          "description": "The billing category for the agent"
+        }
+      },
+      "required": ["billingCategory"],
+      "additionalProperties": false
+    },
+    "PartnerEntry": {
+      "type": "object",
+      "properties": {
+        "partnerId": {
+          "type": "string",
+          "description": "Output only. Unique identifier for partner.",
+          "readOnly": true
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Output only. The name that will be displayed to businesses to associate partners for products.",
+          "readOnly": true
+        },
+        "company": {
+          "type": "string",
+          "description": "Output only. The public name of the company for the given partner.",
+          "readOnly": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "RcsBusinessMessagingRegionLaunch": {
+      "type": "object",
+      "properties": {
+        "launchState": {
+          "$ref": "#/$defs/LaunchState",
+          "description": "The launch state for a region"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Comment from the carrier"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last updated time in RFC 3339 format"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentUseCase": {
+      "type": "string",
+      "enum": [
+        "AGENT_USE_CASE_UNSPECIFIED",
+        "TRANSACTIONAL",
+        "PROMOTIONAL",
+        "OTP",
+        "MULTI_USE"
+      ],
+      "description": "Agent use case types",
+      "enumDescriptions": [
+        "Use case not specified",
+        "Agents that send only essential, necessary and time-sensitive messages",
+        "Agents that send sales, marketing and promotional messages. Default type",
+        "Agents that only send one time passwords",
+        "Agents that have multiple use cases"
+      ]
+    },
+    "HostingRegion": {
+      "type": "string",
+      "enum": [
+        "HOSTING_REGION_UNSPECIFIED",
+        "NORTH_AMERICA",
+        "EUROPE",
+        "ASIA_PACIFIC"
+      ],
+      "description": "Possible hosting regions for an agent",
+      "enumDescriptions": [
+        "Unspecified hosting region",
+        "North America",
+        "Europe",
+        "Asia Pacific"
+      ]
+    },
+    "LaunchState": {
+      "type": "string",
+      "enum": [
+        "LAUNCH_STATE_UNSPECIFIED",
+        "LAUNCH_STATE_UNLAUNCHED",
+        "LAUNCH_STATE_PENDING",
+        "LAUNCH_STATE_LAUNCHED",
+        "LAUNCH_STATE_REJECTED",
+        "LAUNCH_STATE_SUSPENDED",
+        "LAUNCH_STATE_PENDING_UNLAUNCH",
+        "LAUNCH_STATE_INVALID_IN_GMB"
+      ],
+      "description": "The launch state of an entity",
+      "enumDescriptions": [
+        "Unspecified state",
+        "Entity is unlaunched",
+        "Launch in review",
+        "Launched",
+        "Launch is rejected",
+        "Launch is suspended",
+        "Unlaunch in review",
+        "Launch is invalid because the associated Google My Business Listing doesn't support messaging"
+      ]
+    },
+    "BillingCategory": {
+      "type": "string",
+      "enum": [
+        "BILLING_CATEGORY_UNSPECIFIED",
+        "CONVERSATIONAL_LEGACY",
+        "CONVERSATIONAL",
+        "SINGLE_MESSAGE",
+        "BASIC_MESSAGE"
+      ],
+      "description": "Billing categories for RCS Business Messaging",
+      "enumDescriptions": [
+        "Category not specified",
+        "Legacy category to support the billing configuration of existing agents",
+        "Designed for longer, more complex sessions where the user and brand exchange a series of messages",
+        "Replaces SMS with a richer messaging experience. Never billed as CONVERSATIONAL",
+        "Billing model is similar to SMS. Never billed as CONVERSATIONAL"
+      ]
+    }
+  }
+} as const; 

@@ -1,0 +1,16 @@
+import My Brand / Samples as Sample
+
+agent BMW Agent
+  displayName: "BMW Messaging Agent"
+  brandName: "BMW"
+  
+  Config
+    description: "Test agent configuration"
+
+  Messages
+    message Welcome
+      text: "Hello, how can I help you today?"
+    
+  
+  flow Default
+    :start -> Welcome

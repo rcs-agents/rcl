@@ -1,7 +1,7 @@
 grammar Rcl
 
 // ======== Common Terminals and Imports ========
-// This file contains common terminals and imports all necessary data-types and schema files
+// This file contains common terminals and imports all necessary data-types and core sections
 
 // Import all data-types
 import "./grammar/data-types/primitives";
@@ -9,12 +9,8 @@ import "./grammar/data-types/type-system";
 import "./grammar/data-types/collections";
 import "./grammar/data-types/parameters";
 
-// Import all schemas
-import "./grammar/schemas/agent-schema";
-import "./grammar/schemas/config-schema";
-import "./grammar/schemas/defaults-schema";
-import "./grammar/schemas/message-schema";
-import "./grammar/schemas/flow-schema";
+// Import core section infrastructure
+import "./grammar/core/sections";
 
 // Import expressions
 import "./grammar/expressions/expression-types";
@@ -23,8 +19,9 @@ import "./grammar/expressions/expression-types";
 import "./grammar/specialized/strings";
 import "./grammar/specialized/embedded-code";
 
-// Dummy infers Dummy: INDENT sign='+' DEDENT;
-
-entry RclFile infers RclFile:
-    (imports+=ImportStatement)+
-    agentDefinition=AgentDefinition;
+// ======== Entry Point ========
+// RCL files start with imports and contain a single agent section
+entry RclFile:
+    (imports+=ImportStatement)*
+    (NL)* // Allow blank lines after imports or before agent section
+    agentSection=Section;

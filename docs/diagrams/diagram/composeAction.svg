@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="517" height="81">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #003322; stroke-width: 1;}
+    .bold-line            {stroke: #00140E; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #001F14; shape-rendering: crispEdges}
+    .filled               {fill: #003322; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00140E;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001A11;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #001F14;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #003322; stroke: #003322;}
+    rect.terminal         {fill: #4DFFC3; stroke: #003322; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EFFDF; stroke: #003322; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7FFEC; stroke: #003322; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 17 1 13 1 21"/>
+   <polygon points="17 17 9 13 9 21"/>
+   <rect x="31" y="3" width="122" height="32" rx="10"/>
+   <rect x="29"
+         y="1"
+         width="122"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="39" y="21">composeAction</text>
+   <rect x="173" y="3" width="20" height="32" rx="10"/>
+   <rect x="171"
+         y="1"
+         width="20"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="181" y="21"/>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#composeTextMessage"
+      xlink:title="composeTextMessage">
+      <rect x="233" y="3" width="160" height="32"/>
+      <rect x="231" y="1" width="160" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="241" y="21">composeTextMessage</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="#composeRecordingMessage"
+      xlink:title="composeRecordingMessage">
+      <rect x="233" y="47" width="196" height="32"/>
+      <rect x="231" y="45" width="196" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="241" y="65">composeRecordingMessage</text>
+   </a>
+   <rect x="469" y="3" width="20" height="32" rx="10"/>
+   <rect x="467"
+         y="1"
+         width="20"
+         height="32"
+         class="terminal"
+         rx="10"/>
+   <text class="terminal" x="477" y="21"/>
+   <path class="line"
+         d="m17 17 h2 m0 0 h10 m122 0 h10 m0 0 h10 m20 0 h10 m20 0 h10 m160 0 h10 m0 0 h36 m-236 0 h20 m216 0 h20 m-256 0 q10 0 10 10 m236 0 q0 -10 10 -10 m-246 10 v24 m236 0 v-24 m-236 24 q0 10 10 10 m216 0 q10 0 10 -10 m-226 10 h10 m196 0 h10 m20 -44 h10 m20 0 h10 m3 0 h-3"/>
+   <polygon points="507 17 515 13 515 21"/>
+   <polygon points="507 17 499 13 499 21"/>
+</svg>

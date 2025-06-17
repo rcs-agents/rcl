@@ -4,21 +4,25 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { URI } from 'langium';
 
-export async function extractDocument(fileName: string, services: LangiumCoreServices): Promise<LangiumDocument> {
+export async function extractDocumentForChecking(fileName: string, services: LangiumCoreServices): Promise<LangiumDocument> {
     const extensions = services.LanguageMetaData.fileExtensions;
     if (!extensions.includes(path.extname(fileName))) {
-        console.error(chalk.yellow(`Please choose a file with one of these extensions: ${extensions}.`));
-        process.exit(1);
+        throw new Error(`Please choose a file with one of these extensions: ${extensions}.`);
     }
 
     if (!fs.existsSync(fileName)) {
-        console.error(chalk.red(`File ${fileName} does not exist.`));
-        process.exit(1);
+        throw new Error(`File ${fileName} does not exist.`);
     }
 
     const document = await services.shared.workspace.LangiumDocuments.getOrCreateDocument(URI.file(path.resolve(fileName)));
     await services.shared.workspace.DocumentBuilder.build([document], { validation: true });
 
+    return document;
+}
+
+export async function extractDocument(fileName: string, services: LangiumCoreServices): Promise<LangiumDocument> {
+    const document = await extractDocumentForChecking(fileName, services);
+    
     const validationErrors = (document.diagnostics ?? []).filter(e => e.severity === 1);
     if (validationErrors.length > 0) {
         console.error(chalk.red('There are validation errors:'));

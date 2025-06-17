@@ -1,12 +1,9 @@
-import My Brand / Sample as Sample
-
-import My Brand / Sample as Sample
+import My Brand / Samples.one as Sample One
+import My Brand / Samples.two as Sample Two
 
 agent My Brand
   brandName: "Sample Brand"     # Optional (Output only in schema, but settable in RCL for creation)
-  displayName: "Sample Agent" # Required
-
-  Config # Optional block
+  displayName: "Sample Agent" # Required Config # Optional block
     brandName: "teste"
     # description: "Agent description" # Optional
     # logoUri: "https://www.example.com/logo.png" # Optional
@@ -111,49 +108,35 @@ agent My Brand
               endTime: "2025-01-15T11:00:00Z"
               description: "Discuss project milestones."
 
-    agentMessage
-      messageTrafficType :ACKNOWLEDGEMENT # Required
-      ttl "PT1H" # Optional (oneOf expireTime/ttl)
+    acknowledgement message Receipt File "PT1H"
+      fileName: "receipt_user_device.pdf"
+      reply text: "Got it!", postbackData: "ack_file_receipt"
 
-      contentMessage # Required
-        fileName "receipt_user_device.pdf" # One of text, fileName, etc. is required
-        # text "Here is the receipt saved on your device." # Optional text to accompany fileName
-
-        reply text: "Got it!", postbackData: "ack_file_receipt" # text: Required, postbackData: Required
-
-    agentMessage
-      messageTrafficType :TRANSACTION # Required
-      expireTime "2024-11-30T12:00:00Z" # Optional (oneOf expireTime/ttl)
-
-      contentMessage # Required
-        uploadedRbmFile %{ # One of text, fileName, etc. is required
+    transaction message Invoice "PT1H"
+      uploadedRbmFile %{ # One of text, fileName, etc. is required
           fileName: "invoice_123.pdf", # Required
           thumbnailUrl: "https://cdn.example.com/thumbnails/invoice_123_thumb.png", # Optional
           thumbnailName: "invoice_123_thumb_rbm.png" # Optional
-        }
-        # text "Please find your invoice attached." # Optional text
+      }
 
-        suggestion # Optional
+    promotion message Promo Video "P1D"
+      contentInfo %{ # One of text, fileName, etc. is required
+        fileUrl: "https://www.example.com/promo_video.mp4", # Required
+        thumbnailUrl: "https://www.example.com/promo_video_thumb.jpg", # Optional
+        forceRefresh: false # Optional
+      }
+
+      suggestion
+        reply text: "Cool!", postbackData: "promo_video_cool"
+
+      suggestion # Optional
           action # text: Required, postbackData: Required, one action type: Required
             text: "View Details"
             postbackData: "view_invoice_123"
             openUrlAction:
                 url: "https://example.com/invoice/123/details" # url: Required
 
-    agentMessage
-      messageTrafficType :PROMOTION # Required
-      ttl "P1D" # Optional (oneOf expireTime/ttl)
 
-      contentMessage # Required
-        contentInfo %{ # One of text, fileName, etc. is required
-          fileUrl: "https://www.example.com/promo_video.mp4", # Required
-          thumbnailUrl: "https://www.example.com/promo_video_thumb.jpg", # Optional
-          forceRefresh: false # Optional
-        }
-        # text "Check out our new promotional video!" # Optional text
-
-        suggestion # Optional
-          reply text: "Cool!", postbackData: "promo_video_cool" # text: Required, postbackData: Required
 
     agentMessage
       messageTrafficType :TRANSACTION # Required

@@ -1,0 +1,21 @@
+agent MyTestAgentWithDefaults
+  displayName: "Agent With Defaults"
+  brandName: "TestBrand"
+
+  Config # Minimal Config section
+    description: "Config for agent with defaults."
+
+  Defaults
+    fallback_message: "Sorry, I can't help with that right now."
+    messageTrafficType: :TRANSACTIONAL # Corrected to use a valid ATOM
+    ttl: "PT1H" # ISO 8601 duration format
+    postbackData: "default_postback_string"
+    expressions
+        language: :javascript
+
+  Messages # Minimal Messages section
+    message DefaultGreeting
+      text: "Hello from the Agent with Defaults!"
+
+  flow MainDefaultsFlow # Minimal flow section
+    :start -> DefaultGreeting 

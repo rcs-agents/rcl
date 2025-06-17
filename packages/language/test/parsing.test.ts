@@ -21,14 +21,21 @@ describe('Parsing tests', () => {
 
     test('parse simple model', async () => {
         document = await parse(`
-            agent Test Agent "Test display name"
-                flow Main
-                    :start -> :end
+            agent Test Agent
+                displayName: "Test Display Name"
+                brandName: "Test Brand"
         `);
 
         // check for absence of parser errors the classic way:
         //  deactivated, find a much more human readable way below!
         // expect(document.parseResult.parserErrors).toHaveLength(0);
+
+        const agentSection = document.parseResult.value?.agentSection;
+        const agentName = agentSection?.sectionName;
+        const displayNameAttr = agentSection?.attributes.find(attr => attr.key === 'displayName');
+        const displayName = displayNameAttr?.value && 'val_str' in displayNameAttr.value 
+            ? displayNameAttr.value.val_str?.replace(/^"|"$/g, '') // Remove quotes
+            : undefined;
 
         expect(
             // here we use a (tagged) template expression to create a human readable representation
@@ -36,14 +43,12 @@ describe('Parsing tests', () => {
             // prior to the tagged template expression we check for validity of the parsed document object
             //  by means of the reusable function 'checkDocumentValid()' to sort out (critical) typos first;
             checkDocumentValid(document) || s`
-                Agent Name: ${document.parseResult.value?.agentDefinition?.name}
-                Display Name: ${document.parseResult.value?.agentDefinition?.displayName}
-                Flows: ${document.parseResult.value?.agentDefinition?.flows?.map(f => f.name)?.join(', ')}
+                Agent Name: ${agentName}
+                Display Name: ${displayName}
             `
         ).toBe(s`
             Agent Name: Test Agent
-            Display Name: Test display name
-            Flows: Main
+            Display Name: Test Display Name
         `);
     });
 });

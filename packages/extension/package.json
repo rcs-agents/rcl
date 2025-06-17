@@ -3,14 +3,13 @@
     "description": "The extension specific package",
     "version": "0.0.2",
     "displayName": "RCL - Rich Communication Language",
-    "type": "module",
     "repository": {
         "type": "git",
         "url": "https://github.com/tokilabs/rcl-vscode.git"
     },
     "license": "MIT",
     "engines": {
-        "vscode": "^1.67.0"
+        "vscode": "^1.85.0"
     },
     "categories": [
         "Programming Languages"
@@ -26,12 +25,23 @@
             "language": "rcl",
             "scopeName": "source.rcl",
             "path": "syntaxes/rcl.tmLanguage.json"
-        }]
+        }],
+        "configuration": {
+            "title": "RCL",
+            "properties": {
+                "rcl.showWebInfo": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show information about web mode limitations"
+                }
+            }
+        }
     },
     "activationEvents": [
         "onLanguage:rcl"
     ],
     "main": "./out/extension/main.cjs",
+    "browser": "./out/web/extension.cjs",
     "scripts": {
         "clean": "shx rm -fr *.tsbuildinfo out syntaxes",
         "vscode:prepublish": "bun run build",
@@ -47,7 +57,7 @@
         "vscode-languageserver": "~9.0.1"
     },
     "devDependencies": {
-        "@types/vscode": "~1.67.0",
+        "@types/vscode": "~1.85.0",
         "@vscode/vsce": "^3.5.0",
         "concurrently": "~8.2.1",
         "esbuild": "~0.20.2"

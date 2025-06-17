@@ -4,30 +4,17 @@
 
 // ======== Hidden Terminals ========
 hidden terminal SL_COMMENT: /#.*/;                     // Single-line comments
+hidden terminal WS: /[ \t]+/;                          // Whitespace (tabs and spaces only)
 
 // ======== Core Terminals ========
 terminal ATOM: /:([_a-zA-Z][\w_]*|\"[^\"\\]*\")/;
 terminal STRING: /\"(\\.|[^\"\\])*\"/;
 terminal NUMBER returns number: /[0-9]{1,3}(,[0-9]{3})*(\.[0-9]+)?([eE][-+]?[0-9]+)?|[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?/;
-terminal REGEXP_LITERAL: /\/([^\/\\]|\\\\.)*\/[gimyusv]*/;
+// terminal REGEXP_LITERAL: /\/([^\/\\]|\\\\.)*\/[gimyusv]*/;
+terminal NL: /[\r\n]+/;                         // Newlines (removed $)
 
-// ======== Basic Shared Types & Rules ========
-
-// Simplified Boolean and Null types
-BooleanValue infers BooleanValue:
-    value=('True' | 'False' | 'On' | 'Off' | 'Yes' | 'No' | 'Active' | 'Inactive' | 'Enabled' | 'Disabled');
-
-NullValue infers NullValue:
-    value='Null';
-
-LiteralValue infers LiteralValue:
-    val_str=STRING
-    | val_num=NUMBER
-    | val_atom=ATOM
-    | val_bool=BooleanValue
-    | val_null=NullValue
-    | val_regexp=REGEXP_LITERAL;
-
+// End-of-statement rule - matches newline or end of file
+End returns string: NL;
 
 // ======== Native Schema Terminals ========
 terminal AGENT_CONFIG_PREFIX: /agentConfig\s+/;
@@ -37,40 +24,62 @@ terminal AGENT_MESSAGES_TYPE: /agentMessages\s+/;
 // ======== Indentation Terminals ========
 terminal INDENT: 'synthetic:indent';                 // Indentation increase (will be overridden)
 terminal DEDENT: 'synthetic:dedent';                 // Indentation decrease (will be overridden)
-hidden terminal WS: /[\t ]+/;                          // Whitespace (tabs and spaces only)
-// hidden terminal HNL: /[\r\n]+/;                         // Newlines
+// hidden terminal HNL: /[\r\n]+/;                         // Newlines - keep WS for this
+terminal __: /[ ]+/;                          // Specific space terminal if needed, but WS should cover
 
-terminal __: /[ ]+/;                          // Whitespace (tabs and spaces only)
-terminal NL: /[\r\n$]+/;                         // Newlines
-// terminal EOF: /$/;
-// ======== Identifiers ========
+terminal LT: '<';
+terminal GT: '>';
+terminal SLASH: '/';
+
+terminal TRUE_KW: /\b(True|On|Yes|Active|Enabled)\b/;
+terminal FALSE_KW: /\b(False|Off|No|Inactive|Disabled)\b/;
+
+// ======== Basic Shared Types & Rules ========
+
+// Simplified Boolean and Null types
+BooleanLiteral infers BooleanValue:
+    value=(TRUE_KW | FALSE_KW);
+
+NullValue infers NullValue:
+    value='Null';
+
+LiteralValue infers LiteralValue:
+    val_str=STRING
+    | val_num=NUMBER
+    | val_atom=ATOM
+    | val_bool=BooleanLiteral
+    | val_null=NullValue;
+//    | val_regexp=REGEXP_LITERAL;
+
+// ======== Identifiers & Qualified Names ========
 
 terminal PROPER_WORD: /\b[A-Z](?:[a-zA-Z0-9]*|(?<=\w)-(?=\w))*\b/;
 terminal COMMON_NOUN: /[a-z][a-zA-Z0-9_]*/;
 
-interface ProperNoun {
-    words: string[];
+ProperNoun returns string:
+    PROPER_WORD+;
+
+// Identifier can be a ProperNoun or a COMMON_NOUN
+Identifier infers Identifier:
+    value=(ProperNoun | COMMON_NOUN);
+
+interface AttributePath {
+    parts: string[];
 }
 
-interface QualifiedName {
-    path: ProperNoun[];
-    property?: string[];
-}
+// Rule for attribute access path like attName or attName.subAttName
+AttributePath returns AttributePath:
+    parts+=COMMON_NOUN ('.' parts+=COMMON_NOUN)*;
 
-ProperNoun returns ProperNoun:
-    words+=PROPER_WORD (words+=PROPER_WORD)*;
-
-Identifier: ProperNoun | COMMON_NOUN;
-
-QualifiedName returns QualifiedName:
-    path+=ProperNoun ('/' path+=ProperNoun)+; //* ('.' property+=COMMON_NOUN)*;
+QualifiedName returns string:
+    PROPER_WORD ('/' PROPER_WORD)*;
 
 // ======== Import Management ========
-
 interface ImportStatement {
-    source: QualifiedName;
-    alias?: ProperNoun;
+    source: string;
+    attribute?: AttributePath;
+    alias?: string;
 }
 
 ImportStatement returns ImportStatement:
-    'import' source=QualifiedName ('as' alias=ProperNoun)? (NL | EOF);
+    'import' source=QualifiedName ("'s" attribute=AttributePath)? ('as' alias=ProperNoun)? (End | EOF);

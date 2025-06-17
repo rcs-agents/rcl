@@ -16,9 +16,11 @@
         "rcl-cli": "./bin/cli.js"
     },
     "scripts": {
+        "build": "tsc",
+        "build:clean": "bun run clean && bun run build",
         "clean": "shx rm -fr *.tsbuildinfo out",
-        "build": "echo 'No build step'",
-        "build:clean": "bun run clean && bun run build"
+        "dev": "tsc --watch --preserveWatchOutput",
+        "cli": "bun ./bin/cli.js"
     },
     "dependencies": {
         "rcl-language": "0.0.1",

@@ -10,6 +10,7 @@
         "watch": "concurrently -k -n lang,tsc,esbuild -c red,blue,yellow \"nr langium:watch\" \"tsc -b tsconfig.json --watch --preserveWatchOutput\" \"node esbuild.mjs --watch\"",
         "build": "tsc -b tsconfig.build.json && bun run --filter 'rcl-*' --filter 'vscode-rcl' build",
         "build:clean": "bun run clean && bun run build",
+        "cli": "bun packages/cli/bin/cli.js",
         "langium:generate": "cd packages/language && bun run langium:generate",
         "langium:watch": "cd packages/language && bun run langium:watch",
         "vscode:watch": "cd packages/extension && bun run watch",

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-import main from '../out/main.js';
+import main from '../src/main.ts';
 main();
