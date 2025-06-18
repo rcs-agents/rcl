@@ -6,8 +6,8 @@
 
 Based on [Langium's Keywords as Identifiers guide](https://langium.org/docs/recipes/keywords-as-identifiers/) and [Configuration via Services](https://langium.org/docs/reference/configuration-services/), we need to implement the **missing LSP providers** for:
 
-1. **SemanticTokenProvider** - Enhanced syntax highlighting beyond TextMate
-2. **HoverProvider** - Rich contextual information on hover
+1. **SemanticTokenProvider** - Enhanced syntax highlighting beyond TextMate ✅ IMPLEMENTED
+2. **HoverProvider** - Rich contextual information on hover ✅ IMPLEMENTED (Basic)
 3. **DocumentSymbolProvider** - Outline navigation and breadcrumbs
 4. **ReferenceProvider** - Go-to-definition and find-references
 
@@ -15,7 +15,7 @@ Based on [Langium's Keywords as Identifiers guide](https://langium.org/docs/reci
 
 ## Missing LSP Features Analysis
 
-### 🎯 **1. SemanticTokenProvider (High Priority)**
+### 🎯 **1. SemanticTokenProvider (High Priority)** ✅ IMPLEMENTED
 
 **Missing:** Enhanced syntax highlighting for keywords-as-identifiers context.
 
@@ -67,56 +67,26 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
 }
 ```
 
-### 🎯 **2. HoverProvider (High Priority)**
+### 🎯 **2. HoverProvider (High Priority)** ✅ IMPLEMENTED (Basic)
 
 **Missing:** Rich hover information with documentation and type info.
 
-**Implementation:**
+**Implementation (Current Basic Version):**
 ```typescript
 // packages/language/src/lsp/rcl-hover-provider.ts
-export class RclHoverProvider extends AbstractHoverProvider {
-
-    protected getHoverContent(document: LangiumDocument, params: HoverParams): Hover | undefined {
-        const rootNode = document.parseResult.value;
-        const offset = document.textDocument.offsetAt(params.position);
-        const leafNode = findLeafNodeAtOffset(rootNode, offset);
-
-        if (!leafNode) return undefined;
-
-        const element = getContainerOfType(leafNode, AstNode);
-        if (!element) return undefined;
-
-        if (isSection(element)) {
-            return this.getSectionHover(element);
-        } else if (isAttribute(element)) {
-            return this.getAttributeHover(element);
+// (Current simplified implementation extending AstNodeHoverProvider)
+export class RclHoverProvider extends AstNodeHoverProvider {
+    // ... constructor ...
+    protected getAstNodeHoverContent(node: AstNode, cancelToken?: CancellationToken): MaybePromise<Hover | undefined> {
+        if (isSection(node)) {
+            return this.getSectionHoverDetails(node);
         }
-
+        if (isAttribute(node)) {
+            return this.getAttributeHoverDetails(node);
+        }
         return undefined;
     }
-
-    private getSectionHover(section: Section): Hover {
-        const sectionType = section.sectionType || this.getImpliedSectionType(section);
-        const constants = this.registry.getConstants(sectionType);
-
-        const documentation = new MarkdownString();
-        documentation.appendCodeblock(`${sectionType} section`, 'rcl');
-
-        if (constants) {
-            documentation.appendMarkdown(this.getSectionDocumentation(sectionType));
-
-            // Show allowed attributes
-            if (constants.allowedAttributes?.length) {
-                documentation.appendMarkdown('\\n\\n**Allowed attributes:**\\n');
-                constants.allowedAttributes.forEach(attr => {
-                    const required = constants.requiredAttributes?.includes(attr) ? ' (required)' : '';
-                    documentation.appendMarkdown(`- \`${attr}\`${required}\\n`);
-                });
-            }
-        }
-
-        return { contents: documentation };
-    }
+    // ... simplified getSectionHoverDetails and getAttributeHoverDetails ...
 }
 ```
 
@@ -205,10 +175,13 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
     },
     lsp: {
         CompletionProvider: (services) => new RclCompletionProvider(services), // ✅ Already exists
-        HoverProvider: (services) => new RclHoverProvider(services),           // ❌ NEW
+        HoverProvider: (services) => new RclHoverProvider(services),           // ✅ IMPLEMENTED
         ReferenceProvider: (services) => new RclReferenceProvider(services),   // ❌ NEW
         DocumentSymbolProvider: (services) => new RclDocumentSymbolProvider(services), // ❌ NEW
-        SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services), // ❌ NEW
+        SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services), // ✅ IMPLEMENTED
+    },
+    meta: {
+        SectionTypeRegistry: () => new SectionTypeRegistry() // ✅ Implemented
     }
 };
 ```
@@ -242,9 +215,9 @@ The `SemanticTokenProvider` should highlight the same token (`True`) differently
 ## Implementation Timeline
 
 ### **Week 1: Core LSP Features**
-- **Day 1-2:** Implement `SemanticTokenProvider`
-- **Day 3-4:** Implement `HoverProvider`
-- **Day 5:** Test and integrate
+- **Day 1-2:** Implement `SemanticTokenProvider` ✅ COMPLETE
+- **Day 3-4:** Implement `HoverProvider` ✅ COMPLETE (Basic Implementation)
+- **Day 5:** Test and integrate (HoverProvider testing can include enhancing details)
 
 ### **Week 2: Navigation Features**
 - **Day 1-2:** Implement `ReferenceProvider`

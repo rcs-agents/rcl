@@ -5,6 +5,8 @@ import { RclValidator, registerValidationChecks } from './rcl-validator.js';
 import { RclCompletionProvider } from './rcl-completion-provider.js';
 import { RclCustomTokenBuilder } from './services/rcl-custom-token-builder.js';
 import { RclSemanticTokenProvider } from './lsp/rcl-semantic-token-provider.js';
+import { RclHoverProvider } from './lsp/rcl-hover-provider.js';
+import { SectionTypeRegistry } from './services/section-registry.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -15,7 +17,11 @@ export type RclAddedServices = {
   },
   lsp: {
     CompletionProvider: RclCompletionProvider,
-    SemanticTokenProvider: RclSemanticTokenProvider
+    SemanticTokenProvider: RclSemanticTokenProvider,
+    HoverProvider: RclHoverProvider
+  },
+  meta: {
+    SectionTypeRegistry: SectionTypeRegistry
   }
 }
 
@@ -40,7 +46,11 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
   },
   lsp: {
     CompletionProvider: (services) => new RclCompletionProvider(services),
-    SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services)
+    SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services),
+    HoverProvider: (services) => new RclHoverProvider(services)
+  },
+  meta: {
+    SectionTypeRegistry: () => new SectionTypeRegistry()
   }
 };
 
