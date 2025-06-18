@@ -7,6 +7,7 @@ import { RclCustomTokenBuilder } from './services/rcl-custom-token-builder.js';
 import { RclSemanticTokenProvider } from './lsp/rcl-semantic-token-provider.js';
 import { RclHoverProvider } from './lsp/rcl-hover-provider.js';
 import { RclReferenceProvider } from './lsp/rcl-reference-provider.js';
+import { RclDocumentSymbolProvider } from './lsp/rcl-document-symbol-provider.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
 
 /**
@@ -20,7 +21,8 @@ export type RclAddedServices = {
     CompletionProvider: RclCompletionProvider,
     SemanticTokenProvider: RclSemanticTokenProvider,
     HoverProvider: RclHoverProvider,
-    ReferenceProvider: RclReferenceProvider
+    ReferenceProvider: RclReferenceProvider,
+    DocumentSymbolProvider: RclDocumentSymbolProvider
   },
   meta: {
     SectionTypeRegistry: SectionTypeRegistry
@@ -50,7 +52,8 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
     CompletionProvider: (services) => new RclCompletionProvider(services),
     SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services),
     HoverProvider: (services) => new RclHoverProvider(services),
-    ReferenceProvider: (services) => new RclReferenceProvider(services)
+    ReferenceProvider: (services) => new RclReferenceProvider(services),
+    DocumentSymbolProvider: (services) => new RclDocumentSymbolProvider(services)
   },
   meta: {
     SectionTypeRegistry: () => new SectionTypeRegistry()
