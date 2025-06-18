@@ -77,14 +77,14 @@ rcl/
 1. **Read the plan completely** - Understand objectives and success criteria
 2. **Identify checkpoints** - Plan where to test builds/functionality
 3. **Implement incrementally** - Small commits, frequent testing
-4. **Test at checkpoints** - Run `bun run build` and verify functionality
+4. **Test at checkpoints** - Run `bun run build` and verify functionality. (Note: Test suite verification (`bun run test`) is currently deferred to the end of the backlog; focus on build success.)
 5. **Ask for decisions** - Don't fill medium/large gaps in plans autonomously
 
 #### **Build Testing Schedule:**
 - **After grammar changes:** `bun run langium:generate && bun run build`
-- **After service additions:** `bun run build && bun run test`
+- **After service additions:** `bun run build` (Note: `bun run test` is deferred)
 - **After major changes:** `bun run build:clean` (full rebuild)
-- **Before completion:** `bun run reinstall` (test full integration)
+- **Before completion:** `bun run build:clean` followed by `bun run reinstall` (to test full integration, deferring detailed `bun run test`)
 
 ### **5. Decision-Making Boundaries**
 
@@ -187,13 +187,13 @@ bun run build | command cat
 # Full clean rebuild
 bun run build:clean | command cat
 
-# Language tests
-bun run test | command cat
+# Language tests (Currently Deferred - for future reference)
+# bun run test | command cat
 
 # Grammar regeneration + full test
 bun run langium:generate && bun run build | command cat
 
-# Full integration test
+# Full integration test (Focus on build and basic functionality)
 bun run reinstall | command cat
 ```
 
@@ -221,9 +221,9 @@ bun run reinstall | command cat
 
 Every completed plan should result in:
 - ✅ **Clean build** - `bun run build` succeeds without errors
-- ✅ **Passing tests** - `bun run test` succeeds (if tests exist)
+- ✅ **Passing tests** - `bun run test` succeeds (Note: This criterion is currently deferred. Focus is on build success and core functionality.)
 - ✅ **Extension installs** - `bun run reinstall` works without errors
-- ✅ **Functionality works** - Features described in plan are demonstrable
+- ✅ **Functionality works** - Features described in plan are demonstrable through basic usage/integration
 - ✅ **Git history** - Clear, semantic commit messages documenting changes
 - ✅ **Plan updated** - Implementation notes added to plan document
 

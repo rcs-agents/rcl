@@ -1,19 +1,20 @@
-import { type Module, inject, IndentationAwareTokenBuilder, IndentationAwareLexer } from 'langium';
+import { type Module, inject, IndentationAwareLexer } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
 import { RclGeneratedModule, RclGeneratedSharedModule } from './generated/module.js';
 import { RclValidator, registerValidationChecks } from './rcl-validator.js';
 import { RclCompletionProvider } from './rcl-completion-provider.js';
+import { RclCustomTokenBuilder } from './services/rcl-custom-token-builder.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
  */
 export type RclAddedServices = {
-    validation: {
-        RclValidator: RclValidator
-    },
-    lsp: {
-        CompletionProvider: RclCompletionProvider
-    }
+  validation: {
+    RclValidator: RclValidator
+  },
+  lsp: {
+    CompletionProvider: RclCompletionProvider
+  }
 }
 
 /**
@@ -28,16 +29,16 @@ export type RclServices = LangiumServices & RclAddedServices
  * selected services, while the custom services must be fully specified.
  */
 export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedServices> = {
-    parser: {
-        TokenBuilder: () => new IndentationAwareTokenBuilder(),
-        Lexer: (services) => new IndentationAwareLexer(services),
-    },
-    validation: {
-        RclValidator: () => new RclValidator()
-    },
-    lsp: {
-        CompletionProvider: (services) => new RclCompletionProvider(services)
-    }
+  parser: {
+    TokenBuilder: () => new RclCustomTokenBuilder(),
+    Lexer: (services) => new IndentationAwareLexer(services),
+  },
+  validation: {
+    RclValidator: () => new RclValidator()
+  },
+  lsp: {
+    CompletionProvider: (services) => new RclCompletionProvider(services)
+  }
 };
 
 /**
@@ -56,24 +57,24 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
  * @returns An object wrapping the shared services and the language-specific services
  */
 export function createRclServices(context: DefaultSharedModuleContext): {
-    shared: LangiumSharedServices,
-    Rcl: RclServices
+  shared: LangiumSharedServices,
+  Rcl: RclServices
 } {
-    const shared = inject(
-        createDefaultSharedModule(context),
-        RclGeneratedSharedModule
-    );
-    const Rcl = inject(
-        createDefaultModule({ shared }),
-        RclGeneratedModule,
-        RclModule
-    );
-    shared.ServiceRegistry.register(Rcl);
-    registerValidationChecks(Rcl);
-    if (!context.connection) {
-        // We don't run inside a language server
-        // Therefore, initialize the configuration provider instantly
-        shared.workspace.ConfigurationProvider.initialized({});
-    }
-    return { shared, Rcl };
+  const shared = inject(
+    createDefaultSharedModule(context),
+    RclGeneratedSharedModule
+  );
+  const Rcl = inject(
+    createDefaultModule({ shared }),
+    RclGeneratedModule,
+    RclModule
+  );
+  shared.ServiceRegistry.register(Rcl);
+  registerValidationChecks(Rcl);
+  if (!context.connection) {
+    // We don't run inside a language server
+    // Therefore, initialize the configuration provider instantly
+    shared.workspace.ConfigurationProvider.initialized({});
+  }
+  return { shared, Rcl };
 }
