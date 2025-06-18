@@ -9,7 +9,7 @@ Based on [Langium's Keywords as Identifiers guide](https://langium.org/docs/reci
 1. **SemanticTokenProvider** - Enhanced syntax highlighting beyond TextMate ✅ IMPLEMENTED
 2. **HoverProvider** - Rich contextual information on hover ✅ IMPLEMENTED (Basic)
 3. **DocumentSymbolProvider** - Outline navigation and breadcrumbs
-4. **ReferenceProvider** - Go-to-definition and find-references ✅ IMPLEMENTED (Basic Structure)
+4. **ReferenceProvider** - Go-to-definition and find-references ✅ IMPLEMENTED (Basic Structure - User Fixed)
 
 ---
 
@@ -126,23 +126,25 @@ export class RclDocumentSymbolProvider extends AbstractDocumentSymbolProvider {
 }
 ```
 
-### 🎯 **4. ReferenceProvider (High Priority)** ✅ IMPLEMENTED (Basic Structure)
+### 🎯 **4. ReferenceProvider (High Priority)** ✅ IMPLEMENTED (Basic Structure - User Fixed)
 
 **Missing:** Go-to-definition and find-references.
 
-**Implementation (Current Basic Structure):**
+**Implementation (Current Basic Structure - User Fixed):**
 ```typescript
 // packages/language/src/lsp/rcl-reference-provider.ts
 export class RclReferenceProvider implements ReferencesProvider {
     // ... constructor ...
     findReferences(document: LangiumDocument, params: ReferenceParams, cancelToken?: CancellationToken): MaybePromise<Location[]> {
-        // ... logic to find cstLeaf and astNodeForLeaf ...
-        if (isIdentifier(astNodeForLeaf)) {
-            return this.findIdentifierReferences(astNodeForLeaf, document, params.context.includeDeclaration, cancelToken);
-        }
-        if (isFlowOperand(astNodeForLeaf)) {
-            return this.findFlowOperandReferences(astNodeForLeaf, document, params.context.includeDeclaration, cancelToken);
-        }
+        const rootAstNode = document.parseResult.value;
+        if (!rootAstNode?.$cstNode) { return []; }
+        const offset = document.textDocument.offsetAt(params.position);
+        const cstLeaf = CstUtils.findLeafNodeAtOffset(rootAstNode.$cstNode, offset);
+        if (!cstLeaf?.element) { return []; }
+        const astNodeForLeaf = cstLeaf.element;
+
+        if (isIdentifier(astNodeForLeaf)) { /* ... */ }
+        if (isFlowOperand(astNodeForLeaf)) { /* ... */ }
         // ... logic for section names ...
         return [];
     }
@@ -212,7 +214,7 @@ The `SemanticTokenProvider` should highlight the same token (`True`) differently
 - **Day 5:** Test and integrate (HoverProvider testing can include enhancing details)
 
 ### **Week 2: Navigation Features**
-- **Day 1-2:** Implement `ReferenceProvider` ✅ COMPLETE (Basic Structure - actual reference finding logic TBD)
+- **Day 1-2:** Implement `ReferenceProvider` ✅ COMPLETE (Basic Structure - User Fixed; actual reference finding logic TBD)
 - **Day 3-4:** Implement `DocumentSymbolProvider`
 - **Day 5:** Integration testing and polish
 

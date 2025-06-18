@@ -40,7 +40,7 @@ export class RclReferenceProvider implements ReferencesProvider {
 
     const enclosingSection = AstUtils.getContainerOfType(astNodeForLeaf, isSection);
 
-    if (enclosingSection && enclosingSection.sectionName && cstLeaf.text === enclosingSection.sectionName) {
+    if (enclosingSection?.sectionName && cstLeaf.text === enclosingSection.sectionName) {
       return this.findSectionReferences(enclosingSection, document, params.context.includeDeclaration, cancelToken);
     }
 
