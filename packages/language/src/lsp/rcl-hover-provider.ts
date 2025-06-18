@@ -1,8 +1,8 @@
-import { type AstNode, type MaybePromise } from 'langium';
+import { type AstNode, type MaybePromise, AstUtils } from 'langium';
 import { AstNodeHoverProvider } from 'langium/lsp';
 import { type Hover, type CancellationToken } from 'vscode-languageserver-protocol';
 import { MarkupKind } from 'vscode-languageserver-types';
-import { isSection, type Section, isAttribute, type Attribute } from '../generated/ast.js';
+import { isSection, type Section, isAttribute, type Attribute, isBooleanValue, type BooleanValue, isTypeConversion, type TypeConversion, isEmbeddedCodeBlock, type EmbeddedCodeBlock, isIdentifier, type Identifier, isLiteralValue, type LiteralValue } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
 import type { SectionTypeRegistry } from '../services/section-registry.js';
 
@@ -14,20 +14,36 @@ export class RclHoverProvider extends AstNodeHoverProvider {
     this.sectionRegistry = services.meta.SectionTypeRegistry;
   }
 
-  protected getAstNodeHoverContent(node: AstNode, cancelToken?: CancellationToken): MaybePromise<Hover | undefined> {
+  protected override getAstNodeHoverContent(node: AstNode, cancelToken?: CancellationToken): MaybePromise<Hover | undefined> {
     if (isSection(node)) {
       return this.getSectionHoverDetails(node);
     }
     if (isAttribute(node)) {
       return this.getAttributeHoverDetails(node);
     }
+    if (isBooleanValue(node)) {
+      return this.getBooleanValueHover(node);
+    }
+    if (isTypeConversion(node)) {
+      return this.getTypeConversionHover(node);
+    }
+    if (isEmbeddedCodeBlock(node)) {
+      return this.getEmbeddedCodeHover(node);
+    }
+    if (isIdentifier(node)) {
+      return this.getIdentifierHover(node);
+    }
     return undefined;
+  }
+
+  private buildMarkdown(...lines: string[]): string {
+    return lines.join('\n');
   }
 
   private getSectionHoverDetails(section: Section): Hover | undefined {
     let actualSectionType: string | undefined = section.sectionType;
     const sectionTitle = section.sectionName || section.reservedName || section.sectionType || "Section";
-    let markdownLines: string[] = [];
+    const markdownLines: string[] = [];
 
     if (!actualSectionType && section.reservedName) {
       const parent = section.$container;
@@ -40,7 +56,9 @@ export class RclHoverProvider extends AstNodeHoverProvider {
       }
     }
     const typeForDisplay = actualSectionType || (section.reservedName ? 'Reserved Section' : 'Generic Section');
-    markdownLines.push(`\`\`\`rcl\n${sectionTitle} (type: ${typeForDisplay})\n\`\`\``);
+    markdownLines.push(`\`\`\`rcl
+${sectionTitle} (type: ${typeForDisplay})
+\`\`\``);
 
     if (actualSectionType) {
       const constants = this.sectionRegistry.getConstants(actualSectionType);
@@ -57,34 +75,105 @@ export class RclHoverProvider extends AstNodeHoverProvider {
     } else {
       markdownLines.push('\nA section definition.');
     }
-    return { contents: { kind: MarkupKind.Markdown, value: markdownLines.join('') } };
+    return { contents: { kind: MarkupKind.Markdown, value: this.buildMarkdown(...markdownLines) } };
   }
 
   private getAttributeHoverDetails(attribute: Attribute): Hover | undefined {
     const attributeName = attribute.key;
-    let markdownLines: string[] = [];
+    if (!attributeName) return undefined;
+    const markdownLines: string[] = [];
+    markdownLines.push(`\`\`\`rcl
+${attributeName}
+\`\`\``);
 
-    if (!attributeName) {
-      return undefined;
-    }
-
-    markdownLines.push(`\`\`\`rcl\n${attributeName}\n\`\`\``);
-    markdownLines.push('\nAn attribute definition.'); // Highly simplified
-
-    // Simplified: Attempt to get immediate parent section type without deep traversal issues
-    const parentContainer = attribute.$container;
-    if (parentContainer && isSection(parentContainer)) {
-      const parentType = parentContainer.sectionType || (parentContainer.reservedName ? "Reserved Section" : "Unnamed Section");
-      markdownLines.push(`\n(Attribute of section: ${parentContainer.sectionName || parentContainer.reservedName || parentType})`);
-    } else if (parentContainer && parentContainer.$type === 'NestedBlockAttribute') {
-      // If inside a NestedBlockAttribute, its container should be a Section
-      const sectionContainer = parentContainer.$container;
-      if (sectionContainer && isSection(sectionContainer)) {
-        const sectionType = sectionContainer.sectionType || (sectionContainer.reservedName ? "Reserved Section" : "Unnamed Section");
-        markdownLines.push(`\n(Attribute within a nested block in section: ${sectionContainer.sectionName || sectionContainer.reservedName || sectionType})`);
+    const parentSection = AstUtils.getContainerOfType(attribute, isSection);
+    let parentSectionTypeName: string | undefined;
+    if (parentSection) {
+      parentSectionTypeName = parentSection.sectionType;
+      if (!parentSectionTypeName && parentSection.reservedName) {
+        const grandParent = parentSection.$container;
+        if (grandParent && isSection(grandParent) && grandParent.sectionType) {
+          const grandParentConstants = this.sectionRegistry.getConstants(grandParent.sectionType);
+          const reservedInfo = grandParentConstants?.reservedSubSections?.find(rs => rs.name === parentSection.reservedName);
+          if (reservedInfo) {
+            parentSectionTypeName = reservedInfo.impliedType;
+          }
+        }
       }
     }
 
-    return { contents: { kind: MarkupKind.Markdown, value: markdownLines.join('') } };
+    if (parentSectionTypeName) {
+      markdownLines.push(`\nAttribute of section type **${parentSectionTypeName}**.`);
+    } else {
+      markdownLines.push('\n(Attribute not within a known section context)');
+    }
+    markdownLines.push('\nAn attribute definition.');
+    return { contents: { kind: MarkupKind.Markdown, value: this.buildMarkdown(...markdownLines) } };
+  }
+
+  private getBooleanValueHover(booleanNode: BooleanValue): Hover | undefined {
+    const value = booleanNode.value;
+    const markdown = this.buildMarkdown(
+      `\`\`\`rcl
+${value}
+\`\`\``,
+      `Boolean literal: **${value}**.`
+    );
+    return { contents: { kind: MarkupKind.Markdown, value: markdown } };
+  }
+
+  private getLiteralValueText(literal: LiteralValue): string {
+    if (literal.val_str) return `"${literal.val_str}"`;
+    if (literal.val_num !== undefined) return literal.val_num.toString();
+    if (literal.val_bool) return literal.val_bool.value;
+    if (literal.val_atom) return literal.val_atom;
+    if (literal.val_null) return 'Null';
+    return 'unknown_literal';
+  }
+
+  private getTypeConversionHover(tc: TypeConversion): Hover | undefined {
+    const typeName = tc.type;
+    let valueText = 'unknown_value';
+    if (tc.value) {
+      if (isLiteralValue(tc.value)) {
+        valueText = this.getLiteralValueText(tc.value);
+      } else if (isIdentifier(tc.value)) {
+        valueText = tc.value.value;
+      }
+    }
+
+    const markdown = this.buildMarkdown(
+      `**Type Conversion:** \`<${typeName}>\``,
+      `**Value:** \`${valueText}\``,
+      `Converts input to the **${typeName}** type.`,
+      tc.modifier ? `Modifier: \`${tc.modifier}\`` : ''
+    ).trim();
+    return { contents: { kind: MarkupKind.Markdown, value: markdown } };
+  }
+
+  private getEmbeddedLanguageFromText(blockText: string): string {
+    if (blockText.startsWith('$js>') || blockText.startsWith('$js>>>')) return 'javascript';
+    if (blockText.startsWith('$ts>') || blockText.startsWith('$ts>>>')) return 'typescript';
+    return 'unknown';
+  }
+
+  private getEmbeddedCodeHover(codeBlock: EmbeddedCodeBlock): Hover | undefined {
+    const blockText = codeBlock.$cstNode?.text || '';
+    const language = this.getEmbeddedLanguageFromText(blockText);
+    const markdown = this.buildMarkdown(
+      `**Embedded ${language} Code**`,
+      '_This code block is treated as inline code by the RCL interpreter._'
+    );
+    return { contents: { kind: MarkupKind.Markdown, value: markdown } };
+  }
+
+  private getIdentifierHover(identifier: Identifier): Hover | undefined {
+    const markdown = this.buildMarkdown(
+      `\`\`\`rcl
+${identifier.value}
+\`\`\``,
+      `Identifier: **${identifier.value}**.`
+    );
+    return { contents: { kind: MarkupKind.Markdown, value: markdown } };
   }
 }

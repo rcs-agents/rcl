@@ -7,7 +7,7 @@
 Based on [Langium's Keywords as Identifiers guide](https://langium.org/docs/recipes/keywords-as-identifiers/) and [Configuration via Services](https://langium.org/docs/reference/configuration-services/), we need to implement the **missing LSP providers** for:
 
 1. **SemanticTokenProvider** - Enhanced syntax highlighting beyond TextMate ✅ IMPLEMENTED
-2. **HoverProvider** - Rich contextual information on hover ✅ IMPLEMENTED (Basic)
+2. **HoverProvider** - Rich contextual information on hover ✅ IMPLEMENTED (Enhanced)
 3. **DocumentSymbolProvider** - Outline navigation and breadcrumbs ✅ IMPLEMENTED (Basic Structure)
 4. **ReferenceProvider** - Go-to-definition and find-references ✅ IMPLEMENTED (Basic Structure - User Fixed)
 
@@ -67,26 +67,25 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
 }
 ```
 
-### 🎯 **2. HoverProvider (High Priority)** ✅ IMPLEMENTED (Basic)
+### 🎯 **2. HoverProvider (High Priority)** ✅ IMPLEMENTED (Enhanced)
 
 **Missing:** Rich hover information with documentation and type info.
 
-**Implementation (Current Basic Version):**
+**Implementation (Current Enhanced Version):**
 ```typescript
 // packages/language/src/lsp/rcl-hover-provider.ts
-// (Current simplified implementation extending AstNodeHoverProvider)
 export class RclHoverProvider extends AstNodeHoverProvider {
     // ... constructor ...
-    protected getAstNodeHoverContent(node: AstNode, cancelToken?: CancellationToken): MaybePromise<Hover | undefined> {
-        if (isSection(node)) {
-            return this.getSectionHoverDetails(node);
-        }
-        if (isAttribute(node)) {
-            return this.getAttributeHoverDetails(node);
-        }
+    protected override getAstNodeHoverContent(node: AstNode, cancelToken?: CancellationToken): MaybePromise<Hover | undefined> {
+        if (isSection(node)) { /* ... */ }
+        if (isAttribute(node)) { /* ... */ }
+        if (isBooleanValue(node)) { /* ... */ }
+        if (isTypeConversion(node)) { /* ... */ }
+        if (isEmbeddedCodeBlock(node)) { /* ... */ }
+        if (isIdentifier(node)) { /* ... */ }
         return undefined;
     }
-    // ... simplified getSectionHoverDetails and getAttributeHoverDetails ...
+    // ... getSectionHoverDetails, getAttributeHoverDetails, getBooleanValueHover, getTypeConversionHover, getEmbeddedCodeHover, getIdentifierHover ...
 }
 ```
 
@@ -164,12 +163,12 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
 
 ---
 
-## Implementation Timeline ✅ All listed providers have basic implementations
+## Implementation Timeline ✅ All listed providers have at least basic implementations
 
 ### **Week 1: Core LSP Features**
 - **Day 1-2:** Implement `SemanticTokenProvider` ✅ COMPLETE
-- **Day 3-4:** Implement `HoverProvider` ✅ COMPLETE (Basic Implementation)
-- **Day 5:** Test and integrate (HoverProvider testing can include enhancing details)
+- **Day 3-4:** Implement `HoverProvider` ✅ COMPLETE (Enhanced Implementation from Plan #3)
+- **Day 5:** Test and integrate (Further hover detail refinement TBD)
 
 ### **Week 2: Navigation Features**
 - **Day 1-2:** Implement `ReferenceProvider` ✅ COMPLETE (Basic Structure - User Fixed; actual reference finding logic TBD)
@@ -184,7 +183,7 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
 
 ### ✅ **Must Have**
 1. **Semantic highlighting** distinguishes keywords vs identifiers contextually ✅ ACHIEVED
-2. **Hover information** shows section/attribute documentation ✅ ACHIEVED (Basic)
+2. **Hover information** shows section/attribute documentation ✅ ACHIEVED (Enhanced)
 3. **Go-to-definition** works for section references (Basic structure for ReferenceProvider exists, TBD)
 4. **Document outline** shows section hierarchy ✅ ACHIEVED (Basic)
 

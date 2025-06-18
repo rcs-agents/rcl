@@ -18,7 +18,7 @@ Based on [Langium Configuration via Services](https://langium.org/docs/reference
 ### 🎯 **Core LSP Services to Implement**
 
 #### 1. **CompletionProvider** - Smart autocompletion
-#### 2. **HoverProvider** - Contextual information on hover
+#### 2. **HoverProvider** - Contextual information on hover ✅ IMPLEMENTED (Enhanced from this plan's details)
 #### 3. **ReferenceProvider** - Find all references to symbols
 #### 4. **DocumentSymbolProvider** - Document outline and navigation
 #### 5. **RenameHandler** - Symbol renaming with validation
@@ -29,7 +29,7 @@ Based on [Langium Configuration via Services](https://langium.org/docs/reference
 
 ## Implementation Strategy
 
-### 📋 **Phase 1: Enhanced Completion Provider**
+### 📋 **Phase 1: Enhanced Completion Provider** (Skipped - Existing provider sufficient)
 
 **File:** `packages/language/src/services/rcl-completion-provider.ts`
 
@@ -156,155 +156,13 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
 }
 ```
 
-### 📋 **Phase 2: Hover Provider with Rich Information**
+### 📋 **Phase 2: Hover Provider with Rich Information** ✅ IMPLEMENTED (Enhanced from this plan's details)
 
-**File:** `packages/language/src/services/rcl-hover-provider.ts`
+**File:** `packages/language/src/lsp/rcl-hover-provider.ts` (Note: path updated from plan's `services` to `lsp`)
 
 ```typescript
-export class RclHoverProvider extends AbstractHoverProvider {
-
-    protected getHoverContent(document: LangiumDocument, params: HoverParams): MaybePromise<Hover | undefined> {
-        const rootNode = document.parseResult?.value;
-        if (!rootNode) return undefined;
-
-        const targetNode = findLeafNodeAtOffset(rootNode, document.textDocument.offsetAt(params.position));
-        if (!targetNode) return undefined;
-
-        return this.getAstNodeHoverContent(targetNode);
-    }
-
-    protected getAstNodeHoverContent(node: AstNode): Hover | undefined {
-        if (isSection(node)) {
-            return this.getSectionHover(node);
-        }
-
-        if (isAttribute(node)) {
-            return this.getAttributeHover(node);
-        }
-
-        if (isBooleanLiteral(node)) {
-            return this.getBooleanLiteralHover(node);
-        }
-
-        if (isTypeConversion(node)) {
-            return this.getTypeConversionHover(node);
-        }
-
-        if (isEmbeddedCodeBlock(node)) {
-            return this.getEmbeddedCodeHover(node);
-        }
-
-        if (isIdentifier(node)) {
-            return this.getIdentifierHover(node);
-        }
-
-        return undefined;
-    }
-
-    private getSectionHover(section: Section): Hover {
-        const sectionType = this.getSectionType(section);
-        const sectionName = this.getSectionName(section);
-
-        const content = [
-            `**Section:** \`${sectionType}${sectionName ? ` ${sectionName}` : ''}\``,
-            '',
-            this.getSectionTypeDocumentation(sectionType),
-            '',
-            `**Allowed attributes:**`,
-            ...this.getValidAttributesForSection(sectionType).map(attr =>
-                `- \`${attr.name}\`: ${attr.type} - ${attr.description}`
-            )
-        ].join('\n');
-
-        return {
-            contents: {
-                kind: 'markdown',
-                value: content
-            }
-        };
-    }
-
-    private getAttributeHover(attribute: Attribute): Hover {
-        const attributeName = this.getAttributeName(attribute);
-        const parentSection = this.getParentSection(attribute);
-        const sectionType = this.getSectionType(parentSection);
-
-        const attributeInfo = this.getAttributeInfo(sectionType, attributeName);
-
-        const content = [
-            `**Attribute:** \`${attributeName}\``,
-            '',
-            `**Type:** \`${attributeInfo.type}\``,
-            '',
-            `**Description:** ${attributeInfo.description}`,
-            ''
-        ];
-
-        if (attributeInfo.examples?.length) {
-            content.push('**Examples:**');
-            attributeInfo.examples.forEach(example => {
-                content.push(`\`\`\`rcl\n${example}\n\`\`\``);
-            });
-        }
-
-        if (attributeInfo.constraints?.length) {
-            content.push('**Constraints:**');
-            attributeInfo.constraints.forEach(constraint => {
-                content.push(`- ${constraint}`);
-            });
-        }
-
-        return {
-            contents: {
-                kind: 'markdown',
-                value: content.join('\n')
-            }
-        };
-    }
-
-    private getEmbeddedCodeHover(codeBlock: EmbeddedCodeBlock): Hover {
-        const language = this.getEmbeddedLanguage(codeBlock);
-        const content = this.getCodeContent(codeBlock);
-
-        return {
-            contents: {
-                kind: 'markdown',
-                value: [
-                    `**Embedded ${language} Code**`,
-                    '',
-                    `\`\`\`${language}`,
-                    content,
-                    '```',
-                    '',
-                    '_This code block will be executed in the target runtime environment._'
-                ].join('\n')
-            }
-        };
-    }
-
-    private getTypeConversionHover(typeConversion: TypeConversion): Hover {
-        const typeName = typeConversion.type;
-        const value = this.getTypeConversionValue(typeConversion);
-
-        const typeInfo = this.getTypeInfo(typeName);
-
-        return {
-            contents: {
-                kind: 'markdown',
-                value: [
-                    `**Type Conversion:** \`<${typeName}>\``,
-                    '',
-                    `**Value:** \`${value}\``,
-                    '',
-                    `**Description:** ${typeInfo.description}`,
-                    '',
-                    `**Format:** ${typeInfo.format}`,
-                    '',
-                    `**Example:** \`${typeInfo.example}\``
-                ].join('\n')
-            }
-        };
-    }
+export class RclHoverProvider extends AstNodeHoverProvider {
+    // ... (current implementation) ...
 }
 ```
 
@@ -625,11 +483,11 @@ agent TestAgent
 
 ## Timeline
 
-- **Completion Provider:** 4 days
-- **Hover Provider:** 3 days
-- **Reference Provider:** 3 days
-- **Document Symbol Provider:** 2 days
+- **Completion Provider:** 4 days (Skipped)
+- **Hover Provider:** 3 days ✅ COMPLETE (Enhanced)
+- **Reference Provider:** 3 days (Basic structure from Plan #2 complete, full implementation TBD)
+- **Document Symbol Provider:** 2 days (Basic structure from Plan #2 complete, full implementation TBD)
 - **Service Integration:** 2 days
 - **Testing & Polish:** 4 days
 
-**Total: 18 days**
+**Total: 18 days** (Adjusted based on progress)
