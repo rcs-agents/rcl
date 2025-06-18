@@ -4,6 +4,7 @@ import { RclGeneratedModule, RclGeneratedSharedModule } from './generated/module
 import { RclValidator, registerValidationChecks } from './rcl-validator.js';
 import { RclCompletionProvider } from './rcl-completion-provider.js';
 import { RclCustomTokenBuilder } from './services/rcl-custom-token-builder.js';
+import { RclSemanticTokenProvider } from './lsp/rcl-semantic-token-provider.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -13,7 +14,8 @@ export type RclAddedServices = {
     RclValidator: RclValidator
   },
   lsp: {
-    CompletionProvider: RclCompletionProvider
+    CompletionProvider: RclCompletionProvider,
+    SemanticTokenProvider: RclSemanticTokenProvider
   }
 }
 
@@ -37,7 +39,8 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
     RclValidator: () => new RclValidator()
   },
   lsp: {
-    CompletionProvider: (services) => new RclCompletionProvider(services)
+    CompletionProvider: (services) => new RclCompletionProvider(services),
+    SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services)
   }
 };
 
