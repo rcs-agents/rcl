@@ -1,6 +1,6 @@
-import { type AstNode, type LangiumDocument, getNodeRange, type MaybePromise } from 'langium';
-import { type ReferencesProvider, findLeafNodeAtOffset, getContainerOfType } from 'langium/lsp';
-import { type Location, type ReferenceParams, type CancellationToken } from 'vscode-languageserver-protocol';
+import { type AstNode, type MaybePromise, AstUtils, CstUtils, type LangiumDocument } from 'langium';
+import type { ReferencesProvider } from 'langium/lsp';
+import type { Location, ReferenceParams, CancellationToken } from 'vscode-languageserver-protocol';
 import { isIdentifier, type Identifier, isSection, type Section, isFlowOperand, type FlowOperand } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
 
@@ -13,14 +13,14 @@ export class RclReferenceProvider implements ReferencesProvider {
   }
 
   findReferences(document: LangiumDocument, params: ReferenceParams, cancelToken?: CancellationToken): MaybePromise<Location[]> {
-    const rootNode = document.parseResult.value;
-    if (!rootNode) {
+    const rootAstNode = document.parseResult.value;
+    if (!rootAstNode?.$cstNode) {
       return [];
     }
     const offset = document.textDocument.offsetAt(params.position);
-    const cstLeaf = findLeafNodeAtOffset(rootNode, offset);
+    const cstLeaf = CstUtils.findLeafNodeAtOffset(rootAstNode.$cstNode, offset);
 
-    if (!cstLeaf) {
+    if (!cstLeaf?.element) {
       return [];
     }
 
@@ -36,11 +36,12 @@ export class RclReferenceProvider implements ReferencesProvider {
 
     if (isSection(astNodeForLeaf) && astNodeForLeaf.sectionName && cstLeaf.text === astNodeForLeaf.sectionName) {
       return this.findSectionReferences(astNodeForLeaf, document, params.context.includeDeclaration, cancelToken);
-    } else {
-      const enclosingSection = getContainerOfType(cstLeaf, isSection);
-      if (enclosingSection && enclosingSection.sectionName && cstLeaf.text === enclosingSection.sectionName) {
-        return this.findSectionReferences(enclosingSection, document, params.context.includeDeclaration, cancelToken);
-      }
+    }
+
+    const enclosingSection = AstUtils.getContainerOfType(astNodeForLeaf, isSection);
+
+    if (enclosingSection && enclosingSection.sectionName && cstLeaf.text === enclosingSection.sectionName) {
+      return this.findSectionReferences(enclosingSection, document, params.context.includeDeclaration, cancelToken);
     }
 
     return [];
@@ -74,7 +75,7 @@ export class RclReferenceProvider implements ReferencesProvider {
   }
 
   protected getNodeLocation(node: AstNode, document: LangiumDocument): Location | undefined {
-    const nodeRange = getNodeRange(node);
+    const nodeRange = node.$cstNode?.range;
     if (!nodeRange) {
       return undefined;
     }

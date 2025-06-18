@@ -9,7 +9,7 @@ Based on [Langium's Keywords as Identifiers guide](https://langium.org/docs/reci
 1. **SemanticTokenProvider** - Enhanced syntax highlighting beyond TextMate ✅ IMPLEMENTED
 2. **HoverProvider** - Rich contextual information on hover ✅ IMPLEMENTED (Basic)
 3. **DocumentSymbolProvider** - Outline navigation and breadcrumbs
-4. **ReferenceProvider** - Go-to-definition and find-references
+4. **ReferenceProvider** - Go-to-definition and find-references ✅ IMPLEMENTED (Basic Structure)
 
 ---
 
@@ -126,35 +126,27 @@ export class RclDocumentSymbolProvider extends AbstractDocumentSymbolProvider {
 }
 ```
 
-### 🎯 **4. ReferenceProvider (High Priority)**
+### 🎯 **4. ReferenceProvider (High Priority)** ✅ IMPLEMENTED (Basic Structure)
 
 **Missing:** Go-to-definition and find-references.
 
-**Implementation:**
+**Implementation (Current Basic Structure):**
 ```typescript
 // packages/language/src/lsp/rcl-reference-provider.ts
-export class RclReferenceProvider extends AbstractReferenceProvider {
-
-    findReferences(document: LangiumDocument, params: ReferenceParams): Location[] {
-        const rootNode = document.parseResult.value;
-        const offset = document.textDocument.offsetAt(params.position);
-        const leafNode = findLeafNodeAtOffset(rootNode, offset);
-
-        if (!leafNode) return [];
-
-        // Find section references
-        if (this.isReference(leafNode)) {
-            return this.findSectionReferences(leafNode, params.context.includeDeclaration);
+export class RclReferenceProvider implements ReferencesProvider {
+    // ... constructor ...
+    findReferences(document: LangiumDocument, params: ReferenceParams, cancelToken?: CancellationToken): MaybePromise<Location[]> {
+        // ... logic to find cstLeaf and astNodeForLeaf ...
+        if (isIdentifier(astNodeForLeaf)) {
+            return this.findIdentifierReferences(astNodeForLeaf, document, params.context.includeDeclaration, cancelToken);
         }
-
+        if (isFlowOperand(astNodeForLeaf)) {
+            return this.findFlowOperandReferences(astNodeForLeaf, document, params.context.includeDeclaration, cancelToken);
+        }
+        // ... logic for section names ...
         return [];
     }
-
-    private findSectionReferences(node: AstNode, includeDeclaration: boolean): Location[] {
-        // Implementation for finding section references
-        // This would search for all references to a section definition
-        return [];
-    }
+    // ... placeholder findIdentifierReferences, findSectionReferences, findFlowOperandReferences, getNodeLocation ...
 }
 ```
 
@@ -176,7 +168,7 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
     lsp: {
         CompletionProvider: (services) => new RclCompletionProvider(services), // ✅ Already exists
         HoverProvider: (services) => new RclHoverProvider(services),           // ✅ IMPLEMENTED
-        ReferenceProvider: (services) => new RclReferenceProvider(services),   // ❌ NEW
+        ReferenceProvider: (services) => new RclReferenceProvider(services),   // ✅ IMPLEMENTED
         DocumentSymbolProvider: (services) => new RclDocumentSymbolProvider(services), // ❌ NEW
         SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services), // ✅ IMPLEMENTED
     },
@@ -220,7 +212,7 @@ The `SemanticTokenProvider` should highlight the same token (`True`) differently
 - **Day 5:** Test and integrate (HoverProvider testing can include enhancing details)
 
 ### **Week 2: Navigation Features**
-- **Day 1-2:** Implement `ReferenceProvider`
+- **Day 1-2:** Implement `ReferenceProvider` ✅ COMPLETE (Basic Structure - actual reference finding logic TBD)
 - **Day 3-4:** Implement `DocumentSymbolProvider`
 - **Day 5:** Integration testing and polish
 
