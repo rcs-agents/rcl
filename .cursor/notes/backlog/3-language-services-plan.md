@@ -22,7 +22,7 @@ Based on [Langium Configuration via Services](https://langium.org/docs/reference
 #### 3. **ReferenceProvider** - Find all references to symbols
 #### 4. **DocumentSymbolProvider** - Document outline and navigation
 #### 5. **RenameHandler** - Symbol renaming with validation
-#### 6. **FoldingRangeProvider** - Code folding for sections and embedded code ✅ IMPLEMENTED (Basic for Sections)
+#### 6. **FoldingRangeProvider** - Code folding for sections and embedded code ✅ IMPLEMENTED (Sections & Multi-line Embedded Code)
 #### 7. **DocumentHighlighter** - Highlight symbol occurrences
 
 ---
@@ -489,7 +489,7 @@ agent TestAgent
 - **Hover Provider:** 3 days ✅ COMPLETE (Enhanced)
 - **Reference Provider:** 3 days (Basic structure from Plan #2 complete, full implementation TBD)
 - **Document Symbol Provider:** 2 days (Basic structure from Plan #2 complete, full implementation TBD)
-- **FoldingRangeProvider:** 1-2 days (Basic for Sections ✅ COMPLETE; Embedded code TBD)
+- **FoldingRangeProvider:** 1-2 days ✅ COMPLETE (Sections & Multi-line Embedded Code)
 - **Service Integration:** 2 days
 - **Testing & Polish:** 4 days
 
