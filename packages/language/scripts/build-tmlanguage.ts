@@ -29,7 +29,9 @@ const GRAMMAR_MODULES: GrammarModule[] = [
   { path: 'data-types/collections.tmLanguage.json', include: '#collections', priority: 6 },
   { path: 'data-types/references.tmLanguage.json', include: '#references', priority: 7 },
   { path: 'embedded/expressions.tmLanguage.json', include: '#expressions', priority: 8 },
-  { path: 'sections/flow-sections.tmLanguage.json', include: '#flow-sections', priority: 9 },
+  { path: 'embedded/multiline-strings.tmLanguage.json', include: '#multiline-strings', priority: 9 },
+  { path: 'sections/flow-sections.tmLanguage.json', include: '#flow-sections', priority: 10 },
+  { path: 'sections/agent-sections.tmLanguage.json', include: '#agent-sections', priority: 11 },
 ];
 
 /**

@@ -1,0 +1,92 @@
+# Phase 3 Contextual Highlighting Test
+# Demonstrates advanced syntax features and section-aware scoping
+
+agent BMW Service Assistant
+  # Agent-level contextual highlighting
+
+  Config
+    # Config-specific attribute highlighting
+    name: "BMW Service Assistant"        # config.name scope
+    version: "2.1.0"                     # config.version scope
+    enabled: True                        # config.enabled scope
+    supportLevel: 5                      # config.generic scope
+
+    # Multi-line string variants (Phase 3 enhancement)
+    welcomeMessage: |
+      Standard trim behavior
+      Removes common leading whitespace
+
+    trimTrailing: |-
+      Trim trailing behavior
+      No final newline
+
+    preserveLeading: +|
+      Preserve leading behavior
+      Keeps original indentation
+
+    preserveAll: +|+
+      Preserve all behavior
+      Keeps all whitespace exactly
+
+    cleanString: ||
+      Clean behavior
+      Removes all leading/trailing
+
+  Messages
+    # Message-specific contextual highlighting
+    message Welcome Message
+      text: "Welcome to BMW Service!"     # message.text scope
+      media: "welcome.jpg"                # message.media scope
+
+      suggestion
+        action text: "Book Service", postbackData: "book" do
+          # Flow control within action context
+          if $user.hasActiveVehicle then
+            openUrlAction url: $js> generateServiceUrl()
+          else
+            textResponse: "Please register your vehicle first."
+          end
+        end
+
+    message Error Message
+      text: $Default Messages.error
+      image: "error-icon.png"             # message.media scope
+      audio: "error-sound.mp3"            # message.media scope
+
+  Flows
+    # Flow-specific contextual highlighting
+    flow Service Booking Flow
+      # Enhanced flow rule highlighting with contextual scoping
+      "start" -> "check_auth" if $user.authenticated
+      "check_auth" -> "service_menu" when $js> userHasActiveServices()
+      "service_menu" -> "book_appointment" unless $user.blacklisted
+
+      # Complex flow with TypeScript
+      "special_handling" -> $ts>>>
+        interface ServiceContext {
+          userId: string;
+          vehicleVin: string;
+          serviceType: string;
+        }
+
+        const context: ServiceContext = {
+          userId: user.id,
+          vehicleVin: user.vehicle.vin,
+          serviceType: request.type
+        };
+
+        return context.serviceType === 'emergency' ? 'urgent_queue' : 'standard_queue';
+
+    flow Error Handling Flow
+      "error" -> "log_error"
+      "log_error" -> "user_notification"
+      "user_notification" -> "fallback_agent"
+
+# Enhanced import highlighting
+import Default Messages from "./defaults.rcl"
+import Support Manager from "./agents/support.rcl" as SupportAgent
+
+# Different comment scopes for section-aware highlighting
+### Agent-level section comments
+## Config subsection comments
+# Regular line comments
