@@ -1,0 +1,57 @@
+Agent ValidationTest
+displayName: "Advanced Validation Test Agent"
+description: "Tests various validation scenarios for RCL advanced features"
+
+Config
+logoUri: "https://example.com/logo.png"
+
+# Test Flow with Circular Dependency (should show error)
+flow CircularFlow
+    :start -> CheckUser
+    CheckUser -> ValidateData
+    ValidateData -> CheckUser  # This creates a circular dependency
+    ValidateData -> :end
+
+# Test Flow with Unreachable Nodes (should show warning)
+flow UnreachableFlow
+    :start -> ProcessRequest
+    ProcessRequest -> :end
+    OrphanedNode -> AnotherOrphan  # These nodes are unreachable
+
+# Test Valid Flow (should pass)
+flow ValidFlow
+    :start -> Welcome
+    Welcome -> CollectInfo
+    CollectInfo -> ProcessData
+    ProcessData -> :end
+
+# Test Type Validation
+Defaults
+email: <email>invalid-email-format</email>              # Should error: invalid email
+validEmail: <email>user@domain.com</email>              # Should pass
+invalidDate: <date>2024-13-45</date>                   # Should error: invalid date
+validDate: <date>2024-12-25</date>                     # Should pass
+invalidTime: <time>25:70:80</time>                     # Should error: invalid time
+validTime: <time>14:30:00</time>                       # Should pass
+invalidDuration: <duration>invalid</duration>          # Should error: invalid duration
+validDuration: <duration>30s</duration>                # Should pass
+invalidPhone: <phone>123</phone>                       # Should error: invalid phone
+validPhone: <phone>+1234567890</phone>                 # Should pass
+invalidUrl: <url>not-a-url</url>                       # Should error: invalid URL
+validUrl: <url>https://example.com</url>               # Should pass
+invalidNumber: <number>not-a-number</number>           # Should error: invalid number
+validNumber: <number>42.5</number>                     # Should pass
+invalidLatitude: <latitude>95.0</latitude>             # Should error: latitude out of range
+validLatitude: <latitude>40.7128</latitude>            # Should pass
+invalidLongitude: <longitude>200.0</longitude>         # Should error: longitude out of range
+validLongitude: <longitude>-74.0060</longitude>        # Should pass
+invalidCoordinate: <coordinate>invalid,coord</coordinate> # Should error: invalid coordinate format
+validCoordinate: <coordinate>40.7128,-74.0060</coordinate> # Should pass
+
+# Test Embedded Code Validation
+Messages
+text "Welcome!"
+    validation: $js> function test() { invalid syntax here   # Should error: syntax error
+    validJavaScript: $js> console.log('Hello, world!');     # Should pass
+    emptyCode: $js>                                          # Should error: empty code block
+    validTypeScript: $ts> const x: number = 42;             # Should pass

@@ -1,10 +1,12 @@
 import type { ValidationAcceptor, ValidationChecks, AstNode } from 'langium';
-import type { RclAstType, Section, RclFile, EmbeddedCodeBlock } from './generated/ast.js';
+import type { RclAstType, Section, RclFile, EmbeddedCodeBlock, FlowRule, TypeConversion } from './generated/ast.js';
 import { isSection } from './generated/ast.js';
 import type { RclServices } from './rcl-module.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
 import { SectionValidator } from './validation/section-validator.js';
 import { EmbeddedCodeValidator } from './validation/embedded-code-validator.js';
+import { DependencyValidator } from './validation/dependency-validator.js';
+import { TypeValidator } from './validation/type-validator.js';
 
 /**
  * Registry for custom validation checks.
@@ -13,11 +15,15 @@ export class RclValidator {
   private sectionRegistry: SectionTypeRegistry;
   private sectionValidator: SectionValidator;
   private embeddedCodeValidator: EmbeddedCodeValidator;
+  private dependencyValidator: DependencyValidator;
+  private typeValidator: TypeValidator;
 
   constructor() {
     this.sectionRegistry = new SectionTypeRegistry();
     this.sectionValidator = new SectionValidator(this.sectionRegistry);
     this.embeddedCodeValidator = new EmbeddedCodeValidator();
+    this.dependencyValidator = new DependencyValidator();
+    this.typeValidator = new TypeValidator();
   }
 
   /**
@@ -178,6 +184,21 @@ export class RclValidator {
   public validateEmbeddedCodeBlock(codeBlock: EmbeddedCodeBlock, accept: ValidationAcceptor): void {
     this.embeddedCodeValidator.checkEmbeddedCode(codeBlock, accept);
   }
+
+  /**
+   * Validate flow rules for circular dependencies and reachability
+   */
+  checkFlowRule(flowRule: FlowRule, accept: ValidationAcceptor): void {
+    this.dependencyValidator.checkFlowRuleCycles(flowRule, accept);
+    this.dependencyValidator.checkFlowReachability(flowRule, accept);
+  }
+
+  /**
+   * Validate type conversions
+   */
+  checkTypeConversion(typeConversion: TypeConversion, accept: ValidationAcceptor): void {
+    this.typeValidator.checkTypeConversion(typeConversion, accept);
+  }
 }
 
 /**
@@ -193,7 +214,9 @@ export function registerValidationChecks(services: RclServices) {
       validator.checkReservedSectionNames
     ],
     RclFile: validator.checkRclFile,
-    EmbeddedCodeBlock: validator.validateEmbeddedCodeBlock
+    EmbeddedCodeBlock: validator.validateEmbeddedCodeBlock,
+    FlowRule: validator.checkFlowRule,
+    TypeConversion: validator.checkTypeConversion
   };
   registry.register(checks, validator);
 }
