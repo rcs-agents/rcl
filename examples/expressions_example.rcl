@@ -1,48 +1,45 @@
-Agent Example Expression Bot
-displayName: "Expression Examples"
+agent Example Expression Bot
+  displayName: "Expression Examples"
 
-Defaults
-    fallback_message: "Sorry, I couldn't understand that."
+  flow Main
+      :start -> :greeting with text: "Hello "
+      :greeting -> :show_examples
 
-flow Main
-    :start -> :greeting with text: $> "Hello " + context.user.name
-    :greeting -> :show_examples
+  flow Show Examples
+      :start -> text $js> `Single-line JavaScript: ${new Date().toLocaleDateString()}`
+      :start -> text $ts> `Single-line TypeScript: ${(context.user.age as number) + 1}`
+      :start -> text $> context.utils.formatMessage("Generic single-line")
 
-flow Show Examples
-    :start -> text $js> `Single-line JavaScript: ${new Date().toLocaleDateString()}`
-    :start -> text $ts> `Single-line TypeScript: ${(context.user.age as number) + 1}`
-    :start -> text $> context.utils.formatMessage("Generic single-line")
+      :start -> :multiline_js_example
+      :multiline_js_example -> text $js>>>
+          // Multi-line JavaScript block
+          const greeting = "Hello from multiline JS!";
+          const timestamp = new Date().toISOString();
+          return `${greeting} Current time: ${timestamp}`;
 
-    :start -> :multiline_js_example
-    :multiline_js_example -> text $js>>>
-        // Multi-line JavaScript block
-        const greeting = "Hello from multiline JS!";
-        const timestamp = new Date().toISOString();
-        return `${greeting} Current time: ${timestamp}`;
+      :start -> :multiline_ts_example
+      :multiline_ts_example -> text $ts>>>
+          // Multi-line TypeScript block
+          interface User {
+              name: string;
+              age: number;
+          }
 
-    :start -> :multiline_ts_example
-    :multiline_ts_example -> text $ts>>>
-        // Multi-line TypeScript block
-        interface User {
-            name: string;
-            age: number;
-        }
+          const user: User = context.user as User;
+          const message = `User ${user.name} is ${user.age} years old`;
+          return message;
 
-        const user: User = context.user as User;
-        const message = `User ${user.name} is ${user.age} years old`;
-        return message;
+      :start -> :generic_multiline_example
+      :generic_multiline_example -> text $>>>
+          // Generic multi-line expression (defaults to JS syntax highlighting)
+          const result = context.calculateSomething();
+          if (result > 100) {
+              return "Large value detected";
+          }
+          return "Normal value";
 
-    :start -> :generic_multiline_example
-    :generic_multiline_example -> text $>>>
-        // Generic multi-line expression (defaults to JS syntax highlighting)
-        const result = context.calculateSomething();
-        if (result > 100) {
-            return "Large value detected";
-        }
-        return "Normal value";
-
-Messages
-    text "Welcome! This bot demonstrates embedded expressions in RCL."
-        reply "Show single-line examples"
-        reply "Show multi-line examples"
-        reply "Show all examples"
+  Messages
+      text "Welcome! This bot demonstrates embedded expressions in RCL."
+          reply "Show single-line examples"
+          reply "Show multi-line examples"
+          reply "Show all examples"

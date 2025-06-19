@@ -1,68 +1,68 @@
 {
-    "name": "vscode-rcl",
-    "description": "The extension specific package",
-    "version": "0.0.2",
-    "displayName": "RCL - Rich Communication Language",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/tokilabs/rcl-vscode.git"
-    },
-    "license": "MIT",
-    "engines": {
-        "vscode": "^1.85.0"
-    },
-    "categories": [
-        "Programming Languages"
-    ],
-    "contributes": {
-        "languages": [{
-            "id": "rcl",
-            "aliases": ["rcl", "rcl"],
-            "extensions": [".rcl"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "rcl",
-            "scopeName": "source.rcl",
-            "path": "syntaxes/rcl.tmLanguage.json"
-        }],
-        "configuration": {
-            "title": "RCL",
-            "properties": {
-                "rcl.showWebInfo": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show information about web mode limitations"
-                }
-            }
-        }
-    },
-    "activationEvents": [
-        "onLanguage:rcl"
-    ],
-    "main": "./out/extension/main.cjs",
-    "browser": "./out/web/extension.cjs",
-    "scripts": {
-        "clean": "shx rm -fr *.tsbuildinfo out syntaxes",
-        "vscode:prepublish": "bun run build",
-        "build:prepare": "shx mkdir -p ./syntaxes/ && shx cp -f ../language/syntaxes/rcl.tmLanguage.json ./syntaxes/rcl.tmLanguage.json",
-        "build": "bun run build:prepare && tsc -b tsconfig.json && node esbuild.mjs",
-        "build:clean": "bun run clean && bun run build",
-        "watch": "bun run build:prepare && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch --preserveWatchOutput\" \"node esbuild.mjs --watch\"",
-        "reinstall-extension": "vsce package; cursor --install-extension ./vscode-rcl-0.0.2.vsix"
-    },
-    "dependencies": {
-        "rcl-language": "0.0.1",
-        "vscode-languageclient": "~9.0.1",
-        "vscode-languageserver": "~9.0.1"
-    },
-    "devDependencies": {
-        "@types/vscode": "~1.85.0",
-        "@vscode/vsce": "^3.5.0",
-        "concurrently": "~8.2.1",
-        "esbuild": "~0.20.2"
-    },
-    "vsce": {
-        "dependencies": false
-    }
+	"name": "vscode-rcl",
+	"description": "The extension specific package",
+	"version": "0.0.2",
+	"displayName": "RCL - Rich Communication Language",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tokilabs/rcl-vscode.git"
+	},
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": ["Programming Languages"],
+	"contributes": {
+		"languages": [
+			{
+				"id": "rcl",
+				"aliases": ["rcl", "rcl"],
+				"extensions": [".rcl"],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "rcl",
+				"scopeName": "source.rcl",
+				"path": "syntaxes/rcl.tmLanguage.json"
+			}
+		],
+		"configuration": {
+			"title": "RCL",
+			"properties": {
+				"rcl.showWebInfo": {
+					"type": "boolean",
+					"default": true,
+					"description": "Show information about web mode limitations"
+				}
+			}
+		}
+	},
+	"activationEvents": ["onLanguage:rcl"],
+	"main": "./out/extension/main.cjs",
+	"browser": "./out/web/extension.cjs",
+	"scripts": {
+		"clean": "shx rm -fr *.tsbuildinfo out syntaxes",
+		"vscode:prepublish": "bun run build",
+		"build:prepare": "shx mkdir -p ./syntaxes/ && shx cp -f ../language/syntaxes/rcl.tmLanguage.json ./syntaxes/rcl.tmLanguage.json",
+		"build": "bun run build:prepare && tsc -b tsconfig.json && bun esbuild.mjs",
+		"build:clean": "bun run clean && bun run build",
+		"watch": "bun run build:prepare && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch --preserveWatchOutput\" \"bun esbuild.mjs --watch\"",
+		"reinstall-extension": "vsce package; cursor --install-extension ./vscode-rcl-0.0.2.vsix"
+	},
+	"dependencies": {
+		"rcl-language": "0.0.1",
+		"vscode-languageclient": "~9.0.1",
+		"vscode-languageserver": "~9.0.1"
+	},
+	"devDependencies": {
+		"@types/vscode": "~1.85.0",
+		"@vscode/vsce": "^3.5.0",
+		"concurrently": "~8.2.1",
+		"esbuild": "~0.20.2"
+	},
+	"vsce": {
+		"dependencies": false
+	}
 }

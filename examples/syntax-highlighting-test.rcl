@@ -1,0 +1,114 @@
+# RCL Syntax Highlighting Test File
+# This file demonstrates all the enhanced syntax highlighting features
+
+agent BMW Customer Support
+  # This demonstrates section-level highlighting
+
+  Config
+    # Property highlighting and data types
+    name: "BMW Customer Support"
+    version: "1.2.0"
+    enabled: True
+    supportLevel: 42
+    responseTime: 15.5
+
+    # Date and time highlighting
+    lastUpdated: 2024-01-15
+    startTime: 09:00
+    endTime: 17:30
+    fullTimestamp: 2024-01-15T09:00:00Z
+
+    # Collections highlighting
+    supportChannels: ["chat", "phone", "email"]
+    features: {
+      "autoReply": True,
+      "multilingual": False,
+      "priority": 1
+    }
+
+    # Multi-line string highlighting
+    welcomeMessage: |
+      Welcome to BMW Customer Support!
+      We're here to help you with all your BMW needs.
+      Our support hours are 9 AM to 5:30 PM.
+
+    # Reference highlighting
+    defaultResponse: $Standard Responses.welcome
+    fallbackAgent: $Support Manager
+
+    # Embedded JavaScript expressions
+    currentTime: $js> new Date().toISOString()
+    userAgent: $js> navigator.userAgent || 'Unknown'
+
+    # Embedded TypeScript expressions
+    apiVersion: $ts> import.meta.env.API_VERSION as string
+
+    # Multi-line embedded code
+    complexLogic: $js>>>
+      const userId = getUserId();
+      const preferences = await loadUserPreferences(userId);
+      return preferences.language || 'en';
+
+    # Generic embedded expressions
+    fallbackValue: $> Math.random().toString(36)
+
+  Messages
+    # Message section highlighting
+    message Welcome Message
+      text: "Hello! How can I assist you with your BMW today?"
+
+      # Suggestions and actions
+      suggestion
+        action text: "Service Appointment", postbackData: "service" do
+          # Flow control highlighting
+          if $user.hasActiveVehicle then
+            openUrlAction url: $js> generateServiceUrl(user.vehicleVin)
+          else
+            textResponse: "Please register your BMW first."
+          end
+        end
+
+      suggestion
+        action text: "Vehicle Status", postbackData: "status" do
+          # Complex flow with embedded logic
+          when $js> user.vehicles.length > 1 then
+            carouselCard
+              # More complex structures...
+          end
+        end
+
+    message Error Handler
+      text: $Default Messages.error
+
+      # Multi-line content with references
+      details: |
+        We encountered an issue processing your request.
+        Error code: $error.code
+        Please try again or contact support.
+
+  # Flow section demonstrating flow control highlighting
+  Flows
+    flow Vehicle Service Flow
+      # Flow rules with arrows and conditions
+      "service_request" -> "check_warranty" if $vehicle.warrantyActive
+      "check_warranty" -> "schedule_appointment" when $js> isBusinessHours()
+      "schedule_appointment" -> "confirm_booking" unless $user.blacklisted
+
+      # Complex flow with embedded TypeScript
+      "special_case" -> $ts>>>
+        interface ServiceRequest {
+          type: string;
+          priority: number;
+        }
+
+        const request: ServiceRequest = parseRequest(input);
+        return request.priority > 5 ? "urgent_queue" : "standard_queue";
+
+# Import statements
+import Default Messages from "./defaults.rcl"
+import Support Manager from "./agents/manager.rcl" as Manager
+
+# Comments showcase different contexts
+### Section Comments
+## Subsection comments
+# Regular comments
