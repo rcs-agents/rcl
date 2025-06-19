@@ -90,13 +90,6 @@ export class RclReferenceProvider implements ReferencesProvider {
     return locations;
   }
 
-  private flowOperandReferencesName(operand: FlowOperand | undefined, name: string): boolean {
-    if (!operand) return false;
-    return (isIdentifier(operand.identifier) && operand.identifier.value === name) ||
-      (operand.symbol === name) ||
-      (operand.string === name);
-  }
-
   protected findFlowOperandReferences(operandNode: FlowOperand, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
     const locations: Location[] = [];
     if (includeDeclaration) {

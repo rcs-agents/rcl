@@ -52,77 +52,114 @@ function extendTmGrammar() {
 
 		// Remove old individual includes if they exist from previous logic
 		grammar.patterns = grammar.patterns.filter(
-			p => p.include !== "#embedded-javascript" && p.include !== "#embedded-typescript"
+			(p) =>
+				p.include !== "#embedded-javascript" &&
+				p.include !== "#embedded-typescript",
 		);
 
-		// Define new repository entries
+		// Define new repository entries for single-line expressions
 		grammar.repository["embedded-js-singleline"] = {
 			name: "meta.embedded.inline.javascript.rcl",
-			begin: "(\$js>)", // Captures $js>
-			beginCaptures: { "1": { name: "keyword.control.embedded.marker.js.rcl" } },
-			end: "(?=$)", // End of line
+			begin: "(\\$js>)\\s*", // Captures $js> with optional following whitespace
+			beginCaptures: { 1: { name: "keyword.control.embedded.marker.js.rcl" } },
+			end: "$", // End of line
 			contentName: "source.js", // Tells TextMate to treat content as JS
-			patterns: [{ include: "source.js" }]
+			patterns: [{ include: "source.js" }],
 		};
 
 		grammar.repository["embedded-ts-singleline"] = {
 			name: "meta.embedded.inline.typescript.rcl",
-			begin: "(\$ts>)", // Captures $ts>
-			beginCaptures: { "1": { name: "keyword.control.embedded.marker.ts.rcl" } },
-			end: "(?=$)",
+			begin: "(\\$ts>)\\s*", // Captures $ts> with optional following whitespace
+			beginCaptures: { 1: { name: "keyword.control.embedded.marker.ts.rcl" } },
+			end: "$",
 			contentName: "source.ts",
-			patterns: [{ include: "source.ts" }]
+			patterns: [{ include: "source.ts" }],
 		};
 
+		grammar.repository["embedded-generic-singleline"] = {
+			name: "meta.embedded.inline.generic.rcl",
+			begin: "(\\$>)\\s*", // Captures $> with optional following whitespace
+			beginCaptures: {
+				1: { name: "keyword.control.embedded.marker.generic.rcl" },
+			},
+			end: "$",
+			contentName: "source.js", // Default to JS syntax for generic expressions
+			patterns: [{ include: "source.js" }],
+		};
+
+		// Define new repository entries for multi-line expressions (indentation-based)
 		grammar.repository["embedded-js-multiline"] = {
 			name: "meta.embedded.block.javascript.rcl",
-			begin: "^(\s*)(\$js>>>)\s*$\n", // Regex: ^(\s*)(\$js>>>)\s*$\n
-			beginCaptures: { "2": { name: "keyword.control.embedded.marker.js.rcl" } },
-			end: "^(?!\\1\\s+\\S)(?=\\s*\\S)|^(?=\\1$)\", // Indentation-based end pattern
+			begin: "^(\\s*)(\\$js>>>)\\s*$", // Start of line, capture indentation and marker
+			beginCaptures: {
+				2: { name: "keyword.control.embedded.marker.js.rcl" },
+			},
+			end: "^(?!\\1\\s+\\S)", // End when we have a line that doesn't continue the indentation
 			contentName: "source.js",
-			patterns: [{ include: "source.js" }]
+			patterns: [
+				{
+					// Match indented content lines
+					begin: "^(\\1\\s+)", // Must maintain or increase indentation from the marker line
+					end: "$",
+					contentName: "source.js",
+					patterns: [{ include: "source.js" }],
+				},
+			],
 		};
 
 		grammar.repository["embedded-ts-multiline"] = {
 			name: "meta.embedded.block.typescript.rcl",
-			begin: "^(\s*)(\$ts>>>)\s*$\n", // Regex: ^(\s*)(\$ts>>>)\s*$\n
-			beginCaptures: { "2": { name: "keyword.control.embedded.marker.ts.rcl" } },
-			end: "^(?!\\1\\s+\\S)(?=\\s*\\S)|^(?=\\1$)\",
+			begin: "^(\\s*)(\\$ts>>>)\\s*$", // Start of line, capture indentation and marker
+			beginCaptures: {
+				2: { name: "keyword.control.embedded.marker.ts.rcl" },
+			},
+			end: "^(?!\\1\\s+\\S)", // End when we have a line that doesn't continue the indentation
 			contentName: "source.ts",
-			patterns: [{ include: "source.ts" }]
-		};
-
-        // Generic embedded code block (no language specified)
-        grammar.repository["embedded-generic-singleline"] = {
-			name: "meta.embedded.inline.generic.rcl",
-			begin: "(\$)", // Captures $>
-			beginCaptures: { "1": { name: "keyword.control.embedded.marker.generic.rcl" } },
-			end: "(?=$)",
-            // No contentName, let TextMate decide or treat as plain
+			patterns: [
+				{
+					// Match indented content lines
+					begin: "^(\\1\\s+)", // Must maintain or increase indentation from the marker line
+					end: "$",
+					contentName: "source.ts",
+					patterns: [{ include: "source.ts" }],
+				},
+			],
 		};
 
 		grammar.repository["embedded-generic-multiline"] = {
 			name: "meta.embedded.block.generic.rcl",
-			begin: "^(\s*)(\$>>>)\s*$\n", // Regex: ^(\s*)(\$>>>)\s*$\n
-			beginCaptures: { "2": { name: "keyword.control.embedded.marker.generic.rcl" } },
-			end: "^(?!\\1\\s+\\S)(?=\\s*\\S)|^(?=\\1$)\",
-             // No contentName
+			begin: "^(\\s*)(\\$>>>)\\s*$", // Start of line, capture indentation and marker
+			beginCaptures: {
+				2: { name: "keyword.control.embedded.marker.generic.rcl" },
+			},
+			end: "^(?!\\1\\s+\\S)", // End when we have a line that doesn't continue the indentation
+			contentName: "source.js", // Default to JS syntax for generic expressions
+			patterns: [
+				{
+					// Match indented content lines
+					begin: "^(\\1\\s+)", // Must maintain or increase indentation from the marker line
+					end: "$",
+					contentName: "source.js",
+					patterns: [{ include: "source.js" }],
+				},
+			],
 		};
 
-		grammar.repository["rcl-embedded-code"] = {
+		// Add embedded code patterns to main grammar
+		grammar.repository["embedded-code"] = {
 			patterns: [
 				{ include: "#embedded-js-multiline" },
 				{ include: "#embedded-ts-multiline" },
-                { include: "#embedded-generic-multiline" }, // Generic multi-line before specific single-line
+				{ include: "#embedded-generic-multiline" },
 				{ include: "#embedded-js-singleline" },
 				{ include: "#embedded-ts-singleline" },
-                { include: "#embedded-generic-singleline" }
-			]
+				{ include: "#embedded-generic-singleline" },
+			],
 		};
 
 		// Add the main include to grammar patterns if not already present
-		if (!grammar.patterns.some((p) => p.include === "#rcl-embedded-code")) {
-			grammar.patterns.push({ include: "#rcl-embedded-code" });
+		if (!grammar.patterns.some((p) => p.include === "#embedded-code")) {
+			grammar.patterns.push({ include: "#embedded-code" });
 		}
 
 		fs.writeFileSync(grammarPath, JSON.stringify(grammar, null, 2));

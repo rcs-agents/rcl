@@ -216,6 +216,35 @@ Write complete custom grammar with embedded language support.
 
 ---
 
+## Embedded Expressions Implementation ✅ COMPLETE (Dec 2024)
+
+**NEW ADDITION:** Based on the formal specification understanding that RCL uses:
+- `$[lang]>` for single-line expressions
+- `$[lang]>>>` for multi-line indentation-based expressions
+
+**Implemented comprehensive TextMate grammar support for:**
+
+### Expression Patterns Added ✅
+- **Single-line JavaScript**: `$js> code...`
+- **Single-line TypeScript**: `$ts> code...`
+- **Single-line Generic**: `$> code...`
+- **Multi-line JavaScript**: `$js>>>` + indented block
+- **Multi-line TypeScript**: `$ts>>>` + indented block
+- **Multi-line Generic**: `$>>>` + indented block
+
+### Key Implementation Details ✅
+- **Indentation-aware parsing**: Properly handles RCL's INDENT/DEDENT token behavior using regex capture groups
+- **Language-specific syntax highlighting**: JavaScript/TypeScript syntax highlighting within expression blocks
+- **Existing validator compatibility**: Works with existing `EmbeddedCodeValidator`
+- **Example file created**: `examples/expressions_example.rcl` demonstrating all patterns
+
+### Files Modified ✅
+- `packages/extension/esbuild.mjs` - Added 6 expression patterns with proper indentation handling
+- `examples/expressions_example.rcl` - Comprehensive example file
+- `.cursor/notes/embedded-expressions-implementation.md` - Implementation documentation
+
+---
+
 ## Revised Timeline
 
 - **Phase 1 (Custom TokenBuilder):** 3 days ✅ COMPLETE
