@@ -2,30 +2,28 @@ import My Brand / Samples.one as Sample One
 import My Brand / Samples.two as Sample Two
 
 agent My Brand
-  brandName: "Sample Brand"     # Optional (Output only in schema, but settable in RCL for creation)
-  displayName: "Sample Agent" # Required Config # Optional block
-    brandName: "teste"
-    # description: "Agent description" # Optional
-    # logoUri: "https://www.example.com/logo.png" # Optional
-    # heroUri: "https://www.example.com/hero.png" # Optional
-    color: "#123456" # Optional
-    # agentUseCase: :TRANSACTIONAL # Optional
-    # hostingRegion: :NORTH_AMERICA # Optional
-    # See agent-config.schema.json for the full list of config options and sub-property requirements.
+  brandName: "Sample Brand"
+  displayName: "Sample Agent"
 
-  Defaults # Optional block
-    messageTrafficType: :TRANSACTION # Optional (Good to set a default)
-    fallback_message: "I didn't understand that. Let me connect you with support." # Optional
-    ttl: "PT1H" # Optional
-    expressions: # Optional block
-      language: :rclscript # Required if 'expressions' block is present
-    postbackData: $js> format @selectedOption.text as :dash_case # Optional
+  Config
+    description: "Agent description"
+    logoUri: "https://www.example.com/logo.png"
+    heroUri: "https://www.example.com/hero.png"
+    color: "#123456"
+    agentUseCase: :TRANSACTIONAL
+    hostingRegion: :NORTH_AMERICA
 
-  flow Default # At least one flow is typically needed for a functional agent.
+  Defaults
+    messageTrafficType: :TRANSACTION
+    fallback_message: "I didn't understand that. Let me connect you with support."
+    ttl: "PT1H"
+    expressions
+      language: :rclscript
+    postbackData: $js> format @selectedOption.text as :dash_case
+
+  flow Default
     :start -> Welcome
-
     :error -> Error Message
-
     Welcome ->
       when @option.text ...
         "Tell me more" -> Check Status
@@ -42,7 +40,6 @@ agent My Brand
         "Contact Support" -> Contact Support
         /Appointment [0-9]+/ -> Status Response with id: number, time: <time 10 + number>
 
-
     Status Response ->
         "Reschedule" -> book_appointment
         "Cancel" -> confirm_cancellation
@@ -51,166 +48,150 @@ agent My Brand
         "Yes" -> :START
         "No" -> check_status
 
-  Messages # Required section for a useful agent (though grammar allows empty)
-    Welcome -> # Example of a named message shortcut (text shortcut)
-      text "Hello! This is a transactional message with various suggestions. How can I help you today?" # Required for text shortcut
-        suggestions: # Optional for text shortcut
-          reply "Tell me more" # text: Required, postbackData: Required (auto-generated if omitted from shortcut)
-          dialAction "Call Us" "+1234567890" # text: Required, phoneNumber: Required
-          openUrlAction "Visit Website" "https://www.example.com" # text: Required, url: Required
-          shareLocation "Share Location" # text: Required
-          # viewLocation "View Location" # TBD
-          # createCalendarEvent "Book Meeting" # TBD
+  Messages
+    message Welcome
+      text: "Hello! This is a transactional message with various suggestions. How can I help you today?"
+      suggestions
+        reply: "Tell me more"
+        dialAction: "Call Us", "+1234567890"
+        openUrlAction: "Visit Website", "https://www.example.com"
+        shareLocation: "Share Location"
 
-    agentMessage: # Example of a full agentMessage block
-      messageTrafficType: :TRANSACTION # Required
-      expireTime: "2024-12-31T23:59:59Z" # Optional (oneOf expireTime/ttl)
-      # ttl "P7D" # Optional (oneOf expireTime/ttl)
+    agentMessage Welcome Full
+      messageTrafficType: :TRANSACTION
+      expireTime: "2024-12-31T23:59:59Z"
 
-      contentMessage: # Required
-        text: "Hello! This is a transactional message with various suggestions. How can I help you today?" # One of text, fileName, uploadedRbmFile, richCard, or contentInfo is required.
+      contentMessage
+        text: "Hello! This is a transactional message with various suggestions. How can I help you today?"
 
-      suggestions: # Optional (max 11 suggestions for contentMessage)
-        # Suggested Reply
-        reply text: "Tell me more", postbackData: "tell_me_more_pb" # text: Required, postbackData: Required
+      suggestions
+        reply: text: "Tell me more", postbackData: "tell_me_more_pb"
 
-        # Suggested Action: Dial
-        action text: "Call Us", postbackData: "dial_action_pb" # text: Required, postbackData: Required
-            dialAction: phoneNumber: "+1234567890" # phoneNumber: Required
+        action: text: "Call Us", postbackData: "dial_action_pb"
+          dialAction: phoneNumber: "+1234567890"
 
-        # Suggested Action: Open URL
-        action text: "Visit Website", postbackData: "open_url_pb" # text: Required, postbackData: Required
-            openUrlAction:
-                url: "https://www.example.com" # url: Required
+        action: text: "Visit Website", postbackData: "open_url_pb"
+          openUrlAction
+            url: "https://www.example.com"
 
-        # Suggested Action: Share Location
-        action text: "Share Location", postbackData: "share_location_pb" # text: Required, postbackData: Required
-            shareLocationAction: # No fields required for shareLocationAction itself
+        action: text: "Share Location", postbackData: "share_location_pb"
+          shareLocationAction
 
-        # Suggested Action: View Location (with LatLong)
         action
-            text: "View Our Office" # text: Required, postbackData: Required
-            postbackData: "view_location_latlong_pb"
-            viewLocationAction: # One of latLong or query is required
-                label: "Our Office Location" # Optional
-                latLong: latitude: 37.7749, longitude: -122.4194 # latitude & longitude Required if latLong used
+          text: "View Our Office"
+          postbackData: "view_location_latlong_pb"
+          viewLocationAction
+            label: "Our Office Location"
+            latLong: latitude: 37.7749, longitude: -122.4194
 
-        # Suggested Action: View Location (with Query)
-        action text: "Search Park", postbackData: "view_location_query_pb" # text: Required, postbackData: Required
-            viewLocationAction query: "Golden Gate Park, San Francisco", label: "Nearby Park" # query Required if latLong not used
-              # label is Optional
+        action: text: "Search Park", postbackData: "view_location_query_pb"
+          viewLocationAction: query: "Golden Gate Park, San Francisco", label: "Nearby Park"
 
-        # Suggested Action: Create Calendar Event
-        action text: "Book Meeting", postbackData: "create_calendar_pb" # text: Required, postbackData: Required
-            createCalendarEventAction # startTime, endTime, title, description are all Required
-              title: "Project Discussion"
-              startTime: "2025-01-15T10:00:00Z"
-              endTime: "2025-01-15T11:00:00Z"
-              description: "Discuss project milestones."
+        action: text: "Book Meeting", postbackData: "create_calendar_pb"
+          createCalendarEventAction
+            title: "Project Discussion"
+            startTime: "2025-01-15T10:00:00Z"
+            endTime: "2025-01-15T11:00:00Z"
+            description: "Discuss project milestones."
 
     acknowledgement message Receipt File "PT1H"
       fileName: "receipt_user_device.pdf"
-      reply text: "Got it!", postbackData: "ack_file_receipt"
+      reply: text: "Got it!", postbackData: "ack_file_receipt"
 
     transaction message Invoice "PT1H"
-      uploadedRbmFile %{ # One of text, fileName, etc. is required
-          fileName: "invoice_123.pdf", # Required
-          thumbnailUrl: "https://cdn.example.com/thumbnails/invoice_123_thumb.png", # Optional
-          thumbnailName: "invoice_123_thumb_rbm.png" # Optional
+      uploadedRbmFile %{
+        fileName: "invoice_123.pdf",
+        thumbnailUrl: "https://cdn.example.com/thumbnails/invoice_123_thumb.png",
+        thumbnailName: "invoice_123_thumb_rbm.png"
       }
 
     promotion message Promo Video "P1D"
-      contentInfo %{ # One of text, fileName, etc. is required
-        fileUrl: "https://www.example.com/promo_video.mp4", # Required
-        thumbnailUrl: "https://www.example.com/promo_video_thumb.jpg", # Optional
-        forceRefresh: false # Optional
+      contentInfo %{
+        fileUrl: "https://www.example.com/promo_video.mp4",
+        thumbnailUrl: "https://www.example.com/promo_video_thumb.jpg",
+        forceRefresh: False
       }
 
       suggestion
-        reply text: "Cool!", postbackData: "promo_video_cool"
+        reply: text: "Cool!", postbackData: "promo_video_cool"
 
-      suggestion # Optional
-          action # text: Required, postbackData: Required, one action type: Required
-            text: "View Details"
-            postbackData: "view_invoice_123"
-            openUrlAction:
-                url: "https://example.com/invoice/123/details" # url: Required
+      suggestion
+        action
+          text: "View Details"
+          postbackData: "view_invoice_123"
+          openUrlAction
+            url: "https://example.com/invoice/123/details"
 
+    agentMessage Rich Card Example
+      messageTrafficType: :TRANSACTION
+      expireTime: "2024-12-01T00:00:00Z"
 
-
-    agentMessage
-      messageTrafficType :TRANSACTION # Required
-      expireTime "2024-12-01T00:00:00Z" # Optional (oneOf expireTime/ttl)
-
-      contentMessage # Required
-        richCard # One of text, fileName, etc. is required
-          standaloneCard # One of standaloneCard or carouselCard is required
-            cardOrientation :HORIZONTAL # Required
-            thumbnailImageAlignment :LEFT # Optional
-            cardContent # Required
-              title "Product Showcase" # Optional
-              description "Explore our latest product with amazing features and a sleek design." # Optional
-              media # Optional
-                height :MEDIUM # Required if media is present
-                contentInfo # One of file or contentInfo is required if media is present
-                  fileUrl "https://www.example.com/product_image.jpg" # Required if contentInfo is used
-                  # thumbnailUrl "https://www.example.com/product_thumbnail.jpg" # Optional
-                  # forceRefresh false # Optional
-
-              suggestion # Optional (max 4 in cardContent)
-                reply text: "Interested", postbackData: "product_interested_pb" # text & postbackData Required
-              suggestion # Optional
-                action text: "Learn More", postbackData: "product_learn_more_pb" # text & postbackData Required, one action type Required
-                  openUrlAction url: "https://www.example.com/product/details" # url Required
-              suggestion # Optional
-                action text: "Get Price", postbackData: "product_get_price_pb"
-                  dialAction phoneNumber: "+15550987654" # phoneNumber Required
-
-        suggestion # Optional (top-level suggestion for the message)
-          reply text: "Main Menu", postbackData: "main_menu_pb" # text & postbackData Required
-
-    agentMessage
-      messageTrafficType :PROMOTION # Required
-      ttl "P3D" # Optional (oneOf expireTime/ttl)
-
-      contentMessage # Required
-        richCard # One of text, fileName, etc. is required
-          carouselCard # One of standaloneCard or carouselCard is required
-            cardWidth :MEDIUM # Required
-            # cardContents requires 2 to 10 cards. All cards in a carousel must have the same media.height if media is present.
-
-            cardContent # Required (first of 2-10 cards)
-              title "Item 1: Modern Watch" # Optional
-              description "Stylish and smart." # Optional
-              media # Optional
-                height :SHORT # Required if media is present; must be consistent across carousel
-                contentInfo # One of file or contentInfo is required if media is present
-                  fileUrl "https://www.example.com/item1.jpg" # Required if contentInfo is used
-              suggestion # Optional (max 4 in cardContent)
-                action text: "View Item 1", postbackData: "carousel_item1_pb"
-                  openUrlAction url: "https://www.example.com/item1"
-
-            cardContent # Required (second of 2-10 cards)
-              title "Item 2: Wireless Headphones" # Optional
-              description "Crystal clear sound." # Optional
-              media # Optional
-                height :SHORT # Consistent media height
+      contentMessage
+        richCard
+          standaloneCard
+            cardOrientation: :HORIZONTAL
+            thumbnailImageAlignment: :LEFT
+            cardContent
+              title: "Product Showcase"
+              description: "Explore our latest product with amazing features and a sleek design."
+              media
+                height: :MEDIUM
                 contentInfo
-                  fileUrl "https://www.example.com/item2.jpg"
-              suggestion # Optional
-                action text: "View Item 2", postbackData: "carousel_item2_pb"
-                  openUrlAction url: "https://www.example.com/item2"
+                  fileUrl: "https://www.example.com/product_image.jpg"
 
-            cardContent # Optional (up to 10 total)
-              title "Item 3: Smart Speaker" # Optional
-              description "Your home assistant." # Optional
-              media # Optional
-                height :SHORT # Consistent media height
+              suggestion
+                reply: text: "Interested", postbackData: "product_interested_pb"
+              suggestion
+                action: text: "Learn More", postbackData: "product_learn_more_pb"
+                  openUrlAction: url: "https://www.example.com/product/details"
+              suggestion
+                action: text: "Get Price", postbackData: "product_get_price_pb"
+                  dialAction: phoneNumber: "+15550987654"
+
+        suggestion
+          reply: text: "Main Menu", postbackData: "main_menu_pb"
+
+    agentMessage Carousel Example
+      messageTrafficType: :PROMOTION
+      ttl: "P3D"
+
+      contentMessage
+        richCard
+          carouselCard
+            cardWidth: :MEDIUM
+
+            cardContent
+              title: "Item 1: Modern Watch"
+              description: "Stylish and smart."
+              media
+                height: :SHORT
                 contentInfo
-                  fileUrl "https://www.example.com/item3.jpg"
-              suggestion # Optional
-                action text: "View Item 3", postbackData: "carousel_item3_pb"
-                  openUrlAction url: "https://www.example.com/item3"
+                  fileUrl: "https://www.example.com/item1.jpg"
+              suggestion
+                action: text: "View Item 1", postbackData: "carousel_item1_pb"
+                  openUrlAction: url: "https://www.example.com/item1"
 
-        suggestion # Optional (top-level suggestion for the message)
-          reply text: "Exit Carousel", postbackData: "exit_carousel_pb" # text & postbackData Required
+            cardContent
+              title: "Item 2: Wireless Headphones"
+              description: "Crystal clear sound."
+              media
+                height: :SHORT
+                contentInfo
+                  fileUrl: "https://www.example.com/item2.jpg"
+              suggestion
+                action: text: "View Item 2", postbackData: "carousel_item2_pb"
+                  openUrlAction: url: "https://www.example.com/item2"
+
+            cardContent
+              title: "Item 3: Smart Speaker"
+              description: "Your home assistant."
+              media
+                height: :SHORT
+                contentInfo
+                  fileUrl: "https://www.example.com/item3.jpg"
+              suggestion
+                action: text: "View Item 3", postbackData: "carousel_item3_pb"
+                  openUrlAction: url: "https://www.example.com/item3"
+
+        suggestion
+          reply: text: "Exit Carousel", postbackData: "exit_carousel_pb"

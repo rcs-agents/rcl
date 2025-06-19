@@ -18,4 +18,4 @@ agent MyTestAgentWithDefaults
       text: "Hello from the Agent with Defaults!"
 
   flow MainDefaultsFlow # Minimal flow section
-    :start -> DefaultGreeting 
+    :start -> DefaultGreeting
