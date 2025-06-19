@@ -47,28 +47,60 @@ export class RclReferenceProvider implements ReferencesProvider {
     return [];
   }
 
-  protected findIdentifierReferences(identifier: Identifier, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
+  protected findIdentifierReferences(identifierNode: Identifier, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
     const locations: Location[] = [];
+    const targetName = identifierNode.value;
+    if (!targetName) return [];
+
     if (includeDeclaration) {
-      const loc = this.getNodeLocation(identifier, document);
+      const loc = this.getNodeLocation(identifierNode, document);
       if (loc) locations.push(loc);
+    }
+
+    for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
+      if (cancelToken?.isCancellationRequested) return locations;
+      if (node === identifierNode) continue;
+
+      if (isIdentifier(node) && node.value === targetName) {
+        const loc = this.getNodeLocation(node, document);
+        if (loc) locations.push(loc);
+      } else if (isFlowOperand(node) && node.identifier?.value === targetName) {
+        const loc = this.getNodeLocation(node.identifier!, document);
+        if (loc) locations.push(loc);
+      }
     }
     return locations;
   }
 
-  protected findSectionReferences(section: Section, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
+  protected findSectionReferences(sectionNode: Section, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
     const locations: Location[] = [];
-    if (includeDeclaration && section.sectionName) {
-      const loc = this.getNodeLocation(section, document);
+    const targetName = sectionNode.sectionName;
+    if (!targetName) return [];
+
+    if (includeDeclaration) {
+      const nameCstNode = this.services.references.NameProvider.getNameNode(sectionNode);
+      const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(sectionNode, document);
       if (loc) locations.push(loc);
+    }
+
+    for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
+      if (cancelToken?.isCancellationRequested) return locations;
+      if (node === sectionNode) continue;
     }
     return locations;
   }
 
-  protected findFlowOperandReferences(operand: FlowOperand, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
+  private flowOperandReferencesName(operand: FlowOperand | undefined, name: string): boolean {
+    if (!operand) return false;
+    return (isIdentifier(operand.identifier) && operand.identifier.value === name) ||
+      (operand.symbol === name) ||
+      (operand.string === name);
+  }
+
+  protected findFlowOperandReferences(operandNode: FlowOperand, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
     const locations: Location[] = [];
     if (includeDeclaration) {
-      const loc = this.getNodeLocation(operand, document);
+      const loc = this.getNodeLocation(operandNode, document);
       if (loc) locations.push(loc);
     }
     return locations;
@@ -80,5 +112,10 @@ export class RclReferenceProvider implements ReferencesProvider {
       return undefined;
     }
     return { uri: document.uri.toString(), range: nodeRange };
+  }
+
+  protected getNodeLocationFromCst(cstNode: AstNode['$cstNode'], document: LangiumDocument): Location | undefined {
+    if (!cstNode) return undefined;
+    return { uri: document.uri.toString(), range: cstNode.range };
   }
 }

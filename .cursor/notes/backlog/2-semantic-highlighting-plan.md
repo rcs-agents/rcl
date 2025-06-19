@@ -9,7 +9,7 @@ Based on [Langium's Keywords as Identifiers guide](https://langium.org/docs/reci
 1. **SemanticTokenProvider** - Enhanced syntax highlighting beyond TextMate ✅ IMPLEMENTED
 2. **HoverProvider** - Rich contextual information on hover ✅ IMPLEMENTED (Enhanced)
 3. **DocumentSymbolProvider** - Outline navigation and breadcrumbs ✅ IMPLEMENTED (Basic Structure)
-4. **ReferenceProvider** - Go-to-definition and find-references ✅ IMPLEMENTED (Basic Structure - User Fixed)
+4. **ReferenceProvider** - Go-to-definition and find-references ✅ IMPLEMENTED (Basic Structure - User Fixed & Builds)
 
 ---
 
@@ -107,26 +107,18 @@ export class RclDocumentSymbolProvider implements DocumentSymbolProvider {
 }
 ```
 
-### 🎯 **4. ReferenceProvider (High Priority)** ✅ IMPLEMENTED (Basic Structure - User Fixed)
+### 🎯 **4. ReferenceProvider (High Priority)** ✅ IMPLEMENTED (Basic Structure - User Fixed & Builds)
 
 **Missing:** Go-to-definition and find-references.
 
-**Implementation (Current Basic Structure - User Fixed):**
+**Implementation (Current Basic Structure - User Fixed & Builds):**
 ```typescript
 // packages/language/src/lsp/rcl-reference-provider.ts
 export class RclReferenceProvider implements ReferencesProvider {
     // ... constructor ...
     findReferences(document: LangiumDocument, params: ReferenceParams, cancelToken?: CancellationToken): MaybePromise<Location[]> {
-        const rootAstNode = document.parseResult.value;
-        if (!rootAstNode?.$cstNode) { return []; }
-        const offset = document.textDocument.offsetAt(params.position);
-        const cstLeaf = CstUtils.findLeafNodeAtOffset(rootAstNode.$cstNode, offset);
-        if (!cstLeaf?.element) { return []; }
-        const astNodeForLeaf = cstLeaf.element;
-
-        if (isIdentifier(astNodeForLeaf)) { /* ... */ }
-        if (isFlowOperand(astNodeForLeaf)) { /* ... */ }
-        // ... logic for section names ...
+        // ... logic to find cstLeaf and astNodeForLeaf using CstUtils/AstUtils ...
+        // ... delegation to placeholder findXXXReferences methods ...
         return [];
     }
     // ... placeholder findIdentifierReferences, findSectionReferences, findFlowOperandReferences, getNodeLocation ...
@@ -171,7 +163,7 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
 - **Day 5:** Test and integrate (Further hover detail refinement TBD)
 
 ### **Week 2: Navigation Features**
-- **Day 1-2:** Implement `ReferenceProvider` ✅ COMPLETE (Basic Structure - User Fixed; actual reference finding logic TBD)
+- **Day 1-2:** Implement `ReferenceProvider` ✅ COMPLETE (Basic Structure - User Fixed & Builds; actual reference finding logic TBD)
 - **Day 3-4:** Implement `DocumentSymbolProvider` ✅ COMPLETE (Basic Structure)
 - **Day 5:** Integration testing and polish (Detailed logic for ReferenceProvider and further testing for all providers TBD)
 
