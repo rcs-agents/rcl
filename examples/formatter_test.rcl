@@ -1,0 +1,31 @@
+Agent TestFormatter
+displayName:"Test Agent for Formatter"
+description:"This tests various formatting scenarios"
+
+Config
+description:"Agent configuration"
+logoUri:"https://example.com/logo.png"
+
+Defaults
+fallback_message:"Default message"
+messageTrafficType::promotional
+
+flow Welcome
+:start->CheckUser
+CheckUser->ValidateData
+ValidateData->SendWelcome
+SendWelcome->:end
+
+Messages
+text "Welcome!"
+    reply "Continue"
+    reply "Stop"
+
+agentMessage TestMessage
+    messageTrafficType::authentication
+    contentMessage
+        text:"Hello world"
+        suggestion
+            reply
+                text:"Yes"
+                postbackData:"yes_response"
