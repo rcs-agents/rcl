@@ -47,37 +47,87 @@ function extendTmGrammar() {
 		const grammarContent = fs.readFileSync(grammarPath, "utf-8");
 		const grammar = JSON.parse(grammarContent);
 
-		// Ensure repository and patterns exist
 		grammar.repository = grammar.repository || {};
 		grammar.patterns = grammar.patterns || [];
 
-		// Add embedded JavaScript
-		grammar.repository["embedded-javascript"] = {
+		// Remove old individual includes if they exist from previous logic
+		grammar.patterns = grammar.patterns.filter(
+			p => p.include !== "#embedded-javascript" && p.include !== "#embedded-typescript"
+		);
+
+		// Define new repository entries
+		grammar.repository["embedded-js-singleline"] = {
+			name: "meta.embedded.inline.javascript.rcl",
+			begin: "(\$js>)", // Captures $js>
+			beginCaptures: { "1": { name: "keyword.control.embedded.marker.js.rcl" } },
+			end: "(?=$)", // End of line
+			contentName: "source.js", // Tells TextMate to treat content as JS
+			patterns: [{ include: "source.js" }]
+		};
+
+		grammar.repository["embedded-ts-singleline"] = {
+			name: "meta.embedded.inline.typescript.rcl",
+			begin: "(\$ts>)", // Captures $ts>
+			beginCaptures: { "1": { name: "keyword.control.embedded.marker.ts.rcl" } },
+			end: "(?=$)",
+			contentName: "source.ts",
+			patterns: [{ include: "source.ts" }]
+		};
+
+		grammar.repository["embedded-js-multiline"] = {
 			name: "meta.embedded.block.javascript.rcl",
-			begin: "\\$js>", // Regex: $js>
-			end: "$", // End of line
-			patterns: [{ include: "source.js" }],
+			begin: "^(\s*)(\$js>>>)\s*$\n", // Regex: ^(\s*)(\$js>>>)\s*$\n
+			beginCaptures: { "2": { name: "keyword.control.embedded.marker.js.rcl" } },
+			end: "^(?!\\1\\s+\\S)(?=\\s*\\S)|^(?=\\1$)\", // Indentation-based end pattern
+			contentName: "source.js",
+			patterns: [{ include: "source.js" }]
 		};
 
-		// Add embedded TypeScript
-		grammar.repository["embedded-typescript"] = {
+		grammar.repository["embedded-ts-multiline"] = {
 			name: "meta.embedded.block.typescript.rcl",
-			begin: "\\$ts>", // Regex: $ts>
-			end: "$", // End of line
-			patterns: [{ include: "source.ts" }],
+			begin: "^(\s*)(\$ts>>>)\s*$\n", // Regex: ^(\s*)(\$ts>>>)\s*$\n
+			beginCaptures: { "2": { name: "keyword.control.embedded.marker.ts.rcl" } },
+			end: "^(?!\\1\\s+\\S)(?=\\s*\\S)|^(?=\\1$)\",
+			contentName: "source.ts",
+			patterns: [{ include: "source.ts" }]
 		};
 
-		// Add includes to main patterns if not already present
-		if (!grammar.patterns.some((p) => p.include === "#embedded-javascript")) {
-			grammar.patterns.push({ include: "#embedded-javascript" });
-		}
-		if (!grammar.patterns.some((p) => p.include === "#embedded-typescript")) {
-			grammar.patterns.push({ include: "#embedded-typescript" });
+        // Generic embedded code block (no language specified)
+        grammar.repository["embedded-generic-singleline"] = {
+			name: "meta.embedded.inline.generic.rcl",
+			begin: "(\$)", // Captures $>
+			beginCaptures: { "1": { name: "keyword.control.embedded.marker.generic.rcl" } },
+			end: "(?=$)",
+            // No contentName, let TextMate decide or treat as plain
+		};
+
+		grammar.repository["embedded-generic-multiline"] = {
+			name: "meta.embedded.block.generic.rcl",
+			begin: "^(\s*)(\$>>>)\s*$\n", // Regex: ^(\s*)(\$>>>)\s*$\n
+			beginCaptures: { "2": { name: "keyword.control.embedded.marker.generic.rcl" } },
+			end: "^(?!\\1\\s+\\S)(?=\\s*\\S)|^(?=\\1$)\",
+             // No contentName
+		};
+
+		grammar.repository["rcl-embedded-code"] = {
+			patterns: [
+				{ include: "#embedded-js-multiline" },
+				{ include: "#embedded-ts-multiline" },
+                { include: "#embedded-generic-multiline" }, // Generic multi-line before specific single-line
+				{ include: "#embedded-js-singleline" },
+				{ include: "#embedded-ts-singleline" },
+                { include: "#embedded-generic-singleline" }
+			]
+		};
+
+		// Add the main include to grammar patterns if not already present
+		if (!grammar.patterns.some((p) => p.include === "#rcl-embedded-code")) {
+			grammar.patterns.push({ include: "#rcl-embedded-code" });
 		}
 
 		fs.writeFileSync(grammarPath, JSON.stringify(grammar, null, 2));
 		console.log(
-			`${getTime()}TextMate grammar extended successfully at ${grammarPath}`,
+			`${getTime()}TextMate grammar extended successfully for multi-line embedded code at ${grammarPath}`,
 		);
 	} catch (error) {
 		console.error(`${getTime()}Error extending TextMate grammar:`, error);
