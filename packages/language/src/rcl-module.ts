@@ -9,6 +9,7 @@ import { RclHoverProvider } from './lsp/rcl-hover-provider.js';
 import { RclReferenceProvider } from './lsp/rcl-reference-provider.js';
 import { RclDocumentSymbolProvider } from './lsp/rcl-document-symbol-provider.js';
 import { RclFoldingRangeProvider } from './lsp/rcl-folding-range-provider.js';
+import { RclDefinitionProvider } from './lsp/rcl-definition-provider.js';
 import { RclFormatter } from './lsp/rcl-formatter.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
 
@@ -24,6 +25,7 @@ export type RclAddedServices = {
     SemanticTokenProvider: RclSemanticTokenProvider,
     HoverProvider: RclHoverProvider,
     ReferenceProvider: RclReferenceProvider,
+    DefinitionProvider: RclDefinitionProvider,
     DocumentSymbolProvider: RclDocumentSymbolProvider,
     FoldingRangeProvider: RclFoldingRangeProvider,
     Formatter: RclFormatter
@@ -57,6 +59,7 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
     SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services),
     HoverProvider: (services) => new RclHoverProvider(services),
     ReferenceProvider: (services) => new RclReferenceProvider(services),
+    DefinitionProvider: (services) => new RclDefinitionProvider(services),
     DocumentSymbolProvider: (services) => new RclDocumentSymbolProvider(services),
     FoldingRangeProvider: (services) => new RclFoldingRangeProvider(services),
     Formatter: () => new RclFormatter()

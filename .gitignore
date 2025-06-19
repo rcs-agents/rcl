@@ -9,3 +9,4 @@ dist/
 syntaxes/
 *.tsbuildinfo
 *.vsix
+.cursor/environment.json
