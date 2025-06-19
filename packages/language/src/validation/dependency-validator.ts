@@ -49,12 +49,15 @@ export class DependencyValidator {
     for (const node of allNodes) {
       if (!reachableNodes.has(node) && node !== ':start' && node !== ':end') {
         // Find the first flow rule that references this unreachable node
-        const ruleWithUnreachableNode = flowRules.find(rule =>
-          this.getFlowOperandValue(rule.source) === node ||
-          this.getFlowOperandValue(rule.target) === node
-        );
+        const ruleWithUnreachableNode = flowRules.find(rule => {
+          if (!rule.source || !rule.target) {
+            return false; // Skip malformed flow rules
+          }
+          return this.getFlowOperandValue(rule.source) === node ||
+            this.getFlowOperandValue(rule.target) === node;
+        });
 
-        if (ruleWithUnreachableNode) {
+        if (ruleWithUnreachableNode && ruleWithUnreachableNode.source && ruleWithUnreachableNode.target) {
           accept('warning', `Flow operand '${node}' appears to be unreachable`, {
             node: ruleWithUnreachableNode,
             property: this.getFlowOperandValue(ruleWithUnreachableNode.source) === node ? 'source' : 'target',
@@ -72,6 +75,11 @@ export class DependencyValidator {
     const graph = new Map<string, Set<string>>();
 
     flowRules.forEach(rule => {
+      // Check if source and target operands exist before processing
+      if (!rule.source || !rule.target) {
+        return; // Skip malformed flow rules
+      }
+
       const source = this.getFlowOperandValue(rule.source);
       const target = this.getFlowOperandValue(rule.target);
 
@@ -208,6 +216,11 @@ export class DependencyValidator {
     const operands = new Set<string>();
 
     flowRules.forEach(rule => {
+      // Check if source and target operands exist before processing
+      if (!rule.source || !rule.target) {
+        return; // Skip malformed flow rules
+      }
+
       const source = this.getFlowOperandValue(rule.source);
       const target = this.getFlowOperandValue(rule.target);
 
@@ -222,6 +235,11 @@ export class DependencyValidator {
    * Extract string value from a FlowOperand
    */
   private getFlowOperandValue(operand: FlowOperand): string | undefined {
+    // Early return for undefined operands
+    if (!operand) {
+      return undefined;
+    }
+
     // FlowOperand could be a symbol (:start, :end), identifier, or string
     if ((operand as any).symbol) {
       return (operand as any).symbol;

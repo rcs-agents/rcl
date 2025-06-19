@@ -62,7 +62,7 @@ export class RclDefinitionProvider implements DefinitionProvider {
     // Look for sections with the same name as this identifier
     for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
       if (cancelToken?.isCancellationRequested) return undefined;
-      
+
       if (isSection(node) && node.sectionName === targetName) {
         // Found the section definition
         const nameCstNode = this.services.references.NameProvider.getNameNode(node);
@@ -81,7 +81,7 @@ export class RclDefinitionProvider implements DefinitionProvider {
     // Look for sections with the same name as this flow operand
     for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
       if (cancelToken?.isCancellationRequested) return undefined;
-      
+
       if (isSection(node) && node.sectionName === targetValue) {
         // Found the section definition
         const nameCstNode = this.services.references.NameProvider.getNameNode(node);
@@ -110,6 +110,11 @@ export class RclDefinitionProvider implements DefinitionProvider {
    * Extract the value from a FlowOperand
    */
   private getFlowOperandValue(operand: FlowOperand): string | undefined {
+    // Early return for undefined operands
+    if (!operand) {
+      return undefined;
+    }
+
     // FlowOperand could be a symbol (:start, :end), identifier, or string
     if ((operand as any).symbol) {
       return (operand as any).symbol;
@@ -128,4 +133,4 @@ export class RclDefinitionProvider implements DefinitionProvider {
 
     return undefined;
   }
-} 
+}

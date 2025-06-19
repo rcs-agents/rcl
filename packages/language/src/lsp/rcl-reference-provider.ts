@@ -166,6 +166,11 @@ export class RclReferenceProvider implements ReferencesProvider {
    * Extract the value from a FlowOperand
    */
   private getFlowOperandValue(operand: FlowOperand): string | undefined {
+    // Early return for undefined operands
+    if (!operand) {
+      return undefined;
+    }
+
     // FlowOperand could be a symbol (:start, :end), identifier, or string
     if ((operand as any).symbol) {
       return (operand as any).symbol;
