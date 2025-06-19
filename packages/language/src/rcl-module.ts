@@ -8,6 +8,7 @@ import { RclSemanticTokenProvider } from './lsp/rcl-semantic-token-provider.js';
 import { RclHoverProvider } from './lsp/rcl-hover-provider.js';
 import { RclReferenceProvider } from './lsp/rcl-reference-provider.js';
 import { RclDocumentSymbolProvider } from './lsp/rcl-document-symbol-provider.js';
+import { RclFoldingRangeProvider } from './lsp/rcl-folding-range-provider.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
 
 /**
@@ -22,7 +23,8 @@ export type RclAddedServices = {
     SemanticTokenProvider: RclSemanticTokenProvider,
     HoverProvider: RclHoverProvider,
     ReferenceProvider: RclReferenceProvider,
-    DocumentSymbolProvider: RclDocumentSymbolProvider
+    DocumentSymbolProvider: RclDocumentSymbolProvider,
+    FoldingRangeProvider: RclFoldingRangeProvider
   },
   meta: {
     SectionTypeRegistry: SectionTypeRegistry
@@ -53,7 +55,8 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
     SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services),
     HoverProvider: (services) => new RclHoverProvider(services),
     ReferenceProvider: (services) => new RclReferenceProvider(services),
-    DocumentSymbolProvider: (services) => new RclDocumentSymbolProvider(services)
+    DocumentSymbolProvider: (services) => new RclDocumentSymbolProvider(services),
+    FoldingRangeProvider: (services) => new RclFoldingRangeProvider(services)
   },
   meta: {
     SectionTypeRegistry: () => new SectionTypeRegistry()

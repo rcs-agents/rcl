@@ -22,7 +22,7 @@ Based on [Langium Configuration via Services](https://langium.org/docs/reference
 #### 3. **ReferenceProvider** - Find all references to symbols
 #### 4. **DocumentSymbolProvider** - Document outline and navigation
 #### 5. **RenameHandler** - Symbol renaming with validation
-#### 6. **FoldingRangeProvider** - Code folding for sections and embedded code
+#### 6. **FoldingRangeProvider** - Code folding for sections and embedded code ✅ IMPLEMENTED (Basic for Sections)
 #### 7. **DocumentHighlighter** - Highlight symbol occurrences
 
 ---
@@ -369,6 +369,7 @@ import { RclCompletionProvider } from './services/rcl-completion-provider.js';
 import { RclHoverProvider } from './services/rcl-hover-provider.js';
 import { RclReferenceProvider } from './services/rcl-reference-provider.js';
 import { RclDocumentSymbolProvider } from './services/rcl-document-symbol-provider.js';
+import { RclFoldingRangeProvider } from './lsp/rcl-folding-range-provider.js';
 
 export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedServices> = {
     // ... existing services
@@ -378,6 +379,7 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
         HoverProvider: (services) => new RclHoverProvider(services),
         ReferenceProvider: (services) => new RclReferenceProvider(services),
         DocumentSymbolProvider: (services) => new RclDocumentSymbolProvider(services),
+        FoldingRangeProvider: (services) => new RclFoldingRangeProvider(services)
     }
 };
 ```
@@ -487,6 +489,7 @@ agent TestAgent
 - **Hover Provider:** 3 days ✅ COMPLETE (Enhanced)
 - **Reference Provider:** 3 days (Basic structure from Plan #2 complete, full implementation TBD)
 - **Document Symbol Provider:** 2 days (Basic structure from Plan #2 complete, full implementation TBD)
+- **FoldingRangeProvider:** 1-2 days (Basic for Sections ✅ COMPLETE; Embedded code TBD)
 - **Service Integration:** 2 days
 - **Testing & Polish:** 4 days
 
