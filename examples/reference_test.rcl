@@ -1,0 +1,60 @@
+Agent ReferenceTest
+displayName: "Reference Provider Test Agent"
+description: "Tests go-to-definition and find-all-references functionality"
+
+Config
+logoUri: "https://example.com/logo.png"
+
+# Test Section References
+# Try "Find All References" on "WelcomeFlow" - should find:
+# 1. This section definition
+# 2. Flow rule reference below
+# 3. Any attribute references (if implemented)
+flow WelcomeFlow
+    :start -> GreetUser
+    GreetUser -> CollectInfo
+    CollectInfo -> :end
+
+# Test Flow Operand References
+# Try "Find All References" on "GreetUser" - should find:
+# 1. All occurrences in flow rules
+# 2. Any sections named "GreetUser" (if they exist)
+flow MainFlow
+    :start -> GreetUser       # Reference to GreetUser
+    GreetUser -> ProcessData  # GreetUser appears as source
+    ProcessData -> GreetUser  # GreetUser appears as target again
+    GreetUser -> :end
+
+# Test section with same name as flow operand
+agentMessage GreetUser
+    messageTrafficType::promotional
+    contentMessage
+        text: "Hello! Welcome to our service."
+
+# Test Identifier References
+# Try "Find All References" on any "testValue" identifier
+Defaults
+testValue: "myIdentifier"
+anotherAttribute: testValue      # Reference to identifier
+thirdAttribute: "testValue"      # String literal (should not be found as reference)
+
+# Test Cross-section References
+flow ComplexFlow
+    :start -> WelcomeFlow        # Reference to WelcomeFlow section
+    WelcomeFlow -> DataProcessing
+    DataProcessing -> WelcomeFlow # Another reference to WelcomeFlow
+    WelcomeFlow -> :end
+
+# Test Multiple References to Same Flow Operand
+flow MultiReferenceFlow
+    :start -> Checkpoint
+    Checkpoint -> ValidateInput
+    ValidateInput -> Checkpoint   # Back to Checkpoint
+    Checkpoint -> ProcessRequest  # Forward from Checkpoint
+    ProcessRequest -> Checkpoint  # Back to Checkpoint again
+    Checkpoint -> :end           # Final reference to Checkpoint
+
+Messages
+text "Test message with references"
+    reply "Go to Welcome"
+        postbackData: "start_welcome_flow"
