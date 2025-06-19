@@ -22,16 +22,16 @@ interface GrammarModule {
  */
 const GRAMMAR_MODULES: GrammarModule[] = [
   { path: 'core/comments.tmLanguage.json', include: '#comments', priority: 1 },
-  { path: 'core/keywords.tmLanguage.json', include: '#keywords', priority: 2 },
-  { path: 'core/identifiers.tmLanguage.json', include: '#identifiers', priority: 3 },
-  { path: 'core/punctuation.tmLanguage.json', include: '#punctuation', priority: 4 },
-  { path: 'data-types/primitives.tmLanguage.json', include: '#primitives', priority: 5 },
-  { path: 'data-types/collections.tmLanguage.json', include: '#collections', priority: 6 },
-  { path: 'data-types/references.tmLanguage.json', include: '#references', priority: 7 },
-  { path: 'embedded/expressions.tmLanguage.json', include: '#expressions', priority: 8 },
-  { path: 'embedded/multiline-strings.tmLanguage.json', include: '#multiline-strings', priority: 9 },
-  { path: 'sections/flow-sections.tmLanguage.json', include: '#flow-sections', priority: 10 },
-  { path: 'sections/agent-sections.tmLanguage.json', include: '#agent-sections', priority: 11 },
+  { path: 'embedded/expressions.tmLanguage.json', include: '#expressions', priority: 2 },
+  { path: 'embedded/multiline-strings.tmLanguage.json', include: '#multiline-strings', priority: 3 },
+  { path: 'sections/agent-sections.tmLanguage.json', include: '#agent-sections', priority: 4 },
+  { path: 'sections/flow-sections.tmLanguage.json', include: '#flow-sections', priority: 5 },
+  { path: 'core/keywords.tmLanguage.json', include: '#keywords', priority: 6 },
+  { path: 'core/identifiers.tmLanguage.json', include: '#identifiers', priority: 7 },
+  { path: 'data-types/primitives.tmLanguage.json', include: '#primitives', priority: 8 },
+  { path: 'data-types/collections.tmLanguage.json', include: '#collections', priority: 9 },
+  { path: 'data-types/references.tmLanguage.json', include: '#references', priority: 10 },
+  { path: 'core/punctuation.tmLanguage.json', include: '#punctuation', priority: 11 },
 ];
 
 /**
@@ -52,11 +52,8 @@ export function enhanceTmLanguage(): void {
     const grammarContent = fs.readFileSync(baseGrammarPath, 'utf-8');
     const grammar = JSON.parse(grammarContent);
 
-    // Add embedded language support (legacy method, preserved for compatibility)
-    const enhancedGrammar = addEmbeddedLanguageSupport(grammar);
-
-    // Add modular semantic components
-    const finalGrammar = addSemanticModules(enhancedGrammar);
+    // Add modular semantic components (includes embedded language support)
+    const finalGrammar = addSemanticModules(grammar);
 
     fs.writeFileSync(enhancedGrammarPath, JSON.stringify(finalGrammar, null, 2));
     console.log(
@@ -76,7 +73,10 @@ function addSemanticModules(grammar: any): any {
 
   // Initialize repository if it doesn't exist
   grammar.repository = grammar.repository || {};
-  grammar.patterns = grammar.patterns || [];
+  
+  // Clear existing patterns to prioritize our semantic patterns
+  const originalPatterns = grammar.patterns || [];
+  grammar.patterns = [];
 
   // Load and merge each module
   const sortedModules = GRAMMAR_MODULES.sort((a, b) => a.priority - b.priority);
@@ -110,6 +110,26 @@ function addSemanticModules(grammar: any): any {
       console.log(`${getTime()}📦 Added module: ${module.path} (${module.include})`);
     } catch (error) {
       console.warn(`${getTime()}Warning: Error loading module ${module.path}:`, error);
+    }
+  }
+
+  // Add back original patterns (with lower priority)
+  for (const originalPattern of originalPatterns) {
+    // Skip overly broad keyword patterns that conflict with our semantic patterns
+    if (originalPattern.name === 'keyword.control.rcl' && 
+        originalPattern.match && 
+        originalPattern.match.includes('agent|')) {
+      console.log(`${getTime()}⚠️  Skipping broad keyword pattern to prioritize semantic patterns`);
+      continue;
+    }
+    
+    // Add original pattern if not already present
+    const patternExists = grammar.patterns.some((p: any) => 
+      JSON.stringify(p) === JSON.stringify(originalPattern)
+    );
+    
+    if (!patternExists) {
+      grammar.patterns.push(originalPattern);
     }
   }
 
