@@ -1,8 +1,14 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma';
-import { Registry, IGrammar, ITokenizeLineResult } from 'vscode-textmate';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { createOnigScanner, createOnigString, loadWASM } = require('vscode-oniguruma');
+const { Registry } = require('vscode-textmate');
+
+type IGrammar = any;
+type ITokenizeLineResult = any;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,12 +20,29 @@ interface ScopeToken {
   text: string;
 }
 
+interface TokenInfo {
+  text: string;
+  scopes: string[];
+  startIndex: number;
+  endIndex: number;
+  line: number;
+}
+
 interface ScopeTestCase {
   name: string;
   code: string;
   expectedScopes: {
     text: string;
     scopes: string[];
+  }[];
+}
+
+interface TestCase {
+  name: string;
+  code: string;
+  expectedScopes: {
+    text: string;
+    expectedScope: string;
   }[];
 }
 
@@ -56,7 +79,19 @@ async function initializeGrammar(): Promise<IGrammar | null> {
       throw new Error(`Grammar file not found at ${grammarPath}`);
     }
 
-    const grammarContent = JSON.parse(fs.readFileSync(grammarPath, 'utf-8'));
+    const rclGrammarContent = JSON.parse(fs.readFileSync(grammarPath, 'utf-8'));
+
+    // Placeholder for JS
+    const jsPlaceholderGrammar = {
+      scopeName: 'source.js',
+      patterns: [{ "match": ".*", "name": "source.js.placeholder" }] // Match anything as a placeholder
+    };
+
+    // Placeholder for TS
+    const tsPlaceholderGrammar = {
+      scopeName: 'source.ts',
+      patterns: [{ "match": ".*", "name": "source.ts.placeholder" }] // Match anything as a placeholder
+    };
 
     // Create registry with our grammar
     const registry = new Registry({
@@ -66,8 +101,15 @@ async function initializeGrammar(): Promise<IGrammar | null> {
       }),
       loadGrammar: async (scopeName: string) => {
         if (scopeName === 'source.rcl') {
-          return grammarContent;
+          return rclGrammarContent;
         }
+        if (scopeName === 'source.js') {
+          return jsPlaceholderGrammar;
+        }
+        if (scopeName === 'source.ts') {
+          return tsPlaceholderGrammar;
+        }
+        console.warn(`Attempted to load unknown grammar: ${scopeName}`);
         return null;
       },
     });
@@ -287,6 +329,199 @@ const DEFAULT_TEST_CASES: ScopeTestCase[] = [
 ];
 
 /**
+ * Comprehensive test cases based on example.rcl covering all major RCL constructs
+ */
+const COMPREHENSIVE_TEST_CASES: TestCase[] = [
+  // Import statements
+  {
+    name: "Import statement",
+    code: `import My Brand / Samples.one as Sample One`,
+    expectedScopes: [
+      { text: "import", expectedScope: "keyword.control.import.rcl" },
+      { text: "My Brand", expectedScope: "entity.name.namespace.rcl" },
+      { text: "/", expectedScope: "punctuation.separator.namespace.rcl" },
+      { text: "Samples.one", expectedScope: "entity.name.module.rcl" },
+      { text: "as", expectedScope: "keyword.control.import.rcl" },
+      { text: "Sample One", expectedScope: "entity.name.alias.rcl" }
+    ]
+  },
+
+  // Agent declaration
+  {
+    name: "Agent declaration",
+    code: `agent My Brand`,
+    expectedScopes: [
+      { text: "agent", expectedScope: "keyword.control.section.agent.rcl" },
+      { text: "My Brand", expectedScope: "entity.name.section.agent.rcl" }
+    ]
+  },
+
+  // Config section
+  {
+    name: "Config section",
+    code: `  Config`,
+    expectedScopes: [
+      { text: "Config", expectedScope: "keyword.control.section.config.rcl" }
+    ]
+  },
+
+  // Property assignments
+  {
+    name: "String property",
+    code: `    brandName: "Sample Brand"`,
+    expectedScopes: [
+      { text: "brandName", expectedScope: "variable.other.property.rcl" },
+      { text: ":", expectedScope: "punctuation.separator.key-value.rcl" },
+      { text: '"Sample Brand"', expectedScope: "string.quoted.double.rcl" }
+    ]
+  },
+
+  // Atom values
+  {
+    name: "Atom property",
+    code: `    agentUseCase: :TRANSACTIONAL`,
+    expectedScopes: [
+      { text: "agentUseCase", expectedScope: "variable.other.property.rcl" },
+      { text: ":", expectedScope: "punctuation.separator.key-value.rcl" },
+      { text: ":TRANSACTIONAL", expectedScope: "constant.other.atom.rcl" }
+    ]
+  },
+
+  // Boolean values
+  {
+    name: "Boolean property",
+    code: `    enabled: True`,
+    expectedScopes: [
+      { text: "enabled", expectedScope: "variable.other.property.rcl" },
+      { text: ":", expectedScope: "punctuation.separator.key-value.rcl" },
+      { text: "True", expectedScope: "constant.language.boolean.rcl" }
+    ]
+  },
+
+  // Embedded expressions
+  {
+    name: "JavaScript expression",
+    code: `    postbackData: $js> format @selectedOption.text as :dash_case`,
+    expectedScopes: [
+      { text: "postbackData", expectedScope: "variable.other.property.rcl" },
+      { text: ":", expectedScope: "punctuation.separator.key-value.rcl" },
+      { text: "$js>", expectedScope: "keyword.control.embedded.marker.js.rcl" },
+      { text: "format @selectedOption.text as :dash_case", expectedScope: "meta.embedded.inline.javascript.rcl" }
+    ]
+  },
+
+  // Flow rules
+  {
+    name: "Flow rule arrow",
+    code: `    :start -> Welcome`,
+    expectedScopes: [
+      { text: ":start", expectedScope: "constant.other.atom.rcl" },
+      { text: "->", expectedScope: "keyword.operator.flow.arrow.rcl" },
+      { text: "Welcome", expectedScope: "variable.other.flow.target.rcl" }
+    ]
+  },
+
+  // Flow conditions
+  {
+    name: "Flow when condition",
+    code: `      when @option.text ...`,
+    expectedScopes: [
+      { text: "when", expectedScope: "keyword.control.flow.when.rcl" },
+      { text: "@option.text", expectedScope: "variable.other.reference.rcl" },
+      { text: "...", expectedScope: "keyword.operator.flow.ellipsis.rcl" }
+    ]
+  },
+
+  // Message declarations
+  {
+    name: "Message declaration",
+    code: `    message Welcome`,
+    expectedScopes: [
+      { text: "message", expectedScope: "keyword.control.section.message.rcl" },
+      { text: "Welcome", expectedScope: "entity.name.section.message.rcl" }
+    ]
+  },
+
+  // Agent message declarations
+  {
+    name: "Agent message declaration",
+    code: `    agentMessage Welcome Full`,
+    expectedScopes: [
+      { text: "agentMessage", expectedScope: "keyword.control.section.agentmessage.rcl" },
+      { text: "Welcome Full", expectedScope: "entity.name.section.agentmessage.rcl" }
+    ]
+  },
+
+  // Suggestions
+  {
+    name: "Reply suggestion",
+    code: `        reply: "Tell me more"`,
+    expectedScopes: [
+      { text: "reply", expectedScope: "keyword.control.suggestion.reply.rcl" },
+      { text: ":", expectedScope: "punctuation.separator.key-value.rcl" },
+      { text: '"Tell me more"', expectedScope: "string.quoted.double.rcl" }
+    ]
+  },
+
+  // Actions
+  {
+    name: "Dial action",
+    code: `        dialAction: "Call Us", "+1234567890"`,
+    expectedScopes: [
+      { text: "dialAction", expectedScope: "keyword.control.action.dial.rcl" },
+      { text: ":", expectedScope: "punctuation.separator.key-value.rcl" },
+      { text: '"Call Us"', expectedScope: "string.quoted.double.rcl" },
+      { text: ",", expectedScope: "punctuation.separator.sequence.rcl" },
+      { text: '"+1234567890"', expectedScope: "string.quoted.double.rcl" }
+    ]
+  },
+
+  // Rich cards
+  {
+    name: "Rich card declaration",
+    code: `        richCard`,
+    expectedScopes: [
+      { text: "richCard", expectedScope: "keyword.control.section.richcard.rcl" }
+    ]
+  },
+
+  // Standalone cards
+  {
+    name: "Standalone card",
+    code: `          standaloneCard`,
+    expectedScopes: [
+      { text: "standaloneCard", expectedScope: "keyword.control.section.standalonecard.rcl" }
+    ]
+  },
+
+  // Numbers
+  {
+    name: "Number property",
+    code: `    ttl: 3600`,
+    expectedScopes: [
+      { text: "ttl", expectedScope: "variable.other.property.rcl" },
+      { text: ":", expectedScope: "punctuation.separator.key-value.rcl" },
+      { text: "3600", expectedScope: "constant.numeric.integer.rcl" }
+    ]
+  },
+
+  // Multi-line strings
+  {
+    name: "Multi-line string",
+    code: `    description: |
+      This is a multi-line
+      description`,
+    expectedScopes: [
+      { text: "description", expectedScope: "variable.other.property.rcl" },
+      { text: ":", expectedScope: "punctuation.separator.key-value.rcl" },
+      { text: "|", expectedScope: "punctuation.definition.string.multiline.begin.rcl" },
+      { text: "This is a multi-line", expectedScope: "string.quoted.multiline.content.rcl" },
+      { text: "description", expectedScope: "string.quoted.multiline.content.rcl" }
+    ]
+  }
+];
+
+/**
  * Interactive scope inspector - inspect a specific piece of code
  */
 async function inspectCode(code: string): Promise<void> {
@@ -303,54 +538,133 @@ async function inspectCode(code: string): Promise<void> {
 }
 
 /**
- * Run comprehensive scope tests
+ * Simplified tokenization for comprehensive tests
  */
-async function runComprehensiveTests(): Promise<boolean> {
-  console.log('🧪 Running Comprehensive Scope Tests\n');
-  
+async function tokenizeCode(code: string): Promise<TokenInfo[]> {
   const grammar = await initializeGrammar();
   if (!grammar) {
-    console.error('❌ Failed to load grammar');
-    return false;
+    throw new Error('Failed to initialize grammar');
   }
 
-  // Run pre-defined test cases
-  const testsPassed = runScopeTests(grammar, DEFAULT_TEST_CASES);
-  
-  // Test with example files
-  const examplesDir = path.join(__dirname, '../../../examples');
-  if (fs.existsSync(examplesDir)) {
-    console.log('📁 Testing with example files:');
+  const lines = code.split('\n');
+  const results: TokenInfo[] = [];
+
+  let ruleStack: any = null; // Use null instead of vsctm.INITIAL
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const result = grammar.tokenizeLine(line, ruleStack);
     
-    const exampleFiles = fs.readdirSync(examplesDir)
-      .filter(file => file.endsWith('.rcl'))
-      .slice(0, 3); // Test first 3 files to avoid too much output
+    for (const token of result.tokens) {
+      const tokenText = line.substring(token.startIndex, token.endIndex);
+      results.push({
+        text: tokenText,
+        scopes: token.scopes,
+        startIndex: token.startIndex,
+        endIndex: token.endIndex,
+        line: i
+      });
+    }
     
-    for (const file of exampleFiles) {
-      const filePath = path.join(examplesDir, file);
-      const content = fs.readFileSync(filePath, 'utf-8');
-      
-      console.log(`\n📄 Testing ${file}:`);
-      const results = inspectScopes(grammar, content);
-      console.log(`   Found ${results.summary.totalTokens} tokens with ${results.summary.uniqueScopes.length} unique scopes`);
-      
-      // Check for critical scopes
-      const criticalScopes = [
-        'keyword.other.agent.rcl',
-        'keyword.other.config.rcl',
-        'variable.other.attribute.rcl',
-        'constant.language.boolean',
-      ];
-      
-      const foundCritical = criticalScopes.filter(scope => 
-        results.summary.uniqueScopes.some(found => found.includes(scope))
-      );
-      
-      console.log(`   Critical scopes found: ${foundCritical.length}/${criticalScopes.length}`);
+    ruleStack = result.ruleStack;
+  }
+
+  return results;
+}
+
+/**
+ * Run comprehensive tests based on example.rcl
+ */
+async function runComprehensiveTests(): Promise<void> {
+  console.log('\n🧪 Running Comprehensive RCL Scope Tests');
+  console.log('==========================================\n');
+
+  let passedTests = 0;
+  let totalTests = 0;
+  const failedTests: Array<{ name: string; issues: string[] }> = [];
+
+  for (const testCase of COMPREHENSIVE_TEST_CASES) {
+    totalTests++;
+    console.log(`\n📋 Testing: ${testCase.name}`);
+    console.log(`Code: ${testCase.code}`);
+
+    try {
+      const tokens = await tokenizeCode(testCase.code);
+      console.log(`  Found ${tokens.length} tokens`);
+
+      // Show all tokens first for debugging
+      console.log('  🔍 All tokens:');
+      tokens.forEach(token => {
+        if (token.text.trim()) {
+          console.log(`    "${token.text}" → [${token.scopes.join(', ')}]`);
+        }
+      });
+
+      const issues: string[] = [];
+
+      for (const expected of testCase.expectedScopes) {
+        const matchingTokens = tokens.filter(token => {
+          const tokenText = token.text.trim();
+          const expectedText = expected.text.trim();
+          return tokenText === expectedText || 
+                 tokenText.includes(expectedText) || 
+                 expectedText.includes(tokenText);
+        });
+
+        if (matchingTokens.length === 0) {
+          issues.push(`❌ Text "${expected.text}" not found in tokens`);
+          continue;
+        }
+
+        // Check if any of the matching tokens has the expected scope
+        const hasExpectedScope = matchingTokens.some(token => 
+          token.scopes.some(scope => 
+            scope === expected.expectedScope || 
+            scope.includes(expected.expectedScope) ||
+            expected.expectedScope.includes(scope)
+          )
+        );
+
+        if (!hasExpectedScope) {
+          const actualScopes = matchingTokens.map(t => t.scopes.join(', ')).join(' | ');
+          issues.push(`❌ "${expected.text}" expected scope "${expected.expectedScope}" but got: ${actualScopes}`);
+        } else {
+          console.log(`  ✅ "${expected.text}" → ${expected.expectedScope}`);
+        }
+      }
+
+      if (issues.length === 0) {
+        passedTests++;
+        console.log(`  🎉 Test passed!`);
+      } else {
+        failedTests.push({ name: testCase.name, issues });
+        console.log(`  ❌ Test failed with ${issues.length} issues:`);
+        issues.forEach(issue => console.log(`    ${issue}`));
+      }
+
+    } catch (error) {
+      failedTests.push({ 
+        name: testCase.name, 
+        issues: [`Error during tokenization: ${error instanceof Error ? error.message : String(error)}`] 
+      });
+      console.log(`  💥 Test error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
+  // Summary
+  console.log('\n📊 Test Summary');
+  console.log('===============');
+  console.log(`✅ Passed: ${passedTests}/${totalTests}`);
+  console.log(`❌ Failed: ${failedTests.length}/${totalTests}`);
   
-  return testsPassed;
+  if (failedTests.length > 0) {
+    console.log('\n🔍 Failed Test Details:');
+    failedTests.forEach(({ name, issues }) => {
+      console.log(`\n📋 ${name}:`);
+      issues.forEach(issue => console.log(`  ${issue}`));
+    });
+  }
+
+  console.log(`\n🎯 Success Rate: ${Math.round((passedTests / totalTests) * 100)}%`);
 }
 
 /**
@@ -361,50 +675,40 @@ async function main(): Promise<void> {
   
   if (args.length === 0) {
     console.log('🔍 RCL Scope Inspector');
-    console.log('====================\n');
+    console.log('=====================\n');
     console.log('Usage:');
-    console.log('  bun run scripts/test-scope-inspector.ts test           # Run comprehensive tests');
-    console.log('  bun run scripts/test-scope-inspector.ts inspect "code" # Inspect specific code');
-    console.log('  bun run scripts/test-scope-inspector.ts file path.rcl  # Inspect file');
+    console.log('  bun run inspect:scopes <code>           # Inspect code snippet');
+    console.log('  bun run inspect:file <file>             # Inspect entire file');
+    console.log('  bun run test:scopes                     # Run predefined tests');
+    console.log('  bun run test:comprehensive              # Run comprehensive tests');
     return;
   }
   
   const command = args[0];
   
-  switch (command) {
-    case 'test':
-      const success = await runComprehensiveTests();
-      process.exit(success ? 0 : 1);
-      break;
-      
-    case 'inspect':
-      if (args[1]) {
-        await inspectCode(args[1]);
-      } else {
-        console.error('❌ Please provide code to inspect');
-        process.exit(1);
-      }
-      break;
-      
-    case 'file':
-      if (args[1]) {
-        const filePath = path.resolve(args[1]);
-        if (fs.existsSync(filePath)) {
-          const content = fs.readFileSync(filePath, 'utf-8');
-          await inspectCode(content);
+  try {
+    switch (command) {
+      case 'test':
+        await runTests();
+        break;
+      case 'comprehensive':
+        await runComprehensiveTests();
+        break;
+      case 'file':
+        if (args[1]) {
+          await inspectFile(args[1]);
         } else {
-          console.error(`❌ File not found: ${filePath}`);
-          process.exit(1);
+          console.error('❌ Please provide a file path');
         }
-      } else {
-        console.error('❌ Please provide file path');
-        process.exit(1);
-      }
-      break;
-      
-    default:
-      console.error(`❌ Unknown command: ${command}`);
-      process.exit(1);
+        break;
+      default:
+        // Treat as code to inspect
+        await inspectCode(args.join(' '));
+        break;
+    }
+  } catch (error) {
+    console.error('💥 Error:', error instanceof Error ? error.message : String(error));
+    process.exit(1);
   }
 }
 

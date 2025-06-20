@@ -3,7 +3,7 @@
 
 
 // ======== Hidden Terminals ========
-hidden terminal SL_COMMENT: /#.*/;                     // Single-line comments
+hidden terminal SL_COMMENT: /#[^\r\n]*/;                     // Single-line comments (exclude newlines)
 hidden terminal WS: /[ \t]+/;                          // Whitespace (tabs and spaces only)
 
 // ======== Core Terminals ========

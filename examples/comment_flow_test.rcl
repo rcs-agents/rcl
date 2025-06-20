@@ -1,0 +1,41 @@
+agent Test Agent  # This is an end-of-line comment
+
+Config
+  enabled: True  # Boolean value with comment
+  name: "Test Service"  # String value with comment
+  timeout: 30  # Number value with comment
+  
+  # Embedded code with end-of-line comment
+  dynamicValue: $js> new Date().toISOString()  # JavaScript expression
+  
+  # Multi-line embedded code with comment
+  complexCalculation: $ts>>>  # TypeScript block starts here
+    const result = calculateSomething();
+    return result.toString();
+
+Defaults
+  welcomeMessage: "Hello World"  # Default message
+
+Messages
+  message Welcome  # ProperNoun section name
+    text: "Welcome to our service!"  # COMMON_NOUN attribute
+    
+    # Multi-line string with comment
+    description: |  # Trim common leading whitespace
+      This is a multi-line description
+      that spans multiple lines
+      
+  message Goodbye
+    text: "Thank you for visiting"
+
+Flows
+  # Flow rules with proper highlighting
+  :start -> Welcome Message  # Symbol to ProperNoun
+  userAction -> checkPermissions  # COMMON_NOUN to COMMON_NOUN
+  Welcome Message -> :end  # ProperNoun to symbol
+  
+  # Flow control structures
+  if userIsAuthenticated  # Flow condition
+  then
+    showDashboard: True  # Action with comment
+  end 

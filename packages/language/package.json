@@ -31,9 +31,10 @@
 		"watch": "concurrently \"bun run langium:watch\" \"chokidar 'syntaxes/rcl.base.tmLanguage.json' -c 'bun run build:tmlanguage'\"",
 		"test": "vitest run",
 		"test:tmlanguage": "bun run scripts/test-tmlanguage-build.ts",
-		"test:scopes": "bun run scripts/test-scope-inspector.ts test",
-		"inspect:scopes": "bun run scripts/test-scope-inspector.ts inspect",
-		"inspect:file": "bun run scripts/test-scope-inspector.ts file"
+		    "test:scopes": "bun run scripts/test-scope-inspector.ts test",
+    "test:comprehensive": "bun run scripts/test-scope-inspector.ts comprehensive",
+    "inspect:scopes": "bun run scripts/test-scope-inspector.ts",
+    "inspect:file": "bun run scripts/test-scope-inspector.ts file"
 	},
 	"dependencies": {
 		"langium": "~3.5.0"

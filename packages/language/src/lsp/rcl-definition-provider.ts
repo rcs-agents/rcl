@@ -116,14 +116,16 @@ export class RclDefinitionProvider implements DefinitionProvider {
     }
 
     // FlowOperand could be a symbol (:start, :end), identifier, or string
-    if ((operand as any).symbol) {
-      return (operand as any).symbol;
+    if (operand.symbol) {
+      return operand.symbol;
     }
-    if (operand.identifier) {
-      return operand.identifier.value;
+    
+    if (operand.variable) {
+      return operand.variable;
     }
-    if ((operand as any).value) {
-      return (operand as any).value;
+
+    if (operand.attribute) {
+      return operand.attribute;
     }
 
     // Fallback: try to extract from the $cstNode if available

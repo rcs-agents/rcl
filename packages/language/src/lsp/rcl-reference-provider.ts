@@ -64,9 +64,12 @@ export class RclReferenceProvider implements ReferencesProvider {
       if (isIdentifier(node) && node.value === targetName) {
         const loc = this.getNodeLocation(node, document);
         if (loc) locations.push(loc);
-      } else if (isFlowOperand(node) && node.identifier?.value === targetName) {
-        const loc = this.getNodeLocation(node.identifier!, document);
-        if (loc) locations.push(loc);
+      } else if (isFlowOperand(node)) {
+        const operandValue = this.getFlowOperandValue(node);
+        if (operandValue === targetName) {
+          const loc = this.getNodeLocation(node, document);
+          if (loc) locations.push(loc);
+        }
       }
     }
     return locations;
@@ -175,11 +178,19 @@ export class RclReferenceProvider implements ReferencesProvider {
     if ((operand as any).symbol) {
       return (operand as any).symbol;
     }
-    if (operand.identifier) {
-      return operand.identifier.value;
+    if ((operand as any).variable) {
+      return (operand as any).variable;
     }
-    if ((operand as any).value) {
-      return (operand as any).value;
+    if ((operand as any).attribute) {
+      return (operand as any).attribute;
+    }
+    if ((operand as any).string) {
+      // Remove quotes from string literals
+      const str = (operand as any).string;
+      if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+        return str.slice(1, -1);
+      }
+      return str;
     }
 
     // Fallback: try to extract from the $cstNode if available

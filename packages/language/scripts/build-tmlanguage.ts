@@ -11,81 +11,91 @@ function getTime(): string {
   return `[${padZeroes(date.getHours())}:${padZeroes(date.getMinutes())}:${padZeroes(date.getSeconds())}] `;
 }
 
-interface GrammarModule {
+interface ContextModule {
   path: string;
   include: string;
+  context: 'file' | 'section' | 'property' | 'flow' | 'global';
   priority: number;
 }
 
 /**
- * Configuration for modular tmLanguage assembly
+ * Configuration for hierarchical context-aware tmLanguage assembly
  */
-const GRAMMAR_MODULES: GrammarModule[] = [
-  { path: 'core/comments.tmLanguage.json', include: '#comments', priority: 1 },
-  { path: 'embedded/expressions.tmLanguage.json', include: '#expressions', priority: 2 },
-  { path: 'embedded/multiline-strings.tmLanguage.json', include: '#multiline-strings', priority: 3 },
-  { path: 'sections/agent-sections.tmLanguage.json', include: '#agent-sections', priority: 4 },
-  { path: 'sections/flow-sections.tmLanguage.json', include: '#flow-sections', priority: 5 },
-  { path: 'core/keywords.tmLanguage.json', include: '#keywords', priority: 6 },
-  { path: 'core/identifiers.tmLanguage.json', include: '#identifiers', priority: 7 },
-  { path: 'data-types/primitives.tmLanguage.json', include: '#primitives', priority: 8 },
-  { path: 'data-types/collections.tmLanguage.json', include: '#collections', priority: 9 },
-  { path: 'data-types/references.tmLanguage.json', include: '#references', priority: 10 },
-  { path: 'core/punctuation.tmLanguage.json', include: '#punctuation', priority: 11 },
+const CONTEXT_MODULES: ContextModule[] = [
+  // Context definitions (highest priority)
+  { path: 'contexts/file-context.tmLanguage.json', include: '#file-level-patterns', context: 'file', priority: 1 },
+  { path: 'contexts/section-context.tmLanguage.json', include: '#section-level-patterns', context: 'section', priority: 2 },
+  { path: 'contexts/property-context.tmLanguage.json', include: '#property-level-patterns', context: 'property', priority: 3 },
+  { path: 'contexts/flow-context.tmLanguage.json', include: '#flow-level-patterns', context: 'flow', priority: 4 },
+  
+  // Global patterns (available everywhere)
+  { path: 'embedded/expressions.tmLanguage.json', include: '#expressions', context: 'global', priority: 5 },
+  { path: 'data-types/primitives.tmLanguage.json', include: '#primitives', context: 'global', priority: 6 },
+  { path: 'data-types/references.tmLanguage.json', include: '#references', context: 'global', priority: 7 },
+  
+  // Section-specific patterns
+  { path: 'sections/agent-sections.tmLanguage.json', include: '#agent-sections', context: 'file', priority: 8 },
+  { path: 'sections/flow-sections.tmLanguage.json', include: '#flow-sections', context: 'flow', priority: 9 },
+  
+  // Supporting patterns (lower priority)
+  { path: 'data-types/collections.tmLanguage.json', include: '#collections', context: 'global', priority: 10 },
+  { path: 'core/keywords.tmLanguage.json', include: '#keywords', context: 'global', priority: 11 },
+  { path: 'core/identifiers.tmLanguage.json', include: '#identifiers', context: 'global', priority: 12 },
+  { path: 'core/punctuation.tmLanguage.json', include: '#punctuation', context: 'global', priority: 13 },
+];
+
+// Legacy modules for backward compatibility
+const LEGACY_MODULES = [
+  { path: 'core/comments.tmLanguage.json', include: '#comments' },
+  { path: 'core/properties.tmLanguage.json', include: '#properties' },
+  { path: 'embedded/multiline-strings.tmLanguage.json', include: '#multiline-strings' },
 ];
 
 /**
- * Enhance the base tmLanguage grammar with embedded language support and semantic patterns
+ * Enhance the base tmLanguage grammar with hierarchical context support
  */
 export function enhanceTmLanguage(): void {
   const baseGrammarPath = path.join(__dirname, '../syntaxes/rcl.base.tmLanguage.json');
   const enhancedGrammarPath = path.join(__dirname, '../syntaxes/rcl.tmLanguage.json');
 
-  try {
-    if (!fs.existsSync(baseGrammarPath)) {
-      console.warn(
-        `${getTime()}Warning: Base tmLanguage file not found at ${baseGrammarPath}. Skipping enhancement.`
-      );
-      return;
-    }
-
-    const grammarContent = fs.readFileSync(baseGrammarPath, 'utf-8');
-    const grammar = JSON.parse(grammarContent);
-
-    // Add modular semantic components (includes embedded language support)
-    const finalGrammar = addSemanticModules(grammar);
-
-    fs.writeFileSync(enhancedGrammarPath, JSON.stringify(finalGrammar, null, 2));
-    console.log(
-      `${getTime()}✅ Enhanced tmLanguage generated successfully at ${enhancedGrammarPath}`
-    );
-  } catch (error) {
-    console.error(`${getTime()}❌ Error enhancing tmLanguage grammar:`, error);
-    throw error;
+  if (!fs.existsSync(baseGrammarPath)) {
+    throw new Error('Base tmLanguage not found. Run Langium generation first.');
   }
+
+  const baseGrammar = JSON.parse(fs.readFileSync(baseGrammarPath, 'utf-8'));
+
+  // Add embedded language patterns (moved from esbuild.mjs)
+  const enhancedGrammar = addEmbeddedLanguageSupport(baseGrammar);
+
+  // Add hierarchical context modules
+  const finalGrammar = addHierarchicalContexts(enhancedGrammar);
+
+  fs.writeFileSync(enhancedGrammarPath, JSON.stringify(finalGrammar, null, 2));
+  console.log('✅ Enhanced context-aware tmLanguage generated at', enhancedGrammarPath);
 }
 
 /**
- * Add semantic modules to the grammar by loading and merging modular components
+ * Add hierarchical context modules with proper pattern organization
  */
-function addSemanticModules(grammar: any): any {
+function addHierarchicalContexts(grammar: any): any {
   const syntaxesDir = path.join(__dirname, '../syntaxes');
 
   // Initialize repository if it doesn't exist
   grammar.repository = grammar.repository || {};
   
-  // Clear existing patterns to prioritize our semantic patterns
-  const originalPatterns = grammar.patterns || [];
-  grammar.patterns = [];
+  // Set up file-level patterns as the main patterns
+  grammar.patterns = [
+    { include: "#file-level-patterns" }
+  ];
 
-  // Load and merge each module
-  const sortedModules = GRAMMAR_MODULES.sort((a, b) => a.priority - b.priority);
+  // Load and merge context modules
+  const sortedModules = CONTEXT_MODULES.sort((a, b) => a.priority - b.priority);
 
   for (const module of sortedModules) {
     const modulePath = path.join(syntaxesDir, module.path);
 
     if (!fs.existsSync(modulePath)) {
-      console.warn(`${getTime()}Warning: Module not found at ${modulePath}, skipping.`);
+      console.warn(`${getTime()}Warning: Context module not found at ${modulePath}, skipping.`);
       continue;
     }
 
@@ -98,41 +108,35 @@ function addSemanticModules(grammar: any): any {
         Object.assign(grammar.repository, moduleGrammar.repository);
       }
 
-      // Add main include to patterns if not already present
-      const includePattern = { include: module.include };
-      if (!grammar.patterns.some((p: any) =>
-        p.include === module.include ||
-        JSON.stringify(p) === JSON.stringify(includePattern)
-      )) {
-        grammar.patterns.push(includePattern);
-      }
-
-      console.log(`${getTime()}📦 Added module: ${module.path} (${module.include})`);
+      console.log(`${getTime()}📦 Added context module: ${module.path} (${module.context} context)`);
     } catch (error) {
-      console.warn(`${getTime()}Warning: Error loading module ${module.path}:`, error);
+      console.warn(`${getTime()}Warning: Error loading context module ${module.path}:`, error);
     }
   }
 
-  // Add back original patterns (with lower priority)
-  for (const originalPattern of originalPatterns) {
-    // Skip overly broad keyword patterns that conflict with our semantic patterns
-    if (originalPattern.name === 'keyword.control.rcl' && 
-        originalPattern.match && 
-        originalPattern.match.includes('agent|')) {
-      console.log(`${getTime()}⚠️  Skipping broad keyword pattern to prioritize semantic patterns`);
-      continue;
-    }
-    
-    // Add original pattern if not already present
-    const patternExists = grammar.patterns.some((p: any) => 
-      JSON.stringify(p) === JSON.stringify(originalPattern)
-    );
-    
-    if (!patternExists) {
-      grammar.patterns.push(originalPattern);
+  // Add legacy modules for backward compatibility
+  for (const module of LEGACY_MODULES) {
+    const modulePath = path.join(syntaxesDir, module.path);
+
+    if (fs.existsSync(modulePath)) {
+      try {
+        const moduleContent = fs.readFileSync(modulePath, 'utf-8');
+        const moduleGrammar = JSON.parse(moduleContent);
+
+        if (moduleGrammar.repository) {
+          Object.assign(grammar.repository, moduleGrammar.repository);
+        }
+
+        console.log(`${getTime()}📦 Added legacy module: ${module.path}`);
+      } catch (error) {
+        console.warn(`${getTime()}Warning: Error loading legacy module ${module.path}:`, error);
+      }
     }
   }
 
+  console.log(`${getTime()}🎯 Context-aware grammar assembly complete`);
+  console.log(`${getTime()}📊 Repository contains ${Object.keys(grammar.repository).length} pattern definitions`);
+  
   return grammar;
 }
 
@@ -141,119 +145,103 @@ function addSemanticModules(grammar: any): any {
  * This is preserved for compatibility and will be merged with the modular expressions
  */
 function addEmbeddedLanguageSupport(grammar: any): any {
-  grammar.repository = grammar.repository || {};
-  grammar.patterns = grammar.patterns || [];
-
-  // Remove old individual includes if they exist from previous logic
-  grammar.patterns = grammar.patterns.filter(
-    (p: any) =>
-      p.include !== "#embedded-javascript" &&
-      p.include !== "#embedded-typescript"
-  );
-
-  // Define new repository entries for single-line expressions
-  grammar.repository["embedded-js-singleline"] = {
-    name: "meta.embedded.inline.javascript.rcl",
-    begin: "(\\$js>)\\s*", // Captures $js> with optional following whitespace
-    beginCaptures: { 1: { name: "keyword.control.embedded.marker.js.rcl" } },
-    end: "$", // End of line
-    contentName: "source.js", // Tells TextMate to treat content as JS
-    patterns: [{ include: "source.js" }],
-  };
-
-  grammar.repository["embedded-ts-singleline"] = {
-    name: "meta.embedded.inline.typescript.rcl",
-    begin: "(\\$ts>)\\s*", // Captures $ts> with optional following whitespace
-    beginCaptures: { 1: { name: "keyword.control.embedded.marker.ts.rcl" } },
-    end: "$",
-    contentName: "source.ts",
-    patterns: [{ include: "source.ts" }],
-  };
-
-  grammar.repository["embedded-generic-singleline"] = {
-    name: "meta.embedded.inline.generic.rcl",
-    begin: "(\\$>)\\s*", // Captures $> with optional following whitespace
-    beginCaptures: {
-      1: { name: "keyword.control.embedded.marker.generic.rcl" },
-    },
-    end: "$",
-    contentName: "source.js", // Default to JS syntax for generic expressions
-    patterns: [{ include: "source.js" }],
-  };
-
-  // Define new repository entries for multi-line expressions (indentation-based)
-  grammar.repository["embedded-js-multiline"] = {
-    name: "meta.embedded.block.javascript.rcl",
-    begin: "^(\\s*)(\\$js>>>)\\s*$", // Start of line, capture indentation and marker
-    beginCaptures: {
-      2: { name: "keyword.control.embedded.marker.js.rcl" },
-    },
-    end: "^(?!\\1\\s+\\S)", // End when we have a line that doesn't continue the indentation
-    contentName: "source.js",
+  // Add expressions patterns for embedded code
+  const expressionsPattern = {
     patterns: [
       {
-        // Match indented content lines
-        begin: "^(\\1\\s+)", // Must maintain or increase indentation from the marker line
-        end: "$",
+        name: "meta.embedded.inline.javascript.rcl",
+        begin: "(\\$js>)\\s*",
+        beginCaptures: {
+          "1": { name: "keyword.control.embedded.marker.js.rcl" }
+        },
+        end: "(?=#)|$", // End at comment or end of line
         contentName: "source.js",
-        patterns: [{ include: "source.js" }],
+        patterns: [{ include: "source.js" }]
       },
-    ],
-  };
-
-  grammar.repository["embedded-ts-multiline"] = {
-    name: "meta.embedded.block.typescript.rcl",
-    begin: "^(\\s*)(\\$ts>>>)\\s*$", // Start of line, capture indentation and marker
-    beginCaptures: {
-      2: { name: "keyword.control.embedded.marker.ts.rcl" },
-    },
-    end: "^(?!\\1\\s+\\S)", // End when we have a line that doesn't continue the indentation
-    contentName: "source.ts",
-    patterns: [
       {
-        // Match indented content lines
-        begin: "^(\\1\\s+)", // Must maintain or increase indentation from the marker line
-        end: "$",
+        name: "meta.embedded.inline.typescript.rcl",
+        begin: "(\\$ts>)\\s*",
+        beginCaptures: {
+          "1": { name: "keyword.control.embedded.marker.ts.rcl" }
+        },
+        end: "(?=#)|$", // End at comment or end of line
         contentName: "source.ts",
-        patterns: [{ include: "source.ts" }],
+        patterns: [{ include: "source.ts" }]
       },
-    ],
-  };
-
-  grammar.repository["embedded-generic-multiline"] = {
-    name: "meta.embedded.block.generic.rcl",
-    begin: "^(\\s*)(\\$>>>)\\s*$", // Start of line, capture indentation and marker
-    beginCaptures: {
-      2: { name: "keyword.control.embedded.marker.generic.rcl" },
-    },
-    end: "^(?!\\1\\s+\\S)", // End when we have a line that doesn't continue the indentation
-    contentName: "source.js", // Default to JS syntax for generic expressions
-    patterns: [
       {
-        // Match indented content lines
-        begin: "^(\\1\\s+)", // Must maintain or increase indentation from the marker line
-        end: "$",
+        name: "meta.embedded.inline.generic.rcl",
+        begin: "(\\$>)\\s*",
+        beginCaptures: {
+          "1": { name: "keyword.control.embedded.marker.generic.rcl" }
+        },
+        end: "(?=#)|$", // End at comment or end of line
         contentName: "source.js",
-        patterns: [{ include: "source.js" }],
+        patterns: [{ include: "source.js" }]
       },
-    ],
+      {
+        name: "meta.embedded.block.javascript.rcl",
+        begin: "^(\\s*)(\\$js>>>)\\s*$",
+        beginCaptures: {
+          "2": { name: "keyword.control.embedded.marker.js.rcl" }
+        },
+        end: "^(?!\\1\\s+\\S)",
+        contentName: "source.js",
+        patterns: [
+          {
+            begin: "^(\\1\\s+)",
+            end: "$",
+            contentName: "source.js",
+            patterns: [{ include: "source.js" }]
+          }
+        ]
+      },
+      {
+        name: "meta.embedded.block.typescript.rcl",
+        begin: "^(\\s*)(\\$ts>>>)\\s*$",
+        beginCaptures: {
+          "2": { name: "keyword.control.embedded.marker.ts.rcl" }
+        },
+        end: "^(?!\\1\\s+\\S)",
+        contentName: "source.ts",
+        patterns: [
+          {
+            begin: "^(\\1\\s+)",
+            end: "$",
+            contentName: "source.ts",
+            patterns: [{ include: "source.ts" }]
+          }
+        ]
+      },
+      {
+        name: "meta.embedded.block.generic.rcl",
+        begin: "^(\\s*)(\\$>>>)\\s*$",
+        beginCaptures: {
+          "2": { name: "keyword.control.embedded.marker.generic.rcl" }
+        },
+        end: "^(?!\\1\\s+\\S)",
+        contentName: "source.js",
+        patterns: [
+          {
+            begin: "^(\\1\\s+)",
+            end: "$",
+            contentName: "source.js",
+            patterns: [{ include: "source.js" }]
+          }
+        ]
+      }
+    ]
   };
 
-  // Add embedded code patterns to main grammar
-  grammar.repository["embedded-code"] = {
-    patterns: [
-      { include: "#embedded-js-multiline" },
-      { include: "#embedded-ts-multiline" },
-      { include: "#embedded-generic-multiline" },
-      { include: "#embedded-js-singleline" },
-      { include: "#embedded-ts-singleline" },
-      { include: "#embedded-generic-singleline" },
-    ],
-  };
+  // Add patterns to the main grammar
+  if (!grammar.repository) {
+    grammar.repository = {};
+  }
+  
+  grammar.repository.expressions = expressionsPattern;
 
-  // Add the main include to grammar patterns if not already present
-  if (!grammar.patterns.some((p: any) => p.include === "#embedded-code")) {
-    grammar.patterns.push({ include: "#embedded-code" });
+  // Add expressions to main patterns if not already there
+  if (!grammar.patterns.some((p: any) => p.include === "#expressions")) {
+    grammar.patterns.unshift({ include: "#expressions" });
   }
 
   return grammar;
