@@ -1,6 +1,7 @@
 import type { ValidationAcceptor, AstNode } from 'langium';
 import type { FlowRule, FlowOperand, Section } from '../generated/ast.js';
 import { isSection, isFlowRule } from '../generated/ast.js';
+import { KW } from '../constants.js';
 
 /**
  * Validates dependencies and detects circular references in flow rules and sections.
@@ -47,7 +48,7 @@ export class DependencyValidator {
     const allNodes = this.getAllFlowOperands(flowRules);
 
     for (const node of allNodes) {
-      if (!reachableNodes.has(node) && node !== ':start' && node !== ':end') {
+      if (!reachableNodes.has(node) && node !== KW.Start && node !== KW.End) {
         // Find the first flow rule that references this unreachable node
         const ruleWithUnreachableNode = flowRules.find(rule => {
           if (!rule.source || !rule.target) {
@@ -150,7 +151,7 @@ export class DependencyValidator {
    */
   private findReachableNodes(graph: FlowGraph): Set<string> {
     const reachable = new Set<string>();
-    const queue = [':start'];
+    const queue: string[] = [KW.Start];
 
     while (queue.length > 0) {
       const current = queue.shift()!;
@@ -240,15 +241,23 @@ export class DependencyValidator {
       return undefined;
     }
 
-    // FlowOperand could be a symbol (:start, :end), identifier, or string
-    if ((operand as any).symbol) {
-      return (operand as any).symbol;
+    // FlowOperand could be a symbol (:start, :end), identifier (ProperNoun as variable), common_noun (attribute), or string
+    if (operand.symbol) { // ATOM terminal like :start, :end
+      return operand.symbol;
     }
-    if ((operand as any).identifier) {
-      return (operand as any).identifier;
+    if (operand.variable) { // ProperNoun rule
+      return operand.variable;
     }
-    if ((operand as any).value) {
-      return (operand as any).value;
+    if (operand.attribute) { // COMMON_NOUN rule
+      return operand.attribute;
+    }
+    if (operand.string) { // STRING terminal
+      // Remove quotes from string literals
+      const str = operand.string;
+      if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+        return str.slice(1, -1);
+      }
+      return str;
     }
 
     // Fallback: try to extract from the $cstNode if available

@@ -14,11 +14,11 @@ TypeConversionValue infers TypeConversionValue:
     LiteralValue | Identifier;
 
 TypeConversion infers TypeConversion:
-    '<' type=TYPE_TAG_NAME value=TypeConversionValue ('|' modifier=STRING)? '>';
+    LT __? type=TYPE_TAG_NAME __ value=TypeConversionValue (__? '|' __? modifier=STRING)? __? GT;
 
 // ======== Type Tag Rules ========
 TypeTag infers TypeTag:
-    LT type=TYPE_TAG_NAME value=TYPE_TAG_VALUE_CONTENT ('|' modifier=TYPE_TAG_MODIFIER_CONTENT)? GT;
+    LT __? type=TYPE_TAG_NAME __ value=TYPE_TAG_VALUE_CONTENT (__? '|' __? modifier=TYPE_TAG_MODIFIER_CONTENT)? __? GT;
 
 TypedValue infers TypedValue:
     TypeConversion | LiteralValue; 

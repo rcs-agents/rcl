@@ -1,6 +1,7 @@
 import type { ValidationAcceptor } from 'langium';
 import type { TypeConversion } from '../generated/ast.js';
 import { isLiteralValue, isTypeConversion } from '../generated/ast.js';
+import { KW } from '../constants.js';
 
 /**
  * Validates type conversions and type constraints.
@@ -89,12 +90,12 @@ export class TypeValidator {
    */
   private getTypeValidator(typeName: string): TypeValidatorFunction | undefined {
     const validators: Record<string, TypeValidatorFunction> = {
-      'date': this.validateDate,
-      'time': this.validateTime,
-      'datetime': this.validateDateTime,
-      'email': this.validateEmail,
-      'phone': this.validatePhone,
-      'url': this.validateUrl,
+      [KW.Date]: this.validateDate,
+      [KW.Time]: this.validateTime,
+      [KW.Datetime]: this.validateDateTime,
+      [KW.Email]: this.validateEmail,
+      [KW.Phone]: this.validatePhone,
+      [KW.Url]: this.validateUrl,
       'duration': this.validateDuration,
       'number': this.validateNumber,
       'integer': this.validateInteger,
@@ -341,9 +342,9 @@ export class TypeValidator {
     accept: ValidationAcceptor
   ): void {
     const allowedModifiers: Record<string, string[]> = {
-      'date': ['format'],
-      'time': ['format', 'timezone'],
-      'datetime': ['format', 'timezone'],
+      [KW.Date]: ['format'],
+      [KW.Time]: ['format', 'timezone'],
+      [KW.Datetime]: ['format', 'timezone'],
       'currency': ['symbol', 'precision'],
       'number': ['precision', 'format'],
       'percentage': ['precision']

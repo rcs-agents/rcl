@@ -3,8 +3,10 @@
 
 
 // ======== Hidden Terminals ========
-hidden terminal SL_COMMENT: /#[^\r\n]*/;                     // Single-line comments (exclude newlines)
-hidden terminal WS: /[ \t]+/;                          // Whitespace (tabs and spaces only)
+hidden terminal SL_COMMENT: /#[^\r\n]*/;
+
+// ==== Required space ====
+terminal __: /[ ]+/;
 
 // ======== Core Terminals ========
 terminal ATOM: /:([_a-zA-Z][\w_]*|\"[^\"\\]*\")/;
@@ -17,15 +19,16 @@ terminal NL: /[\r\n]+/;                         // Newlines (removed $)
 End returns string: NL;
 
 // ======== Native Schema Terminals ========
-terminal AGENT_CONFIG_PREFIX: /agentConfig\s+/;
-terminal AGENT_DEFAULTS_TYPE: /agentDefaults\s+/;
-terminal AGENT_MESSAGES_TYPE: /agentMessages\s+/;
+terminal AGENT_CONFIG_KEYWORD: 'agentConfig';
+terminal AGENT_DEFAULTS_KEYWORD: 'agentDefaults';
+terminal AGENT_MESSAGES_KEYWORD: 'agentMessages';
 
 // ======== Indentation Terminals ========
+// These terminals are REQUIRED by Langium 
+// DO NOT REMOVE OR CHANGE THEM TERMINAL
 terminal INDENT: 'synthetic:indent';                 // Indentation increase (will be overridden)
 terminal DEDENT: 'synthetic:dedent';                 // Indentation decrease (will be overridden)
-// hidden terminal HNL: /[\r\n]+/;                         // Newlines - keep WS for this
-terminal __: /[ ]+/;                          // Specific space terminal if needed, but WS should cover
+terminal WS: /[ \t]+/;                               // Newlines - keep WS for this
 
 terminal LT: '<';
 terminal GT: '>';
@@ -57,7 +60,7 @@ terminal PROPER_WORD: /\b[A-Z](?:[a-zA-Z0-9]*|(?<=\w)-(?=\w))*\b/;
 terminal COMMON_NOUN: /[a-z][a-zA-Z0-9_]*/;
 
 ProperNoun returns string:
-    PROPER_WORD+;
+    PROPER_WORD (__ PROPER_WORD)*;
 
 // Identifier can be a ProperNoun or a COMMON_NOUN
 Identifier infers Identifier:
@@ -69,10 +72,10 @@ interface AttributePath {
 
 // Rule for attribute access path like attName or attName.subAttName
 AttributePath returns AttributePath:
-    parts+=COMMON_NOUN ('.' parts+=COMMON_NOUN)*;
+    parts+=COMMON_NOUN (__? '.' __? parts+=COMMON_NOUN)*;
 
 QualifiedName returns string:
-    PROPER_WORD ('/' PROPER_WORD)*;
+    PROPER_WORD (__? '/' __? PROPER_WORD)*;
 
 // ======== Import Management ========
 interface ImportStatement {
@@ -82,4 +85,4 @@ interface ImportStatement {
 }
 
 ImportStatement returns ImportStatement:
-    'import' source=QualifiedName ("'s" attribute=AttributePath)? ('as' alias=ProperNoun)? (End | EOF);
+    'import' __ source=QualifiedName (__ "'s" __ attribute=AttributePath)? (__ 'as' __ alias=ProperNoun)? (__? (End | EOF));

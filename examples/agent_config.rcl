@@ -1,6 +1,6 @@
-agent MyTestAgent
+agent My Test Agent
   displayName: "My Test Agent"
-  brandName: "TestBrand"
+  brandName: "Test Brand"
 
   Config
     description: "This is a test agent configuration."
@@ -12,4 +12,5 @@ agent MyTestAgent
       text: "Hello from MyTestAgent!"
 
   flow MainFlow # Minimal flow section
-    :start -> Greeting 
+    :start -> Greeting
+# End of file comment 

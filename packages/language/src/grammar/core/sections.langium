@@ -11,22 +11,20 @@ import "../specialized/flow-rules";
 // Base section structure - unified for all sections
 // Supports both explicit section types and implicit reserved section names
 Section:
-    (sectionType=SectionType sectionName=SectionName | sectionType=SectionType? reservedName=ReservedSectionName) sectionParam=SectionParameter? (End | EOF)
+    (sectionType=SectionType __ sectionName=SectionName | sectionType=SectionType? __ reservedName=ReservedSectionName) __? sectionParam=SectionParameter? __? (End | EOF)
     INDENT
         (attributes+=Attribute | nestedAttributes+=NestedBlockAttribute | subSections+=Section | flowContent+=FlowContent | emptyLines+=EmptyLine)*
     DEDENT;
 
+terminal SECTION_TYPE: /\b(agent|agentConfig|agentDefaults|flow|messages|message)\b/;
+
+terminal MessageSectionType returns string:
+    /\b(authentication|transaction|promotion|servicerequest|acknowledge) message\b/;
+
 SectionType returns string:
-    'agent' | 'agentConfig' | 'agentDefaults' | 'flow' | 'messages' |
+    SECTION_TYPE |
     MessageSectionType;
 
-MessageSectionType returns string:
-    'message' |
-    'authentication' 'message' |
-    'transaction' 'message' |
-    'promotion' 'message' |
-    'servicerequest' 'message' |
-    'acknowledge' 'message';
 
 SectionName returns string:
     ProperNoun; // Optional name for sections - MUST remain ProperNoun (allows spaces and hyphens)
@@ -40,11 +38,11 @@ SectionParameter:
     TypedValue; // Either timestamp or duration string
 
 Attribute:
-    key=COMMON_NOUN ':' value=(Value | NestedBlockAttribute) (End | EOF);
+    key=COMMON_NOUN __? ':' __? value=(Value | NestedBlockAttribute) __? (End | EOF);
 
 // Attribute with a nested block of attributes (e.g., 'expressions')
 NestedBlockAttribute:
-    key=COMMON_NOUN (End | EOF)
+    key=COMMON_NOUN __? (End | EOF)
     INDENT
         (attributes+=Attribute)+
     DEDENT;// Rule to handle empty lines within indented blocks

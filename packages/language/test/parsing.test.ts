@@ -4,6 +4,7 @@ import { expandToString as s } from "langium/generate";
 import { parseHelper } from "langium/test";
 import type { RclFile } from "rcl-language";
 import { createRclServices, isRclFile } from "rcl-language";
+import { KW } from "../src/constants.js";
 
 let services: ReturnType<typeof createRclServices>;
 let parse:    ReturnType<typeof parseHelper<RclFile>>;
@@ -20,11 +21,10 @@ beforeAll(async () => {
 describe('Parsing tests', () => {
 
     test('parse simple model', async () => {
-        document = await parse(`
-            agent Test Agent
-                displayName: "Test Display Name"
-                brandName: "Test Brand"
-        `);
+        document = await parse(`${KW.Agent} Test Agent
+  displayName: "Test Display Name"
+  brandName: "Test Brand"
+`);
 
         // check for absence of parser errors the classic way:
         //  deactivated, find a much more human readable way below!

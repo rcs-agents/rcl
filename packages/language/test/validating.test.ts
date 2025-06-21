@@ -5,6 +5,7 @@ import { parseHelper } from "langium/test";
 import type { Diagnostic } from "vscode-languageserver-types";
 import type { RclFile } from "rcl-language";
 import { createRclServices, isRclFile } from "rcl-language";
+import { KW } from "../src/constants.js";
 
 let services: ReturnType<typeof createRclServices>;
 let parse:    ReturnType<typeof parseHelper<RclFile>>;
@@ -23,9 +24,9 @@ describe('Validating', () => {
 
     test('check no errors', async () => {
         document = await parse(`
-            agent Test Agent "Test display name"
-                flow Main
-                    :start -> :end
+            ${KW.Agent} Test Agent "Test display name"
+                ${KW.Flow} Main
+                    ${KW.Start} ${KW.Arrow} ${KW.End}
         `);
 
         expect(
@@ -39,9 +40,9 @@ describe('Validating', () => {
 
     test('check validation rules', async () => {
         document = await parse(`
-            agent test agent "Test display name"
-                flow Main
-                    :start -> :end
+            ${KW.Agent} test agent "Test display name"
+                ${KW.Flow} Main
+                    ${KW.Start} ${KW.Arrow} ${KW.End}
         `);
 
         expect(

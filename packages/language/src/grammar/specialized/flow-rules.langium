@@ -13,7 +13,7 @@ FlowContent infers FlowContent:
 // A flow rule like ":start -> Welcome" or "checkUser -> when condition -> result"
 // Enhanced to be more specific about what constitutes flow operands
 FlowRule infers FlowRule:
-    source=FlowOperand '->' target=FlowOperand (End | EOF);
+    source=FlowOperand __ '->' __ target=FlowOperand __? (End | EOF);
 
 // Flow operands can be symbols, proper nouns (variables), common nouns (attributes), or strings
 // This provides better semantic distinction for syntax highlighting

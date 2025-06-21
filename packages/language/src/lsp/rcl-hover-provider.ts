@@ -2,9 +2,10 @@ import { type AstNode, type MaybePromise, AstUtils } from 'langium';
 import { AstNodeHoverProvider } from 'langium/lsp';
 import { type Hover, type CancellationToken } from 'vscode-languageserver-protocol';
 import { MarkupKind } from 'vscode-languageserver-types';
-import { isSection, type Section, isAttribute, type Attribute, isBooleanValue, type BooleanValue, isTypeConversion, type TypeConversion, isEmbeddedCodeBlock, type EmbeddedCodeBlock, isIdentifier, type Identifier, isLiteralValue, type LiteralValue } from '../generated/ast.js';
+import { isSection, type Section, isAttribute, type Attribute, isBooleanValue, type BooleanValue, isTypeConversion, type TypeConversion, isEmbeddedCodeBlock, type EmbeddedCodeBlock, isIdentifier, type Identifier, isLiteralValue, type LiteralValue, type ReservedSectionName } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
 import type { SectionTypeRegistry } from '../services/section-registry.js';
+import { KW } from '../constants.js';
 
 export class RclHoverProvider extends AstNodeHoverProvider {
   protected readonly sectionRegistry: SectionTypeRegistry;
@@ -42,20 +43,31 @@ export class RclHoverProvider extends AstNodeHoverProvider {
 
   private getSectionHoverDetails(section: Section): Hover | undefined {
     let actualSectionType: string | undefined = section.sectionType;
-    const sectionTitle = section.sectionName || section.reservedName || section.sectionType || "Section";
+    const sectionTitle = section.sectionName || (section as Section & { reservedName?: ReservedSectionName }).reservedName || section.sectionType || "Section";
     const markdownLines: string[] = [];
 
-    if (!actualSectionType && section.reservedName) {
+    if (!actualSectionType && (section as Section & { reservedName?: ReservedSectionName }).reservedName) {
       const parent = section.$container;
-      if (parent && isSection(parent) && parent.sectionType) {
-        const parentConstants = this.sectionRegistry.getConstants(parent.sectionType);
-        const reservedInfo = parentConstants?.reservedSubSections?.find(rs => rs.name === section.reservedName);
-        if (reservedInfo) {
-          actualSectionType = reservedInfo.impliedType;
+      if (parent && isSection(parent)) {
+        let parentSectionType = parent.sectionType;
+        if (!parentSectionType && (parent as Section & { reservedName?: ReservedSectionName }).reservedName) {
+          const grandparent = parent.$container;
+          if (grandparent && isSection(grandparent) && grandparent.sectionType) {
+            const grandparentConstants = this.sectionRegistry.getConstants(grandparent.sectionType);
+            const reservedParentInfo = grandparentConstants?.reservedSubSections?.find(rs => rs.name === (parent as Section & { reservedName?: ReservedSectionName }).reservedName);
+            if (reservedParentInfo) parentSectionType = reservedParentInfo.impliedType;
+          }
+        }
+        if (parentSectionType) {
+          const parentConstants = this.sectionRegistry.getConstants(parentSectionType);
+          const reservedInfo = parentConstants?.reservedSubSections?.find(rs => rs.name === (section as Section & { reservedName?: ReservedSectionName }).reservedName);
+          if (reservedInfo) {
+            actualSectionType = reservedInfo.impliedType;
+          }
         }
       }
     }
-    const typeForDisplay = actualSectionType || (section.reservedName ? 'Reserved Section' : 'Generic Section');
+    const typeForDisplay = actualSectionType || ((section as Section & { reservedName?: ReservedSectionName }).reservedName ? 'Reserved Section' : 'Generic Section');
     markdownLines.push(`\`\`\`rcl
 ${sectionTitle} (type: ${typeForDisplay})
 \`\`\``);
@@ -90,13 +102,25 @@ ${attributeName}
     let parentSectionTypeName: string | undefined;
     if (parentSection) {
       parentSectionTypeName = parentSection.sectionType;
-      if (!parentSectionTypeName && parentSection.reservedName) {
+      if (!parentSectionTypeName && (parentSection as Section & { reservedName?: ReservedSectionName }).reservedName) {
         const grandParent = parentSection.$container;
-        if (grandParent && isSection(grandParent) && grandParent.sectionType) {
-          const grandParentConstants = this.sectionRegistry.getConstants(grandParent.sectionType);
-          const reservedInfo = grandParentConstants?.reservedSubSections?.find(rs => rs.name === parentSection.reservedName);
-          if (reservedInfo) {
-            parentSectionTypeName = reservedInfo.impliedType;
+        if (grandParent && isSection(grandParent)) {
+          let grandParentSectionType = grandParent.sectionType;
+          if(!grandParentSectionType && (grandParent as Section & { reservedName?: ReservedSectionName }).reservedName){
+            const greatGrandParent = grandParent.$container;
+            if(greatGrandParent && isSection(greatGrandParent) && greatGrandParent.sectionType){
+              const greatGrandParentConsts = this.sectionRegistry.getConstants(greatGrandParent.sectionType);
+              const reservedGrandParentInfo = greatGrandParentConsts?.reservedSubSections?.find(rs => rs.name === (grandParent as Section & { reservedName?: ReservedSectionName }).reservedName);
+              if(reservedGrandParentInfo) grandParentSectionType = reservedGrandParentInfo.impliedType;
+            }
+          }
+
+          if (grandParentSectionType) {
+            const grandParentConstants = this.sectionRegistry.getConstants(grandParentSectionType);
+            const reservedInfo = grandParentConstants?.reservedSubSections?.find(rs => rs.name === (parentSection as Section & { reservedName?: ReservedSectionName }).reservedName);
+            if (reservedInfo) {
+              parentSectionTypeName = reservedInfo.impliedType;
+            }
           }
         }
       }
@@ -152,8 +176,9 @@ ${value}
   }
 
   private getEmbeddedLanguageFromText(blockText: string): string {
-    if (blockText.startsWith('$js>') || blockText.startsWith('$js>>>')) return 'javascript';
-    if (blockText.startsWith('$ts>') || blockText.startsWith('$ts>>>')) return 'typescript';
+    if (blockText.startsWith(KW.JsPrefix) || blockText.startsWith(KW.JsMultiLinePrefix)) return 'javascript';
+    if (blockText.startsWith(KW.TsPrefix) || blockText.startsWith(KW.TsMultiLinePrefix)) return 'typescript';
+    if (blockText.startsWith(KW.GenericPrefix) || blockText.startsWith(KW.GenericMultiLinePrefix)) return 'unknown';
     return 'unknown';
   }
 

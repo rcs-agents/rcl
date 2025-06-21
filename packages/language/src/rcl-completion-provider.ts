@@ -1,10 +1,11 @@
 import type { AstNode } from 'langium';
 import type { CompletionAcceptor, CompletionContext, NextFeature } from 'langium/lsp';
 import { DefaultCompletionProvider } from 'langium/lsp';
-import type { Section } from './generated/ast.js';
+import type { Section, ReservedSectionName } from './generated/ast.js';
 import { isSection } from './generated/ast.js';
 import type { SectionTypeRegistry } from './services/section-registry.js';
 import type { RclServices } from './rcl-module.js';
+import { KW } from './constants.js';
 
 /**
  * Context information for completion
@@ -78,7 +79,24 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
    * Extract section type string from Section node
    */
   private getSectionType(section: Section): string | undefined {
-    return section.sectionType;
+    // Cast to include reservedName for type inference if needed by logic below
+    const typedSection = section as Section & { reservedName?: ReservedSectionName };
+    if (typedSection.sectionType) {
+        return typedSection.sectionType;
+    }
+    // If no explicit type, check if it's a reserved name with an implied type
+    if (typedSection.reservedName) {
+        const parentSection = this.findParentSection(section);
+        if (parentSection) {
+            const parentType = this.getSectionType(parentSection); // Recursive call to get parent's actual type
+            if (parentType) {
+                const reservedInfo = this.registry.getReservedSubSections(parentType)
+                    .find(r => r.name === typedSection.reservedName);
+                return reservedInfo?.impliedType;
+            }
+        }
+    }
+    return undefined;
   }
 
   /**
@@ -222,12 +240,12 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
     if (contextInfo.isAtRootLevel) {
       // At root level, only suggest 'agent' section type
       acceptor(contextInfo.context, {
-        label: 'agent',
+        label: KW.Agent,
         kind: 14, // Module
         detail: 'agent section - root container for all agent configuration',
-        documentation: this.getSectionDocumentation('agent'),
-        insertText: 'agent ',
-        sortText: '0_agent'
+        documentation: this.getSectionDocumentation(KW.Agent),
+        insertText: `${KW.Agent} `,
+        sortText: `0_${KW.Agent}`
       });
       return;
     }
@@ -242,7 +260,7 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
     // Add allowed subsection types
     for (const subType of allowedSubSections) {
       acceptor(contextInfo.context, {
-        label: subType,
+        label: subType, // subType is already a string like 'flow', 'message' from constants
         kind: 14, // Module
         detail: `${subType} section`,
         documentation: this.getSectionDocumentation(subType),
@@ -302,17 +320,17 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
   private getAttributeDocumentation(sectionType: string, attributeName: string): string {
     // This could be enhanced to load documentation from external sources
     const attributeDocs: Record<string, Record<string, string>> = {
-      'agent': {
+      [KW.Agent]: {
         'displayName': 'The display name shown to users when interacting with this agent',
         'brandName': 'The brand name associated with this agent'
       },
-      'agentConfig': {
+      [KW.AgentConfig]: {
         'description': 'A brief description of what this agent does',
-        'logoUri': 'URL to the agent\'s logo image',
-        'heroUri': 'URL to the agent\'s hero/banner image',
-        'color': 'Primary color for the agent\'s branding (hex format)'
+        'logoUri': "URL to the agent's logo image",
+        'heroUri': "URL to the agent's hero/banner image",
+        'color': "Primary color for the agent's branding (hex format)"
       },
-      'message': {
+      [KW.Message]: {
         'text': 'The text content of the message',
         'fileName': 'Name of an attached file',
         'contentInfo': 'Additional content metadata'
@@ -327,17 +345,17 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
    */
   private getSectionDocumentation(sectionType: string): string {
     const sectionDocs: Record<string, string> = {
-      'agent': 'Defines the main agent configuration and contains all other sections',
-      'agentConfig': 'Configuration settings for the agent including branding and contact info',
-      'agentDefaults': 'Default values and preferences for the agent',
-      'flow': 'Defines conversation flows and state transitions',
-      'messages': 'Container for message definitions',
-      'message': 'A standard message definition',
-      'authentication message': 'A message used for authentication flows',
-      'transaction message': 'A message used for transaction confirmations',
-      'promotion message': 'A promotional/marketing message',
-      'servicerequest message': 'A message for service requests',
-      'acknowledge message': 'An acknowledgement message'
+      [KW.Agent]: 'Defines the main agent configuration and contains all other sections',
+      [KW.AgentConfig]: 'Configuration settings for the agent including branding and contact info',
+      [KW.AgentDefaults]: 'Default values and preferences for the agent',
+      [KW.Flow]: 'Defines conversation flows and state transitions',
+      [KW.Messages]: 'Container for message definitions',
+      [KW.Message]: 'A standard message definition',
+      [KW.AuthenticationMessage]: 'A message used for authentication flows',
+      [KW.TransactionMessage]: 'A message used for transaction confirmations',
+      [KW.PromotionMessage]: 'A promotional/marketing message',
+      [KW.ServiceRequestMessage]: 'A message for service requests',
+      [KW.AcknowledgeMessage]: 'An acknowledgement message'
     };
 
     return sectionDocs[sectionType] || `${sectionType} section`;
@@ -348,8 +366,10 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
  */
   private getSectionName(section: Section): string | undefined {
     // Check if section has a reserved name
-    if (section.reservedName) {
-      return section.reservedName;
+    // Cast to include reservedName property
+    const typedSection = section as Section & { reservedName?: ReservedSectionName }; 
+    if (typedSection.reservedName) {
+      return typedSection.reservedName;
     }
 
     // section.sectionName is directly a string

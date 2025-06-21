@@ -1,5 +1,6 @@
 import { AGENT_CONFIG_SCHEMA } from '../schemas/agent-config.schema.js';
 import { AGENT_MESSAGE_SCHEMA } from '../schemas/agent-message.schema.js';
+import { KW } from '../constants.js'; // Import KW
 
 /**
  * Section type constants for the RCL language specification.
@@ -39,19 +40,19 @@ export interface ReservedSubSection {
  * These constants define the structure and validation rules for RCL sections.
  */
 export const SECTION_TYPE_CONSTANTS: Record<string, SectionTypeConstants> = {
-    "agent": {
+    [KW.Agent]: {
         "allowedAttributes": ["displayName", "brandName"],
         "requiredAttributes": ["displayName"],
         "reservedSubSections": [
-            { "name": "Config", "impliedType": "agentConfig", "required": true },
-            { "name": "Defaults", "impliedType": "agentDefaults", "required": false },
-            { "name": "Messages", "impliedType": "messages", "required": true }
+            { "name": KW.Config, "impliedType": KW.AgentConfig, "required": true },
+            { "name": KW.Defaults, "impliedType": KW.AgentDefaults, "required": false },
+            { "name": KW.MessagesReserved, "impliedType": KW.Messages, "required": true }
         ],
-        "allowedSubSections": ["flow"],
-        "minRequiredSubSections": { "flow": 1 },
+        "allowedSubSections": [KW.Flow],
+        "minRequiredSubSections": { [KW.Flow]: 1 },
         "jsonSchema": AGENT_CONFIG_SCHEMA
     },
-    "agentConfig": {
+    [KW.AgentConfig]: {
         "allowedAttributes": [
             "description", "logoUri", "heroUri", "color", 
             "agentUseCase", "hostingRegion", "phoneNumbers", 
@@ -61,7 +62,7 @@ export const SECTION_TYPE_CONSTANTS: Record<string, SectionTypeConstants> = {
         "requiredAttributes": [],
         "jsonSchema": AGENT_CONFIG_SCHEMA
     },
-    "agentDefaults": {
+    [KW.AgentDefaults]: {
         "allowedAttributes": [
             "timezone", "currency", "locale", "authentication", 
             "oauth", "webhook", "expressions",
@@ -69,17 +70,17 @@ export const SECTION_TYPE_CONSTANTS: Record<string, SectionTypeConstants> = {
         ],
         "requiredAttributes": []
     },
-    "flow": {
+    [KW.Flow]: {
         "allowedAttributes": ["rules", "states", "transitions"],
         "requiredAttributes": []
     },
-    "messages": {
+    [KW.Messages]: {
         "allowedAttributes": [],
         "requiredAttributes": [],
-        "allowedSubSections": ["message", "authentication message", "transaction message", "promotion message", "servicerequest message", "acknowledge message"],
+        "allowedSubSections": [KW.Message, KW.AuthenticationMessage, KW.TransactionMessage, KW.PromotionMessage, KW.ServiceRequestMessage, KW.AcknowledgeMessage],
         "uniqueSubSectionIds": true
     },
-    "message": {
+    [KW.Message]: {
         "allowedAttributes": [
             "text", "fileName", "uploadedRbmFile", "richCard", 
             "contentInfo", "suggestions"
@@ -89,24 +90,24 @@ export const SECTION_TYPE_CONSTANTS: Record<string, SectionTypeConstants> = {
         "jsonSchema": AGENT_MESSAGE_SCHEMA,
         "shortcuts": ["text", "file", "richCard"]
     },
-    "authentication message": {
-        "extends": "message",
+    [KW.AuthenticationMessage]: {
+        "extends": KW.Message,
         "messageTrafficType": "AUTHENTICATION"
     },
-    "transaction message": {
-        "extends": "message", 
+    [KW.TransactionMessage]: {
+        "extends": KW.Message, 
         "messageTrafficType": "TRANSACTION"
     },
-    "promotion message": {
-        "extends": "message",
+    [KW.PromotionMessage]: {
+        "extends": KW.Message,
         "messageTrafficType": "PROMOTION"
     },
-    "servicerequest message": {
-        "extends": "message",
+    [KW.ServiceRequestMessage]: {
+        "extends": KW.Message,
         "messageTrafficType": "SERVICEREQUEST"
     },
-    "acknowledge message": {
-        "extends": "message",
+    [KW.AcknowledgeMessage]: {
+        "extends": KW.Message,
         "messageTrafficType": "ACKNOWLEDGEMENT"
     }
 };

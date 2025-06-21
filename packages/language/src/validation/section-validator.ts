@@ -1,7 +1,8 @@
 import type { ValidationAcceptor } from 'langium';
-import type { Section, Attribute } from '../generated/ast.js';
+import type { Section, Attribute, ReservedSectionName } from '../generated/ast.js';
 import { SectionTypeRegistry } from '../services/section-registry.js';
 import { type SectionTypeConstants } from '../services/section-type-constants.js';
+import { KW } from '../constants.js';
 
 /**
  * Validation result for section validation
@@ -70,20 +71,21 @@ export class SectionValidator {
         // Check if section has an explicit type
         if (section.sectionType) {
             // Handle message section types (e.g., "authentication message")
-            if (section.sectionType.includes('message')) {
+            if (section.sectionType.includes(KW.Message)) {
                 return section.sectionType;
             }
             return section.sectionType;
         }
         
         // Check if section has a reserved name that implies a type
-        if ((section as any).reservedName) {
-            const reservedName = (section as any).reservedName;
+        const typedSection = section as Section & { reservedName?: ReservedSectionName };
+        if (typedSection.reservedName) {
+            const reservedName = typedSection.reservedName;
             // Map reserved names to their implied types
             const reservedTypeMap: Record<string, string> = {
-                'Config': 'agentConfig',
-                'Defaults': 'agentDefaults', 
-                'Messages': 'messages'
+                [KW.Config]: KW.AgentConfig,
+                [KW.Defaults]: KW.AgentDefaults,
+                [KW.MessagesReserved]: KW.Messages
             };
             return reservedTypeMap[reservedName];
         }
@@ -248,8 +250,9 @@ export class SectionValidator {
      */
     private getSectionName(section: Section): string | undefined {
         // Check if section has a reserved name
-        if ((section as any).reservedName) {
-            return (section as any).reservedName;
+        const typedSection = section as Section & { reservedName?: ReservedSectionName };
+        if (typedSection.reservedName) {
+            return typedSection.reservedName;
         }
 
         // section.sectionName is now directly a string

@@ -1,7 +1,7 @@
 import { type AstNode, type MaybePromise, AstUtils, CstUtils, type LangiumDocument } from 'langium';
 import type { DefinitionProvider } from 'langium/lsp';
 import type { Location, DefinitionParams, CancellationToken, LocationLink } from 'vscode-languageserver-protocol';
-import { isIdentifier, type Identifier, isSection, isFlowOperand, type FlowOperand } from '../generated/ast.js';
+import { isIdentifier, type Identifier, isSection, isFlowOperand, type FlowOperand, type Section, type ReservedSectionName } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
 
 export class RclDefinitionProvider implements DefinitionProvider {
@@ -37,7 +37,8 @@ export class RclDefinitionProvider implements DefinitionProvider {
     }
 
     // Handle section name references
-    if (isSection(astNodeForLeaf) && astNodeForLeaf.sectionName && cstLeaf.text === astNodeForLeaf.sectionName) {
+    const typedAstNodeForLeaf = astNodeForLeaf as Section & { sectionName?: string, reservedName?: ReservedSectionName };
+    if (isSection(astNodeForLeaf) && typedAstNodeForLeaf.sectionName && cstLeaf.text === typedAstNodeForLeaf.sectionName) {
       // This is already the definition, so return it
       const nameCstNode = this.services.references.NameProvider.getNameNode(astNodeForLeaf);
       const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(astNodeForLeaf, document);
@@ -46,9 +47,10 @@ export class RclDefinitionProvider implements DefinitionProvider {
 
     // Check if we're clicking on a section name that's part of a larger context
     const enclosingSection = AstUtils.getContainerOfType(astNodeForLeaf, isSection);
-    if (enclosingSection?.sectionName && cstLeaf.text === enclosingSection.sectionName) {
-      const nameCstNode = this.services.references.NameProvider.getNameNode(enclosingSection);
-      const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(enclosingSection, document);
+    const typedEnclosingSection = enclosingSection as Section & { sectionName?: string, reservedName?: ReservedSectionName };
+    if (typedEnclosingSection?.sectionName && cstLeaf.text === typedEnclosingSection.sectionName) {
+      const nameCstNode = this.services.references.NameProvider.getNameNode(typedEnclosingSection);
+      const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(typedEnclosingSection, document);
       return loc ? [{ targetUri: loc.uri, targetRange: loc.range, targetSelectionRange: loc.range }] : undefined;
     }
 
@@ -63,7 +65,8 @@ export class RclDefinitionProvider implements DefinitionProvider {
     for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
       if (cancelToken?.isCancellationRequested) return undefined;
 
-      if (isSection(node) && node.sectionName === targetName) {
+      const typedNode = node as Section & { sectionName?: string };
+      if (isSection(node) && typedNode.sectionName === targetName) {
         // Found the section definition
         const nameCstNode = this.services.references.NameProvider.getNameNode(node);
         const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(node, document);
@@ -82,7 +85,8 @@ export class RclDefinitionProvider implements DefinitionProvider {
     for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
       if (cancelToken?.isCancellationRequested) return undefined;
 
-      if (isSection(node) && node.sectionName === targetValue) {
+      const typedNode = node as Section & { sectionName?: string };
+      if (isSection(node) && typedNode.sectionName === targetValue) {
         // Found the section definition
         const nameCstNode = this.services.references.NameProvider.getNameNode(node);
         const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(node, document);
@@ -115,17 +119,23 @@ export class RclDefinitionProvider implements DefinitionProvider {
       return undefined;
     }
 
-    // FlowOperand could be a symbol (:start, :end), identifier, or string
-    if (operand.symbol) {
+    // FlowOperand structure based on grammar: symbol=ATOM | variable=ProperNoun | attribute=COMMON_NOUN | string=STRING
+    if (operand.symbol) { // ATOM terminal like :start, :end
       return operand.symbol;
     }
-    
-    if (operand.variable) {
+    if (operand.variable) { // ProperNoun rule
       return operand.variable;
     }
-
-    if (operand.attribute) {
+    if (operand.attribute) { // COMMON_NOUN rule
       return operand.attribute;
+    }
+    if (operand.string) { // STRING terminal
+      const str = operand.string;
+      // Remove quotes from string literals
+      if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+        return str.slice(1, -1);
+      }
+      return str;
     }
 
     // Fallback: try to extract from the $cstNode if available

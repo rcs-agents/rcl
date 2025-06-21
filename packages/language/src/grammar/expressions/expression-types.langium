@@ -3,7 +3,7 @@ import "../data-types/primitives";    // For LiteralValue, COMMON_NOUN, etc.
 import "../data-types/type-system";   // For TypeConversion
 
 // ======== Expression Terminals ========
-terminal IS_NOT: /is\s+not/;
+terminal IS_NOT: 'is not';
 
 // ======== AST Interface Definitions ========
 interface RclExpression {}
@@ -41,40 +41,41 @@ RclExpression returns RclExpression:
 
 // Logical OR - lowest precedence for binary operators
 OrExpression returns RclExpression:
-    AndExpression ({BinaryRclExpression.left=current} operator='or' right=AndExpression)*;
+    AndExpression ({BinaryRclExpression.left=current} __ operator='or' __ right=AndExpression)*;
 
 // Logical AND
 AndExpression returns RclExpression:
-    EqualityExpression ({BinaryRclExpression.left=current} operator='and' right=EqualityExpression)*;
+    EqualityExpression ({BinaryRclExpression.left=current} __ operator='and' __ right=EqualityExpression)*;
 
 // Equality and Inequality
 EqualityExpression returns RclExpression:
-    ComparisonExpression ({BinaryRclExpression.left=current} operator=('==' | '!=' | IS_NOT | 'is') right=ComparisonExpression)*;
+    ComparisonExpression ({BinaryRclExpression.left=current} __ operator=('==' | '!=' | IS_NOT | 'is') __ right=ComparisonExpression)*;
 
 // Comparisons
 ComparisonExpression returns RclExpression:
-    AdditiveExpression ({BinaryRclExpression.left=current} operator=(LT | '<=' | GT | '>=') right=AdditiveExpression)*;
+    AdditiveExpression ({BinaryRclExpression.left=current} __ operator=(LT | '<=' | GT | '>=') __ right=AdditiveExpression)*;
 
 // Additive operations (+, -)
 AdditiveExpression returns RclExpression:
-    MultiplicativeExpression ({BinaryRclExpression.left=current} operator=('+' | '-') right=MultiplicativeExpression)*;
+    MultiplicativeExpression ({BinaryRclExpression.left=current} __ operator=('+' | '-') __ right=MultiplicativeExpression)*;
 
 // Multiplicative operations (*, /, %)
 MultiplicativeExpression returns RclExpression:
-    UnaryExpression ({BinaryRclExpression.left=current} operator=('*' | SLASH | '%') right=UnaryExpression)*;
+    UnaryExpression ({BinaryRclExpression.left=current} __ operator=('*' | SLASH | '%') __ right=UnaryExpression)*;
 
 // Unary operations (not, -, +)
 UnaryExpression returns RclExpression:
-    ({UnaryRclExpression} operator=('not' | '-' | '+') operand=UnaryExpression)
+    ({UnaryRclExpression} operator='not' __ operand=UnaryExpression)
+    | ({UnaryRclExpression} operator=('-' | '+') operand=UnaryExpression) // No space for unary +/- for now, can adjust if needed
     | PrimaryRclExpression;
 
 // Primary expressions: the atoms of expressions
 PrimaryRclExpression returns RclExpression:
     ({LiteralRclExpression} value=LiteralValue)
     | AttributeAccess
-    | ({GroupedRclExpression} '(' inner=RclExpression ')')
+    | ({GroupedRclExpression} '(' __? inner=RclExpression __? ')')
     | TypeConversion;
 
 // Attribute access rule
 AttributeAccess returns AttributeAccessRclExpression:
-    (context=('^'|'@')? name=COMMON_NOUN) ('.' property=COMMON_NOUN)?; 
+    (context=('^'|'@')? __? name=COMMON_NOUN) (__? '.' __? property=COMMON_NOUN)?; 

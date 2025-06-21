@@ -5,7 +5,7 @@ import "./primitives";
 
 // ======== Parameters ========
 Parameter infers Parameter:
-    name=COMMON_NOUN ':' value=LiteralValue;
+    name=COMMON_NOUN __? ':' __? value=LiteralValue;
 
 InlineParameterList infers InlineParameterList:
-    parameters+=Parameter (',' parameters+=Parameter)*; 
+    parameters+=Parameter (__? ',' __? parameters+=Parameter)*; 

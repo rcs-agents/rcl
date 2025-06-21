@@ -1,5 +1,5 @@
 import type { ValidationAcceptor, ValidationChecks, AstNode } from 'langium';
-import type { RclAstType, Section, RclFile, EmbeddedCodeBlock, FlowRule, TypeConversion } from './generated/ast.js';
+import type { RclAstType, Section, RclFile, EmbeddedCodeBlock, FlowRule, TypeConversion, ReservedSectionName } from './generated/ast.js';
 import { isSection } from './generated/ast.js';
 import type { RclServices } from './rcl-module.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
@@ -7,6 +7,7 @@ import { SectionValidator } from './validation/section-validator.js';
 import { EmbeddedCodeValidator } from './validation/embedded-code-validator.js';
 import { DependencyValidator } from './validation/dependency-validator.js';
 import { TypeValidator } from './validation/type-validator.js';
+import { KW } from './constants.js';
 
 /**
  * Registry for custom validation checks.
@@ -49,17 +50,18 @@ export class RclValidator {
     let rootSectionType = rclFile.agentSection.sectionType;
 
     // Check if it's a reserved name section
-    if (!rootSectionType && (rclFile.agentSection as any).reservedName) {
+    const agentSectionNode = rclFile.agentSection as Section & { reservedName?: ReservedSectionName };
+    if (!rootSectionType && agentSectionNode.reservedName) {
       const reservedTypeMap: Record<string, string> = {
-        'Config': 'agentConfig',
-        'Defaults': 'agentDefaults',
-        'Messages': 'messages'
+        [KW.Config]: KW.AgentConfig,
+        [KW.Defaults]: KW.AgentDefaults,
+        [KW.MessagesReserved]: KW.Messages
       };
-      rootSectionType = reservedTypeMap[(rclFile.agentSection as any).reservedName];
+      rootSectionType = reservedTypeMap[agentSectionNode.reservedName];
     }
 
-    if (rootSectionType !== 'agent') {
-      accept('error', `Root section must be of type 'agent', found '${rootSectionType || 'unknown'}'`, {
+    if (rootSectionType !== KW.Agent) {
+      accept('error', `Root section must be of type '${KW.Agent}', found '${rootSectionType || 'unknown'}'`, {
         node: rclFile.agentSection,
         property: 'sectionType'
       });
@@ -73,7 +75,7 @@ export class RclValidator {
     const sectionType = section.sectionType;
 
     // Only message sections can have parameters
-    if (sectionType && sectionType.includes('message')) {
+    if (sectionType?.includes(KW.Message)) {
       if (section.sectionParam) {
         // Validate that the parameter is either a timestamp or duration
         this.validateMessageExpiration(section, accept);
@@ -109,19 +111,20 @@ export class RclValidator {
    */
   checkReservedSectionNames(section: Section, accept: ValidationAcceptor): void {
     const sectionName = this.getSectionName(section);
-    const parentSection = this.getParentSection(section);
+    const parentSectionNode = this.getParentSection(section);
 
-    if (!parentSection || !sectionName) return;
+    if (!parentSectionNode || !sectionName) return;
 
     // Get parent section type (need to handle reserved names in parent too)
-    let parentSectionType = parentSection.sectionType;
-    if (!parentSectionType && (parentSection as any).reservedName) {
+    let parentSectionType = parentSectionNode.sectionType;
+    const typedParentSection = parentSectionNode as Section & { reservedName?: ReservedSectionName };
+    if (!parentSectionType && typedParentSection.reservedName) {
       const reservedTypeMap: Record<string, string> = {
-        'Config': 'agentConfig',
-        'Defaults': 'agentDefaults',
-        'Messages': 'messages'
+        [KW.Config]: KW.AgentConfig,
+        [KW.Defaults]: KW.AgentDefaults,
+        [KW.MessagesReserved]: KW.Messages
       };
-      parentSectionType = reservedTypeMap[(parentSection as any).reservedName];
+      parentSectionType = reservedTypeMap[typedParentSection.reservedName];
     }
 
     if (!parentSectionType) return;
@@ -132,10 +135,12 @@ export class RclValidator {
     if (reservedMatch) {
       // For reserved names, the type is automatically implied
       // So we just need to ensure they're used in the right context
-      if ((section as any).reservedName) {
+      const typedSection = section as Section & { reservedName?: ReservedSectionName };
+      if (typedSection.reservedName) {
         // This is a reserved name section, which is correct
         return;
-      } else if (section.sectionType) {
+      }
+      if (section.sectionType) {
         // This is an explicit section type using a reserved name
         const actualType = section.sectionType;
         if (actualType !== reservedMatch.impliedType) {
@@ -152,9 +157,9 @@ export class RclValidator {
    * Get section name as string
    */
   private getSectionName(section: Section): string | undefined {
-    // Check if section has a reserved name
-    if ((section as any).reservedName) {
-      return (section as any).reservedName;
+    const typedSection = section as Section & { reservedName?: ReservedSectionName };
+    if (typedSection.reservedName) {
+      return typedSection.reservedName;
     }
 
     // section.sectionName is now directly a string due to "SectionName returns string: ProperNoun;"

@@ -1,0 +1,549 @@
+{
+  "description": "Sequential token map for example.rcl - when all text segments are concatenated, they should reproduce the original file exactly",
+  "version": "partial-v1",
+  "coverage": {
+    "lines": "1-55",
+    "description": "Covers imports, agent declaration, config, defaults, flow start, and beginning of Messages section including message and agentMessage keywords"
+  },
+  "tokens": [
+    {
+      "text": "import",
+      "expectedScope": "keyword.control.import.rcl",
+      "line": 1,
+      "column": 1
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 1,
+      "column": 7
+    },
+    {
+      "text": "My Brand",
+      "expectedScope": "entity.name.namespace.rcl",
+      "line": 1,
+      "column": 8
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 1,
+      "column": 16
+    },
+    {
+      "text": "/",
+      "expectedScope": "punctuation.separator.namespace.rcl",
+      "line": 1,
+      "column": 17
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 1,
+      "column": 18
+    },
+    {
+      "text": "Samples.one",
+      "expectedScope": "entity.name.module.rcl",
+      "line": 1,
+      "column": 19
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 1,
+      "column": 30
+    },
+    {
+      "text": "as",
+      "expectedScope": "keyword.control.import.as.rcl",
+      "line": 1,
+      "column": 31
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 1,
+      "column": 33
+    },
+    {
+      "text": "Sample One",
+      "expectedScope": "entity.name.alias.rcl",
+      "line": 1,
+      "column": 34
+    },
+    {
+      "text": "\n",
+      "expectedScope": "text.rcl",
+      "line": 1,
+      "column": 44
+    },
+    {
+      "text": "import",
+      "expectedScope": "keyword.control.import.rcl",
+      "line": 2,
+      "column": 1
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 2,
+      "column": 7
+    },
+    {
+      "text": "My Brand",
+      "expectedScope": "entity.name.namespace.rcl",
+      "line": 2,
+      "column": 8
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 2,
+      "column": 16
+    },
+    {
+      "text": "/",
+      "expectedScope": "punctuation.separator.namespace.rcl",
+      "line": 2,
+      "column": 17
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 2,
+      "column": 18
+    },
+    {
+      "text": "Samples.two",
+      "expectedScope": "entity.name.module.rcl",
+      "line": 2,
+      "column": 19
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 2,
+      "column": 30
+    },
+    {
+      "text": "as",
+      "expectedScope": "keyword.control.import.as.rcl",
+      "line": 2,
+      "column": 31
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.import.rcl",
+      "line": 2,
+      "column": 33
+    },
+    {
+      "text": "Sample Two",
+      "expectedScope": "entity.name.alias.rcl",
+      "line": 2,
+      "column": 34
+    },
+    {
+      "text": "\n\n",
+      "expectedScope": "text.rcl",
+      "line": 2,
+      "column": 44
+    },
+    {
+      "text": "agent",
+      "expectedScope": "keyword.control.section.agent.rcl",
+      "line": 4,
+      "column": 1
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.section.agent.rcl",
+      "line": 4,
+      "column": 6
+    },
+    {
+      "text": "My Brand",
+      "expectedScope": "entity.name.section.agent.rcl",
+      "line": 4,
+      "column": 7
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.section.agent.rcl",
+      "line": 4,
+      "column": 15
+    },
+    {
+      "text": "  ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 5,
+      "column": 1
+    },
+    {
+      "text": "brandName",
+      "expectedScope": "variable.other.property.rcl",
+      "line": 5,
+      "column": 3
+    },
+    {
+      "text": ":",
+      "expectedScope": "punctuation.separator.key-value.rcl",
+      "line": 5,
+      "column": 12
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.value.single-line.rcl",
+      "line": 5,
+      "column": 13
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.begin.rcl",
+      "line": 5,
+      "column": 14
+    },
+    {
+      "text": "Sample Brand",
+      "expectedScope": "string.quoted.double.rcl",
+      "line": 5,
+      "column": 15
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.end.rcl",
+      "line": 5,
+      "column": 27
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.section.agent.rcl",
+      "line": 5,
+      "column": 28
+    },
+    {
+      "text": "  ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 6,
+      "column": 1
+    },
+    {
+      "text": "displayName",
+      "expectedScope": "variable.other.property.rcl",
+      "line": 6,
+      "column": 3
+    },
+    {
+      "text": ":",
+      "expectedScope": "punctuation.separator.key-value.rcl",
+      "line": 6,
+      "column": 14
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.value.single-line.rcl",
+      "line": 6,
+      "column": 15
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.begin.rcl",
+      "line": 6,
+      "column": 16
+    },
+    {
+      "text": "Sample Agent",
+      "expectedScope": "string.quoted.double.rcl",
+      "line": 6,
+      "column": 17
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.end.rcl",
+      "line": 6,
+      "column": 29
+    },
+    {
+      "text": "\n\n",
+      "expectedScope": "meta.section.agent.rcl",
+      "line": 6,
+      "column": 30
+    },
+    {
+      "text": "  ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 8,
+      "column": 1
+    },
+    {
+      "text": "Config",
+      "expectedScope": "keyword.control.section.config.rcl",
+      "line": 8,
+      "column": 3
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.subsection.config.rcl",
+      "line": 8,
+      "column": 9
+    },
+    {
+      "text": "    ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 45,
+      "column": 1
+    },
+    {
+      "text": "message",
+      "expectedScope": "keyword.control.section.message.rcl",
+      "line": 45,
+      "column": 5
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.message.declaration.rcl",
+      "line": 45,
+      "column": 12
+    },
+    {
+      "text": "Welcome",
+      "expectedScope": "entity.name.section.message.rcl",
+      "line": 45,
+      "column": 13
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.subsection.messages.rcl",
+      "line": 45,
+      "column": 20
+    },
+    {
+      "text": "      ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 46,
+      "column": 1
+    },
+    {
+      "text": "text",
+      "expectedScope": "variable.other.property.rcl",
+      "line": 46,
+      "column": 7
+    },
+    {
+      "text": ":",
+      "expectedScope": "punctuation.separator.key-value.rcl",
+      "line": 46,
+      "column": 11
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.value.single-line.rcl",
+      "line": 46,
+      "column": 12
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.begin.rcl",
+      "line": 46,
+      "column": 13
+    },
+    {
+      "text": "Hello! This is a transactional message with various suggestions. How can I help you today?",
+      "expectedScope": "string.quoted.double.rcl",
+      "line": 46,
+      "column": 14
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.end.rcl",
+      "line": 46,
+      "column": 105
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.subsection.messages.rcl",
+      "line": 46,
+      "column": 106
+    },
+    {
+      "text": "      ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 47,
+      "column": 1
+    },
+    {
+      "text": "suggestions",
+      "expectedScope": "variable.other.property.rcl",
+      "line": 47,
+      "column": 7
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.subsection.messages.rcl",
+      "line": 47,
+      "column": 18
+    },
+    {
+      "text": "        ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 48,
+      "column": 1
+    },
+    {
+      "text": "reply",
+      "expectedScope": "keyword.control.action.property.rcl",
+      "line": 48,
+      "column": 9
+    },
+    {
+      "text": ":",
+      "expectedScope": "punctuation.separator.key-value.rcl",
+      "line": 48,
+      "column": 14
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.value.single-line.rcl",
+      "line": 48,
+      "column": 15
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.begin.rcl",
+      "line": 48,
+      "column": 16
+    },
+    {
+      "text": "Tell me more",
+      "expectedScope": "string.quoted.double.rcl",
+      "line": 48,
+      "column": 17
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.end.rcl",
+      "line": 48,
+      "column": 29
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.subsection.messages.rcl",
+      "line": 48,
+      "column": 30
+    },
+    {
+      "text": "        ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 49,
+      "column": 1
+    },
+    {
+      "text": "dialAction",
+      "expectedScope": "keyword.control.action.property.rcl",
+      "line": 49,
+      "column": 9
+    },
+    {
+      "text": ":",
+      "expectedScope": "punctuation.separator.key-value.rcl",
+      "line": 49,
+      "column": 19
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.value.single-line.rcl",
+      "line": 49,
+      "column": 20
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.begin.rcl",
+      "line": 49,
+      "column": 21
+    },
+    {
+      "text": "Call Us",
+      "expectedScope": "string.quoted.double.rcl",
+      "line": 49,
+      "column": 22
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.end.rcl",
+      "line": 49,
+      "column": 29
+    },
+    {
+      "text": ", ",
+      "expectedScope": "meta.value.single-line.rcl",
+      "line": 49,
+      "column": 30
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.begin.rcl",
+      "line": 49,
+      "column": 32
+    },
+    {
+      "text": "+1234567890",
+      "expectedScope": "string.quoted.double.rcl",
+      "line": 49,
+      "column": 33
+    },
+    {
+      "text": "\"",
+      "expectedScope": "punctuation.definition.string.end.rcl",
+      "line": 49,
+      "column": 44
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.subsection.messages.rcl",
+      "line": 49,
+      "column": 45
+    },
+    {
+      "text": "    ",
+      "expectedScope": "punctuation.whitespace.leading.rcl",
+      "line": 53,
+      "column": 1
+    },
+    {
+      "text": "agentMessage",
+      "expectedScope": "keyword.control.section.agentmessage.rcl",
+      "line": 53,
+      "column": 5
+    },
+    {
+      "text": " ",
+      "expectedScope": "meta.agentmessage.declaration.rcl",
+      "line": 53,
+      "column": 17
+    },
+    {
+      "text": "Welcome Full",
+      "expectedScope": "entity.name.section.agentmessage.rcl",
+      "line": 53,
+      "column": 18
+    },
+    {
+      "text": "\n",
+      "expectedScope": "meta.subsection.messages.rcl",
+      "line": 53,
+      "column": 30
+    }
+  ],
+  "validation": {
+    "checkConcatenation": true,
+    "expectedLength": "partial",
+    "keyElementsToVerify": [
+      "import keywords",
+      "agent keyword and name",
+      "property assignments",
+      "config section",
+      "message/agentMessage keywords"
+    ]
+  }
+} 

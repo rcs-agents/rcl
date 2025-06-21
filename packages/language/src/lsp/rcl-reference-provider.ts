@@ -1,7 +1,7 @@
 import { type AstNode, type MaybePromise, AstUtils, CstUtils, type LangiumDocument } from 'langium';
 import type { ReferencesProvider } from 'langium/lsp';
 import type { Location, ReferenceParams, CancellationToken } from 'vscode-languageserver-protocol';
-import { isIdentifier, type Identifier, isSection, type Section, isFlowOperand, type FlowOperand, isAttribute, type Attribute } from '../generated/ast.js';
+import { isIdentifier, type Identifier, isSection, type Section, isFlowOperand, type FlowOperand, isAttribute, type Attribute, type ReservedSectionName } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
 
 export class RclReferenceProvider implements ReferencesProvider {
@@ -34,14 +34,16 @@ export class RclReferenceProvider implements ReferencesProvider {
       return this.findFlowOperandReferences(astNodeForLeaf, document, params.context.includeDeclaration, cancelToken);
     }
 
-    if (isSection(astNodeForLeaf) && astNodeForLeaf.sectionName && cstLeaf.text === astNodeForLeaf.sectionName) {
+    const typedAstNodeForLeaf = astNodeForLeaf as Section & { sectionName?: string, reservedName?: ReservedSectionName };
+    if (isSection(astNodeForLeaf) && typedAstNodeForLeaf.sectionName && cstLeaf.text === typedAstNodeForLeaf.sectionName) {
       return this.findSectionReferences(astNodeForLeaf, document, params.context.includeDeclaration, cancelToken);
     }
 
     const enclosingSection = AstUtils.getContainerOfType(astNodeForLeaf, isSection);
+    const typedEnclosingSection = enclosingSection as Section & { sectionName?: string, reservedName?: ReservedSectionName };
 
-    if (enclosingSection?.sectionName && cstLeaf.text === enclosingSection.sectionName) {
-      return this.findSectionReferences(enclosingSection, document, params.context.includeDeclaration, cancelToken);
+    if (typedEnclosingSection?.sectionName && cstLeaf.text === typedEnclosingSection.sectionName) {
+      return this.findSectionReferences(typedEnclosingSection, document, params.context.includeDeclaration, cancelToken);
     }
 
     return [];
@@ -77,7 +79,7 @@ export class RclReferenceProvider implements ReferencesProvider {
 
   protected findSectionReferences(sectionNode: Section, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
     const locations: Location[] = [];
-    const targetName = sectionNode.sectionName;
+    const targetName = (sectionNode as Section & { sectionName?: string }).sectionName;
     if (!targetName) return [];
 
     if (includeDeclaration) {
@@ -101,7 +103,8 @@ export class RclReferenceProvider implements ReferencesProvider {
       }
 
       // Check other sections with the same name (duplicates)
-      if (isSection(node) && node.sectionName === targetName && node !== sectionNode) {
+      const typedNode = node as Section & { sectionName?: string };
+      if (isSection(node) && typedNode.sectionName === targetName && node !== sectionNode) {
         const loc = this.getNodeLocation(node, document);
         if (loc) locations.push(loc);
       }
@@ -143,7 +146,8 @@ export class RclReferenceProvider implements ReferencesProvider {
       }
 
       // Also check if any sections are named the same as this flow operand
-      if (isSection(node) && node.sectionName === targetValue) {
+      const typedNode = node as Section & { sectionName?: string };
+      if (isSection(node) && typedNode.sectionName === targetValue) {
         const loc = this.getNodeLocation(node, document);
         if (loc) locations.push(loc);
       }
@@ -174,19 +178,19 @@ export class RclReferenceProvider implements ReferencesProvider {
       return undefined;
     }
 
-    // FlowOperand could be a symbol (:start, :end), identifier, or string
-    if ((operand as any).symbol) {
-      return (operand as any).symbol;
+    // FlowOperand structure based on grammar: symbol=ATOM | variable=ProperNoun | attribute=COMMON_NOUN | string=STRING
+    if (operand.symbol) {
+      return operand.symbol;
     }
-    if ((operand as any).variable) {
-      return (operand as any).variable;
+    if (operand.variable) {
+      return operand.variable;
     }
-    if ((operand as any).attribute) {
-      return (operand as any).attribute;
+    if (operand.attribute) {
+      return operand.attribute;
     }
-    if ((operand as any).string) {
+    if (operand.string) {
       // Remove quotes from string literals
-      const str = (operand as any).string;
+      const str = operand.string;
       if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
         return str.slice(1, -1);
       }
@@ -194,6 +198,7 @@ export class RclReferenceProvider implements ReferencesProvider {
     }
 
     // Fallback: try to extract from the $cstNode if available
+    // This fallback might be redundant if the grammar ensures one of the above fields is always present on FlowOperand
     if (operand.$cstNode) {
       return operand.$cstNode.text;
     }
@@ -207,19 +212,20 @@ export class RclReferenceProvider implements ReferencesProvider {
   private getAttributeValue(attribute: Attribute): string | undefined {
     // This is a simplified implementation - in practice you'd need to handle
     // different value types (strings, identifiers, type conversions, etc.)
-    if (attribute.value && (attribute.value as any).identifier) {
-      return (attribute.value as any).identifier.value;
-    }
-
-    // For string values, type conversions, etc., you'd need more specific handling
-    // based on the actual AST structure
-    if (attribute.value?.$cstNode) {
-      const text = attribute.value.$cstNode.text.trim();
-      // Remove quotes if it's a string literal
-      if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
-        return text.slice(1, -1);
+    const valueNode = attribute.value;
+    if (valueNode) {
+      if (isIdentifier(valueNode)) { // Check if value is an Identifier AST node
+        return valueNode.value;       // Access the 'value' property of the Identifier
       }
-      return text;
+      // For other LiteralValue types or complex types, extract text from CST node
+      if (valueNode.$cstNode) {
+        const text = valueNode.$cstNode.text.trim();
+        // Remove quotes if it's a string literal
+        if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
+          return text.slice(1, -1);
+        }
+        return text;
+      }
     }
 
     return undefined;

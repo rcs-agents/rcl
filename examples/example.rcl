@@ -60,13 +60,13 @@ agent My Brand
     agentMessage Welcome Full
       messageTrafficType: :TRANSACTION
       expireTime: "2024-12-31T23:59:59Z"
-      
+
       contentMessage
         text: "Hello! This is a transactional message with various suggestions. How can I help you today?"
 
       suggestions
         reply: text: "Tell me more", postbackData: "tell_me_more_pb"
-        
+
         action: text: "Call Us", postbackData: "dial_action_pb"
           dialAction: phoneNumber: "+1234567890"
 

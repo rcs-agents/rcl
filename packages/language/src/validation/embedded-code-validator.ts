@@ -1,6 +1,7 @@
 import type { ValidationAcceptor } from 'langium';
 import type { EmbeddedCodeBlock } from '../generated/ast.js';
 import { isSingleLineEmbeddedCodeBlock, isMultiLineEmbeddedCodeBlock } from '../generated/ast.js';
+import { KW } from '../constants.js'; // Import KW
 
 // Define SyntaxError locally as in the plan if not imported from a general utility
 class SyntaxError extends Error { // Basic error classes as per plan
@@ -57,18 +58,18 @@ export class EmbeddedCodeValidator {
       markerText = codeBlock.start;
     }
 
-    if (markerText.startsWith('$js>') || markerText.startsWith('$js>>>')) return 'javascript';
-    if (markerText.startsWith('$ts>') || markerText.startsWith('$ts>>>')) return 'typescript';
-    if (markerText.startsWith('$>') || markerText.startsWith('$>>>')) return 'unknown'; // Generic marker
+    if (markerText.startsWith(KW.JsPrefix) || markerText.startsWith(KW.JsMultiLinePrefix)) return 'javascript';
+    if (markerText.startsWith(KW.TsPrefix) || markerText.startsWith(KW.TsMultiLinePrefix)) return 'typescript';
+    if (markerText.startsWith(KW.GenericPrefix) || markerText.startsWith(KW.GenericMultiLinePrefix)) return 'unknown'; // Generic marker
     return 'unknown';
   }
 
   private getCodeContent(codeBlock: EmbeddedCodeBlock): string | null {
     if (isSingleLineEmbeddedCodeBlock(codeBlock)) {
       const fullContent = codeBlock.content;
-      if (fullContent.startsWith('$js>')) return fullContent.substring(4).trim();
-      if (fullContent.startsWith('$ts>')) return fullContent.substring(4).trim();
-      if (fullContent.startsWith('$>')) return fullContent.substring(2).trim();
+      if (fullContent.startsWith(KW.JsPrefix)) return fullContent.substring(KW.JsPrefix.length).trim();
+      if (fullContent.startsWith(KW.TsPrefix)) return fullContent.substring(KW.TsPrefix.length).trim();
+      if (fullContent.startsWith(KW.GenericPrefix)) return fullContent.substring(KW.GenericPrefix.length).trim();
       return fullContent.trim(); // Fallback, though should have a marker
     } else if (isMultiLineEmbeddedCodeBlock(codeBlock)) {
       // For MultiLineEmbeddedCodeBlock, the AST node (`codeBlock`) only contains the `start` marker.

@@ -1,7 +1,7 @@
 import { AbstractSemanticTokenProvider, type SemanticTokenAcceptor } from 'langium/lsp';
 import { type AstNode } from 'langium';
 import { SemanticTokenModifiers, SemanticTokenTypes } from 'vscode-languageserver-protocol';
-import { isSection, type Section, isAttribute, type Attribute, isBooleanValue, type BooleanValue } from '../generated/ast.js';
+import { isSection, type Section, isAttribute, type Attribute, isBooleanValue, type BooleanValue, type ReservedSectionName } from '../generated/ast.js';
 
 export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
 
@@ -32,7 +32,8 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
       });
     }
 
-    if (section.reservedName) {
+    const typedSection = section as Section & { reservedName?: ReservedSectionName };
+    if (typedSection.reservedName) {
       acceptor({
         node: section,
         property: 'reservedName',
