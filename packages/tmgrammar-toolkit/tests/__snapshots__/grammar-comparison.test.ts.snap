@@ -1,0 +1,78 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Grammar Comparison Tests Regression Tests should maintain consistent grammar structure over time: bicep-grammar-structure 1`] = `
+{
+  "fileTypes": [
+    ".bicep",
+    ".bicepparam",
+  ],
+  "name": "Bicep",
+  "patternsLength": 2,
+  "repositoryKeys": [
+    "array-literal",
+    "block-comment",
+    "comments",
+    "decorator",
+    "directive",
+    "directive-variable",
+    "escape-character",
+    "expression",
+    "function-call",
+    "identifier",
+    "keyword",
+    "lambda-start",
+    "line-comment",
+    "named-literal",
+    "numeric-literal",
+    "object-literal",
+    "object-property-key",
+    "string-literal",
+    "string-literal-subst",
+    "string-verbatim",
+  ],
+  "schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "scopeName": "source.bicep",
+}
+`;
+
+exports[`Grammar Comparison Tests Regression Tests should maintain consistent grammar structure over time: typespec-grammar-structure 1`] = `
+{
+  "fileTypes": [
+    "tsp",
+  ],
+  "name": "TypeSpec",
+  "patternsLength": 1,
+  "repositoryKeys": [
+    "block-comment",
+    "boolean-literal",
+    "callExpression",
+    "directive",
+    "doc-comment",
+    "doc-comment-block",
+    "doc-comment-param",
+    "doc-comment-return-tag",
+    "doc-comment-unknown-tag",
+    "escape-character",
+    "expression",
+    "identifier-expression",
+    "line-comment",
+    "numeric-literal",
+    "operator-assignment",
+    "parenthesized-expression",
+    "punctuation-accessor",
+    "punctuation-comma",
+    "punctuation-semicolon",
+    "statement",
+    "string-literal",
+    "template-expression",
+    "token",
+    "triple-quoted-string-literal",
+    "type-parameter",
+    "type-parameter-constraint",
+    "type-parameter-default",
+    "type-parameters",
+  ],
+  "schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "scopeName": "source.tsp",
+}
+`;

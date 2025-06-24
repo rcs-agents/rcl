@@ -1,0 +1,6 @@
+[test]
+# Define the TEST global as true for all test runs
+define = { "import.meta.TEST" = "true" }
+
+# The --define flag needs to go after 'test' command
+# Usage: bun test --define import.meta.TEST=true 

@@ -1,0 +1,13 @@
+{
+    "scopeName": "source.testcli",
+    "patterns": [
+        {
+            "match": "foo",
+            "name": "keyword.foo.testcli"
+        },
+        {
+            "match": "bar",
+            "name": "keyword.bar.testcli"
+        }
+    ]
+} 

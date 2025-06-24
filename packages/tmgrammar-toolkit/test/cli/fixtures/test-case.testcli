@@ -1,0 +1,16 @@
+// SYNTAX TEST "source.testcli"
+// This directive tells vscode-tmgrammar-test which grammar to use (scopeName).
+
+foo
+// ^ keyword.foo.testcli
+
+bar
+// ^ keyword.bar.testcli
+
+foobar
+// ^^^^^^ source.testcli -keyword.foo.testcli -keyword.bar.testcli
+
+foo bar
+// ^ keyword.foo.testcli
+//   ^ source.testcli // The space character
+//     ^ keyword.bar.testcli 
