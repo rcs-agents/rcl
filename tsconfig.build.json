@@ -2,6 +2,9 @@
     "files": [],
     "references": [
         {
+            "path": "./packages/tmgrammar-toolkit/tsconfig.lib.json"
+        },
+        {
             "path": "./packages/language/tsconfig.src.json"
         },
         {

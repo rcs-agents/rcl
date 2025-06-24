@@ -1,0 +1,10 @@
+[install.scopes]
+
+[install.cache]
+# Optimize cache settings
+dir = ".bun/cache"
+disable = false
+
+[test]
+# Configure test settings
+coverage = true

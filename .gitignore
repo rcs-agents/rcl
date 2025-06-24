@@ -10,3 +10,7 @@ syntaxes/
 *.tsbuildinfo
 *.vsix
 .cursor/environment.json
+# moon
+.moon/cache
+.moon/docker
+.bun/cache

@@ -1,0 +1,6 @@
+$schema: "https://moonrepo.dev/schemas/tasks.json"
+
+tasks:
+  create-package:
+    description: "Create a new package"
+    command: "packemon scaffold --template monorepo-package --skipInstall --packagesFolder packages ."

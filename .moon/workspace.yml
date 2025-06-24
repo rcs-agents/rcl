@@ -1,0 +1,32 @@
+$schema: "https://moonrepo.dev/schemas/workspace.json"
+
+# Require a specific version of moon while running commands, otherwise fail.
+versionConstraint: '>=1.22.2'
+
+projects:
+  - "./moon.yml"
+  - "apps/*"
+  - "libs/*"
+  - "packages/*"
+
+vcs:
+  manager: "git"
+  defaultBranch: "main"
+
+  # Makes sure all developers have hooks activated
+  syncHooks: true
+  hooks:
+    pre-commit:
+      - 'moon run :lint :format --affected --status=staged'
+
+runner:
+  archivableTargets:
+    - ":format"
+    - ":lint"
+    - ":test"
+    - ":typecheck"
+  logRunningCommand: true
+
+generator:
+  templates:
+    - 'git://github.com/svallory/moon-templates#main'

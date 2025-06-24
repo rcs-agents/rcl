@@ -1,33 +1,81 @@
 {
-    "name": "rcl-workspace",
-    "description": "Base workspace package",
-    "version": "0.0.1",
-    "type": "module",
-    "private": true,
-    "scripts": {
-        "clean": "bun run --filter 'rcl-*' --filter 'vscode-rcl' clean",
-        "dev": "concurrently -k -n lang,vscode -c red,blue,yellow \"nr langium:watch\" \"nr vscode:watch\"",
-        "watch": "concurrently -k -n lang,tsc,esbuild -c red,blue,yellow \"nr langium:watch\" \"tsc -b tsconfig.json --watch --preserveWatchOutput\" \"node esbuild.mjs --watch\"",
-        "build": "tsc -b tsconfig.build.json && bun run --filter 'rcl-*' --filter 'vscode-rcl' build",
-        "build:clean": "bun run clean && bun run build",
-        "cli": "bun packages/cli/bin/cli.js",
-        "langium:generate": "cd packages/language && bun run langium:generate",
-        "langium:watch": "cd packages/language && bun run langium:watch",
-        "vscode:watch": "cd packages/extension && bun run watch",
-        "test": "cd packages/language && bun run test",
-        "reinstall": "bun --filter='rcl-language' run langium:generate && bun --filter='vscode-rcl' run reinstall-extension"
+  "name": "rcl-workspace",
+  "description": "Base workspace package",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "infra": "monorepo",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "bun run --filter 'rcl-*' --filter 'vscode-rcl' clean",
+    "dev": "concurrently -k -n lang,vscode -c red,blue,yellow \"nr langium:watch\" \"nr vscode:watch\"",
+    "watch": "concurrently -k -n lang,tsc,esbuild -c red,blue,yellow \"nr langium:watch\" \"tsc -b tsconfig.json --watch --preserveWatchOutput\" \"node esbuild.mjs --watch\"",
+    "build": "tsc -b tsconfig.build.json && bun run --filter 'rcl-*' --filter 'vscode-rcl' build",
+    "build:clean": "bun run clean && bun run build",
+    "cli": "bun packages/cli/bin/cli.js",
+    "langium:generate": "cd packages/language && bun run langium:generate",
+    "langium:watch": "cd packages/language && bun run langium:watch",
+    "vscode:watch": "cd packages/extension && bun run watch",
+    "test": "cd packages/language && bun run test",
+    "reinstall": "bun --filter='rcl-language' run langium:generate && bun --filter='vscode-rcl' run reinstall-extension",
+    "----": "----- The scripts below are from packemon and should replace the ones above in the future -----",
+    "pkm:build": "packemon build-workspace",
+    "pkm:check": "yarn run type && yarn run test && yarn run lint",
+    "pkm:coverage": "yarn run test --coverage",
+    "pkm:format": "prettier --write ./packages",
+    "pkm:lint": "eslint --cache --fix ./packages",
+    "pkm:pack": "packemon pack-workspace --addEngines --declaration",
+    "pkm:prelease": "yarn run pack && yarn run check",
+    "pkm:release": "echo 'Customize your own release script!'",
+    "pkm:test": "vitest",
+    "pkm:type": "tsc --build"
+  },
+  "devDependencies": {
+    "@types/node": "~20.17.48",
+    "packemon": "^4.1.1",
+    "shx": "~0.4.0",
+    "typescript": "^5.8.3"
+  },
+  "volta": {
+    "bun": "1.1.42"
+  },
+  "dependencies": {
+    "onigasm": "^2.2.5",
+    "plist": "^3.1.0",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.2.0",
+    "vscode-tmgrammar-test": "^0.1.3"
+  },
+  "imports": {
+    "@/*": "./src/*",
+    "@tests/*": "./tests/*"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     },
-    "devDependencies": {
-        "@types/node": "~20.17.48",
-        "shx": "~0.4.0",
-        "typescript": "^5.8.3"
+    "./terminals": {
+      "import": "./dist/terminals/index.js",
+      "types": "./dist/terminals/index.d.ts"
     },
-    "volta": {
-        "bun": "1.1.42"
+    "./terminals/*": {
+      "import": "./dist/terminals/*.js",
+      "types": "./dist/terminals/*.d.ts"
     },
-    "workspaces": [
-        "packages/language",
-        "packages/cli",
-        "packages/extension"
-    ]
+    "./testing": {
+      "import": "./dist/testing/index.js",
+      "types": "./dist/testing/index.d.ts"
+    },
+    "./validation": {
+      "import": "./dist/validation/index.js",
+      "types": "./dist/validation/index.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts"
+    }
+  }
 }
