@@ -7,7 +7,7 @@ export enum KW {
   Flow = 'flow',
   Messages = 'messages', // Section type
   Message = 'message',
-  AuthenticationMessage = 'authentication message',
+  AuthenticationMessage = 'authentication message', 
   TransactionMessage = 'transaction message',
   PromotionMessage = 'promotion message',
   ServiceRequestMessage = 'servicerequest message',
@@ -44,14 +44,13 @@ export enum KW {
   List = 'list',
   Of = 'of',
 
-
   // Type Tag Names (from TYPE_TAG_NAME terminal)
   Date = 'date',
   Datetime = 'datetime',
   Time = 'time',
   Email = 'email',
   Phone = 'phone',
-  Msisdn = 'msisdn',
+  MSISDN = 'msisdn',
   Url = 'url',
   Zipcode = 'zipcode',
   Zip = 'zip',
@@ -100,8 +99,8 @@ export enum KW {
   Authentication = 'authentication', // Often part of "authentication message"
   ServiceRequest = 'servicerequest', // Often part of "servicerequest message"
   Transaction = 'transaction',       // Often part of "transaction message"
-  Acknowledge = 'acknowledge',     // Often part of "acknowledge message"
-  Promotion = 'promotion',         // Often part of "promotion message"
+  Acknowledge = 'acknowledge',         // Often part of "acknowledge message"
+  Promotion = 'promotion',             // Often part of "promotion message"
 
   // Flow Symbols (ATOMs)
   Start = ':start',
@@ -138,7 +137,6 @@ export enum TK {
   PERCENT = 'PERCENT', // % (for ExplicitMap key)
   PIPE = 'PIPE',     // | (for type conversion modifier or multiline string)
   DASH = 'DASH',   // - (for list items or unary minus)
-
 
   // Keyword Terminals
   TRUE_KW = 'TRUE_KW',
@@ -190,60 +188,24 @@ export enum TK {
   Identifier = 'Identifier', // Generic identifier type
 }
 
-export enum TG {
-  // Groups of Keywords
-  SectionKeywords = 'SectionKeywords',
-  MessageSectionKeywords = 'MessageSectionKeywords',
-  ReservedSectionNameKeywords = 'ReservedSectionNameKeywords',
-  BooleanTrueKeywords = 'BooleanTrueKeywords',
-  BooleanFalseKeywords = 'BooleanFalseKeywords',
-  TypeTagKeywords = 'TypeTagKeywords',
-  ExpressionOperatorKeywords = 'ExpressionOperatorKeywords',
-  EmbeddedCodeMarkerKeywords = 'EmbeddedCodeMarkerKeywords',
-  MultiLineStringMarkerKeywords = 'MultiLineStringMarkerKeywords',
+export const KwGroups = {
+  MessageSection: [KW.Message, KW.AuthenticationMessage, KW.TransactionMessage, KW.PromotionMessage, KW.ServiceRequestMessage, KW.AcknowledgeMessage],
+  AgentSubsection: [KW.AgentConfig, KW.AgentDefaults, KW.Flow, KW.Messages],
+  ReservedSectionName: [KW.Config, KW.Defaults, KW.MessagesReserved],
+  BooleanTrue: [KW.True, KW.On, KW.Yes, KW.Active, KW.Enabled],
+  BooleanFalse: [KW.False, KW.Off, KW.No, KW.Inactive, KW.Disabled],
+  TypeTag: [KW.Date, KW.Datetime, KW.Time, KW.Email, KW.Phone, KW.MSISDN, KW.Url, KW.Zipcode, KW.Zip],
+  Indentation: [TK.INDENT, TK.DEDENT],
+  Section: [] as KW[],
+  Boolean: [] as KW[],
+};
 
-  // Groups of Token Names
-  CoreTerminals = 'CoreTerminals',
-  IndentationTokens = 'IndentationTokens',
-  PunctuationTokens = 'PunctuationTokens',
-  KeywordTokens = 'KeywordTokens', // For TK.TRUE_KW, TK.FALSE_KW
-  IdentifierTokens = 'IdentifierTokens', // For TK.PROPER_WORD, TK.COMMON_NOUN
-  TypeSystemTokens = 'TypeSystemTokens',
-  ExpressionOperatorTokens = 'ExpressionOperatorTokens', // For TK.IS_NOT
-  EmbeddedCodeTokens = 'EmbeddedCodeTokens',
-  MultiLineStringTokens = 'MultiLineStringTokens',
-  SectionRelatedTokens = 'SectionRelatedTokens', // For TK.SECTION_TYPE, TK.MessageSectionType etc.
+KwGroups.Section.push(
+  ...KwGroups.AgentSubsection,
+  ...KwGroups.MessageSection,
+);
 
-  // Semantic Groups (can be composed of KW or TK)
-  AllSectionTypes = 'AllSectionTypes', // Combines section and message section types
-  AllBooleanKeywords = 'AllBooleanKeywords',
-  AllCodeBlockMarkers = 'AllCodeBlockMarkers',
-}
-
-// Helper function to create arrays for Token Groups (optional, or define arrays directly)
-// This is more for runtime use if needed, enums primarily for static typing and referencing
-export const getTokenGroup = (group: TG): (KW | TK)[] => {
-  switch (group) {
-    case TG.SectionKeywords:
-      return [KW.Agent, KW.AgentConfig, KW.AgentDefaults, KW.Flow, KW.Messages, KW.Message];
-    case TG.MessageSectionKeywords:
-      return [KW.AuthenticationMessage, KW.TransactionMessage, KW.PromotionMessage, KW.ServiceRequestMessage, KW.AcknowledgeMessage];
-    case TG.ReservedSectionNameKeywords:
-      return [KW.Config, KW.Defaults, KW.MessagesReserved];
-    case TG.BooleanTrueKeywords:
-      return [KW.True, KW.On, KW.Yes, KW.Active, KW.Enabled];
-    case TG.BooleanFalseKeywords:
-      return [KW.False, KW.Off, KW.No, KW.Inactive, KW.Disabled];
-    case TG.TypeTagKeywords:
-      return [KW.Date, KW.Datetime, KW.Time, KW.Email, KW.Phone, KW.Msisdn, KW.Url, KW.Zipcode, KW.Zip];
-    case TG.IndentationTokens:
-      return [TK.INDENT, TK.DEDENT];
-    case TG.AllSectionTypes:
-      return [...getTokenGroup(TG.SectionKeywords) as KW[], ...getTokenGroup(TG.MessageSectionKeywords) as KW[]];
-    case TG.AllBooleanKeywords:
-      return [...getTokenGroup(TG.BooleanTrueKeywords) as KW[], ...getTokenGroup(TG.BooleanFalseKeywords) as KW[]];
-    // Add more groups as needed
-    default:
-      return [];
-  }
-}; 
+KwGroups.Boolean.push(
+  ...KwGroups.BooleanTrue,
+  ...KwGroups.BooleanFalse,
+);

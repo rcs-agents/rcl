@@ -15,7 +15,7 @@ import {
   capture,
   group,
   concat
-} from './regex';
+} from './regex.js';
 
 describe('regex helpers', () => {
   describe('bounded', () => {

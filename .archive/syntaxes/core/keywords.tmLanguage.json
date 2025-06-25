@@ -1,0 +1,52 @@
+{
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.other.rcl",
+					"match": "\\b(Flows|Actions|Shortcuts)\\b"
+				},
+				{
+					"name": "keyword.control.flow.rcl",
+					"match": "\\b(if|when|unless|match|then|do|end|else|otherwise)\\b"
+				},
+				{
+					"name": "keyword.control.action.rcl",
+					"match": "\\b(action|suggestion|reply|card|carousel|media|file|location)\\b"
+				},
+				{
+					"name": "keyword.control.action.dial.rcl",
+					"match": "\\b(dialAction)\\b"
+				},
+				{
+					"name": "keyword.control.entity.richcard.rcl",
+					"match": "\\b(richCard)\\b"
+				},
+				{
+					"name": "keyword.control.entity.standalonecard.rcl",
+					"match": "\\b(standaloneCard)\\b"
+				},
+				{
+					"name": "keyword.control.suggestion.reply.rcl",
+					"match": "\\b(reply)\\b"
+				},
+				{
+					"name": "keyword.operator.logical.is-not.rcl",
+					"match": "\\b(is\\s+not)\\b"
+				},
+				{
+					"name": "keyword.operator.logical.rcl",
+					"match": "\\b(and|or|not|is|in)\\b"
+				},
+				{
+					"name": "constant.language.boolean.rcl",
+					"match": "\\b(True|False)\\b"
+				},
+				{
+					"name": "constant.language.null.rcl",
+					"match": "\\b(Null)\\b"
+				}
+			]
+		}
+	}
+}

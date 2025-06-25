@@ -1,12 +1,13 @@
 {
-    "extends": "../../tsconfig.json",
+    "extends": "../../tsconfig.options.json",
     "compilerOptions": {
         "noEmit": true,
-        "rootDir": "."
+        "rootDir": ".",
+        "tsBuildInfoFile": "../../.moon/cache/tsc/extension.tsbuildinfo"
     },
     "references": [
         {
-            "path": "../language/tsconfig.src.json"
+            "path": "../language/tsconfig.build.json"
         }
     ],
     "include": [

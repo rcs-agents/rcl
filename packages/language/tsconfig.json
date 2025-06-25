@@ -1,12 +1,18 @@
 // this file is required for VSCode to work properly
 {
-  "extends": "./tsconfig.src.json",
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "noEmit": true,
     "rootDir": "."
   },
   "include": [
     "src/**/*",
+    "syntaxes/**/*",
     "test/**/*"
+  ],
+  "references": [
+    {
+      "path": "../tmgrammar-toolkit"
+    }
   ]
 }

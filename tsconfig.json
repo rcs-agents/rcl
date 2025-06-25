@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "./packages",
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "lib": [
       "ES2022"
     ],
-    "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -35,8 +35,10 @@
     "tests"
   ],
   "references": [
-    {
-      "path": "packages/tmgrammar-toolkit"
-    }
+    { "path": "packages/cli" },
+    { "path": "packages/extension" },
+    { "path": "packages/language" },
+    { "path": "packages/language/syntaxes" },
+    { "path": "packages/tmgrammar-toolkit" }
   ]
 }

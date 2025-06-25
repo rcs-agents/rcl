@@ -1,0 +1,13 @@
+{
+    "extends": "../../../tsconfig.options.json",
+    "compilerOptions": {
+      "noEmit": true,
+      "composite": true,
+      "allowImportingTsExtensions": true,
+      "rootDir": "./",
+      "tsBuildInfoFile": ".moon/cache/tsc-out/syntaxes.tsbuildinfo"
+    },
+    "include": [
+      "**/*.ts"
+    ]
+  }

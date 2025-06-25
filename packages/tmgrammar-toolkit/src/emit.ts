@@ -7,14 +7,14 @@ import { readFile } from "node:fs/promises";
 import { loadWASM, OnigRegExp } from "onigasm";
 import { dirname, resolve } from "node:path";
 import * as plist from "plist";
-import type { Grammar, Rule, EmitOptions, MatchRule, BeginEndRule, IncludeRule, BasicIncludePattern } from './types.js';
+import type { Grammar, Rule, EmitOptions, MatchRule, BeginEndRule, IncludeRule, Pattern } from './types.js';
 import { meta } from './types.js';
 
 let initialized = false;
 async function initialize() {
   if (!initialized) {
-    const onigasmPath = import.meta.resolve("onigasm");
-    const wasmPath = resolve(dirname(new URL(onigasmPath).pathname), "onigasm.wasm");
+    const onigasmPath = require.resolve("onigasm");
+    const wasmPath = resolve(dirname(onigasmPath), "onigasm.wasm");
     const wasm = await readFile(wasmPath);
     await loadWASM(wasm.buffer as any);
     initialized = true;
@@ -155,42 +155,46 @@ function processNode(
 }
 
 function processPatterns(
-  rules: Rule[], 
+  patterns: Pattern[], 
   options: EmitOptions, 
   grammarName: string, 
   currentRepository: Map<string, [Rule, any]>
 ): any[] {
   const processedPatternsArray: any[] = [];
-  for (const rule of rules) {
-    if ('include' in rule && !('key' in rule)) { // BasicIncludePattern like { include: "#foo" }
-      processedPatternsArray.push(rule); 
+  for (const pattern of patterns) {
+    // Handle BasicIncludePattern (already an include directive)
+    if ('include' in pattern && !('key' in pattern)) {
+      processedPatternsArray.push(pattern); 
       continue;
     }
 
-    const keyedRule = rule as MatchRule | BeginEndRule | IncludeRule;
+    // Handle rule references and rule definitions
+    const rule = pattern as Rule;
 
-    if (!keyedRule.key) {
-      // eslint-disable-next-line no-console
-      console.warn('Processing a rule without a key directly in patterns (will be inlined):科研', rule);
-      processedPatternsArray.push(processNode(rule, options, grammarName, currentRepository, false));
-      continue;
-    }
+    // Check if this is a keyed rule
+    if ('key' in rule) {
+      const keyedRule = rule as MatchRule | BeginEndRule | IncludeRule;
 
-    // Rule has a key. It should be part of the repository.
-    if (!currentRepository.has(keyedRule.key)) {
-      // This implies the rule was in a 'patterns' array, had a key, but was NOT in grammar.repositoryItems.
-      // Process it now and add to repository (fallback if repositoryItems is not used or is incomplete).
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Rule with key '${keyedRule.key}' was encountered in a 'patterns' array but not pre-processed via 'repositoryItems'.
-    Processing it now for the repository.`
-      );
-      const entry: [Rule, any] = [keyedRule, undefined]; 
-      currentRepository.set(keyedRule.key, entry);
-      entry[1] = processNode(keyedRule, options, grammarName, currentRepository, true); // Process as if it were a repo item
-    } else {
-      const existingEntry = currentRepository.get(keyedRule.key);
-      if (existingEntry && existingEntry[0] !== keyedRule) {
+      if (!keyedRule.key) {
+        // eslint-disable-next-line no-console
+        console.warn('Processing a rule without a key directly in patterns (will be inlined):', rule);
+        processedPatternsArray.push(processNode(rule, options, grammarName, currentRepository, false));
+        continue;
+      }
+
+      // Rule has a key. Check if it's already in the repository
+      if (!currentRepository.has(keyedRule.key)) {
+        // This rule was referenced but not pre-processed via repositoryItems
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Rule with key '${keyedRule.key}' was encountered in a 'patterns' array but not pre-processed via 'repositoryItems'. Processing it now for the repository.`
+        );
+        const entry: [Rule, any] = [keyedRule, undefined]; 
+        currentRepository.set(keyedRule.key, entry);
+        entry[1] = processNode(keyedRule, options, grammarName, currentRepository, true);
+      } else {
+        const existingEntry = currentRepository.get(keyedRule.key);
+        if (existingEntry && existingEntry[0] !== keyedRule) {
           // Check if they are structurally equivalent (same content, different object instances)
           const existingRule = existingEntry[0];
           const rulesAreEquivalent = JSON.stringify(existingRule) === JSON.stringify(keyedRule);
@@ -199,10 +203,16 @@ function processPatterns(
             throw new Error(`Key collision: The key '${keyedRule.key}' is used for different rule objects. One in 'repositoryItems' (or processed earlier) and another encountered in a 'patterns' array.`);
           }
           // If they are structurally equivalent, we can safely ignore this - it's the same rule definition
+        }
+        // If it's the same rule object or equivalent rule, we don't need to do anything - it's already in the repository
       }
-      // If it's the same rule object or equivalent rule, we don't need to do anything - it's already in the repository
+      
+      // Convert keyed rule to include reference
+      processedPatternsArray.push({ include: `#${keyedRule.key}` });
+    } else {
+      // Rule without key - inline it directly
+      processedPatternsArray.push(processNode(rule, options, grammarName, currentRepository, false));
     }
-    processedPatternsArray.push({ include: `#${keyedRule.key}` });
   }
   return processedPatternsArray;
 }
@@ -212,7 +222,7 @@ function processPatterns(
 function validateRegexp(regexp: string | undefined, node: any, prop: string, options: EmitOptions) {
   if (regexp === undefined) return;
   try {
-    new OnigRegExp(regexp).testSync("");
+    new OnigRegExp(regexp);
   } catch (err: any) {
     let processedError = err;
     if (/^[0-9,]+$/.test(err.message)) {

@@ -2,13 +2,10 @@
     "files": [],
     "references": [
         {
-            "path": "./packages/tmgrammar-toolkit/tsconfig.lib.json"
+            "path": "./packages/tmgrammar-toolkit/tsconfig.json"
         },
         {
-            "path": "./packages/language/tsconfig.src.json"
-        },
-        {
-            "path": "./packages/language/tsconfig.test.json"
+            "path": "./packages/language/tsconfig.build.json"
         },
         {
             "path": "./packages/cli/tsconfig.json"

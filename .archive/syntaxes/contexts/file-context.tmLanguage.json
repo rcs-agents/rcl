@@ -1,0 +1,74 @@
+{
+  "repository": {
+    "file-level-patterns": {
+      "patterns": [
+        { "include": "#file-level-comments" },
+        { "include": "#import-statements" },
+        { "include": "#agent-sections" }
+      ]
+    },
+    "file-level-comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.rcl",
+          "begin": "^\\s*(#)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.comment.rcl"
+            }
+          },
+          "end": "$",
+          "patterns": [
+            {
+              "name": "comment.line.content.rcl",
+              "match": ".*"
+            }
+          ]
+        }
+      ]
+    },
+    "import-statements": {
+      "patterns": [
+        {
+          "name": "meta.import.rcl",
+          "begin": "^\\s*(import)\\s+",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.import.rcl" }
+          },
+          "end": "$",
+          "patterns": [
+            {
+              "name": "entity.name.namespace.rcl",
+              "match": "([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])(?=\\s*/)",
+              "captures": {
+                "1": { "name": "entity.name.namespace.rcl" }
+              }
+            },
+            {
+              "name": "punctuation.separator.namespace.rcl",
+              "match": "/"
+            },
+            {
+              "name": "entity.name.module.rcl",
+              "match": "([A-Za-z][A-Za-z0-9\\.]*[A-Za-z0-9])(?=\\s+as\\b)",
+              "captures": {
+                "1": { "name": "entity.name.module.rcl" }
+              }
+            },
+            {
+              "name": "keyword.control.import.as.rcl",
+              "match": "\\bas\\b"
+            },
+            {
+              "name": "entity.name.alias.rcl",
+              "match": "([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])(?=\\s*$)",
+              "captures": {
+                "1": { "name": "entity.name.alias.rcl" }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+} 

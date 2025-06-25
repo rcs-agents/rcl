@@ -1,6 +1,7 @@
 import type { LangiumDocument, MaybePromise } from 'langium';
 import type { DocumentSymbolProvider } from 'langium/lsp';
-import { DocumentSymbol, SymbolKind, type CancellationToken, type DocumentSymbolParams } from 'vscode-languageserver-protocol';
+import { type DocumentSymbol, SymbolKind } from 'vscode-languageserver-protocol';
+import type { CancellationToken, DocumentSymbolParams } from 'vscode-languageserver-protocol';
 import type { ImportStatement, Section, Attribute, ReservedSectionName } from '../generated/ast.js';
 import { isRclFile } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';

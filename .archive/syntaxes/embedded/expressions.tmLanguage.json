@@ -1,0 +1,89 @@
+{
+	"repository": {
+		"expressions": {
+			"patterns": [
+				{
+					"name": "meta.embedded.inline.javascript.rcl",
+					"begin": "(\\$js>)\\s*",
+					"beginCaptures": {
+						"1": { "name": "keyword.control.embedded.marker.js.rcl" }
+					},
+					"end": "$",
+					"contentName": "source.js",
+					"patterns": [{ "include": "source.js" }]
+				},
+				{
+					"name": "meta.embedded.inline.typescript.rcl",
+					"begin": "(\\$ts>)\\s*",
+					"beginCaptures": {
+						"1": { "name": "keyword.control.embedded.marker.ts.rcl" }
+					},
+					"end": "$",
+					"contentName": "source.ts",
+					"patterns": [{ "include": "source.ts" }]
+				},
+				{
+					"name": "meta.embedded.inline.generic.rcl",
+					"begin": "(\\$>)\\s*",
+					"beginCaptures": {
+						"1": { "name": "keyword.control.embedded.marker.generic.rcl" }
+					},
+					"end": "$",
+					"contentName": "source.js",
+					"patterns": [{ "include": "source.js" }]
+				},
+				{
+					"name": "meta.embedded.block.javascript.rcl",
+					"begin": "^(\\s*)(\\$js>>>)\\s*$",
+					"beginCaptures": {
+						"2": { "name": "keyword.control.embedded.marker.js.rcl" }
+					},
+					"end": "^(?!\\1\\s+\\S)",
+					"contentName": "source.js",
+					"patterns": [
+						{
+							"begin": "^(\\1\\s+)",
+							"end": "$",
+							"contentName": "source.js",
+							"patterns": [{ "include": "source.js" }]
+						}
+					]
+				},
+				{
+					"name": "meta.embedded.block.typescript.rcl",
+					"begin": "^(\\s*)(\\$ts>>>)\\s*$",
+					"beginCaptures": {
+						"2": { "name": "keyword.control.embedded.marker.ts.rcl" }
+					},
+					"end": "^(?!\\1\\s+\\S)",
+					"contentName": "source.ts",
+					"patterns": [
+						{
+							"begin": "^(\\1\\s+)",
+							"end": "$",
+							"contentName": "source.ts",
+							"patterns": [{ "include": "source.ts" }]
+						}
+					]
+				},
+				{
+					"name": "meta.embedded.block.generic.rcl",
+					"begin": "^(\\s*)(\\$>>>)\\s*$",
+					"beginCaptures": {
+						"2": { "name": "keyword.control.embedded.marker.generic.rcl" }
+					},
+					"end": "^(?!\\1\\s+\\S)",
+					"contentName": "source.js",
+					"patterns": [
+						{
+							"begin": "^(\\1\\s+)",
+							"end": "$",
+							"contentName": "source.js",
+							"patterns": [{ "include": "source.js" }]
+						}
+					]
+				}
+			]
+		}
+	}
+}

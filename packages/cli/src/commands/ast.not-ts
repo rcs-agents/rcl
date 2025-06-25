@@ -1,0 +1,49 @@
+import path from 'node:path';
+import fs from 'node:fs';
+import chalk from 'chalk';
+import { Command } from 'commander';
+import { NodeFileSystem } from 'langium/node';
+
+import { createRclServices, RclFile, RclLanguageMetaData, RclServices } from 'rcl-language';
+
+import { extractDestinationAndName, extractAstNode } from '../util.js';
+
+export type GenerateOptions = {
+  destination?: string;
+}
+
+export const configure = (program: Command): void => {
+  const fileExtensions = RclLanguageMetaData.fileExtensions.join(', ');
+
+  program
+      .command('ast')
+      .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
+      .option('-d, --destination <dir>', 'destination directory of generating')
+      .description('generates serialized AST JSON for visualization')
+      .action(generateAstAction);
+};
+
+export const generateAstAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
+    const services = createRclServices(NodeFileSystem).Rcl;
+    const model = await extractAstNode<RclFile>(fileName, services);
+    const generatedFilePath = generateAstJson(model, fileName, opts.destination, services);
+    console.log(chalk.green(`AST JSON generated successfully: ${generatedFilePath}`));
+};
+
+/**
+ * Generate serialized AST for visualization
+ */
+export function generateAstJson(rclFile: RclFile, filePath: string, destination: string | undefined, services: RclServices): string {
+  const data = extractDestinationAndName(filePath, destination);
+  const generatedFilePath = `${path.join(data.destination, data.name)}.ast.json`;
+
+  // Use the JsonSerializer from the services to serialize the AST
+  const jsonSerializer = services.serializer.JsonSerializer;
+  const serializedAst = jsonSerializer.serialize(rclFile, { space: 2 });
+
+  if (!fs.existsSync(data.destination)) {
+      fs.mkdirSync(data.destination, { recursive: true });
+  }
+  fs.writeFileSync(generatedFilePath, serializedAst);
+  return generatedFilePath;
+}

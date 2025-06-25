@@ -23,7 +23,7 @@ const baseConfig = {
 		".js": ".cjs",
 	},
 	loader: { ".ts": "ts" },
-	external: ["vscode"],
+	external: ["vscode", "tmgrammar-toolkit"],
 	sourcemap: !minify,
 	minify,
 };

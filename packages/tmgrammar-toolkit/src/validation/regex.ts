@@ -19,17 +19,17 @@ export interface RegexValidationResults {
 }
 
 /**
- * Basic regex validation using vscode-oniguruma
+ * Basic regex validation using onigasm
  * This is a minimal wrapper - more comprehensive validation would be in v2.0
  */
 export async function validateRegex(pattern: string): Promise<RegexValidationResult> {
   try {
     const { createRequire } = await import('node:module');
-    const createRequireFn = createRequire(import.meta.url);
-    const { createOnigScanner } = createRequireFn('vscode-oniguruma');
+    const createRequireFn = createRequire(__filename);
+    const { OnigRegExp } = createRequireFn('onigasm');
 
     // Try to create a scanner with the pattern
-    createOnigScanner([pattern]);
+    new OnigRegExp(pattern);
 
     return {
       valid: true,

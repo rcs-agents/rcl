@@ -10,15 +10,12 @@ import * as path from 'node:path';
 import { createRequire } from 'node:module';
 import type { GrammarInitOptions, TokenInfo } from './types.js';
 import type { IGrammar, StateStack } from 'vscode-textmate';
-import type { Grammar } from '#src/types';
+import type { Grammar } from '#src';
+import { OnigScanner, OnigString, loadWASM } from 'onigasm';
 
-const createRequireFn = createRequire(import.meta.url);
+const createRequireFn = createRequire(__filename);
 
-// Import vscode-textmate and vscode-oniguruma (same as scope.test.ts)
-const { createOnigScanner, createOnigString, loadWASM } = createRequireFn('vscode-oniguruma');
 const { Registry } = createRequireFn('vscode-textmate');
-
-// Import the actual grammar interface from vscode-textmate
 
 /**
  * Programmatic tester for grammar validation
@@ -36,28 +33,11 @@ export class ProgrammaticTester {
     if (this.initialized) return;
 
     try {
-      // Load WASM for Oniguruma (same logic as scope.test.ts)
-      const possiblePaths = [
-        path.join(process.cwd(), 'node_modules/vscode-oniguruma/release/onig.wasm'),
-        path.join(process.cwd(), '../node_modules/vscode-oniguruma/release/onig.wasm'),
-        path.join(process.cwd(), '../../node_modules/vscode-oniguruma/release/onig.wasm'),
-        path.join(process.cwd(), '../../../node_modules/vscode-oniguruma/release/onig.wasm'),
-      ];
-      
-      let wasmPath: string | null = null;
-      for (const possiblePath of possiblePaths) {
-        if (fs.existsSync(possiblePath)) {
-          wasmPath = possiblePath;
-          break;
-        }
-      }
-      
-      if (!wasmPath) {
-        throw new Error('WASM file not found. Please ensure vscode-oniguruma is installed.');
-      }
-      
-      const wasmBin = fs.readFileSync(wasmPath);
-      await loadWASM(wasmBin);
+      // Load WASM for Oniguruma
+      const onigasmPath = require.resolve("onigasm");
+      const wasmPath = path.resolve(path.dirname(onigasmPath), "onigasm.wasm");
+      const wasmBin = await fs.promises.readFile(wasmPath);
+      await loadWASM(wasmBin.buffer as any);
 
       // Load grammar content
       let grammarContent: Grammar;
@@ -75,8 +55,8 @@ export class ProgrammaticTester {
       // Create registry with grammar
       const registry = new Registry({
         onigLib: Promise.resolve({
-          createOnigScanner,
-          createOnigString,
+          createOnigScanner: (patterns: string[]) => new OnigScanner(patterns),
+          createOnigString: (str: string) => new OnigString(str)
         }),
         loadGrammar: async (scopeName: string) => {
           if (scopeName === this.options.scopeName) {

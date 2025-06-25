@@ -1,0 +1,379 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentMessage",
+  "description": "Represents a message sent from the agent to a user.",
+  "type": "object",
+  "properties": {
+    "contentMessage": {
+      "$ref": "#/definitions/AgentContentMessage"
+    },
+    "messageTrafficType": {
+      "$ref": "#/definitions/MessageTrafficType"
+    },
+    "expireTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional. Timestamp in UTC of when this resource is considered expired. This value is provided on output if it is set or if the TTL field is set. Uses RFC 3339, where generated output will always be Z-normalized and uses 0, 3, 6 or 9 fractional digits. Offsets other than \"Z\" are also accepted. Examples: \"2014-10-02T15:01:23Z\", \"2014-10-02T15:01:23.045123456Z\" or \"2014-10-02T15:01:23+05:30\"."
+    },
+    "ttl": {
+      "type": "string",
+      "pattern": "^[0-9]+(\\.[0-9]{1,9})?s$",
+      "description": "Optional. Input only. How long the message will live before it is automatically revoked. A duration in seconds with up to nine fractional digits, ending with 's'. Example: \"3.5s\"."
+    }
+  },
+  "required": [
+    "contentMessage",
+    "messageTrafficType"
+  ],
+  "oneOf": [
+    {
+      "properties": {
+        "expireTime": { "$ref": "#/properties/expireTime" }
+      },
+      "not": {
+        "required": ["ttl"]
+      }
+    },
+    {
+      "properties": {
+        "ttl": { "$ref": "#/properties/ttl" }
+      },
+      "not": {
+        "required": ["expireTime"]
+      }
+    },
+    {
+      "not": {
+        "anyOf": [
+          { "required": ["expireTime"] },
+          { "required": ["ttl"] }
+        ]
+      }
+    }
+  ],
+  "definitions": {
+    "MessageTrafficType": {
+      "type": "string",
+      "description": "Supported message traffic types.",
+      "enum": [
+        "MESSAGE_TRAFFIC_TYPE_UNSPECIFIED",
+        "AUTHENTICATION",
+        "TRANSACTION",
+        "PROMOTION",
+        "SERVICEREQUEST",
+        "ACKNOWLEDGEMENT"
+      ]
+    },
+    "AgentContentMessage": {
+      "type": "object",
+      "description": "The content of a message sent from the agent to a user. You may only set one of: text, uploadedRbmFile, richCard, or contentInfo. It is invalid to set both 'text' and 'richCard' at the same time.",
+      "properties": {
+        "suggestions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Suggestion"
+          },
+          "maxItems": 11,
+          "description": "A list of suggested replies and actions that the user can tap. Maximum of 11 suggestions."
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "UTF-8 encoded text. Maximum 2048 characters."
+        },
+        "uploadedRbmFile": {
+          "$ref": "#/definitions/UploadedRbmFile"
+        },
+        "richCard": {
+          "$ref": "#/definitions/RichCard"
+        },
+        "contentInfo": {
+          "$ref": "#/definitions/ContentInfo"
+        }
+      },
+      "oneOf": [
+        { "required": ["text"] , "not": { "anyOf": [ {"required": ["uploadedRbmFile"]}, {"required": ["richCard"]}, {"required": ["contentInfo"]} ] }},
+        { "required": ["uploadedRbmFile"], "not": { "anyOf": [ {"required": ["text"]}, {"required": ["richCard"]}, {"required": ["contentInfo"]} ] } },
+        { "required": ["richCard"], "not": { "anyOf": [ {"required": ["text"]}, {"required": ["uploadedRbmFile"]}, {"required": ["contentInfo"]} ] } },
+        { "required": ["contentInfo"], "not": { "anyOf": [ {"required": ["text"]}, {"required": ["uploadedRbmFile"]}, {"required": ["richCard"]} ] } }
+      ]
+    },
+    "Suggestion": {
+      "type": "object",
+      "description": "A suggestion that the user can tap. This can be a reply or an action.",
+      "oneOf": [
+        {
+          "properties": {
+            "reply": { "$ref": "#/definitions/SuggestedReply" }
+          },
+          "required": ["reply"]
+        },
+        {
+          "properties": {
+            "action": { "$ref": "#/definitions/SuggestedAction" }
+          },
+          "required": ["action"]
+        }
+      ]
+    },
+    "Postbackdata": {
+        "type": "string",
+        "maxLength": 2048,
+        "description": "Arbitrary data that is passed to the agent when a user taps a suggestion. Maximum 2048 characters."
+    },
+    "SuggestedReply": {
+      "type": "object",
+      "description": "A suggested reply that the user can tap to send.",
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 25,
+          "description": "The text of the suggested reply. This is the text that is shown to the user and the text that is sent to the agent when the user taps the suggestion. Maximum 25 characters."
+        },
+        "postbackData": {
+          "$ref": "#/definitions/Postbackdata"
+        }
+      },
+      "required": ["text", "postbackData"]
+    },
+    "SuggestedAction": {
+      "type": "object",
+      "description": "A suggested action that the user can tap.",
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 25,
+          "description": "The text of the suggested action. This is the text that is shown to the user. Maximum 25 characters."
+        },
+        "postbackData": {
+          "$ref": "#/definitions/Postbackdata"
+        },
+        "fallbackUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "description": "Optional. URL that is opened when a suggested action isn't supported by the RCS client."
+        },
+        "dialAction": { "$ref": "#/definitions/DialAction" },
+        "viewLocationAction": { "$ref": "#/definitions/ViewLocationAction" },
+        "createCalendarEventAction": { "$ref": "#/definitions/CreateCalendarEventAction" },
+        "openUrlAction": { "$ref": "#/definitions/OpenUrlAction" },
+        "shareLocationAction": { "$ref": "#/definitions/ShareLocationAction" }
+      },
+      "required": ["text", "postbackData"],
+      "oneOf": [
+        { "required": ["dialAction"] },
+        { "required": ["viewLocationAction"] },
+        { "required": ["createCalendarEventAction"] },
+        { "required": ["openUrlAction"] },
+        { "required": ["shareLocationAction"] }
+      ]
+    },
+    "DialAction": {
+      "type": "object",
+      "description": "Opens the user's default dialer app with the specified phone number.",
+      "properties": {
+        "phoneNumber": { "type": "string", "description": "The phone number to dial." }
+      },
+      "required": ["phoneNumber"]
+    },
+    "ViewLocationAction": {
+      "type": "object",
+      "description": "Opens the user's default map app with the specified location.",
+      "properties": {
+        "label": { "type": "string", "description": "Optional. A label for the map marker." }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "latLong": {
+              "type": "object",
+              "properties": {
+                "latitude": { "type": "number" },
+                "longitude": { "type": "number" }
+              },
+              "required": ["latitude", "longitude"],
+              "description": "The latitude and longitude of the location. If you provide latLong, the query field is ignored."
+            }
+          },
+          "required": ["latLong"]
+        },
+        {
+          "properties": {
+            "query": { "type": "string", "description": "A query to search for a location. If the query is ambiguous, the user may be presented with a disambiguation screen. Ignored if latLong is provided." }
+          },
+          "required": ["query"]
+        }
+      ]
+    },
+    "CreateCalendarEventAction": {
+      "type": "object",
+      "description": "Opens the user's default calendar app with an event populated with the specified details.",
+      "properties": {
+        "startTime": { "type": "string", "format": "date-time", "description": "The start time of the event in RFC3339 UTC \"Zulu\" format. Example: \"2014-10-02T15:01:23Z\"." },
+        "endTime": { "type": "string", "format": "date-time", "description": "The end time of the event in RFC3339 UTC \"Zulu\" format. Example: \"2014-10-02T15:01:23Z\"." },
+        "title": { "type": "string", "maxLength": 100, "description": "The title of the event. Maximum 100 characters." },
+        "description": { "type": "string", "maxLength": 1000, "description": "The description of the event. Maximum 1000 characters." }
+      },
+      "required": ["startTime", "endTime", "title", "description"]
+    },
+    "OpenUrlAction": {
+      "type": "object",
+      "description": "Opens the specified URL. The URL can be opened in an in-app browser or the user's default browser. Fallback URL for this action should be specified in the `SuggestedAction` if needed.",
+      "properties": {
+        "url": { "type": "string", "format": "uri", "maxLength": 2048, "description": "The URL to open. Maximum 2048 characters." }
+      },
+      "required": ["url"]
+    },
+    "ShareLocationAction": {
+      "type": "object",
+      "description": "When tapped, prompts the user to share their location. This action has no fields.",
+      "properties": {}
+    },
+    "UploadedRbmFile": {
+      "type": "object",
+      "description": "Represents an RBM file that the agent previously uploaded. Used in `AgentContentMessage` or within `Media` objects in rich cards.",
+      "properties": {
+        "fileName": { "type": "string", "description": "The name of the RBM file." },
+        "thumbnailUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional. The URL for the thumbnail of the file."
+        },
+        "thumbnailName": {
+          "type": "string",
+          "description": "Optional. The name of the RBM thumbnail file. If you provide thumbnailName, RBM hosts the thumbnail and ignores thumbnailUrl. Otherwise, RBM attempts to generate a thumbnail."
+        }
+      },
+      "required": ["fileName"]
+    },
+    "RichCard": {
+      "type": "object",
+      "description": "A rich card. Can be a standalone card or a carousel of cards.",
+      "oneOf": [
+        {
+          "properties": {
+            "carouselCard": { "$ref": "#/definitions/CarouselCard" }
+          },
+          "required": ["carouselCard"]
+        },
+        {
+          "properties": {
+            "standaloneCard": { "$ref": "#/definitions/StandaloneCard" }
+          },
+          "required": ["standaloneCard"]
+        }
+      ]
+    },
+    "CarouselCard": {
+      "type": "object",
+      "description": "A carousel of rich cards.",
+      "properties": {
+        "cardWidth": {
+          "type": "string",
+          "enum": ["CARD_WIDTH_UNSPECIFIED", "SMALL", "MEDIUM"],
+          "description": "The width of the cards in the carousel."
+        },
+        "cardContents": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/CardContent" },
+          "minItems": 2,
+          "maxItems": 10,
+          "description": "The list of rich cards in the carousel. Minimum 2 cards, maximum 10 cards. Each card must have the same `media.height`."
+        }
+      },
+      "required": ["cardWidth", "cardContents"]
+    },
+    "CardContent": {
+      "type": "object",
+      "description": "The content of a rich card.",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200, "description": "Optional. The title of the card. Maximum 200 characters." },
+        "description": { "type": "string", "maxLength": 2000, "description": "Optional. The description of the card. Maximum 2000 characters." },
+        "media": { "$ref": "#/definitions/Media" },
+        "suggestions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Suggestion" },
+          "maxItems": 4,
+          "description": "Optional. A list of suggested replies and actions for the card. Maximum of 4 suggestions."
+        }
+      }
+    },
+    "Media": {
+      "type": "object",
+      "description": "Media (image, GIF, or video) to display in a rich card.",
+      "properties": {
+        "height": {
+          "type": "string",
+          "enum": ["HEIGHT_UNSPECIFIED", "SHORT", "MEDIUM", "TALL"],
+          "description": "The height of the media."
+        },
+        "file": { "$ref": "#/definitions/UploadedRbmFile" },
+        "contentInfo": { "$ref": "#/definitions/ContentInfo" }
+      },
+      "required": ["height"],
+      "oneOf": [
+        { "required": ["file"] },
+        { "required": ["contentInfo"] }
+      ]
+    },
+    "StandaloneCard": {
+      "allOf": [
+        {
+          "type": "object",
+          "description": "A standalone rich card.",
+          "properties": {
+            "cardOrientation": {
+              "type": "string",
+              "enum": ["CARD_ORIENTATION_UNSPECIFIED", "HORIZONTAL", "VERTICAL"],
+              "description": "Orientation of the card."
+            },
+            "thumbnailImageAlignment": {
+              "type": "string",
+              "enum": ["THUMBNAIL_IMAGE_ALIGNMENT_UNSPECIFIED", "LEFT", "RIGHT"],
+              "description": "Optional. Image preview alignment for standalone cards with horizontal layout."
+            },
+            "cardContent": { "$ref": "#/definitions/CardContent" }
+          },
+          "required": ["cardOrientation", "cardContent"]
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "cardOrientation": { "const": "HORIZONTAL" },
+              "cardContent": {
+                "type": "object",
+                "required": ["media"]
+              }
+            },
+            "required": ["cardOrientation", "cardContent"]
+          },
+          "then": {
+            "properties": {
+              "cardContent": {
+                "anyOf": [
+                  { "required": ["title"] },
+                  { "required": ["description"] },
+                  { "required": ["suggestions"] }
+                ]
+              }
+            },
+            "required": ["cardContent"]
+          }
+        }
+      ]
+    },
+    "ContentInfo": {
+      "type": "object",
+      "description": "Information about a file to be displayed, hosted at a public URL. Used when the file is not an RBM-uploaded file.",
+      "properties": {
+        "fileUrl": { "type": "string", "format": "uri", "maxLength": 2048, "description": "The public URL of the file. Maximum 2048 characters." },
+        "thumbnailUrl": { "type": "string", "format": "uri", "maxLength": 2048, "description": "Optional. The public URL of the thumbnail. If you don't provide a thumbnail URL, the RBM platform attempts to generate a thumbnail from the file. Maximum 2048 characters." },
+        "forceRefresh": { "type": "boolean", "default": false, "description": "Optional. If true, the RBM platform fetches the file and thumbnail URLs again, even if they were previously cached. Defaults to false." },
+        "altText": { "type": "string", "maxLength": 100, "description": "Optional. A description of the file, used for accessibility. Maximum 100 characters." }
+      },
+      "required": ["fileUrl"]
+    }
+  }
+} 

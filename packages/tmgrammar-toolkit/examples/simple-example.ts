@@ -2,48 +2,55 @@
  * Simple example demonstrating the tmgrammar-toolkit core API
  */
 
-import { 
-  createGrammar, 
-  emitJSON, 
-  regex, 
-  scopes,
+import {
+  createGrammar,
+  emitJSON,
+  scopesFor,
+  regex as R,
   type MatchRule,
   type BeginEndRule,
   type IncludeRule,
-  type Grammar
-} from '../src/index.js';
+  type Grammar,
+  type Rule,
+  r,
+} from '#src';
+import { COMMENT, DOT } from '#src/terminals';
+
+const scopes = scopesFor('simple');
 
 // Example 1: Basic patterns using the core API
 const lineComment: MatchRule = {
   key: 'line-comment',
-  scope: scopes.comment.line['double-slash']('simple'),
-  match: `//.*${regex.before('$')}`
+  scope: scopes.comment.line.double_slash,
+  match: r(COMMENT.SLASHES, /.*(?=$)/)
+};
+
+const stringEscape: MatchRule = {
+  key: 'string-escape',
+  scope: scopes.constant.character.escape,
+  match: DOT
 };
 
 const stringLiteral: BeginEndRule = {
   key: 'string-literal',
-  scope: 'string.quoted.double.simple',
+  scope: scopes.string.quoted.double,
   begin: '"',
   end: '"',
   patterns: [
-    {
-      key: 'string-escape',
-      scope: 'constant.character.escape.simple',
-      match: '\\\\.'
-    } as MatchRule
+    stringEscape
   ]
 };
 
 const keywords: MatchRule = {
   key: 'keywords',
-  scope: scopes.keyword.control('simple'),
-  match: regex.keywords(['if', 'else', 'for', 'while', 'function'])
+  scope: scopes.keyword.control,
+  match: R.keywords(['if', 'else', 'for', 'while', 'function'])
 };
 
 const numbers: MatchRule = {
   key: 'numbers',
-  scope: 'constant.numeric.decimal.simple',
-  match: '\\b\\d+(\\.\\d+)?\\b'
+  scope: scopes.constant.numeric.float,
+  match: /\b\d+(\.\d+)?\b/
 };
 
 // Example 2: Grouping patterns
@@ -57,6 +64,16 @@ const literals: IncludeRule = {
   patterns: [stringLiteral, numbers]
 };
 
+const allSimpleRules: Rule[] = [
+  lineComment,
+  stringEscape,
+  stringLiteral,
+  keywords,
+  numbers,
+  comments,
+  literals
+];
+
 // Example 3: Complete grammar
 const simpleGrammar: Grammar = createGrammar(
   'Simple Language',
@@ -66,7 +83,10 @@ const simpleGrammar: Grammar = createGrammar(
     comments,
     literals,
     keywords
-  ]
+  ],
+  {
+    repositoryItems: allSimpleRules
+  }
 );
 
 // Example 4: Generate the grammar
@@ -88,6 +108,7 @@ export {
   simpleGrammar,
   lineComment,
   stringLiteral,
+  stringEscape,
   keywords,
   numbers
 }; 

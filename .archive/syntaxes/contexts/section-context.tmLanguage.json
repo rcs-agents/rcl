@@ -1,0 +1,109 @@
+{
+  "repository": {
+    "section-level-patterns": {
+      "patterns": [
+        { "include": "#section-level-comments" },
+        { "include": "#subsection-declarations" },
+        { "include": "#section-properties" }
+      ]
+    },
+    "section-level-comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.rcl",
+          "begin": "^\\s+(#)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.comment.rcl"
+            }
+          },
+          "end": "$",
+          "patterns": [
+            {
+              "name": "comment.line.content.rcl",
+              "match": ".*"
+            }
+          ]
+        }
+      ]
+    },
+    "subsection-declarations": {
+      "patterns": [
+        {
+          "name": "meta.subsection.config.rcl",
+          "begin": "^\\s*(Config)(?:\\s+(#.*)?)?$",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.section.reserved.rcl" }
+          },
+          "end": "(?=^\\s+(Messages|flow|Defaults))|^(?=\\S)|(?=^\\s*$)",
+          "patterns": [
+            { "include": "#property-level-patterns" }
+          ]
+        },
+        {
+          "name": "meta.subsection.defaults.rcl",
+          "begin": "^\\s*(Defaults)(?:\\s+(#.*)?)?$",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.section.reserved.rcl" }
+          },
+          "end": "(?=^\\s+(Messages|flow|Config))|^(?=\\S)|(?=^\\s*$)",
+          "patterns": [
+            { "include": "#property-level-patterns" }
+          ]
+        },
+        {
+          "name": "meta.subsection.messages.rcl",
+          "begin": "^\\s*(Messages)(?:\\s+(#.*)?)?$",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.section.reserved.rcl" }
+          },
+          "end": "(?=^\\s+(Config|flow|Defaults))|^(?=\\S)|(?=^\\s*$)",
+          "patterns": [
+            { "include": "#property-level-patterns" }
+          ]
+        },
+        {
+          "name": "meta.subsection.flow.rcl",
+          "begin": "^\\s*(flow)\\s+([A-Za-z][A-Za-z0-9\\s]*[A-Za-z0-9]|[A-Za-z])(?:\\s+(#.*)?)?$",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.section.rcl" },
+            "2": { "name": "entity.name.section.flow.rcl" }
+          },
+          "end": "(?=^\\s+(Messages|Config|Defaults))|^(?=\\S)|(?=^\\s*$)",
+          "patterns": [
+            { "include": "#flow-level-patterns" }
+          ]
+        },
+        {
+          "name": "meta.subsection.typed-message.rcl",
+          "begin": "^\\s*(authentication message|transaction message|promotion message|servicerequest message|acknowledge message)\\s+([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])(?:\\s+(#.*)?)?$",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.section.message.typed.rcl" },
+            "2": { "name": "entity.name.section.message.rcl" }
+          },
+          "end": "(?=^\\s+(Messages|flow|Config|Defaults|message|authentication message|transaction message|promotion message|servicerequest message|acknowledge message))|^(?=\\S)|(?=^\\s*$)",
+          "patterns": [
+            { "include": "#property-level-patterns" }
+          ]
+        },
+        {
+          "name": "meta.subsection.message.rcl",
+          "begin": "^\\s*(message)\\s+([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])(?:\\s+(#.*)?)?$",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.section.rcl" },
+            "2": { "name": "entity.name.section.message.rcl" }
+          },
+          "end": "(?=^\\s+(Messages|flow|Config|Defaults|message|authentication message|transaction message|promotion message|servicerequest message|acknowledge message))|^(?=\\S)|(?=^\\s*$)",
+          "patterns": [
+            { "include": "#property-level-patterns" }
+          ]
+        }
+      ]
+    },
+    "section-properties": {
+      "patterns": [
+        { "include": "#property-level-patterns" }
+      ]
+    }
+  }
+} 

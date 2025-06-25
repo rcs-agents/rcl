@@ -5,11 +5,12 @@
 node_modules/
 dist/
 **/out
+**/lib
 **/src/generated
-syntaxes/
 *.tsbuildinfo
 *.vsix
 .cursor/environment.json
+
 # moon
 .moon/cache
 .moon/docker

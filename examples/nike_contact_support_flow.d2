@@ -1,0 +1,131 @@
+# Nike Contact Support - Conversation Flow (D2 Diagram)
+
+# Define the conversation flow states
+start: ":start" {
+  shape: circle
+  style.fill: "#f0f0f0"
+  top: 146
+  left: 531
+}
+
+welcome: "WelcomeMessage\nWelcome to Nike Digital Support!\nI'm here to help you.\n\nOption: See options" {
+  shape: rectangle
+  style.fill: "#1f1f1f"
+  style.font-color: "#ffffff"
+  top: 338
+  left: 431
+}
+
+mainmenu: "MainMenu\nHow can I assist you today?\nPlease choose an option:\n\nOptions:\n• Technical Issue\n• Billing Inquiry\n• Speak to Agent" {
+  shape: rectangle
+  style.fill: "#1f1f1f"
+  style.font-color: "#ffffff"
+  style.stroke-width: 3
+  style.stroke: "#ff4444"
+  style.3d: false
+  top: 566
+  left: 449
+}
+
+tech_selected: "TechIssueSelectedMessage\nYou've selected Technical Issue.\nPlease describe the problem\nso I can assist further." {
+  shape: rectangle
+  style.fill: "#ff4444"
+  style.font-color: "#ffffff"
+  top: 599
+  left: 871
+}
+
+billing_selected: "BillingInquirySelectedMessage\nYou've selected Billing Inquiry.\nWhat is your specific\nbilling question?" {
+  shape: rectangle
+  style.fill: "#ff4444"
+  style.font-color: "#ffffff"
+  top: 599
+  left: 0
+}
+
+confirm_agent: "ConfirmAgentTransferMessage\nJust to confirm, you wish to be\ntransferred to a live agent?\n\nOptions:\n• Yes, transfer me\n• No, not now" {
+  shape: rectangle
+  style.fill: "#ff4444"
+  style.font-color: "#ffffff"
+  top: 854
+  left: 442
+}
+
+invalid_option: "InvalidOptionMessage\nI'm sorry, that wasn't a\nrecognized option. Please select\nfrom the main menu choices.\n\nOption: Back to Menu" {
+  shape: rectangle
+  style.fill: "#ffebee"
+  top: 330
+  left: 883
+}
+
+tech_followup: "TechSupportFollowUpMessage\nI hope that information was helpful!\nIs there anything else I can\nassist you with today?\n\nOptions:\n• Back to Main Menu\n• Speak to Agent" {
+  shape: rectangle
+  style.fill: "#e8f5e8"
+  top: 846
+  left: 871
+}
+
+billing_followup: "BillingFollowUpMessage\nI hope I was able to help with\nyour billing inquiry. Is there\nanything else you need\nassistance with?\n\nOptions:\n• Back to Main Menu\n• Speak to Agent" {
+  shape: rectangle
+  style.fill: "#e8f5e8"
+  top: 839
+  left: 7
+}
+
+agent_transfer: "AgentTransferInProgressMessage\nThank you. Connecting you to\nan available agent.\nPlease wait a moment." {
+  shape: rectangle
+  style.fill: "#ff4444"
+  style.font-color: "#ffffff"
+  top: 1132
+  left: 433
+}
+
+end_thanks: "EndConversationThanksMessage\nThank you for contacting\nNike Digital Support!\nHave a wonderful day.\n\nOption: Back to Main Menu" {
+  shape: rectangle
+  style.fill: "#e8f5e8"
+  top: 1338
+  left: 436
+}
+
+# Flow connections
+start -> welcome
+
+welcome -> mainmenu: "See options"
+
+# Main menu branches
+mainmenu -> tech_selected: "Technical Issue"
+mainmenu -> billing_selected: "Billing Inquiry"
+mainmenu -> confirm_agent: "Speak to Agent"
+mainmenu -> invalid_option: "Invalid option"
+
+# Technical issue flow
+tech_selected -> tech_followup: "Auto advance"
+
+# Billing inquiry flow
+billing_selected -> billing_followup: "Auto advance"
+
+# Agent transfer flows
+confirm_agent -> agent_transfer: "Yes, transfer me"
+confirm_agent -> mainmenu: "No, not now"
+
+agent_transfer -> end_thanks: "Auto advance"
+
+# Return to main menu flows
+invalid_option -> mainmenu: "Back to Menu"
+tech_followup -> mainmenu: "Back to Main Menu"
+billing_followup -> mainmenu: "Back to Main Menu"
+end_thanks -> mainmenu: "Back to Main Menu"
+
+# Agent escalation from follow-ups
+tech_followup -> confirm_agent: "Speak to Agent"
+billing_followup -> confirm_agent: "Speak to Agent"
+
+# Title and annotations
+title: "Nike Contact Support - Conversation Flow" {
+  near: top-center
+  style.font-size: 20
+  style.bold: true
+  style.font-color: "#1f1f1f"
+  top: 0
+  left: 358
+} 

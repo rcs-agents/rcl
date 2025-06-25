@@ -4,9 +4,9 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { KW } from '../src/constants.js'; // Import KW
+import { OnigScanner, OnigString, loadWASM } from 'onigasm';
 
 const require = createRequire(import.meta.url);
-const { createOnigScanner, createOnigString, loadWASM } = require('vscode-oniguruma');
 const { Registry } = require('vscode-textmate');
 
 const __filename = fileURLToPath(import.meta.url);
@@ -70,25 +70,10 @@ let grammar: Grammar | null = null;
 async function initializeGrammar(): Promise<Grammar> {
   try {
     // Load WASM for Oniguruma
-    const possiblePaths = [
-      path.join(__dirname, '../node_modules/vscode-oniguruma/release/onig.wasm'),
-      path.join(__dirname, '../../../node_modules/vscode-oniguruma/release/onig.wasm'),
-    ];
-    
-    let wasmPath: string | null = null;
-    for (const possiblePath of possiblePaths) {
-      if (fs.existsSync(possiblePath)) {
-        wasmPath = possiblePath;
-        break;
-      }
-    }
-    
-    if (!wasmPath) {
-      throw new Error('WASM file not found. Please run `bun install` in the workspace root.');
-    }
-    
-    const wasmBin = fs.readFileSync(wasmPath);
-    await loadWASM(wasmBin);
+    const onigasmPath = require.resolve("onigasm");
+    const wasmPath = path.resolve(path.dirname(onigasmPath), "onigasm.wasm");
+    const wasmBin = await fs.promises.readFile(wasmPath);
+    await loadWASM(wasmBin.buffer as any);
 
     // Load our RCL grammar
     const grammarPath = path.join(__dirname, '../syntaxes/rcl.tmLanguage.json');
@@ -101,8 +86,8 @@ async function initializeGrammar(): Promise<Grammar> {
     // Create registry with our grammar
     const registry = new Registry({
       onigLib: Promise.resolve({
-        createOnigScanner,
-        createOnigString,
+        createOnigScanner: (patterns: string[]) => new OnigScanner(patterns),
+        createOnigString: (str: string) => new OnigString(str),
       }),
       loadGrammar: async (scopeName: string) => {
         if (scopeName === 'source.rcl') {
@@ -204,7 +189,7 @@ describe('RCL TextMate Grammar Scope Tests', () => {
         
         // Check if our mapped tokens appear at the start of the file in order
         // This validates our mapping approach even if it's not complete
-        console.log(`Checking if mapped tokens appear in sequence at file start...`);
+        console.log('Checking if mapped tokens appear in sequence at file start...');
         console.log(`Mapped segment length: ${reconstructedSegment.length}, File length: ${exampleContent.length}`);
       }
       
@@ -231,9 +216,9 @@ describe('RCL TextMate Grammar Scope Tests', () => {
           console.log(`❌ Missing expected token: "${expectation.text}" with scope "${expectation.expectedScope}"`);
           if (candidateTokens.length > 0) {
             console.log(`   Found ${candidateTokens.length} tokens with that text but different scopes:`);
-            candidateTokens.forEach(token => {
+            for (const token of candidateTokens) {
               console.log(`     - ${token.scopes.join(', ')}`);
-            });
+            }
           } else {
             console.log(`   No tokens found with text: "${expectation.text}"`);
           }

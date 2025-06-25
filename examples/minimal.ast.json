@@ -1,0 +1,10 @@
+{
+  "$type": "RclFile",
+  "imports": [
+    {
+      "$type": "ImportStatement",
+      "source": "My Brand/ Samples",
+      "alias": "Sample"
+    }
+  ]
+}

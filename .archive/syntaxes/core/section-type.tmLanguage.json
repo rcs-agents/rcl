@@ -1,0 +1,20 @@
+{
+    "repository": {
+        "section-keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.section.message.typed.rcl",
+                    "match": "\\b(authentication message|transaction message|promotion message|servicerequest message|acknowledge message)\\b"
+                },
+                {
+                    "name": "keyword.control.section.reserved.rcl",
+                    "match": "\\b(Config|Defaults|Messages)\\b"
+                },
+                {
+                    "name": "keyword.control.section.rcl",
+                    "match": "\\b(agent|agentConfig|agentDefaults|flow|messages|message)\\b"
+                }
+            ]
+        }
+    }
+} 

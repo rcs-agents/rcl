@@ -2,9 +2,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { OnigScanner, OnigString, loadWASM } from 'onigasm';
 
 const require = createRequire(import.meta.url);
-const { createOnigScanner, createOnigString, loadWASM } = require('vscode-oniguruma');
 const { Registry } = require('vscode-textmate');
 
 type IGrammar = any;
@@ -51,27 +51,11 @@ interface TestCase {
  */
 async function initializeGrammar(): Promise<IGrammar | null> {
   try {
-    // Load WASM for Oniguruma (regex engine used by TextMate)
-    // Look for WASM in package node_modules or workspace root node_modules
-    const possiblePaths = [
-      path.join(__dirname, '../node_modules/vscode-oniguruma/release/onig.wasm'),
-      path.join(__dirname, '../../../node_modules/vscode-oniguruma/release/onig.wasm'),
-    ];
-    
-    let wasmPath: string | null = null;
-    for (const possiblePath of possiblePaths) {
-      if (fs.existsSync(possiblePath)) {
-        wasmPath = possiblePath;
-        break;
-      }
-    }
-    
-    if (!wasmPath) {
-      throw new Error('WASM file not found. Please run `bun install` in the workspace root.');
-    }
-    
-    const wasmBin = fs.readFileSync(wasmPath);
-    await loadWASM(wasmBin);
+    // Load WASM for Oniguruma
+    const onigasmPath = require.resolve("onigasm");
+    const wasmPath = path.resolve(path.dirname(onigasmPath), "onigasm.wasm");
+    const wasmBin = await fs.promises.readFile(wasmPath);
+    await loadWASM(wasmBin.buffer as any);
 
     // Load our RCL grammar
     const grammarPath = path.join(__dirname, '../syntaxes/rcl.tmLanguage.json');
@@ -96,8 +80,8 @@ async function initializeGrammar(): Promise<IGrammar | null> {
     // Create registry with our grammar
     const registry = new Registry({
       onigLib: Promise.resolve({
-        createOnigScanner,
-        createOnigString,
+        createOnigScanner: (patterns: string[]) => new OnigScanner(patterns),
+        createOnigString: (str: string) => new OnigString(str),
       }),
       loadGrammar: async (scopeName: string) => {
         if (scopeName === 'source.rcl') {

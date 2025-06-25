@@ -1,0 +1,22 @@
+{
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.number-sign.rcl",
+					"begin": "\\s*(#)",
+					"beginCaptures": {
+						"1": { "name": "punctuation.definition.comment.rcl" }
+					},
+					"end": "$",
+					"patterns": [
+						{
+							"name": "comment.line.content.rcl",
+							"match": ".*"
+						}
+					]
+				}
+			]
+		}
+	}
+}

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { Command } from 'commander';
 import { resolve, extname } from 'node:path';
 import { writeFile as writeFileAsync } from 'node:fs/promises';

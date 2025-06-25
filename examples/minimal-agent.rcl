@@ -1,0 +1,12 @@
+import My Company / Agents / Sample Agent as Sample
+
+agent My Test Agent
+  displayName: "My Test Agent"
+  brandName: "Test Brand"
+
+  Messages # Minimal messages section
+    message Greeting
+      text: "Hello from MyTestAgent!"
+
+  flow MainFlow # Minimal flow section
+    :start -> Greeting

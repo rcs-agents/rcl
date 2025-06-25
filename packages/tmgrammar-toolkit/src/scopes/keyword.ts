@@ -24,6 +24,20 @@ export type KeywordScope = ScopeTree<'keyword', {
    */
     control: ScopeTree<'control', {
       /**
+       * Represents the `keyword.control.other` scope.
+       * Defines the scope for other control flow keywords.
+       * Full path: `keyword.control.other`
+       * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#keyword)
+       */
+      other: Scope<'other'>;
+      /**
+       * Represents the `keyword.control.flow` scope.
+       * Defines the scope for flow control keywords.
+       * Full path: `keyword.control.flow`
+       * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#keyword)
+       */
+      flow: Scope<'flow'>;
+      /**
        * Represents the `keyword.control.conditional` scope.
        * Defines the scope for conditional keywords (e.g., `if`, `else`).
        * Full path: `keyword.control.conditional`
@@ -166,6 +180,8 @@ export type KeywordScope = ScopeTree<'keyword', {
 
 export const KEYWORD_SCOPE: KeywordScope = buildScopes<KeywordScope>([
   ['control', [
+    ['other', []],
+    ['flow', []],
     ['conditional', []],
     ['import', []],
   ]],

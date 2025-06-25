@@ -1,0 +1,63 @@
+import path from 'node:path';
+import fs from 'node:fs';
+
+import { createRclServices } from 'rcl-language';
+import { RclLanguageMetaData, RclToJsonConverter } from 'rcl-language';
+
+import chalk from 'chalk';
+import { Command } from 'commander';
+import { NodeFileSystem } from 'langium/node';
+import { RclFile } from 'rcl-language';
+import { extractDestinationAndName, extractAstNode } from '../util.js';
+
+export type GenerateOptions = {
+  destination?: string;
+}
+
+export const configure = (program: Command): void => {
+  const fileExtensions = RclLanguageMetaData.fileExtensions.join(', ');
+  
+  program
+    .command('json')
+    .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
+    .option('-d, --destination <dir>', 'destination directory of generating')
+    .description('generates JSON configuration with agent, flows, and messages from an RCL file')
+    .action(generateJsonAction);
+};
+
+export const generateJsonAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
+  const services = createRclServices(NodeFileSystem).Rcl;
+  const model = await extractAstNode<RclFile>(fileName, services);
+  const generatedFilePath = generateJsonFile(model, fileName, opts.destination);
+
+  console.log(chalk.green(`JSON configuration generated successfully: ${generatedFilePath}`));
+};
+
+export function generateJson(rclFile: RclFile): string {
+    try {
+        const converter = new RclToJsonConverter();
+        const result = converter.convertRclFile(rclFile);
+        return JSON.stringify(result, null, 2);
+    } catch (error) {
+        return JSON.stringify({ 
+            error: "Failed to convert RCL file to JSON", 
+            details: error instanceof Error ? error.message : String(error) 
+        }, null, 2);
+    }
+}
+
+/**
+ * Generate JSON and write to file
+ */
+export function generateJsonFile(rclFile: RclFile, filePath: string, destination: string | undefined): string {
+  const data = extractDestinationAndName(filePath, destination);
+  const generatedFilePath = `${path.join(data.destination, data.name)}.json`;
+
+  const jsonContent = generateJson(rclFile);
+
+  if (!fs.existsSync(data.destination)) {
+      fs.mkdirSync(data.destination, { recursive: true });
+  }
+  fs.writeFileSync(generatedFilePath, jsonContent);
+  return generatedFilePath;
+}

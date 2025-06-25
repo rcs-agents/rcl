@@ -5,6 +5,7 @@ import { parseHelper } from "langium/test";
 import type { RclFile } from "rcl-language";
 import { createRclServices, isRclFile } from "rcl-language";
 import { KW } from "../src/constants.js";
+import type { Attribute } from "../src/generated/ast.js";
 
 let services: ReturnType<typeof createRclServices>;
 let parse:    ReturnType<typeof parseHelper<RclFile>>;
@@ -32,7 +33,7 @@ describe('Parsing tests', () => {
 
         const agentSection = document.parseResult.value?.agentSection;
         const agentName = agentSection?.sectionName;
-        const displayNameAttr = agentSection?.attributes.find(attr => attr.key === 'displayName');
+        const displayNameAttr = agentSection?.attributes.find((attr: Attribute) => attr.key === 'displayName');
         const displayName = displayNameAttr?.value && 'val_str' in displayNameAttr.value 
             ? displayNameAttr.value.val_str?.replace(/^"|"$/g, '') // Remove quotes
             : undefined;

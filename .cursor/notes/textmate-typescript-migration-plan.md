@@ -1,169 +1,237 @@
 # TextMate Grammar TypeScript Migration Plan
 
 ## Overview
-Migrate the existing modular JSON-based TextMate grammar system to TypeScript for better maintainability, type safety, and DRY principles while preserving the current build system architecture.
+Create a TypeScript library for TextMate grammar authoring (`tmGrammar`) and migrate the RCL grammar system to use it, with clear separation between the library and language-specific implementations.
 
-## Phase 1: Foundation Setup
+## Library Naming
+**`tmGrammar`** - A TypeScript library for authoring TextMate grammars with type safety and reusable patterns.
 
-### 1.1 Create TypeScript Interfaces
-- [ ] Create `packages/language/src/textmate-types.ts`
-- [ ] Define core TextMate grammar interfaces:
-  - `TMGrammar` - Root grammar structure
-  - `TMRule` - Individual grammar rules
-  - `TMPattern` - Pattern definitions
-  - `TMCapture` - Capture group definitions
-  - `TMRepository` - Repository type alias
-- [ ] Add utility types for common patterns
+Alternative names considered:
+- `tmBuilder` - Emphasizes construction aspect
+- `grammarKit` - More generic toolkit name
+- `syntaxForge` - Creative but less clear
+- `tmGrammar` - Clear, concise, follows TypeScript naming conventions
 
-### 1.2 Create Shared Constants
-- [ ] Create `packages/language/syntaxes/shared/common-patterns.ts`
-- [ ] Define reusable patterns:
-  - `COMMENT_PATTERN` - Single comment pattern to eliminate repetition
-  - `STRING_ESCAPE_PATTERN` - String escape sequences
-  - `WHITESPACE_PATTERNS` - Common whitespace handling
-  - `SCOPE_PREFIXES` - Standardized scope name prefixes
+## Phase 1: Library Foundation (`tmGrammar`)
 
-### 1.3 Update Build Configuration
-- [ ] Modify `tsconfig.json` to include syntaxes directory
-- [ ] Update `build-tmlanguage.ts` to handle TypeScript imports
-- [ ] Add TypeScript compilation step before JSON generation
+### 1.1 Create Core Library Structure
+- [ ] Create `packages/language/src/tmGrammar/` directory
+- [ ] Create `packages/language/src/tmGrammar/index.ts` - Main exports
+- [ ] Create `packages/language/src/tmGrammar/types.ts` - Core interfaces
+- [ ] Create `packages/language/src/tmGrammar/terminals.ts` - Reusable regex patterns
+- [ ] Create `packages/language/src/tmGrammar/builders.ts` - Pattern builder utilities
 
-## Phase 2: Core Module Conversion
+### 1.2 Define Core TypeScript Interfaces
+```typescript
+// types.ts
+interface TMGrammar {
+  name: string;
+  scopeName: string;
+  fileTypes: string[];
+  foldingStartMarker?: string;
+  foldingStopMarker?: string;
+  firstLineMatch?: string;
+  patterns: TMPattern[];
+  repository?: TMRepository;
+  variables?: Record<string, string>; // Like DISL's variables section
+}
 
-### 2.1 Convert Global Patterns (Priority 1)
-Convert these first as they're referenced everywhere:
-- [ ] `core/comments.tmLanguage.json` → `core/comments.ts`
-- [ ] `data-types/primitives.tmLanguage.json` → `data-types/primitives.ts`
-- [ ] `data-types/references.tmLanguage.json` → `data-types/references.ts`
-- [ ] `embedded/expressions.tmLanguage.json` → `embedded/expressions.ts`
+interface TMPattern {
+  include?: string;
+  name?: string;
+  match?: string;
+  begin?: string;
+  end?: string;
+  while?: string;
+  contentName?: string;
+  patterns?: TMPattern[];
+  captures?: Record<string, TMCapture>;
+  beginCaptures?: Record<string, TMCapture>;
+  endCaptures?: Record<string, TMCapture>;
+}
 
-### 2.2 Convert Context Modules (Priority 2)
-- [ ] `contexts/file-context.tmLanguage.json` → `contexts/file-context.ts`
-- [ ] `contexts/section-context.tmLanguage.json` → `contexts/section-context.ts`
-- [ ] `contexts/property-context.tmLanguage.json` → `contexts/property-context.ts`
-- [ ] `contexts/flow-context.tmLanguage.json` → `contexts/flow-context.ts`
+interface TMCapture {
+  name: string;
+  patterns?: TMPattern[];
+}
 
-### 2.3 Convert Supporting Modules (Priority 3)
-- [ ] `data-types/collections.tmLanguage.json` → `data-types/collections.ts`
-- [ ] `sections/agent-sections.tmLanguage.json` → `sections/agent-sections.ts`
-- [ ] `sections/flow-sections.tmLanguage.json` → `sections/flow-sections.ts`
-- [ ] `core/keywords.tmLanguage.json` → `core/keywords.ts`
-- [ ] `core/identifiers.tmLanguage.json` → `core/identifiers.ts`
-- [ ] `core/punctuation.tmLanguage.json` → `core/punctuation.ts`
+type TMRepository = Record<string, TMRule>;
+interface TMRule extends TMPattern {}
+```
 
-## Phase 3: Build System Enhancement
+### 1.3 Create Reusable Terminal Patterns
+Focus on complex regex patterns that are commonly needed:
+- [ ] `DECIMAL_NUMBER` - Complex decimal number matching
+- [ ] `HEX_NUMBER` - Hexadecimal numbers
+- [ ] `STRING_ESCAPE_SEQUENCES` - Common escape patterns
+- [ ] `IDENTIFIER_PATTERNS` - Various identifier formats
+- [ ] `WHITESPACE_PATTERNS` - Whitespace handling
+- [ ] `COMMENT_DELIMITERS` - Common comment patterns
 
-### 3.1 Update Module Loading
-- [ ] Modify `CONTEXT_MODULES` array in `build-tmlanguage.ts`
-- [ ] Change file extensions from `.tmLanguage.json` to `.ts`
-- [ ] Update module loading logic to import TypeScript modules instead of reading JSON
+```typescript
+// terminals.ts
+export const TERMINALS = {
+  DECIMAL_NUMBER: /(?<!\$)(?:(?:\b[0-9][0-9_]*(\.))?[0-9][0-9_]*([eE][+-]?[0-9][0-9_]*)?(n)?\b(?!\$))/,
+  HEX_NUMBER: /\b(?<!\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\b(?!\$)/,
+  STRING_ESCAPE: /\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|u\{[0-9A-Fa-f]+\}|[0-2][0-7]{0,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.|$)/,
+  // ... other complex patterns
+} as const;
+```
 
-### 3.2 Enhance Grammar Assembly
-- [ ] Update `addHierarchicalContexts()` function
-- [ ] Implement proper TypeScript module imports
-- [ ] Add type checking during build process
-- [ ] Ensure proper repository merging with TypeScript objects
+### 1.4 Create Builder Utilities
+Helper functions for common pattern construction:
+- [ ] `createComment(prefix: string, scopeBase: string)` - Comment pattern builder
+- [ ] `createString(quote: string, scopeBase: string)` - String pattern builder
+- [ ] `createKeywords(keywords: string[], scopeName: string)` - Keyword pattern builder
+- [ ] `createEmbeddedLanguage(marker: string, language: string)` - Embedded language helper
 
-### 3.3 Remove Legacy JSON Files
-- [ ] Delete converted `.tmLanguage.json` files after successful conversion
-- [ ] Update `.gitignore` to exclude generated JSON files
-- [ ] Clean up any hardcoded JSON file references
+## Phase 2: RCL Grammar Restructure
 
-## Phase 4: Pattern Deduplication
+### 2.1 Create Language-Specific Structure
+```
+packages/language/syntaxes/rcl/
+├── index.ts                    # Main RCL grammar assembly
+├── variables.ts               # RCL-specific variables (like DISL's approach)
+├── patterns/
+│   ├── comments.ts           # RCL comment patterns
+│   ├── primitives.ts         # RCL primitive types
+│   ├── expressions.ts        # RCL expressions
+│   ├── sections.ts           # RCL sections
+│   └── embedded.ts           # Embedded JS/TS support
+└── contexts/
+    ├── file-context.ts       # File-level patterns
+    ├── section-context.ts    # Section-level patterns
+    └── property-context.ts   # Property-level patterns
+```
 
-### 4.1 Eliminate Comment Pattern Repetition
-- [ ] Replace all instances of duplicated comment patterns with `{ include: "#comments" }`
-- [ ] Remove redundant pattern definitions:
-  - `#file-level-comments`
-  - `#section-level-comments`
-  - `#property-level-comments`
-  - `#flow-level-comments`
+### 2.2 Define RCL Variables (Inspired by DISL)
+```typescript
+// variables.ts
+export const RCL_VARIABLES = {
+  // RCL-specific patterns
+  rcl_section_types: '\\b(agent|agentConfig|agentDefaults|flow|messages|message)\\b',
+  rcl_proper_noun: '\\b[A-Z](?:[a-zA-Z0-9]*|(?<=\\w)-(?=\\w))*\\b(?:\\s+[A-Z](?:[a-zA-Z0-9]*|(?<=\\w)-(?=\\w))*\\b)*',
+  rcl_common_noun: '[a-z][a-zA-Z0-9_]*',
+  rcl_atom: ':[a-zA-Z_][a-zA-Z0-9_]*',
+  rcl_flow_arrow: '->',
+  // ... other RCL-specific patterns
+} as const;
+```
 
-### 4.2 Consolidate Common Patterns
-- [ ] Identify other repeated patterns in the current 1460-line grammar
-- [ ] Extract to shared constants or includes
-- [ ] Refactor modules to use shared patterns
+### 2.3 Convert Existing Modules Using Library
+- [ ] Convert comments using `tmGrammar.createComment('#', 'rcl')`
+- [ ] Convert primitives using `tmGrammar.TERMINALS` and builders
+- [ ] Convert expressions using library patterns
+- [ ] Convert sections using structured approach
+
+## Phase 3: Build System Integration
+
+### 3.1 Update Build Process
+- [ ] Modify `build-tmlanguage.ts` to import from TypeScript modules
+- [ ] Add compilation step for `tmGrammar` library
+- [ ] Update module loading to use TypeScript imports
+- [ ] Generate final JSON with proper variable substitution
+
+### 3.2 Variable Substitution System
+Implement DISL-style variable substitution:
+```typescript
+// In build process
+function substituteVariables(pattern: string, variables: Record<string, string>): string {
+  return pattern.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+    return variables[varName] || match;
+  });
+}
+```
+
+## Phase 4: Pattern Deduplication & Optimization
+
+### 4.1 Eliminate Repetition Using Library
+- [ ] Replace all comment duplications with single library-generated pattern
+- [ ] Use `include` references instead of pattern repetition
+- [ ] Consolidate similar patterns using library builders
+
+### 4.2 Implement Clean Repository Structure
+```typescript
+// Example clean structure
+export const rclGrammar: TMGrammar = {
+  name: "rcl",
+  scopeName: "source.rcl",
+  fileTypes: ["rcl"],
+  variables: RCL_VARIABLES,
+  patterns: [
+    { include: "#file-level-patterns" }
+  ],
+  repository: {
+    // Core patterns
+    comments: createComment('#', 'rcl'),
+    strings: createString('"', 'rcl'),
+    
+    // Context patterns  
+    "file-level-patterns": fileContext,
+    "section-level-patterns": sectionContext,
+    
+    // Specific patterns
+    ...primitivePatterns,
+    ...expressionPatterns,
+    ...sectionPatterns
+  }
+};
+```
 
 ## Phase 5: Testing & Validation
 
-### 5.1 Build Process Testing
-- [ ] Ensure `bun run langium:generate` still works
-- [ ] Verify `build-tmlanguage.ts` generates correct JSON output
-- [ ] Compare generated grammar with current version for accuracy
+### 5.1 Library Testing
+- [ ] Unit tests for `tmGrammar` library functions
+- [ ] Validation of generated JSON structure
+- [ ] Performance testing of pattern compilation
 
-### 5.2 Syntax Highlighting Validation
-- [ ] Test syntax highlighting in VS Code with converted grammar
-- [ ] Verify all RCL language features still highlight correctly
-- [ ] Check embedded JavaScript/TypeScript highlighting still works
-- [ ] Test against example files in `examples/` directory
+### 5.2 RCL Grammar Testing
+- [ ] Compare generated grammar with current version
+- [ ] Test syntax highlighting in VS Code
+- [ ] Validate against example RCL files
+- [ ] Check embedded language support
 
-### 5.3 Performance Testing
-- [ ] Measure grammar compilation time
-- [ ] Verify VS Code extension loading performance
-- [ ] Check for any regex performance regressions
+## Phase 6: Documentation & Examples
 
-## Phase 6: Documentation & Cleanup
+### 6.1 Library Documentation
+- [ ] API documentation for `tmGrammar` library
+- [ ] Examples of common pattern creation
+- [ ] Migration guide for other languages
 
-### 6.1 Update Documentation
-- [ ] Update `packages/language/syntaxes/README.md`
-- [ ] Document new TypeScript-based workflow
-- [ ] Add examples of how to add new patterns
+### 6.2 RCL Grammar Documentation
+- [ ] Document new structure and organization
+- [ ] Add examples of adding new patterns
+- [ ] Update development workflow documentation
 
-### 6.2 Developer Experience
-- [ ] Add VS Code tasks for building grammar
-- [ ] Create npm scripts for common operations
-- [ ] Add linting rules for TextMate pattern consistency
+## Implementation Benefits
 
-## Implementation Notes
+### Library Benefits (`tmGrammar`)
+- **Reusability**: Can be used for other language grammars
+- **Type Safety**: Compile-time validation of grammar structure
+- **DRY**: Eliminate pattern duplication across projects
+- **Maintainability**: Centralized pattern logic
 
-### File Structure After Migration
-~~~
-packages/language/syntaxes/
-├── shared/
-│   ├── common-patterns.ts
-│   └── scope-constants.ts
-├── core/
-│   ├── comments.ts
-│   ├── keywords.ts
-│   └── ...
-├── contexts/
-│   ├── file-context.ts
-│   └── ...
-├── data-types/
-│   ├── primitives.ts
-│   └── ...
-└── rcl.tmLanguage.json (generated)
-~~~
+### RCL Grammar Benefits
+- **Clarity**: Clean separation of concerns
+- **Variables**: DISL-style variable substitution for maintainability
+- **Modularity**: Clear file organization by purpose
+- **Consistency**: Standardized pattern generation
 
-### Example TypeScript Module Structure
-~~~typescript
-// contexts/file-context.ts
-import { TMRule } from '../shared/textmate-types';
-import { COMMENT_PATTERN } from '../shared/common-patterns';
+## File Structure After Migration
+```
+packages/language/src/
+├── tmGrammar/                 # Reusable library
+│   ├── index.ts
+│   ├── types.ts
+│   ├── terminals.ts
+│   └── builders.ts
+└── syntaxes/
+    ├── rcl/                   # RCL-specific grammar
+    │   ├── index.ts
+    │   ├── variables.ts
+    │   ├── patterns/
+    │   └── contexts/
+    └── rcl.tmLanguage.json    # Generated output
+```
 
-export const fileContext: Record<string, TMRule> = {
-  "file-level-patterns": {
-    patterns: [
-      { include: "#comments" },
-      { include: "#import-statements" },
-      { include: "#agent-sections" }
-    ]
-  },
-  "import-statements": {
-    // ... specific patterns
-  }
-};
-~~~
-
-### Benefits After Migration
-- **Type Safety**: Catch errors at compile time
-- **DRY**: Eliminate pattern repetition
-- **Maintainability**: Clear, readable TypeScript modules
-- **IDE Support**: Autocompletion, refactoring, go-to-definition
-- **Consistency**: Standardized scope naming through constants
-
-## Risk Mitigation
-- Keep original JSON files until migration is complete and tested
-- Implement gradual migration (convert one module at a time)
-- Maintain backward compatibility during transition
-- Comprehensive testing at each phase 
+This approach provides a clean separation between the reusable TextMate grammar library and the RCL language implementation, following the inspiration from the DISL example while maintaining type safety and eliminating duplication. 

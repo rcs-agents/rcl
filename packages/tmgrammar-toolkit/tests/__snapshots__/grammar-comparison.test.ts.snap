@@ -1,78 +1,584 @@
 // Bun Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Grammar Comparison Tests Regression Tests should maintain consistent grammar structure over time: bicep-grammar-structure 1`] = `
+exports[`Grammar Comparison Tests Bicep Grammar Comparison should match the snapshot 1`] = `
 {
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "fileTypes": [
     ".bicep",
     ".bicepparam",
   ],
   "name": "Bicep",
-  "patternsLength": 2,
-  "repositoryKeys": [
-    "array-literal",
-    "block-comment",
-    "comments",
-    "decorator",
-    "directive",
-    "directive-variable",
-    "escape-character",
-    "expression",
-    "function-call",
-    "identifier",
-    "keyword",
-    "lambda-start",
-    "line-comment",
-    "named-literal",
-    "numeric-literal",
-    "object-literal",
-    "object-property-key",
-    "string-literal",
-    "string-literal-subst",
-    "string-verbatim",
+  "patterns": [
+    {
+      "include": "#expression",
+    },
+    {
+      "include": "#comments",
+    },
   ],
-  "schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "repository": {
+    "array-literal": {
+      "begin": "\\[(?!(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*\\bfor\\b)",
+      "end": "]",
+      "name": "meta.array-literal.bicep",
+      "patterns": [
+        {
+          "include": "#expression",
+        },
+        {
+          "include": "#comments",
+        },
+      ],
+    },
+    "block-comment": {
+      "begin": "\\/\\*",
+      "end": "\\*\\/",
+      "name": "comment.block.bicep",
+    },
+    "comments": {
+      "patterns": [
+        {
+          "include": "#line-comment",
+        },
+        {
+          "include": "#block-comment",
+        },
+      ],
+    },
+    "decorator": {
+      "begin": "@(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*(?=\\b[_$[:alpha:]][_$[:alnum:]]*\\b)",
+      "end": "",
+      "name": "meta.decorator.bicep",
+      "patterns": [
+        {
+          "include": "#expression",
+        },
+        {
+          "include": "#comments",
+        },
+      ],
+    },
+    "directive": {
+      "begin": "#\\b[_a-zA-Z-0-9]+\\b",
+      "end": "$",
+      "name": "meta.directive.bicep",
+      "patterns": [
+        {
+          "include": "#directive-variable",
+        },
+        {
+          "include": "#comments",
+        },
+      ],
+    },
+    "directive-variable": {
+      "match": "\\b[_a-zA-Z-0-9]+\\b",
+      "name": "keyword.control.bicep.declaration",
+    },
+    "escape-character": {
+      "match": "\\\\(u\\{[0-9A-Fa-f]+\\}|n|r|t|\\\\|'|\\$\\{)",
+      "name": "constant.character.escape.bicep",
+    },
+    "expression": {
+      "patterns": [],
+    },
+    "function-call": {
+      "begin": "(\\b[_$[:alpha:]][_$[:alnum:]]*\\b)(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*\\(",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.bicep",
+        },
+      },
+      "end": "\\)",
+      "name": "meta.function-call.bicep",
+      "patterns": [
+        {
+          "include": "#expression",
+        },
+        {
+          "include": "#comments",
+        },
+      ],
+    },
+    "identifier": {
+      "match": "\\b[_$[:alpha:]][_$[:alnum:]]*\\b(?!(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*\\()",
+      "name": "variable.other.readwrite.bicep",
+    },
+    "keyword": {
+      "match": "\\b(metadata|targetScope|resource|module|param|var|output|for|in|if|existing|import|as|type|with|using|extends|func|assert|extension)\\b",
+      "name": "keyword.control.bicep.declaration",
+    },
+    "lambda-start": {
+      "begin": "(\\((?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*\\b[_$[:alpha:]][_$[:alnum:]]*\\b(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*(,(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*\\b[_$[:alpha:]][_$[:alnum:]]*\\b(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*)*\\)|\\((?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*\\)|(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*\\b[_$[:alpha:]][_$[:alnum:]]*\\b(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*)(?=(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*=>)",
+      "beginCaptures": {
+        "1": {
+          "name": "meta.unknown.bicep",
+          "patterns": [
+            {
+              "include": "#identifier",
+            },
+            {
+              "include": "#comments",
+            },
+          ],
+        },
+      },
+      "end": "(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*=>",
+      "name": "meta.lambda-start.bicep",
+    },
+    "line-comment": {
+      "match": "/\\/\\//.*(?=$)",
+      "name": "comment.line.double-slash.bicep",
+    },
+    "named-literal": {
+      "match": "\\b(true|false|null)\\b",
+      "name": "constant.language.bicep",
+    },
+    "numeric-literal": {
+      "match": "[0-9]+",
+      "name": "constant.numeric.bicep",
+    },
+    "object-literal": {
+      "begin": "\\{",
+      "end": "\\}",
+      "name": "meta.object-literal.bicep",
+      "patterns": [
+        {
+          "include": "#object-property-key",
+        },
+        {
+          "include": "#expression",
+        },
+        {
+          "include": "#comments",
+        },
+      ],
+    },
+    "object-property-key": {
+      "match": "\\b[_$[:alpha:]][_$[:alnum:]]*\\b(?=(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*:)",
+      "name": "variable.other.bicep.property",
+    },
+    "string-literal": {
+      "begin": "'(?!'')",
+      "end": "'",
+      "name": "string.quoted.single.bicep",
+      "patterns": [
+        {
+          "include": "#escape-character",
+        },
+        {
+          "include": "#string-literal-subst",
+        },
+      ],
+    },
+    "string-literal-subst": {
+      "begin": "(?<!\\\\)(\\$\\{)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.template-expression.begin.bicep",
+        },
+      },
+      "end": "(\\})",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.template-expression.end.bicep",
+        },
+      },
+      "name": "meta.string-literal-subst.bicep",
+      "patterns": [
+        {
+          "include": "#expression",
+        },
+        {
+          "include": "#comments",
+        },
+      ],
+    },
+    "string-verbatim": {
+      "begin": "'''",
+      "end": "'''(?!')",
+      "name": "string.quoted.bicep.multi",
+      "patterns": [],
+    },
+  },
   "scopeName": "source.bicep",
 }
 `;
 
-exports[`Grammar Comparison Tests Regression Tests should maintain consistent grammar structure over time: typespec-grammar-structure 1`] = `
+exports[`Grammar Comparison Tests TypeSpec Grammar Comparison should match the snapshot 1`] = `
 {
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "fileTypes": [
     "tsp",
   ],
   "name": "TypeSpec",
-  "patternsLength": 1,
-  "repositoryKeys": [
-    "block-comment",
-    "boolean-literal",
-    "callExpression",
-    "directive",
-    "doc-comment",
-    "doc-comment-block",
-    "doc-comment-param",
-    "doc-comment-return-tag",
-    "doc-comment-unknown-tag",
-    "escape-character",
-    "expression",
-    "identifier-expression",
-    "line-comment",
-    "numeric-literal",
-    "operator-assignment",
-    "parenthesized-expression",
-    "punctuation-accessor",
-    "punctuation-comma",
-    "punctuation-semicolon",
-    "statement",
-    "string-literal",
-    "template-expression",
-    "token",
-    "triple-quoted-string-literal",
-    "type-parameter",
-    "type-parameter-constraint",
-    "type-parameter-default",
-    "type-parameters",
+  "patterns": [
+    {
+      "include": "#statement",
+    },
   ],
-  "schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "repository": {
+    "block-comment": {
+      "begin": "\\/\\*",
+      "end": "\\*\\/",
+      "name": "comment.block.tsp",
+    },
+    "boolean-literal": {
+      "match": "\\b(true|false)\\b",
+      "name": "constant.language.tsp",
+    },
+    "callExpression": {
+      "begin": "(\\b[_$[:alpha:]](?:[_$[:alnum:]]|\\.[_$[:alpha:]])*\\b)\\s*(\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.tsp",
+        },
+        "2": {
+          "name": "punctuation.parenthesis.open.tsp",
+        },
+      },
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.close.tsp",
+        },
+      },
+      "name": "meta.callExpression.typespec",
+      "patterns": [
+        {
+          "include": "#token",
+        },
+        {
+          "include": "#expression",
+        },
+        {
+          "include": "#punctuation-comma",
+        },
+      ],
+    },
+    "directive": {
+      "begin": "\\s*(#\\b[_$[:alpha:]][_$[:alnum:]]*\\b)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.directive.name.tsp",
+        },
+      },
+      "end": "\\$|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "name": "meta.directive.typespec",
+      "patterns": [
+        {
+          "include": "#string-literal",
+        },
+        {
+          "include": "#identifier-expression",
+        },
+      ],
+    },
+    "doc-comment": {
+      "begin": "\\/\\*\\*",
+      "beginCaptures": {
+        "0": {
+          "name": "comment.block.tsp",
+        },
+      },
+      "end": "\\*\\/",
+      "endCaptures": {
+        "0": {
+          "name": "comment.block.tsp",
+        },
+      },
+      "name": "comment.block.tsp",
+      "patterns": [
+        {
+          "include": "#doc-comment-block",
+        },
+      ],
+    },
+    "doc-comment-block": {
+      "patterns": [
+        {
+          "include": "#doc-comment-param",
+        },
+        {
+          "include": "#doc-comment-return-tag",
+        },
+        {
+          "include": "#doc-comment-unknown-tag",
+        },
+      ],
+    },
+    "doc-comment-param": {
+      "captures": {
+        "1": {
+          "name": "keyword.tag.tspdoc",
+        },
+        "2": {
+          "name": "keyword.tag.tspdoc",
+        },
+        "3": {
+          "name": "variable.name.tsp",
+        },
+      },
+      "match": "((@)(?:param|template|prop))\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|\`(?:[^\`\\\\]|\\\\.)*\`)\\b",
+      "name": "comment.block.tsp",
+    },
+    "doc-comment-return-tag": {
+      "captures": {
+        "1": {
+          "name": "keyword.tag.tspdoc",
+        },
+        "2": {
+          "name": "keyword.tag.tspdoc",
+        },
+      },
+      "match": "((@)(?:returns))\\b",
+      "name": "comment.block.tsp",
+    },
+    "doc-comment-unknown-tag": {
+      "captures": {
+        "1": {
+          "name": "entity.name.tag.tsp",
+        },
+        "2": {
+          "name": "entity.name.tag.tsp",
+        },
+      },
+      "match": "((@)(?:\\b[_$[:alpha:]][_$[:alnum:]]*\\b|\`(?:[^\`\\\\]|\\\\.)*\`))\\b",
+      "name": "comment.block.tsp",
+    },
+    "escape-character": {
+      "match": "\\\\.",
+      "name": "constant.character.escape.tsp",
+    },
+    "expression": {
+      "patterns": [
+        {
+          "include": "#token",
+        },
+        {
+          "include": "#directive",
+        },
+        {
+          "include": "#parenthesized-expression",
+        },
+        {
+          "include": "#callExpression",
+        },
+        {
+          "include": "#identifier-expression",
+        },
+      ],
+    },
+    "identifier-expression": {
+      "match": "\\b[_$[:alpha:]][_$[:alnum:]]*\\b|\`(?:[^\`\\\\]|\\\\.)*\`",
+      "name": "entity.name.type.tsp",
+    },
+    "line-comment": {
+      "match": "\\/\\/.*$",
+      "name": "comment.line.double-slash.tsp",
+    },
+    "numeric-literal": {
+      "match": "(?:\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)|\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)|(?<!\\$)(?:(?:\\b[0-9][0-9_]*(\\\\.)[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*(\\\\.)[eE][+-]?[0-9][0-9_]*(n)?\\b)|(?:\\B(\\\\.)[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*(\\\\.)[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*(\\\\.)(n)?\\B)|(?:\\B(\\\\.)[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*(n)?\\b(?!\\\\.)))(?!\\$))",
+      "name": "constant.numeric.tsp",
+    },
+    "operator-assignment": {
+      "match": "=",
+      "name": "keyword.operator.assignment.tsp",
+    },
+    "parenthesized-expression": {
+      "begin": "\\(",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.open.tsp",
+        },
+      },
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.close.tsp",
+        },
+      },
+      "name": "meta.parenthesized-expression.typespec",
+      "patterns": [
+        {
+          "include": "#expression",
+        },
+        {
+          "include": "#punctuation-comma",
+        },
+      ],
+    },
+    "punctuation-accessor": {
+      "match": "\\.",
+      "name": "punctuation.accessor.tsp",
+    },
+    "punctuation-comma": {
+      "match": ",",
+      "name": "punctuation.comma.tsp",
+    },
+    "punctuation-semicolon": {
+      "match": ";",
+      "name": "punctuation.terminator.statement.tsp",
+    },
+    "statement": {
+      "patterns": [
+        {
+          "include": "#token",
+        },
+        {
+          "include": "#directive",
+        },
+        {
+          "include": "#expression",
+        },
+      ],
+    },
+    "string-literal": {
+      "begin": """,
+      "end": ""|$",
+      "name": "string.quoted.double.tsp",
+      "patterns": [
+        {
+          "include": "#template-expression",
+        },
+        {
+          "include": "#escape-character",
+        },
+      ],
+    },
+    "template-expression": {
+      "begin": "\\$\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.template-expression.begin.tsp",
+        },
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.template-expression.end.tsp",
+        },
+      },
+      "name": "meta.template-expression.typespec",
+      "patterns": [
+        {
+          "include": "#expression",
+        },
+      ],
+    },
+    "token": {
+      "patterns": [
+        {
+          "include": "#doc-comment",
+        },
+        {
+          "include": "#line-comment",
+        },
+        {
+          "include": "#block-comment",
+        },
+        {
+          "include": "#triple-quoted-string-literal",
+        },
+        {
+          "include": "#string-literal",
+        },
+        {
+          "include": "#boolean-literal",
+        },
+        {
+          "include": "#numeric-literal",
+        },
+      ],
+    },
+    "triple-quoted-string-literal": {
+      "begin": """"",
+      "end": """"",
+      "name": "string.quoted.triple.tsp",
+      "patterns": [
+        {
+          "include": "#template-expression",
+        },
+        {
+          "include": "#escape-character",
+        },
+      ],
+    },
+    "type-parameter": {
+      "begin": "(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|\`(?:[^\`\\\\]|\\\\.)*\`)",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.type.tsp",
+        },
+      },
+      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "name": "meta.type-parameter.typespec",
+      "patterns": [
+        {
+          "include": "#token",
+        },
+        {
+          "include": "#type-parameter-constraint",
+        },
+        {
+          "include": "#type-parameter-default",
+        },
+      ],
+    },
+    "type-parameter-constraint": {
+      "begin": "extends",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.other.tsp",
+        },
+      },
+      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "name": "meta.type-parameter-constraint.typespec",
+      "patterns": [
+        {
+          "include": "#expression",
+        },
+      ],
+    },
+    "type-parameter-default": {
+      "begin": "=",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.operator.assignment.tsp",
+        },
+      },
+      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "name": "meta.type-parameter-default.typespec",
+      "patterns": [
+        {
+          "include": "#expression",
+        },
+      ],
+    },
+    "type-parameters": {
+      "begin": "<",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.typeparameters.begin.tsp",
+        },
+      },
+      "end": ">",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.typeparameters.end.tsp",
+        },
+      },
+      "name": "meta.type-parameters.typespec",
+      "patterns": [
+        {
+          "include": "#type-parameter",
+        },
+        {
+          "include": "#punctuation-comma",
+        },
+      ],
+    },
+  },
   "scopeName": "source.tsp",
 }
 `;

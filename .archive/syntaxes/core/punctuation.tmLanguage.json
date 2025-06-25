@@ -1,0 +1,52 @@
+{
+	"repository": {
+		"punctuation": {
+			"patterns": [
+				{
+					"name": "punctuation.separator.key-value.rcl",
+					"match": ":"
+				},
+				{
+					"name": "punctuation.separator.comma.rcl",
+					"match": ","
+				},
+				{
+					"name": "punctuation.definition.array.begin.rcl",
+					"match": "\\["
+				},
+				{
+					"name": "punctuation.definition.array.end.rcl",
+					"match": "\\]"
+				},
+				{
+					"name": "punctuation.definition.mapping.begin.rcl",
+					"match": "\\{"
+				},
+				{
+					"name": "punctuation.definition.mapping.end.rcl",
+					"match": "\\}"
+				},
+				{
+					"name": "punctuation.definition.parameters.begin.rcl",
+					"match": "\\("
+				},
+				{
+					"name": "punctuation.definition.parameters.end.rcl",
+					"match": "\\)"
+				},
+				{
+					"name": "keyword.operator.arrow.rcl",
+					"match": "->"
+				},
+				{
+					"name": "keyword.operator.assignment.rcl",
+					"match": "="
+				},
+				{
+					"name": "keyword.operator.comparison.rcl",
+					"match": "==|!=|<=|>=|<|>"
+				}
+			]
+		}
+	}
+}

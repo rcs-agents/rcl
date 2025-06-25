@@ -1,13 +1,14 @@
 {
-    "extends": "../../tsconfig.json",
+    "extends": "../../tsconfig.options.json",
     "compilerOptions": {
         "rootDir": "src",
         "outDir": "out",
-        "declarationDir": "out"
+        "declarationDir": "out",
+        "tsBuildInfoFile": "../../.moon/cache/tsc/cli.tsbuildinfo"
     },
     "references": [
         {
-            "path": "../language/tsconfig.src.json"
+            "path": "../language/tsconfig.build.json"
         }
     ],
     "include": [

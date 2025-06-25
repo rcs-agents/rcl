@@ -13,22 +13,22 @@
         "src"
     ],
     "bin": {
-        "rcl-cli": "./bin/cli.js"
+        "rcl": "./bin/rcl"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "tsc --build tsconfig.json",
         "build:clean": "bun run clean && bun run build",
         "clean": "shx rm -fr *.tsbuildinfo out",
         "dev": "tsc --watch --preserveWatchOutput",
         "cli": "bun ./bin/cli.js"
     },
     "dependencies": {
-        "rcl-language": "0.0.1",
         "chalk": "~5.3.0",
-        "commander": "~11.1.0"
+        "commander": "~11.1.0",
+        "rcl-language": "workspace:*"
     },
     "volta": {
         "node": "20.19.2",
-        "bun": "1.1.42"
+        "bun": "1.2"
     }
 }

@@ -1,4 +1,5 @@
 //@index('./*.ts', f => `export * from '${f.path}.js'`)
+export * from './chars.js'
 export * from './comments.js'
 export * from './identifiers.js'
 export * from './markers.js'

@@ -1,0 +1,5 @@
+strict digraph {
+0 [label="RclFile" style=filled fillcolor="#531776" fontcolor=white fontsize=32]
+1 [label="ImportStatement" style=filled fillcolor="#380786" fontcolor=white fontsize=32]
+0 -> 1
+}

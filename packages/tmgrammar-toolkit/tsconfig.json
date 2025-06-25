@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "outDir": "../../.moon/cache/types/packages/tmgrammar-toolkit",
     "rootDir": "./src",
@@ -7,19 +7,18 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "incremental": true
-  },
-  "paths": {
-    "#src/*": [
-      "./src/*/index.ts",
-      "./src/*.ts"
-    ],
-    "#src": [
-      "./src/index.ts"
-    ],
-    "#tests/*": [
-      "./tests/*.ts"
-    ]
+    "paths": {
+      "#src/*": [
+        "./src/*/index.ts",
+        "./src/*.ts"
+      ],
+      "#src": [
+        "./src/index.ts"
+      ],
+      "#tests/*": [
+        "./tests/*.ts"
+      ]
+    }
   },
   "include": [
     "src/**/*"

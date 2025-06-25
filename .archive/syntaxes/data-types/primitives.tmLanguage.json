@@ -1,0 +1,88 @@
+{
+	"repository": {
+		"primitives": {
+			"patterns": [
+				{
+					"name": "constant.other.atom.rcl",
+					"match": ":[a-zA-Z_][a-zA-Z0-9_]*\\b"
+				},
+				{
+					"name": "constant.language.boolean.rcl",
+					"match": "\\b(True|False)\\b"
+				},
+				{
+					"name": "constant.language.null.rcl",
+					"match": "\\b(Null|null)\\b"
+				},
+				{
+					"name": "string.quoted.double.rcl",
+					"begin": "\"",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.string.begin.rcl" }
+					},
+					"end": "\"",
+					"endCaptures": {
+						"0": { "name": "punctuation.definition.string.end.rcl" }
+					},
+					"patterns": [
+						{
+							"name": "constant.character.escape.rcl",
+							"match": "\\\\."
+						}
+					]
+				},
+				{
+					"name": "string.quoted.single.rcl",
+					"begin": "'",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.string.begin.rcl" }
+					},
+					"end": "'",
+					"endCaptures": {
+						"0": { "name": "punctuation.definition.string.end.rcl" }
+					},
+					"patterns": [
+						{
+							"name": "constant.character.escape.rcl",
+							"match": "\\\\."
+						}
+					]
+				},
+				{
+					"name": "string.unquoted.multiline.rcl",
+					"begin": "^\\s*(\\|[-+]?[|+]?)\\s*$",
+					"beginCaptures": {
+						"1": { "name": "punctuation.definition.string.multiline.begin.rcl" }
+					},
+					"end": "^(?=\\S)",
+					"patterns": [
+						{
+							"name": "string.unquoted.multiline.content.rcl",
+							"match": ".*"
+						}
+					]
+				},
+				{
+					"name": "constant.numeric.integer.rcl",
+					"match": "\\b-?\\d+\\b(?!\\.)"
+				},
+				{
+					"name": "constant.numeric.float.rcl",
+					"match": "\\b-?\\d+\\.\\d+([eE][+-]?\\d+)?\\b"
+				},
+				{
+					"name": "constant.numeric.time.rcl",
+					"match": "\\b\\d{1,2}:\\d{2}(:\\d{2})?\\b"
+				},
+				{
+					"name": "constant.other.date.rcl",
+					"match": "\\b\\d{4}-\\d{2}-\\d{2}\\b"
+				},
+				{
+					"name": "constant.other.datetime.rcl",
+					"match": "\\b\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2})?([+-]\\d{2}:\\d{2}|Z)?\\b"
+				}
+			]
+		}
+	}
+}

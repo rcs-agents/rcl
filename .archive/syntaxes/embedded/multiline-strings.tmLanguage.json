@@ -1,0 +1,88 @@
+{
+	"repository": {
+		"multiline-strings": {
+			"patterns": [
+				{
+					"name": "string.unquoted.multiline.trim.rcl",
+					"begin": "^(\\s*)(\\|)\\s*$",
+					"beginCaptures": {
+						"2": {
+							"name": "punctuation.definition.string.multiline.trim.begin.rcl"
+						}
+					},
+					"end": "^(?!\\1\\s+\\S)",
+					"patterns": [
+						{
+							"name": "string.unquoted.multiline.content.trim.rcl",
+							"match": ".*"
+						}
+					]
+				},
+				{
+					"name": "string.unquoted.multiline.trim-trailing.rcl",
+					"begin": "^(\\s*)(\\|-)\\s*$",
+					"beginCaptures": {
+						"2": {
+							"name": "punctuation.definition.string.multiline.trim-trailing.begin.rcl"
+						}
+					},
+					"end": "^(?!\\1\\s+\\S)",
+					"patterns": [
+						{
+							"name": "string.unquoted.multiline.content.trim-trailing.rcl",
+							"match": ".*"
+						}
+					]
+				},
+				{
+					"name": "string.unquoted.multiline.preserve-leading.rcl",
+					"begin": "^(\\s*)(\\+\\|)\\s*$",
+					"beginCaptures": {
+						"2": {
+							"name": "punctuation.definition.string.multiline.preserve-leading.begin.rcl"
+						}
+					},
+					"end": "^(?!\\1\\s+\\S)",
+					"patterns": [
+						{
+							"name": "string.unquoted.multiline.content.preserve-leading.rcl",
+							"match": ".*"
+						}
+					]
+				},
+				{
+					"name": "string.unquoted.multiline.preserve-all.rcl",
+					"begin": "^(\\s*)(\\+\\|\\+)\\s*$",
+					"beginCaptures": {
+						"2": {
+							"name": "punctuation.definition.string.multiline.preserve-all.begin.rcl"
+						}
+					},
+					"end": "^(?!\\1\\s+\\S)",
+					"patterns": [
+						{
+							"name": "string.unquoted.multiline.content.preserve-all.rcl",
+							"match": ".*"
+						}
+					]
+				},
+				{
+					"name": "string.unquoted.multiline.clean.rcl",
+					"begin": "^(\\s*)(\\|\\|)\\s*$",
+					"beginCaptures": {
+						"2": {
+							"name": "punctuation.definition.string.multiline.clean.begin.rcl"
+						}
+					},
+					"end": "^(?!\\1\\s+\\S)",
+					"patterns": [
+						{
+							"name": "string.unquoted.multiline.content.clean.rcl",
+							"match": ".*"
+						}
+					]
+				}
+			]
+		}
+	}
+}

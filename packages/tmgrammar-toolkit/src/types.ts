@@ -51,8 +51,19 @@ export interface RuleScope {
  * Rules that can contain nested patterns
  */
 export interface RulePatterns {
-  patterns: Rule[];
+  patterns: Pattern[];
 }
+
+/**
+ * Pattern can be a full rule definition, a rule reference, or a basic include pattern
+ */
+export type Pattern = Rule | RuleReference | BasicIncludePattern;
+
+/**
+ * Reference to a rule that will be converted to an include statement
+ * Must be a rule with a key that exists in the repository
+ */
+export type RuleReference = MatchRule | BeginEndRule | IncludeRule;
 
 /**
  * Capture group definitions for regex matches
@@ -107,6 +118,11 @@ export interface IncludeRule extends RuleKey, RulePatterns {}
 export interface BasicIncludePattern {
   include: string;
 }
+
+/**
+ * Type for a repository object
+ */
+export type Repository = Record<string, Rule>;
 
 /**
  * Complete grammar definition

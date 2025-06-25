@@ -1,6 +1,7 @@
-import { type AstNode, type MaybePromise, AstUtils } from 'langium';
+import type { AstNode, MaybePromise } from 'langium';
+import { AstUtils } from 'langium';
 import { AstNodeHoverProvider } from 'langium/lsp';
-import { type Hover, type CancellationToken } from 'vscode-languageserver-protocol';
+import type { Hover, CancellationToken } from 'vscode-languageserver-protocol';
 import { MarkupKind } from 'vscode-languageserver-types';
 import { isSection, type Section, isAttribute, type Attribute, isBooleanValue, type BooleanValue, isTypeConversion, type TypeConversion, isEmbeddedCodeBlock, type EmbeddedCodeBlock, isIdentifier, type Identifier, isLiteralValue, type LiteralValue, type ReservedSectionName } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
@@ -149,7 +150,7 @@ ${value}
   private getLiteralValueText(literal: LiteralValue): string {
     if (literal.val_str) return `"${literal.val_str}"`;
     if (literal.val_num !== undefined) return literal.val_num.toString();
-    if (literal.val_bool) return literal.val_bool.value;
+    if (literal.val_bool !== undefined) return literal.val_bool.toString();
     if (literal.val_atom) return literal.val_atom;
     if (literal.val_null) return 'Null';
     return 'unknown_literal';

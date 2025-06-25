@@ -1,0 +1,136 @@
+{
+  "repository": {
+    "property-level-patterns": {
+      "patterns": [
+        { "include": "#property-assignments" },
+        { "include": "#property-level-comments" }
+      ]
+    },
+    "property-assignments": {
+      "patterns": [
+        {
+          "name": "meta.property.assignment.rcl",
+          "begin": "^(\\s*)([a-zA-Z_][a-zA-Z0-9_]*)\\s*(:)(?!\\S)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.whitespace.leading.rcl" },
+            "2": { "name": "variable.other.property.rcl" },
+            "3": { "name": "punctuation.separator.key-value.rcl" }
+          },
+          "end": "^(?=\\S)|^(?=\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*:)|(?=\\s*(Config|Defaults|Messages)\\b)|(?=\\s*(agentConfig|agentDefaults|flow|messages|message|authentication message|transaction message|promotion message|servicerequest message|acknowledge message)\\b)",
+          "patterns": [
+            { "include": "#property-value-patterns" }
+          ]
+        }
+      ]
+    },
+    "property-value-patterns": {
+      "patterns": [
+        { "include": "#property-value-comments" },
+        { "include": "#property-value-multiline-expressions" },
+        { "include": "#property-value-single-line" },
+        { "include": "#property-value-multiline-strings" },
+        { "include": "#property-value-multiline-content" }
+      ]
+    },
+    "property-value-comments": {
+      "patterns": [
+        {
+          "match": "\\G\\s*(#.*)$",
+          "captures": { 
+            "1": { "name": "comment.line.number-sign.rcl" } 
+          }
+        }
+      ]
+    },
+    "property-value-single-line": {
+      "patterns": [
+        {
+          "name": "meta.value.single-line.rcl",
+          "begin": "\\G\\s*",
+          "end": "(?=#)|$",
+          "patterns": [
+            { "include": "#expressions" },
+            { "include": "#primitives" },
+            { "include": "#references" },
+            { "include": "#action-keywords" }
+          ]
+        }
+      ]
+    },
+    "property-value-multiline-expressions": {
+      "patterns": [
+        {
+          "name": "meta.value.multiline.embedded.rcl",
+          "begin": "\\G\\s*(\\$(?:js|ts|)>>>)\\s*(?:(#.*))?$",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.embedded.marker.multiline.rcl" },
+            "2": { "name": "comment.line.number-sign.rcl" }
+          },
+          "end": "^(?!\\s+\\S)",
+          "patterns": [
+            {
+              "name": "meta.embedded.block.content.rcl",
+              "begin": "^(\\s+)",
+              "end": "$",
+              "beginCaptures": {
+                "1": { "name": "punctuation.whitespace.leading.embedded.rcl" }
+              },
+              "contentName": "source.js",
+              "patterns": [{ "include": "source.js" }]
+            }
+          ]
+        }
+      ]
+    },
+    "property-value-multiline-strings": {
+      "patterns": [
+        {
+          "name": "meta.value.multiline.string.rcl",
+          "match": "\\G\\s*(\\|[-+]?[|+]?)\\s*(?:#.*)?$",
+          "captures": {
+            "1": { "name": "punctuation.definition.string.multiline.begin.rcl" },
+            "2": { "name": "comment.line.number-sign.rcl" }
+          }
+        }
+      ]
+    },
+    "property-value-multiline-content": {
+      "patterns": [
+        {
+          "name": "string.quoted.multiline.content.rcl",
+          "match": "^\\s+.*$"
+        }
+      ]
+    },
+    "property-level-comments": {
+      "patterns": [
+        {
+          "match": "\\s*(#.*)$",
+          "captures": {
+            "1": { "name": "comment.line.number-sign.rcl" }
+          }
+        }
+      ]
+    },
+    "action-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.action.dial.rcl",
+          "match": "\\bdialAction\\b"
+        },
+        {
+          "name": "keyword.control.section.richcard.rcl", 
+          "match": "\\brichCard\\b"
+        },
+        {
+          "name": "keyword.control.section.standalonecard.rcl",
+          "match": "\\bstandaloneCard\\b"
+        },
+        {
+          "name": "keyword.control.suggestion.reply.rcl",
+          "match": "\\breply\\b"
+        }
+      ]
+    }
+  }
+} 

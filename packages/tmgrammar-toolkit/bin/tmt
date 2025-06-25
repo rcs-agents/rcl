@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Path to the compiled CLI
-const cliPath = join(__dirname, '..', 'dist', 'cli.js');
+const cliPath = join(__dirname, '..', 'lib', 'cli.js');
 
 try {
   // Dynamically import and execute the CLI

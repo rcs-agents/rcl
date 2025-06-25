@@ -1,5 +1,5 @@
 import { AbstractSemanticTokenProvider, type SemanticTokenAcceptor } from 'langium/lsp';
-import { type AstNode } from 'langium';
+import type { AstNode } from 'langium';
 import { SemanticTokenModifiers, SemanticTokenTypes } from 'vscode-languageserver-protocol';
 import { isSection, type Section, isAttribute, type Attribute, isBooleanValue, type BooleanValue, type ReservedSectionName } from '../generated/ast.js';
 

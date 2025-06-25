@@ -58,28 +58,28 @@ export class RclFormatter extends AbstractFormatter {
     // Format attributes
     const attributes = this.getAttributes(section);
     if (attributes && attributes.length > 0) {
-      attributes.forEach(attr => {
+      for (const attr of attributes) {
         formatter.node(attr).prepend(Formatting.newLine());
         formatter.node(attr).prepend(indentFormatting);
-      });
+      }
     }
 
     // Format nested sections
     const subSections = this.getSubSections(section);
     if (subSections && subSections.length > 0) {
-      subSections.forEach(subSection => {
+      for (const subSection of subSections) {
         formatter.node(subSection).prepend(Formatting.newLine());
         formatter.node(subSection).prepend(indentFormatting);
-      });
+      }
     }
 
     // Format flow content
     const flowContent = this.getFlowContent(section);
     if (flowContent && flowContent.length > 0) {
-      flowContent.forEach(flow => {
+      for (const flow of flowContent) {
         formatter.node(flow).prepend(Formatting.newLine());
         formatter.node(flow).prepend(indentFormatting);
-      });
+      }
     }
   }
 

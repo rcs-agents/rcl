@@ -39,20 +39,20 @@
 			}
 		}
 	},
-	"activationEvents": ["onLanguage:rcl"],
 	"main": "./out/extension/main.cjs",
 	"browser": "./out/web/extension.cjs",
 	"scripts": {
 		"clean": "shx rm -fr *.tsbuildinfo out syntaxes",
 		"vscode:prepublish": "bun run build",
-		"build:prepare": "shx mkdir -p ./syntaxes/ && shx cp -f ../language/syntaxes/rcl.tmLanguage.json ./syntaxes/rcl.tmLanguage.json",
-		"build": "bun run build:prepare && tsc -b tsconfig.json && bun esbuild.mjs",
-		"build:clean": "bun run clean && bun run build",
-		"watch": "bun run build:prepare && concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch --preserveWatchOutput\" \"bun esbuild.mjs --watch\"",
+		"build": "nr clean && nr build:prepare && nr check && nr build:esbuild",
+		"build:prepare": "shx mkdir -p ./syntaxes/ && shx cp -f ../language/src/syntaxes/rcl.tmLanguage.json ./syntaxes/rcl.tmLanguage.json",
+		"check": "tsc -p tsconfig.json --noEmit",
+		"build:esbuild": "bun esbuild.mjs",
+		"dev": "concurrently -n tscheck,esbuild -c blue,yellow \"tsc -b tsconfig.json --noEmit --watch --preserveWatchOutput\" \"bun esbuild.mjs --watch\"",
 		"reinstall-extension": "vsce package; cursor --install-extension ./vscode-rcl-0.0.2.vsix"
 	},
 	"dependencies": {
-		"rcl-language": "0.0.1",
+		"rcl-language": "workspace:*",
 		"vscode-languageclient": "~9.0.1",
 		"vscode-languageserver": "~9.0.1"
 	},

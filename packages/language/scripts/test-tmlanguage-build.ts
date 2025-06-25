@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { enhanceTmLanguage } from './build-tmlanguage.js';
+import { generateTmLanguage } from './build-grammar';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,7 +31,7 @@ function testTmLanguageBuild(): boolean {
   // Test 2: Try to enhance the grammar
   console.log('2. Testing grammar enhancement...');
   try {
-    enhanceTmLanguage();
+    generateTmLanguage();
     console.log('   ✅ Grammar enhancement completed');
   } catch (error) {
     errors.push(`❌ Grammar enhancement failed: ${error}`);
@@ -132,7 +132,9 @@ function testTmLanguageBuild(): boolean {
     console.log('   - Verify embedded language support works');
   } else {
     console.log('💥 Some tests failed:');
-    errors.forEach(error => console.log(`   ${error}`));
+    for (const error of errors) {
+      console.log(`   ${error}`);
+    }
     console.log('\n🔧 Troubleshooting:');
     console.log('   - Ensure Langium has generated the base grammar');
     console.log('   - Check build script for syntax errors');

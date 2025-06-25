@@ -1,0 +1,21 @@
+{
+	"repository": {
+		"agent-sections": {
+			"patterns": [
+				{ "include": "#agent-block-definition" }
+			]
+		},
+		"agent-block-definition": {
+			"name": "meta.section.agent.rcl",
+			"begin": "^\\s*(agent)\\s+([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])\\s*$",
+			"beginCaptures": {
+				"1": { "name": "keyword.control.section.rcl" },
+				"2": { "name": "entity.name.section.agent.rcl" }
+			},
+			"end": "^(?=\\S)(?!\\s*#)",
+			"patterns": [
+				{ "include": "#section-level-patterns" }
+			]
+		}
+	}
+}

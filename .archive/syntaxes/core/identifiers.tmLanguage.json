@@ -1,0 +1,58 @@
+{
+	"repository": {
+		"identifiers": {
+			"patterns": [
+				{
+					"name": "entity.name.section.agent.rcl",
+					"match": "^\\s*(agent)\\s+([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])",
+					"captures": {
+						"1": { "name": "keyword.control.section.agent.rcl" },
+						"2": { "name": "entity.name.section.agent.rcl" }
+					}
+				},
+				{
+					"name": "entity.name.section.rcl",
+					"match": "^\\s*([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])(?=\\s*$)",
+					"captures": {
+						"1": { "name": "entity.name.section.rcl" }
+					}
+				},
+				{
+					"name": "entity.name.type.section.rcl",
+					"match": "^\\s*(config|defaults|messages|flows|actions|shortcuts)\\s+([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])",
+					"captures": {
+						"1": { "name": "keyword.control.section.rcl" },
+						"2": { "name": "entity.name.section.rcl" }
+					}
+				},
+				{
+					"name": "variable.other.propernoun.rcl",
+					"match": "\\b([A-Z][A-Za-z0-9]*(?:\\s+[A-Z][A-Za-z0-9]*)?)\\b",
+					"captures": {
+						"1": { "name": "variable.other.propernoun.rcl" }
+					},
+					"comment": "ProperNoun variables (start with uppercase)"
+				},
+				{
+					"name": "variable.other.attribute.rcl",
+					"match": "\\b([a-z][a-zA-Z0-9_]*)\\b",
+					"captures": {
+						"1": { "name": "variable.other.attribute.rcl" }
+					},
+					"comment": "COMMON_NOUN attributes (start with lowercase)"
+				},
+				{
+					"name": "entity.name.function.rcl",
+					"match": "\\b([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])\\b(?=\\s*\\()"
+				},
+				{
+					"name": "variable.other.reference.rcl",
+					"match": "\\$([A-Z][A-Za-z0-9\\s]*[A-Za-z0-9])",
+					"captures": {
+						"1": { "name": "variable.other.reference.rcl" }
+					}
+				}
+			]
+		}
+	}
+}

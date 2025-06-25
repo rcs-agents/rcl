@@ -1,0 +1,1101 @@
+{
+  "name": "rcl",
+  "scopeName": "source.rcl",
+  "fileTypes": [
+    "rcl"
+  ],
+  "patterns": [
+    {
+      "include": "#file-level-patterns"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "name": "comment.line.rcl",
+      "begin": "\\s*(#)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.comment.rcl"
+        }
+      },
+      "end": "$",
+      "patterns": [
+        {
+          "name": "comment.line.content.rcl",
+          "match": ".*"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.rcl",
+      "begin": "\"",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.rcl"
+        }
+      },
+      "end": "\"",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.rcl"
+        }
+      },
+      "patterns": [
+        {
+          "name": "constant.character.escape.rcl",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "atoms": {
+      "name": "constant.other.atom.rcl",
+      "match": ":[a-zA-Z_][\\w_]*\\b"
+    },
+    "numbers": {
+      "name": "constant.numeric.number.rcl",
+      "match": "[0-9]{1,3}(,[0-9]{3})*(\\.[0-9]+)?([eE][-+]?[0-9]+)?|[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?"
+    },
+    "booleans": {
+      "name": "constant.language.boolean.rcl",
+      "match": "\\b(True|On|Yes|Active|Enabled|False|Off|No|Inactive|Disabled)\\b"
+    },
+    "nulls": {
+      "name": "constant.language.null.rcl",
+      "match": "\\b(Null)\\b"
+    },
+    "primitives": {
+      "patterns": [
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#atoms"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#booleans"
+        },
+        {
+          "include": "#nulls"
+        }
+      ]
+    },
+    "importStatements": {
+      "name": "meta.import.rcl",
+      "begin": "(^\\s*import)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*(?:\\s*/\\s*[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)*)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.import.rcl"
+        },
+        "2": {
+          "name": "entity.name.namespace.source.rcl"
+        }
+      },
+      "end": "(?=#)|$",
+      "patterns": [
+        {
+          "begin": "\\s+('s)\\s+([a-z][a-zA-Z0-9_]*(?:\\s*\\.\\s*[a-z][a-zA-Z0-9_]*)*)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.operator.possessive.rcl"
+            },
+            "2": {
+              "name": "variable.other.attribute.path.rcl"
+            }
+          },
+          "end": "(?=\\s+as\\b)|(?=#)|$",
+          "patterns": []
+        },
+        {
+          "begin": "\\s+(as)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.as.rcl"
+            },
+            "2": {
+              "name": "variable.other.alias.rcl"
+            }
+          },
+          "end": "(?=#)|$",
+          "patterns": []
+        }
+      ]
+    },
+    "variableReferences": {
+      "name": "variable.other.reference.rcl",
+      "patterns": [
+        {
+          "name": "variable.other.reference.qualified.rcl",
+          "match": "\\$([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)\\.([a-z][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "entity.name.reference.rcl"
+            },
+            "2": {
+              "name": "variable.other.property.rcl"
+            }
+          }
+        },
+        {
+          "name": "variable.other.reference.simple.rcl",
+          "match": "\\$([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)",
+          "captures": {
+            "1": {
+              "name": "entity.name.reference.rcl"
+            }
+          }
+        }
+      ]
+    },
+    "references": {
+      "patterns": [
+        {
+          "include": "#importStatements"
+        },
+        {
+          "include": "#variableReferences"
+        }
+      ]
+    },
+    "inlineJsExpression": {
+      "name": "meta.embedded.inline.js.rcl",
+      "begin": "(\\$js>)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.embedded.marker.js.rcl"
+        }
+      },
+      "end": "\\$",
+      "contentName": "source.js",
+      "patterns": [
+        {
+          "include": "source.js"
+        }
+      ]
+    },
+    "inlineTsExpression": {
+      "name": "meta.embedded.inline.ts.rcl",
+      "begin": "(\\$ts>)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.embedded.marker.ts.rcl"
+        }
+      },
+      "end": "\\$",
+      "contentName": "source.ts",
+      "patterns": [
+        {
+          "include": "source.ts"
+        }
+      ]
+    },
+    "inlineGenericExpression": {
+      "name": "meta.embedded.inline.js.rcl",
+      "begin": "(\\$>)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.embedded.marker.js.rcl"
+        }
+      },
+      "end": "\\$",
+      "contentName": "source.js",
+      "patterns": [
+        {
+          "include": "source.js"
+        }
+      ]
+    },
+    "blockJsExpression": {
+      "name": "meta.embedded.block.js.rcl",
+      "begin": "^(\\s*)(\\$js>>>)\\s*$",
+      "beginCaptures": {
+        "2": {
+          "name": "keyword.control.embedded.marker.js.rcl"
+        }
+      },
+      "end": "^(?!\\1[ \t])(?=\\S)|^(?=.{0,%\\1width%}(?! \\S))(?<!\\1)",
+      "contentName": "source.js",
+      "patterns": [
+        {
+          "begin": "^(\\1\\s+)",
+          "end": "$",
+          "contentName": "source.js",
+          "patterns": [
+            {
+              "include": "source.js"
+            }
+          ]
+        }
+      ]
+    },
+    "blockTsExpression": {
+      "name": "meta.embedded.block.ts.rcl",
+      "begin": "^(\\s*)(\\$ts>>>)\\s*$",
+      "beginCaptures": {
+        "2": {
+          "name": "keyword.control.embedded.marker.ts.rcl"
+        }
+      },
+      "end": "^(?!\\1[ \t])(?=\\S)|^(?=.{0,%\\1width%}(?! \\S))(?<!\\1)",
+      "contentName": "source.ts",
+      "patterns": [
+        {
+          "begin": "^(\\1\\s+)",
+          "end": "$",
+          "contentName": "source.ts",
+          "patterns": [
+            {
+              "include": "source.ts"
+            }
+          ]
+        }
+      ]
+    },
+    "blockGenericExpression": {
+      "name": "meta.embedded.block.js.rcl",
+      "begin": "^(\\s*)(\\$>>>)\\s*$",
+      "beginCaptures": {
+        "2": {
+          "name": "keyword.control.embedded.marker.js.rcl"
+        }
+      },
+      "end": "^(?!\\1[ \t])(?=\\S)|^(?=.{0,%\\1width%}(?! \\S))(?<!\\1)",
+      "contentName": "source.js",
+      "patterns": [
+        {
+          "begin": "^(\\1\\s+)",
+          "end": "$",
+          "contentName": "source.js",
+          "patterns": [
+            {
+              "include": "source.js"
+            }
+          ]
+        }
+      ]
+    },
+    "embeddedExpressions": {
+      "patterns": [
+        {
+          "include": "#inlineJsExpression"
+        },
+        {
+          "include": "#inlineTsExpression"
+        },
+        {
+          "include": "#inlineGenericExpression"
+        },
+        {
+          "include": "#blockJsExpression"
+        },
+        {
+          "include": "#blockTsExpression"
+        },
+        {
+          "include": "#blockGenericExpression"
+        }
+      ]
+    },
+    "agentSection": {
+      "name": "meta.section.agent.rcl",
+      "begin": "(^\\s*)(agent)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)s*$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "2": {
+          "name": "keyword.control.section.agent.rcl"
+        },
+        "3": {
+          "name": "entity.name.section.agent.rcl"
+        }
+      }
+    },
+    "configSection": {
+      "name": "meta.section.config.rcl",
+      "begin": "(?:^\\s*)(Config)\\s*(?:#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.config.rcl"
+        }
+      }
+    },
+    "defaultsSection": {
+      "name": "meta.section.defaults.rcl",
+      "begin": "(?:^\\s*)(Defaults)\\s*(?:#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.defaults.rcl"
+        }
+      }
+    },
+    "messagesSection": {
+      "name": "meta.section.messages.rcl",
+      "begin": "(?:^\\s*)(Messages)\\s*(?:#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.messages.rcl"
+        }
+      }
+    },
+    "flowSection": {
+      "name": "meta.section.flow.rcl",
+      "begin": "(?:^\\s*)(flow)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)(?:\\s*#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#flow-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.flow.rcl"
+        },
+        "2": {
+          "name": "entity.name.section.flow.rcl"
+        }
+      }
+    },
+    "agentConfigSection": {
+      "name": "meta.section.agentconfig.rcl",
+      "begin": "(?:^\\s*)(agentConfig)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)(?:\\s*#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.agentconfig.rcl"
+        },
+        "2": {
+          "name": "entity.name.section.agentconfig.rcl"
+        }
+      }
+    },
+    "authenticationMessageSection": {
+      "name": "meta.section.message.authentication.rcl",
+      "begin": "(?:^\\s*)(authentication message)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)(?:\\s+([^#\\n]*))?\\s*(?:#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.message.typed.authentication.rcl"
+        },
+        "2": {
+          "name": "entity.name.section.message.authentication.rcl"
+        },
+        "3": {
+          "name": "variable.parameter.section.message.authentication.rcl"
+        }
+      }
+    },
+    "transactionMessageSection": {
+      "name": "meta.section.message.transaction.rcl",
+      "begin": "(?:^\\s*)(transaction message)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)(?:\\s+([^#\\n]*))?\\s*(?:#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.message.typed.transaction.rcl"
+        },
+        "2": {
+          "name": "entity.name.section.message.transaction.rcl"
+        },
+        "3": {
+          "name": "variable.parameter.section.message.transaction.rcl"
+        }
+      }
+    },
+    "promotionMessageSection": {
+      "name": "meta.section.message.promotion.rcl",
+      "begin": "(?:^\\s*)(promotion message)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)(?:\\s+([^#\\n]*))?\\s*(?:#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.message.typed.promotion.rcl"
+        },
+        "2": {
+          "name": "entity.name.section.message.promotion.rcl"
+        },
+        "3": {
+          "name": "variable.parameter.section.message.promotion.rcl"
+        }
+      }
+    },
+    "servicerequestMessageSection": {
+      "name": "meta.section.message.servicerequest.rcl",
+      "begin": "(?:^\\s*)(servicerequest message)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)(?:\\s+([^#\\n]*))?\\s*(?:#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.message.typed.servicerequest.rcl"
+        },
+        "2": {
+          "name": "entity.name.section.message.servicerequest.rcl"
+        },
+        "3": {
+          "name": "variable.parameter.section.message.servicerequest.rcl"
+        }
+      }
+    },
+    "acknowledgeMessageSection": {
+      "name": "meta.section.message.acknowledge.rcl",
+      "begin": "(?:^\\s*)(acknowledge message)\\s+([A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*)(?:\\s+([^#\\n]*))?\\s*(?:#.*)?$",
+      "end": "^(?=\\S)(?!\\s*#)",
+      "patterns": [
+        {
+          "include": "#section-level-patterns"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.section.message.typed.acknowledge.rcl"
+        },
+        "2": {
+          "name": "entity.name.section.message.acknowledge.rcl"
+        },
+        "3": {
+          "name": "variable.parameter.section.message.acknowledge.rcl"
+        }
+      }
+    },
+    "allSections": {
+      "patterns": [
+        {
+          "include": "#agentSection"
+        },
+        {
+          "include": "#configSection"
+        },
+        {
+          "include": "#defaultsSection"
+        },
+        {
+          "include": "#messagesSection"
+        },
+        {
+          "include": "#flowSection"
+        },
+        {
+          "include": "#agentConfigSection"
+        },
+        {
+          "include": "#authenticationMessageSection"
+        },
+        {
+          "include": "#transactionMessageSection"
+        },
+        {
+          "include": "#promotionMessageSection"
+        },
+        {
+          "include": "#servicerequestMessageSection"
+        },
+        {
+          "include": "#acknowledgeMessageSection"
+        }
+      ]
+    },
+    "flow-operand-detailed": {
+      "patterns": [
+        {
+          "name": "constant.other.atom.flow.operand.rcl",
+          "match": ":[a-zA-Z_][\\w_]*"
+        },
+        {
+          "name": "variable.other.propernoun.flow.operand.rcl",
+          "match": "[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*"
+        },
+        {
+          "name": "variable.other.commonnoun.flow.operand.rcl",
+          "match": "[a-z][a-zA-Z0-9_]*"
+        },
+        {
+          "name": "string.quoted.double.flow.operand.rcl",
+          "match": "\"(\\.|[^\"\\])*\""
+        }
+      ]
+    },
+    "flow-rule": {
+      "name": "meta.flow.rule.rcl",
+      "match": "^(\\s*)((?::[a-zA-Z_][\\w_]*|[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*|[a-z][a-zA-Z0-9_]*|\"(\\.|[^\"\\])*\"))(\\s*->\\s*)((?::[a-zA-Z_][\\w_]*|[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\\s+[A-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*|[a-z][a-zA-Z0-9_]*|\"(\\.|[^\"\\])*\"))\\s*(?:#.*)?$",
+      "captures": {
+        "2": {
+          "name": "meta.flow.source.rcl"
+        },
+        "3": {
+          "name": "keyword.operator.flow.arrow.rcl"
+        },
+        "4": {
+          "name": "meta.flow.target.rcl"
+        }
+      }
+    },
+    "inlineList": {
+      "name": "meta.structure.list.inline.rcl",
+      "begin": "\\[",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.list.begin.rcl"
+        }
+      },
+      "end": "\\]",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.list.end.rcl"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#primitives"
+        },
+        {
+          "include": "#references"
+        },
+        {
+          "include": "#embeddedExpressions"
+        },
+        {
+          "include": "#inlineList"
+        },
+        {
+          "include": "#explicitMap"
+        },
+        {
+          "include": "#typeConversion"
+        },
+        {
+          "name": "punctuation.separator.comma.rcl",
+          "match": ","
+        }
+      ]
+    },
+    "explicitMap": {
+      "name": "meta.structure.map.explicit.rcl",
+      "begin": "%\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.map.begin.rcl"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.map.end.rcl"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "name": "variable.other.property.key.map.rcl",
+          "match": "(?:[a-z][a-zA-Z0-9_]*|\"(\\.|[^\"\\])*\")\\s*(?=:)"
+        },
+        {
+          "name": "punctuation.separator.key-value.rcl",
+          "match": ":"
+        },
+        {
+          "include": "#primitives"
+        },
+        {
+          "include": "#references"
+        },
+        {
+          "include": "#embeddedExpressions"
+        },
+        {
+          "include": "#inlineList"
+        },
+        {
+          "include": "#explicitMap"
+        },
+        {
+          "include": "#typeConversion"
+        },
+        {
+          "name": "punctuation.separator.comma.rcl",
+          "match": ","
+        }
+      ]
+    },
+    "collections": {
+      "patterns": [
+        {
+          "include": "#inlineList"
+        },
+        {
+          "include": "#explicitMap"
+        }
+      ]
+    },
+    "multiline-string-content": {
+      "name": "string.unquoted.multiline.content.rcl",
+      "match": "^\\s+.*$"
+    },
+    "typeConversion": {
+      "name": "meta.type-conversion.rcl",
+      "begin": "(<)\\s*(date|datetime|time|email|phone|msisdn|url|zipcode|zip)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.type-conversion.begin.rcl"
+        },
+        "2": {
+          "name": "entity.name.type.tag.rcl"
+        }
+      },
+      "end": "\\s*(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.type-conversion.end.rcl"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#primitives"
+        },
+        {
+          "include": "#references"
+        },
+        {
+          "name": "meta.type-conversion.modifier.rcl",
+          "begin": "\\s*(\\|)\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.separator.modifier.rcl"
+            }
+          },
+          "end": "(?=\\s*>)",
+          "patterns": [
+            {
+              "include": "#strings"
+            }
+          ]
+        }
+      ]
+    },
+    "actionKeywords": {
+      "name": "keyword.control.action.rcl",
+      "match": "\\b(dialAction|openUrlAction|viewLocationAction|createCalendarEventAction|richCard|standaloneCard|carouselCard|reply|suggestedAction|suggestedReply)\\b"
+    },
+    "logicalOperators": {
+      "name": "keyword.operator.logical.rcl",
+      "match": "\\b(is not|and|or|not|is)\\b"
+    },
+    "comparisonOperators": {
+      "name": "keyword.operator.comparison.rcl",
+      "match": "(?:is\\s+not|is|==|!=|<=|>=|<|>)"
+    },
+    "arithmeticOperators": {
+      "name": "keyword.operator.arithmetic.rcl",
+      "match": "\\\\+|-|\\\\*|\\\\/|%"
+    },
+    "attributeAccess": {
+      "name": "meta.expression.attribute-access.rcl",
+      "patterns": [
+        {
+          "name": "variable.other.attribute.contextual.rcl",
+          "match": "(?:\\^|@)({{rcl_common_noun}})\\b",
+          "captures": {
+            "1": {
+              "name": "variable.other.property.rcl"
+            }
+          }
+        },
+        {
+          "name": "variable.other.attribute.chained.rcl",
+          "match": "{{rcl_common_noun}}(?:\\.{{rcl_common_noun}})+\\b"
+        },
+        {
+          "name": "variable.other.attribute.simple.rcl",
+          "match": "\\b{{rcl_common_noun}}\\b"
+        }
+      ]
+    },
+    "functionCall": {
+      "name": "meta.function-call.rcl",
+      "begin": "({{rcl_proper_noun}})(\\s*\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.rcl"
+        },
+        "2": {
+          "name": "punctuation.parenthesis.open.rcl"
+        }
+      },
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.close.rcl"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#rclExpression"
+        },
+        {
+          "name": "punctuation.separator.comma.rcl",
+          "match": ","
+        }
+      ]
+    },
+    "groupedExpression": {
+      "name": "meta.expression.grouped.rcl",
+      "begin": "\\(",
+      "end": "\\)",
+      "patterns": [
+        {
+          "include": "#rclExpression"
+        }
+      ],
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.open.rcl"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.close.rcl"
+        }
+      }
+    },
+    "rclExpression": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#functionCall"
+        },
+        {
+          "include": "#groupedExpression"
+        },
+        {
+          "include": "#primitives"
+        },
+        {
+          "include": "#references"
+        },
+        {
+          "include": "#typeConversion"
+        },
+        {
+          "include": "#attributeAccess"
+        },
+        {
+          "include": "#arithmeticOperators"
+        },
+        {
+          "include": "#comparisonOperators"
+        },
+        {
+          "include": "#logicalOperators"
+        }
+      ]
+    },
+    "flowConditionBlock": {
+      "name": "meta.flow.control.condition.rcl",
+      "begin": "(^\\s*)(if|when|unless|match)\\b",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.whitespace.leading.rcl"
+        },
+        "2": {
+          "name": "keyword.control.flow.condition.rcl"
+        }
+      },
+      "end": "\\s*(then|do)\\b",
+      "endCaptures": {
+        "1": {
+          "name": "keyword.control.flow.action.rcl"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#rclExpression"
+        },
+        {
+          "include": "#primitives"
+        },
+        {
+          "include": "#references"
+        }
+      ]
+    },
+    "flowActionBlock": {
+      "name": "meta.flow.control.action.block.rcl",
+      "begin": "(^\\s*)(then|do)\\b",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.whitespace.leading.rcl"
+        },
+        "2": {
+          "name": "keyword.control.flow.action.rcl"
+        }
+      },
+      "end": "(^\\s*)(end)\\b",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.whitespace.leading.rcl"
+        },
+        "2": {
+          "name": "keyword.control.flow.end.rcl"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#flow-rule"
+        },
+        {
+          "include": "#property-assignment"
+        },
+        {
+          "include": "#rclExpression"
+        },
+        {
+          "include": "#primitives"
+        },
+        {
+          "include": "#references"
+        },
+        {
+          "include": "#actionKeywords"
+        },
+        {
+          "include": "#flowControlStructure"
+        }
+      ]
+    },
+    "flowControlStructure": {
+      "patterns": [
+        {
+          "include": "#flowConditionBlock"
+        }
+      ]
+    },
+    "file-level-patterns": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#importStatements"
+        },
+        {
+          "include": "#allSections"
+        }
+      ]
+    },
+    "section-level-patterns": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#property-assignment"
+        },
+        {
+          "include": "#allSections"
+        }
+      ]
+    },
+    "property-value-patterns": {
+      "patterns": [
+        {
+          "include": "#typeConversion"
+        },
+        {
+          "include": "#inlineJsExpression"
+        },
+        {
+          "include": "#inlineTsExpression"
+        },
+        {
+          "include": "#inlineGenericExpression"
+        },
+        {
+          "include": "#collections"
+        },
+        {
+          "include": "#rclExpression"
+        },
+        {
+          "include": "#primitives"
+        },
+        {
+          "include": "#references"
+        },
+        {
+          "include": "#actionKeywords"
+        }
+      ]
+    },
+    "property-assignment-singleline": {
+      "name": "meta.property.assignment.singleline.rcl",
+      "begin": "(^\\s*)([a-z][a-zA-Z0-9_]*)(\\s*:\\s*)(?!\\S)(?!\\||\\|-|\\+\\||\\+\\|\\+)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.whitespace.leading.rcl"
+        },
+        "2": {
+          "name": "variable.other.property.key.rcl"
+        },
+        "3": {
+          "name": "punctuation.separator.key-value.rcl"
+        }
+      },
+      "end": "(?=#)|(?=$)|(?=\\s*[a-z][a-zA-Z0-9_]*\\s*:\\s*(?!\\S))|(?=\\s*(?:(?:{{section_keywords}}|{{message_section_type_keywords}}))\\b)",
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.rcl",
+          "match": "\\G\\s*(#.*)$",
+          "captures": {
+            "1": {
+              "name": "comment.line.content.rcl"
+            }
+          }
+        },
+        {
+          "include": "#typeConversion"
+        },
+        {
+          "include": "#inlineJsExpression"
+        },
+        {
+          "include": "#inlineTsExpression"
+        },
+        {
+          "include": "#inlineGenericExpression"
+        },
+        {
+          "include": "#collections"
+        },
+        {
+          "include": "#rclExpression"
+        },
+        {
+          "include": "#primitives"
+        },
+        {
+          "include": "#references"
+        },
+        {
+          "include": "#actionKeywords"
+        }
+      ]
+    },
+    "property-assignment-multiline": {
+      "name": "meta.property.assignment.multiline.rcl",
+      "begin": "(^\\s*)([a-z][a-zA-Z0-9_]*)(\\s*:\\s*)(\\||\\|-|\\+\\||\\+\\|\\+)(\\s*(?:#.*)?)?$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.whitespace.leading.rcl"
+        },
+        "2": {
+          "name": "variable.other.property.key.rcl"
+        },
+        "3": {
+          "name": "punctuation.separator.key-value.rcl"
+        },
+        "4": {
+          "name": "punctuation.definition.string.multiline.begin.rcl"
+        },
+        "5": {
+          "name": "comment.line.number-sign.rcl"
+        }
+      },
+      "end": "^(?!\\1[ \t])(?=\\S)|^(?=.{0,%\\1width%}(?! \\S))(?<!\\1)",
+      "contentName": "string.unquoted.multiline.rcl",
+      "patterns": [
+        {
+          "include": "#multiline-string-content"
+        }
+      ]
+    },
+    "property-assignment": {
+      "patterns": [
+        {
+          "include": "#property-assignment-multiline"
+        },
+        {
+          "include": "#property-assignment-singleline"
+        }
+      ]
+    },
+    "flow-level-patterns": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#flowConditionBlock"
+        },
+        {
+          "include": "#flowActionBlock"
+        },
+        {
+          "include": "#flow-rule"
+        },
+        {
+          "include": "#property-assignment"
+        }
+      ]
+    }
+  }
+}

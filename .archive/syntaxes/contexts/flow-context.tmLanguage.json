@@ -1,0 +1,103 @@
+{
+  "repository": {
+    "flow-level-patterns": {
+      "patterns": [
+        { "include": "#flow-rules" },
+        { "include": "#flow-control-structures" },
+        { "include": "#flow-level-comments" },
+        { "include": "#property-level-patterns" }
+      ]
+    },
+    "flow-rules": {
+      "patterns": [
+        {
+          "name": "meta.flow.rule.rcl",
+          "match": "([a-zA-Z_][a-zA-Z0-9_]*|\"[^\"]*\")\\s*(->)\\s*([a-zA-Z_][a-zA-Z0-9_]*|\"[^\"]*\")",
+          "captures": {
+            "1": { "name": "variable.other.flow.source.rcl" },
+            "2": { "name": "keyword.operator.flow.arrow.rcl" },
+            "3": { "name": "variable.other.flow.target.rcl" }
+          }
+        },
+        {
+          "name": "meta.flow.rule.with-atoms.rcl",
+          "match": "(:[a-zA-Z_][a-zA-Z0-9_]*)\\s*(->)\\s*([a-zA-Z_][a-zA-Z0-9_]*|:[a-zA-Z_][a-zA-Z0-9_]*|\"[^\"]*\")",
+          "captures": {
+            "1": { "name": "constant.other.atom.rcl" },
+            "2": { "name": "keyword.operator.flow.arrow.rcl" },
+            "3": { "name": "variable.other.flow.target.rcl" }
+          }
+        }
+      ]
+    },
+    "flow-control-structures": {
+      "patterns": [
+        {
+          "name": "meta.flow.control.condition.rcl",
+          "begin": "^\\s*(if|when|unless|match)\\b",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.flow.condition.rcl" }
+          },
+          "end": "^\\s*(then|do)\\b",
+          "endCaptures": {
+            "1": { "name": "keyword.control.flow.action.rcl" }
+          },
+          "patterns": [
+            { "include": "#flow-condition-patterns" }
+          ]
+        },
+        {
+          "name": "meta.flow.action.block.rcl",
+          "begin": "^\\s*(then|do)\\b",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.flow.action.rcl" }
+          },
+          "end": "^\\s*(end)\\b",
+          "endCaptures": {
+            "1": { "name": "keyword.control.flow.end.rcl" }
+          },
+          "patterns": [
+            { "include": "#flow-action-patterns" }
+          ]
+        }
+      ]
+    },
+    "flow-condition-patterns": {
+      "patterns": [
+        { "include": "#expressions" },
+        { "include": "#primitives" },
+        { "include": "#references" },
+        { "include": "#flow-level-comments" }
+      ]
+    },
+    "flow-action-patterns": {
+      "patterns": [
+        { "include": "#expressions" },
+        { "include": "#primitives" },
+        { "include": "#references" },
+        { "include": "#action-keywords" },
+        { "include": "#flow-level-comments" }
+      ]
+    },
+    "flow-level-comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.rcl",
+          "begin": "^\\s*(#)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.comment.rcl"
+            }
+          },
+          "end": "$",
+          "patterns": [
+            {
+              "name": "comment.line.content.rcl",
+              "match": ".*"
+            }
+          ]
+        }
+      ]
+    }
+  }
+} 
