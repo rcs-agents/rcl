@@ -1,5 +1,5 @@
-// Test file for configuration properties
-// This tests all config properties in isolation
+# Test file for configuration properties
+# This tests all config properties in isolation
 
 Config
   description: "Agent description text"
@@ -9,7 +9,7 @@ Config
   agentUseCase: :TRANSACTIONAL
   hostingRegion: :NORTH_AMERICA
 
-// Test with different enum values
+# Test with different enum values
 Config
   agentUseCase: :PROMOTION
   hostingRegion: :EUROPE
@@ -18,11 +18,11 @@ Config
   agentUseCase: :CUSTOMER_CARE
   hostingRegion: :ASIA_PACIFIC
 
-// Test minimal config
+# Test minimal config
 Config
   description: "Minimal config"
 
-// Test config with all properties
+# Test config with all properties
 Config
   description: "Complete configuration with all properties"
   logoUri: "https://cdn.example.com/assets/logo-2024.png"

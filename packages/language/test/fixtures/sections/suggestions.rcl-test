@@ -1,40 +1,40 @@
-// Test file for suggestion structures
-// This tests all suggestion types and action configurations
+# Test file for suggestion structures
+# This tests all suggestion types and action configurations
 
-// ======== Simple Reply Suggestions ========
+# ======== Simple Reply Suggestions ========
 
 suggestions
   reply: "Yes"
   reply: "No"
   reply: "Maybe Later"
 
-// Reply with postback data
+# Reply with postback data
 suggestions
   reply: text: "Confirm", postbackData: "confirm_action"
   reply: text: "Cancel", postbackData: "cancel_action"
 
-// ======== Action Suggestions ========
+# ======== Action Suggestions ========
 
-// Dial actions
+# Dial actions
 suggestions
   action: text: "Call Support", postbackData: "call_support"
     dialAction: phoneNumber: "+1-800-123-4567"
   action: text: "Call Sales", postbackData: "call_sales"
     dialAction: phoneNumber: "+1-800-SALES-01"
 
-// URL actions
+# URL actions
 suggestions
   action: text: "Visit Website", postbackData: "visit_home"
     openUrlAction: url: "https://example.com"
   action: text: "View Details", postbackData: "view_product"
     openUrlAction: url: "https://example.com/product/details"
 
-// Location sharing
+# Location sharing
 suggestions
   action: text: "Share My Location", postbackData: "share_location"
     shareLocationAction
 
-// Location viewing
+# Location viewing
 suggestions
   action: text: "View Store Location", postbackData: "view_store"
     viewLocationAction
@@ -45,7 +45,7 @@ suggestions
       label: "Meeting Point"
       latLong: latitude: 37.7749, longitude: -122.4194
 
-// Calendar events
+# Calendar events
 suggestions
   action: text: "Schedule Meeting", postbackData: "schedule_meeting"
     createCalendarEventAction
@@ -54,7 +54,7 @@ suggestions
       endTime: "2024-12-15T15:00:00Z"
       description: "Product demonstration and Q&A session"
 
-// ======== Mixed Suggestion Types ========
+# ======== Mixed Suggestion Types ========
 
 suggestions
   reply: text: "Not Now", postbackData: "decline"
@@ -67,7 +67,7 @@ suggestions
       query: "Example Store, Downtown"
       label: "Main Store Location"
 
-// ======== Standalone Suggestion Blocks ========
+# ======== Standalone Suggestion Blocks ========
 
 suggestion
   reply: text: "Single Reply", postbackData: "single_reply"

@@ -1,7 +1,7 @@
-// Test file for rich card structures
-// This tests all rich card types and configurations
+# Test file for rich card structures
+# This tests all rich card types and configurations
 
-// ======== Standalone Cards ========
+# ======== Standalone Cards ========
 
 richCard
   standaloneCard
@@ -15,7 +15,7 @@ richCard
         contentInfo
           fileUrl: "https://example.com/product.jpg"
 
-// Vertical orientation card
+# Vertical orientation card
 richCard
   standaloneCard
     cardOrientation: :VERTICAL
@@ -29,7 +29,7 @@ richCard
           fileUrl: "https://example.com/service.jpg"
           forceRefresh: True
 
-// ======== Carousel Cards ========
+# ======== Carousel Cards ========
 
 richCard
   carouselCard
@@ -57,7 +57,7 @@ richCard
         action: text: "View Item 2", postbackData: "item2_view"
           openUrlAction: url: "https://example.com/item2"
 
-// Wide carousel
+# Wide carousel
 richCard
   carouselCard
     cardWidth: :SMALL
@@ -74,7 +74,7 @@ richCard
       suggestion
         reply: text: "Select B", postbackData: "choice_b"
 
-// ======== Cards with Complex Suggestions ========
+# ======== Cards with Complex Suggestions ========
 
 richCard
   standaloneCard

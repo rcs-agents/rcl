@@ -1,5 +1,5 @@
-// Test file for message structures
-// This tests all message types and properties
+# Test file for message structures
+# This tests all message types and properties
 
 Messages
   message Welcome
@@ -15,30 +15,28 @@ Messages
       reply: "Option 2"
       dialAction: "Call Us", "+1234567890"
       
-// Test acknowledgement messages
+# Test acknowledgement messages
 acknowledgement message FileReceipt "PT2H"
   fileName: "receipt.pdf"
   reply: text: "Got it!", postbackData: "ack_receipt"
 
-// Test transaction messages  
+# Test transaction messages  
 transaction message Invoice "PT24H"
   uploadedRbmFile %{
     fileName: "invoice_456.pdf",
-    thumbnailUrl: "https://example.com/thumb.png",
-    thumbnailName: "invoice_thumb.png"
+    thumbnailUrl: "https://example.com/thumb.png"
   }
 
-// Test promotion messages
+# Test promotion messages
 promotion message Newsletter "P7D"
   contentInfo %{
     fileUrl: "https://example.com/newsletter.pdf",
-    thumbnailUrl: "https://example.com/newsletter_thumb.jpg",
-    forceRefresh: True
+    thumbnailUrl: "https://example.com/newsletter_thumb.jpg"
   }
   suggestion
     reply: text: "Interested", postbackData: "newsletter_interest"
 
-// Test agentMessage structures
+# Test agentMessage structures
 agentMessage CompleteExample
   messageTrafficType: :TRANSACTION
   expireTime: "2024-12-31T23:59:59Z"

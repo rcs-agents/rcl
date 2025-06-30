@@ -1,0 +1,19 @@
+agent Complete Agent
+  brandName: "Complete Brand"
+  displayName: "Complete Display"
+  
+  Config
+    description: "Test agent description"
+    logoUri: "https://example.com/logo.png"
+    messageTrafficType: :TRANSACTION
+    
+  Defaults
+    messageTrafficType: :TRANSACTION
+    fallback_message: "Default fallback message"
+    
+  flow Welcome
+    :start -> Welcome
+    
+  Messages
+    message Welcome
+      text: "Welcome message" 

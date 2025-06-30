@@ -1,12 +1,12 @@
-// Test file for default properties
-// This tests all default section properties in isolation
+# Test file for default properties
+# This tests all default section properties in isolation
 
 Defaults
   messageTrafficType: :TRANSACTION
   fallback_message: "I didn't understand that. Please try again."
   ttl: "PT1H"
 
-// Test with different traffic types
+# Test with different traffic types
 Defaults
   messageTrafficType: :PROMOTION
   fallback_message: "Sorry, I couldn't process that request."
@@ -17,7 +17,7 @@ Defaults
   fallback_message: "Let me connect you with support."
   ttl: "PT30M"
 
-// Test with expressions
+# Test with expressions
 Defaults
   messageTrafficType: :TRANSACTION
   fallback_message: "Default fallback message"
@@ -26,12 +26,12 @@ Defaults
     language: :rclscript
   postbackData: $js> format @selectedOption.text as :dash_case
 
-// Test minimal defaults
+# Test minimal defaults
 Defaults
   messageTrafficType: :TRANSACTION
   fallback_message: "Simple fallback"
 
-// Test with complex expressions
+# Test with complex expressions
 Defaults
   messageTrafficType: :PROMOTION
   fallback_message: "Promotional message fallback"
