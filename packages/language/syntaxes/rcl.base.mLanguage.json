@@ -10,7 +10,7 @@
     },
     {
       "name": "keyword.control.rcl",
-      "match": "\\b(acknowledge|address|agent|agentConfig|agentDefaults|agentUseCase|as|authentication|billingCategory|billingConfig|brandName|color|description|displayName|emailEntry|expressions|fallback_message|flow|heroUri|hostingRegion|import|label|language|logoUri|message|messageTrafficType|messages|number|phoneNumberEntry|postbackData|privacy|promotion|servicerequest|start|termsConditions|text|transaction|true|ttl|url|websiteEntry|with)\\b"
+      "match": "\\b(acknowledge|address|agent|agentConfig|agentDefaults|agentUseCase|as|authentication|billingCategory|billingConfig|brandName|color|description|displayName|emailEntry|expressions|fallback_message|flow|heroUri|hostingRegion|import|label|language|logoUri|message|messageTrafficType|messages|number|phoneNumberEntry|postbackData|privacy|promotion|servicerequest|start|termsConditions|transaction|true|ttl|url|websiteEntry|with)\\b"
     },
     {
       "name": "string.quoted.double.rcl",
