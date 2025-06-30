@@ -4,12 +4,7 @@
 import "../core/ast-nodes";
 import "../core/primitives";
 import "../data-types/collections";
-import "../specialized/embedded-code";
-import "../specialized/strings";
-
-// NOTE: Using literal keywords instead of terminals per Langium best practices
-
-// NOTE: CARD_HEIGHT and CARD_ORIENTATION are defined in primitives.langium
+import "../core/embedded-code";
 
 // ======== Rich Card Parser Rules ========
 // NOTE: Using terminal-first design due to Langium limitations
@@ -45,5 +40,5 @@ CardSuggestion returns CardSuggestion:
 
 // ======== Card Attributes ========
 CardAttribute returns CardAttribute:
-    key=('title' | 'description' | 'thumbnail' | 'height' | 'orientation') ':' __ value=SimpleValue
-    | key=COMMON_NOUN ':' __ value=SimpleValue; 
+    key=('title' | 'description' | 'thumbnail' | 'height' | 'orientation') ':' (__? | WS | NL)? value=SimpleValue
+    | key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue; 

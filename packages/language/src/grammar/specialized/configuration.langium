@@ -25,22 +25,22 @@ ConfigProperty returns ConfigProperty:
 
 // ======== Simple Config Properties ========
 DescriptionProperty returns DescriptionProperty:
-    {DescriptionProperty} key='description' ':' __ value=SimpleValue;
+    {DescriptionProperty} key='description' ':' (__? | WS | NL)? value=SimpleValue;
 
 LogoUriProperty returns LogoUriProperty:
-    {LogoUriProperty} key='logoUri' ':' __ value=SimpleValue;
+    {LogoUriProperty} key='logoUri' ':' (__? | WS | NL)? value=SimpleValue;
 
 HeroUriProperty returns HeroUriProperty:
-    {HeroUriProperty} key='heroUri' ':' __ value=SimpleValue;
+    {HeroUriProperty} key='heroUri' ':' (__? | WS | NL)? value=SimpleValue;
 
 ColorProperty returns ColorProperty:
-    {ColorProperty} key='color' ':' __ value=SimpleValue;
+    {ColorProperty} key='color' ':' (__? | WS | NL)? value=SimpleValue;
 
 AgentUseCaseProperty returns AgentUseCaseProperty:
-    {AgentUseCaseProperty} key='agentUseCase' ':' __ value=SimpleValue;
+    {AgentUseCaseProperty} key='agentUseCase' ':' (__? | WS | NL)? value=SimpleValue;
 
 HostingRegionProperty returns HostingRegionProperty:
-    {HostingRegionProperty} key='hostingRegion' ':' __ value=SimpleValue;
+    {HostingRegionProperty} key='hostingRegion' ':' (__? | WS | NL)? value=SimpleValue;
 
 // ======== Complex Config Properties ========
 PhoneNumberProperty returns PhoneNumberProperty:

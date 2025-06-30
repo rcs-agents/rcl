@@ -3,9 +3,8 @@
 
 import "../core/ast-nodes";
 import "../core/primitives";
-import "../data-types/type-system";
-import "../specialized/embedded-code";
-import "../specialized/strings";
+import "../data-types/type-tag";
+import "../core/embedded-code";
 
 // ======== Core Value Types ========
 // NOTE: Interfaces are defined in ast-nodes.langium
@@ -13,7 +12,7 @@ import "../specialized/strings";
 SimpleValue returns SimpleValue:
     value=STRING | value=NUMBER | value=ATOM | value=BooleanLiteral | value=NullLiteral | value=PROPER_NOUN | value=COMMON_NOUN 
     | TypeTag 
-    | SingleLineEmbeddedExpression 
+    | EmbeddedCodeExpression 
     | MultiLineString
     | ParenthesesList
     | InlineList 
@@ -35,9 +34,9 @@ IndentedList returns IndentedList:
     NL?
     INDENT
     (
-        '-' items+=SimpleValue NL?
+        '-' items+=SimpleValue (NL | WS)?
         | emptyLines+=EmptyLine
-    )+
+    )*
     DEDENT;
 
 // ======== Dictionary Collections ========
@@ -49,9 +48,12 @@ BraceObject returns BraceObject:
 IndentedObject returns IndentedObject:
     NL?
     INDENT
-    (pairs+=ObjectPair | emptyLines+=EmptyLine)*
+    (
+        pairs+=ObjectPair (NL | WS)?
+        | emptyLines+=EmptyLine
+    )*
     DEDENT;
 
 // Object pair: key: value
 ObjectPair returns ObjectPair:
-    key=SimpleValue ':' __ value=SimpleValue;
+    key=SimpleValue ':' (__? | WS | NL)? value=SimpleValue;

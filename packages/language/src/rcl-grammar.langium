@@ -13,15 +13,15 @@
  * 
  * Any direct edits to this file WILL BE LOST on the next build!
  * 
- * Generated at: 2025-06-30T09:42:32.226Z
+ * Generated at: 2025-06-30T18:07:31.490Z
  * ========================================================================
  */
 
 grammar RclLanguage
 
 interface AbstractNamedSection {
+    type?: string;
     name: string;
-    sectionName?: string;
     sectionType?: string;
     attributes: Attribute[];
     agentAttributes: AgentAttribute[];
@@ -323,7 +323,7 @@ interface Parameter {
 }
 
 interface ImportStatement {
-    source: string;
+    source: string[];
     alias?: string;
 }
 
@@ -331,10 +331,21 @@ interface FlowContent {
     rules: FlowRule[];
 }
 
+interface EmbeddedCodeExpression {
+    content: string;
+}
+
+interface EmbeddedCodeBlock {
+    content: string[];
+}
+
 interface FlowRule {
     source: string;
-    transitions: string[];
+    destination?: @AbstractNamedSection;
+    destinationIsFlow?: boolean;
     withClause?: WithClause;
+    code?: EmbeddedCodeExpression | EmbeddedCodeBlock;
+    rules?: FlowRule[];
 }
 
 interface WithClause {
@@ -344,10 +355,15 @@ interface WithClause {
 interface FileAttribute {
     key: string;
     value: SimpleValue;
-} 
+}
+
+interface MultiLineString {
+    marker: string;
+    has_block_content?: string;
+}
 
 hidden terminal SL_COMMENT: /#[^\r\n]*/;
-hidden terminal WS: /[ \t]+/;
+terminal WS: /[ \t]+/;
 
 terminal __: /[ ]+/;
 
@@ -363,21 +379,28 @@ terminal TRUE_KW: /\b(True|On|Yes|Active|Enabled)\b/;
 terminal FALSE_KW: /\b(False|Off|No|Inactive|Disabled)\b/;
 terminal NULL_KW: /\b(Null|None|Void)\b/;
 
-terminal PROPER_NOUN: /[A-Z][a-zA-Z0-9-]*(?:\s+[A-Z0-9][a-zA-Z0-9-]*)*/;
+terminal PROPER_NOUN: /[A-Z0-9][a-zA-Z0-9-]*(?:\s+[A-Z0-9][a-zA-Z0-9-]*)*/;
 
 terminal COMMON_NOUN: /(?!import\b|as\b|agent\b|agentConfig\b|agentDefaults\b|flow\b|messages\b|authentication\b|transaction\b|promotion\b|servicerequest\b|acknowledge\b|message\b|or\b|and\b|is\b|not\b|date\b|datetime\b|time\b|email\b|phone\b|msisdn\b|url\b|zipcode\b|zip\b|True\b|On\b|Yes\b|Active\b|Enabled\b|False\b|Off\b|No\b|Inactive\b|Disabled\b|Null\b|None\b|Void\b|list\b|of\b|with\b|start\b|text\b|reply\b|dial\b|openUrl\b|shareLocation\b|viewLocation\b|saveEvent\b|richCard\b|carousel\b|rbmFile\b|file\b|displayName\b|brandName\b|Config\b|Defaults\b|Messages\b|agentMessage\b|contentMessage\b|composeTextMessage\b|composeRecordingMessage\b|cardContent\b|contentInfo\b|media\b|standaloneCard\b|carouselCard\b|cardSuggestion\b|title\b|description\b|thumbnail\b|height\b|orientation\b|suggestion\b|suggestedReply\b|suggestedAction\b|action\b|createCalendarEvent\b|replyShortcut\b|suggestionShortcut\b|messageShortcut\b|filename\b|thumbnailUrl\b|fileUrl\b|logoUri\b|heroUri\b|color\b|agentUseCase\b|hostingRegion\b|phoneNumberEntry\b|emailEntry\b|websiteEntry\b|privacy\b|termsConditions\b|billingConfig\b|billingCategory\b|number\b|address\b|url\b|label\b|fallback_message\b|messageTrafficType\b|ttl\b|postbackData\b|expressions\b|language\b)[a-z][a-zA-Z0-9_]*/;
 
-BooleanLiteral returns string:
-    TRUE_KW | FALSE_KW;
+BooleanLiteral returns string: TRUE_KW | FALSE_KW;
 
 NullLiteral returns string:
     NULL_KW;
 
 EmptyLine returns string: __* NL;
-ImportPath returns string: PROPER_NOUN ('.' PROPER_NOUN)* ('/' PROPER_NOUN ('.' PROPER_NOUN)*)*;
+
+terminal MULTILINE_STR_CLEAN: /\|(?=\s*#|\s*[\r\n])/;            // |
+terminal MULTILINE_STR_TRIM: /\|-(?=\s*#|\s*[\r\n])/;            // |-
+terminal MULTILINE_STR_PRESERVE: /\+\|(?=\s*#|\s*[\r\n])/;       // +|
+terminal MULTILINE_STR_PRESERVE_ALL: /\+\|\+(?=\s*#|\s*[\r\n])/; // +|+
+
+MultiLineString returns MultiLineString:
+    marker=(MULTILINE_STR_CLEAN | MULTILINE_STR_TRIM | MULTILINE_STR_PRESERVE | MULTILINE_STR_PRESERVE_ALL)
+    has_block_content='true';
 
 ImportStatement returns ImportStatement:
-    'import' source=ImportPath ('as' alias=PROPER_NOUN)?;
+    'import' source+=PROPER_NOUN ( __? '/' __? source+=PROPER_NOUN)* ('as' alias=PROPER_NOUN)?;
 
 terminal TYPE_TAG_NAME: /(date|datetime|dt|time|t|email|phone|msisdn|url|zipcode|zip|duration|ttl)/;
 terminal ISO_DURATION_LITERAL: /P(\d+[YMWD])*T?(\d+[HMS])*|(\d+(\.\d+)?s)/;
@@ -391,36 +414,25 @@ interface TypeTag {
 }
 
 TypeTag returns TypeTag:
-    '<' type=TYPE_TAG_NAME value=TypeTagValue ('|' modifier=STRING)? '>'; 
+    '<' type=TYPE_TAG_NAME __ value=TypeTagValue (__? '|' __? modifier=STRING)? __?'>'; 
 
-terminal SINGLE_LINE_EXPRESSION: /\$((js|ts)?>)\s*[^\r\n]*/;
-terminal MULTI_LINE_EXPRESSION_START: /\$((js|ts)?)>>>/;
+terminal EMBEDDED_CODE_START: /\$((js|ts)?)/;
+terminal CODE_LINE: /(?:>\s)\s*[^\r\n]*/;
+terminal CODE_BLOCK_START: />>>[\s\r\n]+/;
 
-interface SingleLineEmbeddedExpression {
-    content: string;
-}
+EmbeddedCodeBlock returns EmbeddedCodeBlock:
+    CODE_BLOCK_START 
+    INDENT
+    content+=(CODE_LINE | EmptyLine)*
+    DEDENT;
 
-SingleLineEmbeddedExpression returns SingleLineEmbeddedExpression:
-    content=SINGLE_LINE_EXPRESSION;
-
-terminal MULTILINE_STR_CLEAN: /\|(?=\s*#|\s*[\r\n])/;          // |
-terminal MULTILINE_STR_TRIM: /\|-(?=\s*#|\s*[\r\n])/;         // |-
-terminal MULTILINE_STR_PRESERVE: /\+\|(?=\s*#|\s*[\r\n])/;       // +|
-terminal MULTILINE_STR_PRESERVE_ALL: /\+\|\+(?=\s*#|\s*[\r\n])/; // +|+
-
-interface MultiLineString {
-    marker: string;
-    has_block_content?: string;
-}
-
-MultiLineString returns MultiLineString:
-    marker=(MULTILINE_STR_CLEAN | MULTILINE_STR_TRIM | MULTILINE_STR_PRESERVE | MULTILINE_STR_PRESERVE_ALL)
-    has_block_content='true';
+EmbeddedCodeExpression returns EmbeddedCodeExpression:
+    EMBEDDED_CODE_START content=CODE_LINE;
 
 SimpleValue returns SimpleValue:
     value=STRING | value=NUMBER | value=ATOM | value=BooleanLiteral | value=NullLiteral | value=PROPER_NOUN | value=COMMON_NOUN 
     | TypeTag 
-    | SingleLineEmbeddedExpression 
+    | EmbeddedCodeExpression 
     | MultiLineString
     | ParenthesesList
     | InlineList 
@@ -438,9 +450,9 @@ IndentedList returns IndentedList:
     NL?
     INDENT
     (
-        '-' items+=SimpleValue NL?
+        '-' items+=SimpleValue (NL | WS)?
         | emptyLines+=EmptyLine
-    )+
+    )*
     DEDENT;
 
 BraceObject returns BraceObject:
@@ -449,25 +461,27 @@ BraceObject returns BraceObject:
 IndentedObject returns IndentedObject:
     NL?
     INDENT
-    (pairs+=ObjectPair | emptyLines+=EmptyLine)*
+    (
+        pairs+=ObjectPair (NL | WS)?
+        | emptyLines+=EmptyLine
+    )*
     DEDENT;
 
 ObjectPair returns ObjectPair:
-    key=SimpleValue ':' __ value=SimpleValue;
+    key=SimpleValue ':' (__? | WS | NL)? value=SimpleValue;
 
 Parameter returns Parameter:
     name=COMMON_NOUN ':' type=COMMON_NOUN value=SimpleValue; 
-
-FlowOperand returns string: ATOM | PROPER_NOUN | STRING | NUMBER | SINGLE_LINE_EXPRESSION | MULTI_LINE_EXPRESSION_START | FlowTextAction | FlowStartAction;
-FlowTextAction returns string: 'text' (STRING | MULTILINE_STR_CLEAN | MULTILINE_STR_TRIM | MULTILINE_STR_PRESERVE | MULTILINE_STR_PRESERVE_ALL);
-FlowStartAction returns string: 'start' PROPER_NOUN;
 
 FlowContent returns FlowContent:
     rules+=FlowRule+;
 
 FlowRule returns FlowRule:
-    source=FlowOperand ('->' transitions+=FlowOperand)+
-    (withClause=WithClause)?;
+    source=(ATOM | PROPER_NOUN | STRING) '->' (
+      destinationIsFlow?='start' destination=[AbstractNamedSection:PROPER_NOUN] (withClause=WithClause)?
+      | code=(EmbeddedCodeExpression | EmbeddedCodeBlock)
+      | rules+=FlowRule
+    );
 
 WithClause returns WithClause:
     'with' parameters+=Parameter (',' parameters+=Parameter)*;
@@ -487,22 +501,22 @@ ConfigProperty returns ConfigProperty:
     | BillingConfigProperty;
 
 DescriptionProperty returns DescriptionProperty:
-    {DescriptionProperty} key='description' ':' __ value=SimpleValue;
+    {DescriptionProperty} key='description' ':' (__? | WS | NL)? value=SimpleValue;
 
 LogoUriProperty returns LogoUriProperty:
-    {LogoUriProperty} key='logoUri' ':' __ value=SimpleValue;
+    {LogoUriProperty} key='logoUri' ':' (__? | WS | NL)? value=SimpleValue;
 
 HeroUriProperty returns HeroUriProperty:
-    {HeroUriProperty} key='heroUri' ':' __ value=SimpleValue;
+    {HeroUriProperty} key='heroUri' ':' (__? | WS | NL)? value=SimpleValue;
 
 ColorProperty returns ColorProperty:
-    {ColorProperty} key='color' ':' __ value=SimpleValue;
+    {ColorProperty} key='color' ':' (__? | WS | NL)? value=SimpleValue;
 
 AgentUseCaseProperty returns AgentUseCaseProperty:
-    {AgentUseCaseProperty} key='agentUseCase' ':' __ value=SimpleValue;
+    {AgentUseCaseProperty} key='agentUseCase' ':' (__? | WS | NL)? value=SimpleValue;
 
 HostingRegionProperty returns HostingRegionProperty:
-    {HostingRegionProperty} key='hostingRegion' ':' __ value=SimpleValue;
+    {HostingRegionProperty} key='hostingRegion' ':' (__? | WS | NL)? value=SimpleValue;
 
 PhoneNumberProperty returns PhoneNumberProperty:
     {PhoneNumberProperty} key='phoneNumberEntry'
@@ -592,11 +606,8 @@ SectionType returns string:
       | 'acknowledge'
     ) __ 'message');
 
-ReservedSectionName returns string:
-    'Config' | 'Defaults' | 'Messages';
-
 Section returns Section:
-    name=SectionType (__? sectionName=PROPER_NOUN)?
+    (type=SectionType)? name=PROPER_NOUN
     NL?
     INDENT
     (
@@ -611,220 +622,11 @@ Section returns Section:
     DEDENT;
 
 Attribute returns Attribute:
-    key=COMMON_NOUN ':' __? value=SimpleValue;
+    key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue;
 
 AgentAttribute returns AgentAttribute:
     key=('displayName' | 'brandName') ':' __? value=SimpleValue
     | key=COMMON_NOUN ':' __? value=SimpleValue;
-
-AgentMessage returns AgentMessage:
-    'agentMessage' identifier=PROPER_NOUN?
-    NL?
-    INDENT
-    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-ContentMessage returns ContentMessage:
-    'contentMessage'
-    NL?
-    INDENT
-    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-ComposeTextMessage returns ComposeTextMessage:
-    'composeTextMessage'
-    NL?
-    INDENT
-    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-ComposeRecordingMessage returns ComposeRecordingMessage:
-    'composeRecordingMessage'
-    NL?
-    INDENT
-    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-CardContent returns CardContent:
-    'cardContent'
-    NL?
-    INDENT
-    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-ContentInfo returns ContentInfo:
-    'contentInfo'
-    NL?
-    INDENT
-    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-Media returns Media:
-    'media'
-    NL?
-    INDENT
-    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-MessageAttribute returns MessageAttribute:
-    key=COMMON_NOUN ':' __ value=SimpleValue; 
-
-RichCard returns RichCard:
-    'richCard'
-    NL?
-    INDENT
-    (cardType=StandaloneCard | cardType=CarouselCard)
-    DEDENT;
-
-StandaloneCard returns StandaloneCard:
-    'standaloneCard'
-    NL?
-    INDENT
-    (attributes+=CardAttribute | suggestions+=CardSuggestion | emptyLines+=EmptyLine)*
-    DEDENT;
-
-CarouselCard returns CarouselCard:
-    'carouselCard'
-    NL?
-    INDENT
-    (cards+=StandaloneCard | attributes+=CardAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-CardSuggestion returns CardSuggestion:
-    'cardSuggestion'
-    NL?
-    INDENT
-    (attributes+=CardAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-CardAttribute returns CardAttribute:
-    key=('title' | 'description' | 'thumbnail' | 'height' | 'orientation') ':' __ value=SimpleValue
-    | key=COMMON_NOUN ':' __ value=SimpleValue; 
-
-Suggestion returns Suggestion:
-    'suggestion'
-    NL?
-    INDENT
-    (replyType=SuggestedReply | actionType=SuggestedAction)
-    DEDENT;
-
-SuggestedReply returns SuggestedReply:
-    'reply' __ 'suggestedReply'
-    NL?
-    INDENT
-    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-SuggestedAction returns SuggestedAction:
-    'action' __ 'suggestedAction'
-    NL?
-    INDENT
-    (attributes+=SuggestionAttribute | actions+=ActionType | emptyLines+=EmptyLine)*
-    DEDENT;
-
-DialAction returns DialAction:
-    'dial'
-    NL?
-    INDENT
-    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-OpenUrlAction returns OpenUrlAction:
-    'openUrl'
-    NL?
-    INDENT
-    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-ShareLocationAction returns ShareLocationAction:
-    'shareLocation'
-    NL?
-    INDENT
-    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-ViewLocationAction returns ViewLocationAction:
-    'viewLocation'
-    NL?
-    INDENT
-    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-SaveEventAction returns SaveEventAction:
-    'saveEvent'
-    NL?
-    INDENT
-    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-CreateCalendarEventAction returns CreateCalendarEventAction:
-    'createCalendarEvent'
-    NL?
-    INDENT
-    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
-    DEDENT;
-
-ActionType returns ActionType:
-    DialAction | OpenUrlAction | ShareLocationAction | ViewLocationAction | SaveEventAction | CreateCalendarEventAction;
-
-SuggestionAttribute returns SuggestionAttribute:
-    key=COMMON_NOUN ':' __ value=SimpleValue; 
-
-TextShortcut returns TextShortcut:
-    'text' __ value=SimpleValue;
-
-RichCardShortcut returns RichCardShortcut:
-    'richCard' __ value=SimpleValue
-    NL?
-    (
-        INDENT
-        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
-        DEDENT
-    )?;
-
-ReplyShortcut returns ReplyShortcut:
-    'replyShortcut' __ value=SimpleValue
-    NL?
-    (
-        INDENT
-        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
-        DEDENT
-    )?;
-
-SuggestionShortcut returns SuggestionShortcut:
-    'suggestionShortcut' __ value=SimpleValue
-    NL?
-    (
-        INDENT
-        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
-        DEDENT
-    )?;
-
-MessageShortcut returns MessageShortcut:
-    'messageShortcut' __ value=SimpleValue
-    NL?
-    (
-        INDENT
-        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
-        DEDENT
-    )?;
-
-FileShortcut returns FileShortcut:
-    'file'
-    NL?
-    (
-        INDENT
-        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
-        DEDENT
-    )?;
-
-FileAttribute returns FileAttribute:
-    key=('filename' | 'thumbnailUrl' | 'fileUrl') ':' __ value=SimpleValue
-    | key=COMMON_NOUN ':' __ value=SimpleValue;
-
-ShortcutAttribute returns ShortcutAttribute:
-    key=('filename' | 'thumbnailUrl' | 'fileUrl') ':' __ value=SimpleValue
-    | key=COMMON_NOUN ':' __ value=SimpleValue; 
 
 entry RclFile:
     (imports+=ImportStatement | emptyLines+=EmptyLine)*

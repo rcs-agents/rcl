@@ -5,8 +5,8 @@
 // AbstractNamedSection provides a common interface for all named sections (e.g., agent, flow, messages),
 // allowing them to be targets for cross-references (Ref).
 interface AbstractNamedSection {
+    type?: string;
     name: string;
-    sectionName?: string;
     sectionType?: string;
     attributes: Attribute[];
     agentAttributes: AgentAttribute[];
@@ -320,7 +320,7 @@ interface Parameter {
 }
 
 interface ImportStatement {
-    source: string;
+    source: string[];
     alias?: string;
 }
 
@@ -328,15 +328,23 @@ interface FlowContent {
     rules: FlowRule[];
 }
 
-interface FlowRule {
-    source: string;
-    transitions: string[];
-    withClause?: WithClause;
+
+interface EmbeddedCodeExpression {
+    content: string;
 }
 
-// ======== Missing Interfaces for Grammar ========
-// NOTE: TypeTag, SingleLineEmbeddedExpression, and MultiLineString
-// are now defined in their respective grammar files to avoid import issues
+interface EmbeddedCodeBlock {
+    content: string[];
+}
+
+interface FlowRule {
+    source: string;
+    destination?: @AbstractNamedSection;
+    destinationIsFlow?: boolean;
+    withClause?: WithClause;
+    code?: EmbeddedCodeExpression | EmbeddedCodeBlock;
+    rules?: FlowRule[];
+}
 
 interface WithClause {
     parameters: Parameter[];
@@ -345,4 +353,14 @@ interface WithClause {
 interface FileAttribute {
     key: string;
     value: SimpleValue;
-} 
+}
+
+interface MultiLineString {
+    marker: string;
+    has_block_content?: string;
+}
+
+// ======== Missing Interfaces for Grammar ========
+//
+// NOTE: TypeTag, SingleLineEmbeddedExpression, and MultiLineString
+// are now defined in their respective grammar files to avoid import issues

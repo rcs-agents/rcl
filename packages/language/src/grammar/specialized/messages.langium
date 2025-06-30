@@ -3,8 +3,7 @@
 
 import "../core/primitives";
 import "../data-types/collections";
-import "../specialized/embedded-code";
-import "../specialized/strings";
+import "../core/embedded-code";
 
 // NOTE: Using literal keywords instead of terminals per Langium best practices
 
@@ -68,4 +67,4 @@ Media returns Media:
 // ======== Message Attributes ========
 // Message-specific attribute that can handle both common attributes and message content
 MessageAttribute returns MessageAttribute:
-    key=COMMON_NOUN ':' __ value=SimpleValue; 
+    key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue; 

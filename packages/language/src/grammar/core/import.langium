@@ -9,4 +9,4 @@ import "./primitives";
 // An import statement consists of the 'import' keyword, a qualified name path,
 // and an optional 'as' clause for aliasing.
 ImportStatement returns ImportStatement:
-    'import' source=ImportPath ('as' alias=PROPER_NOUN)?;
+    'import' source+=PROPER_NOUN ( __? '/' __? source+=PROPER_NOUN)* ('as' alias=PROPER_NOUN)?;

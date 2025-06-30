@@ -4,8 +4,7 @@
 import "../core/ast-nodes";
 import "../core/primitives";
 import "../data-types/collections";
-import "../specialized/embedded-code";
-import "../specialized/strings";
+import "../core/embedded-code";
 
 // NOTE: Using literal keywords instead of terminals per Langium best practices
 
@@ -90,4 +89,4 @@ ActionType returns ActionType:
 // ======== Suggestion Attributes ========
 // Suggestion-specific attributes
 SuggestionAttribute returns SuggestionAttribute:
-    key=COMMON_NOUN ':' __ value=SimpleValue; 
+    key=COMMON_NOUN ':' (__* | NL)? value=SimpleValue;

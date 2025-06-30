@@ -22,4 +22,4 @@ interface TypeTag {
 // A TypeTag applies a specific type to a value, with an optional modifier.
 // e.g., <time "4pm" | "Z"> or <zip "94103">
 TypeTag returns TypeTag:
-    '<' type=TYPE_TAG_NAME value=TypeTagValue ('|' modifier=STRING)? '>'; 
+    '<' type=TYPE_TAG_NAME __ value=TypeTagValue (__? '|' __? modifier=STRING)? __?'>'; 

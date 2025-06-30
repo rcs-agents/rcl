@@ -6,7 +6,6 @@ import "../core/primitives";
 import "../data-types/collections";
 import "../specialized/flow-rules";
 import "../specialized/configuration";
-// import "../data-types/type-system";
 
 // ======== Data Type Rules ========
 // SectionType defines the valid keywords that can start a section block.
@@ -24,16 +23,11 @@ SectionType returns string:
       | 'acknowledge'
     ) __ 'message');
 
-// Reserved section names have implicit types and must be used with
-// specific content structures.
-ReservedSectionName returns string:
-    'Config' | 'Defaults' | 'Messages';
-
 // ======== Section Content Rules ========
 // Section is the main section rule that matches all section types.
 // It handles both explicit type declarations and implicit reserved names.
 Section returns Section:
-    name=SectionType (__? sectionName=PROPER_NOUN)?
+    (type=SectionType)? name=PROPER_NOUN
     NL?
     INDENT
     (
@@ -52,7 +46,7 @@ Section returns Section:
 
 // Attribute represents a general key-value pair for any section
 Attribute returns Attribute:
-    key=COMMON_NOUN ':' __? value=SimpleValue;
+    key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue;
 
 // Agent-specific attributes (for agent sections only)
 AgentAttribute returns AgentAttribute:

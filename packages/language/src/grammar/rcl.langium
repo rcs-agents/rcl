@@ -12,20 +12,16 @@ import "./core/sections";
 // Import data type definitions
 import "./data-types/collections";
 import "./data-types/parameters";
-import "./data-types/type-system";
+import "./data-types/type-tag";
 
 // Import specialized grammar rules
-import "./specialized/embedded-code";
+import "./core/embedded-code";
 import "./specialized/flow-rules";
-import "./specialized/strings";
-import "./specialized/messages";
-import "./specialized/rich-cards";
-import "./specialized/suggestions";
-import "./specialized/shortcuts";
+// import "./specialized/messages";
+// import "./specialized/rich-cards";
+// import "./specialized/suggestions";
+// import "./specialized/shortcuts";
 import "./specialized/configuration";
-
-// Import expression definitions
-import "./expressions/expression-types";
 
 // ======== Entry Point ========
 // An RCL file consists of zero or more import statements and empty lines,
