@@ -32,30 +32,52 @@ terminal COMMON_NOUN: /(?!agent\b|flow\b)[a-z][a-zA-Z0-9_-]*/;  // Exclude keywo
 - Only the order **within** parser rules matters for parser rule resolution
 - Mix parser rules and terminal rules in any order for better organization
 
-### 3. CRITICAL LANGIUM BUG: No Fragments or Sub-Rules in Terminals
-**⚠️ BREAKING BUG**: There is currently a bug in Langium where using fragments or sub-rules in terminal definitions will break the parser.
+### 3. CRITICAL: Terminals Must Be Self-Contained
+**⚠️ LANGIUM BUG**: Due to a bug in Langium, `parser rules` **cannot** reference rule fragments or other rules. We don't know if the bug affects `terminal` rules, but, to be safe, we will NOT use fragments in terminal or parser rules, neither reference rules. The only reference allowed is parser rules CAN use terminal rules.
 
 **DO NOT USE**:
 ```langium
 // ❌ BROKEN - fragments in terminals
 terminal fragment LETTER: /[a-zA-Z]/;
 terminal ID: LETTER (LETTER | DIGIT)*;
-
-// ❌ BROKEN - sub-rules in terminals  
-terminal WORD: LETTER+;
-terminal IDENTIFIER: WORD ('_' WORD)*;
 ```
 
-**WORKAROUND - Use only raw regex**:
+**WORKAROUND - Use only pure regex**:
 ```langium
 // ✅ WORKS - pure regex patterns only
 terminal ID: /[a-zA-Z][a-zA-Z0-9]*/;
-terminal IDENTIFIER: /[a-zA-Z]+(?:_[a-zA-Z]+)*/;
 ```
 
-**Impact**: Until this bug is fixed, all terminal rules must use only regex patterns. No composition, no fragments, no references to other terminals.
+### 4. CRITICAL: Parser Rules Can Only Use Terminals (Langium 3.5.0 Bug)
+**⚠️ LANGIUM BUG**: Due to a bug in Langium 3.5.0, parser rules **cannot** reference other parser rules or fragments. All parser rules must only reference terminals directly.
 
-### 4. Use Negative Lookaheads for General Patterns
+**This limitation will likely be fixed in future versions of Langium.**
+
+**DO NOT USE**:
+```langium
+// ❌ BROKEN - parser rules referencing other parser rules
+Value:
+    List | Dictionary | LiteralValue;
+
+// ❌ BROKEN - parser rule referencing other parser rules
+Attribute:
+    key=COMMON_NOUN ':' value=Value;
+```
+
+**WORKAROUND - Use only terminals**:
+```langium
+// ✅ WORKS - parser rules using only terminals
+Value:
+    STRING | NUMBER | ATOM;
+
+// ✅ WORKS - parser rule using only terminals
+Attribute:
+    key=COMMON_NOUN ':' value=(STRING | NUMBER | ATOM);
+```
+
+**Key Takeaway**: Both `terminal` rules and parser rules are currently limited to direct patterns only in Langium 3.5.0.
+
+### 5. Use Negative Lookaheads for General Patterns
 **Rule**: When you have general identifier patterns, exclude keywords using negative lookaheads.
 
 ```langium
@@ -66,7 +88,7 @@ terminal COMMON_NOUN: /(?!import\b|as\b|agent\b|flow\b)[a-z][a-zA-Z0-9_-]*/;
 - `\b` ensures word boundaries (prevents partial matches)
 - Include **all** keywords that start with lowercase letters
 
-### 5. String Literals Are Safe
+### 6. String Literals Are Safe
 **Rule**: Keywords inside string literals are automatically protected - no special handling needed.
 
 ```langium
@@ -77,7 +99,7 @@ terminal STRING: /\"(\\.|[^\"\\])*\"/;
 - Keywords inside strings are never individually tokenized
 - `"import something"` becomes one `STRING` token, not separate `import` + text
 
-### 6. Hidden Terminals Are Global
+### 7. Hidden Terminals Are Global
 **Rule**: Hidden terminals apply to **all** parser rules in the grammar.
 
 ```langium
@@ -89,7 +111,7 @@ hidden terminal SL_COMMENT: /#[^\r\n]*/;
 - Cannot be selectively applied to specific rules
 - Be careful with whitespace if your language is indentation-sensitive
 
-### 7. Keywords vs Terminals Precedence
+### 8. Keywords vs Terminals Precedence
 **Rule**: Keywords in parser rules take precedence over terminals, but only if terminals don't match first.
 
 **Problematic**:
@@ -104,27 +126,13 @@ terminal ID: /(?!import\b)[a-z]+/;  // Excludes "import"
 ImportStmt: 'import' source=ID;     // Now "import" keyword works
 ```
 
-### 8. Terminal Return Types
+### 9. Terminal Return Types
 **Rule**: Specify return types when needed, default is `string`.
 
 ```langium
 terminal ID: /[_a-zA-Z][\w_]*/;              // returns string (default)
 terminal INT returns number: /[0-9]+/;       // returns number
 terminal BOOL returns boolean: /true|false/; // returns boolean
-```
-
-### 9. Regex Best Practices
-**Rule**: Write robust regex patterns with proper boundaries.
-
-```langium
-// Good - uses word boundaries
-terminal KEYWORD: /\bkeyword\b/;
-
-// Bad - could match partial words
-terminal KEYWORD: /keyword/;
-
-// Good - handles multi-word identifiers
-terminal PROPER_NOUN: /\b[A-Z][\w-]*(?:[ \t]+[A-Z][\w-]*)*\b/;
 ```
 
 ### 10. ~~Fragment Terminals for Reusability~~ (CURRENTLY BROKEN)

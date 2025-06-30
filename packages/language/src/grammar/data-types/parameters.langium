@@ -1,11 +1,10 @@
-// ======== Parameter and Property Structures ========
-// This file contains parameter structures used across schemas
+// ======== Parameter Handling ========
+// This file contains parameter definitions for configuration sections
 
-import "./primitives";
+import "../core/primitives";
+import "../data-types/collections";
 
-// ======== Parameters ========
-Parameter infers Parameter:
-    name=COMMON_NOUN __? ':' __? value=LiteralValue;
-
-InlineParameterList infers InlineParameterList:
-    parameters+=Parameter (__? ',' __? parameters+=Parameter)*; 
+// ======== Parser Rules ========
+// NOTE: Interface is defined in ast-nodes.langium
+Parameter returns Parameter:
+    name=COMMON_NOUN ':' value=SimpleValue; 

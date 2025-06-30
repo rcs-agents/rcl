@@ -75,6 +75,10 @@ async function main(): Promise<void> {
 			`--- Log for grammar bundling at ${new Date().toISOString()} ---\n`,
 		);
 
+		// Delete the existing bundled file to ensure a clean build
+		await rm(outputFile, { force: true });
+		await log(`Removed existing bundled file: ${outputFile}`);
+
 		await log("Starting grammar bundling process...");
 		const processedFiles = new Set<string>();
 		let bundledContent = await bundle(entryFile, processedFiles);

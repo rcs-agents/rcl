@@ -1,66 +1,33 @@
 grammar Rcl
 
-// ======== Common Terminals and Imports ========
-// This file contains common terminals and imports all necessary data-types and core sections
+// ======== Main Grammar Entry Point ========
+// This file orchestrates the entire RCL grammar by importing all modular components.
 
-import "./core/import";
-// import "./core/sections";
-// import "./core/primitives";
-
-// // Import all data-types
-// import "./data-types/collections";
-// import "./data-types/parameters";
-
-// // Import core section infrastructure
-
-// // Import expressions
-// import "./expressions/expression-types";
-
-// // Import specialized
-// import "./specialized/strings";
-// import "./specialized/embedded-code";
-
+// Import core grammar components
+import "./core/ast-nodes";
 import "./core/primitives";
+import "./core/import";
 import "./core/sections";
 
-// ======== Core Section Grammar ========
-// import "./core/primitives";
-// import "./data-types/type-system";
+// Import data type definitions
+import "./data-types/collections";
+import "./data-types/parameters";
+import "./data-types/type-system";
 
-// terminal SECTION_TYPE: 
-//   'agent'
-//   | 'agentConfig'
-//   | 'agentDefaults'
-//   | 'flow'
-//   | 'messages'
-//   | ((
-//       'authentication'
-//       | 'transaction'
-//       | 'promotion'
-//       | 'servicerequest'
-//       | 'acknowledge'
-//     )
-//     __ 'message');
+// Import specialized grammar rules
+import "./specialized/embedded-code";
+import "./specialized/flow-rules";
+import "./specialized/strings";
 
-// // Reserved section names that have implicit types
-// ReservedSectionName returns string:
-//     'Config' | 'Defaults' | 'Messages';
-
-// SectionParameter:
-//     // Only for message sections - expiration parameter
-//     TypedValue; // Either timestamp or duration string
-
-// Section:
-//     (sectionType=SECTION_TYPE __ sectionName=PROPER_NOUN | sectionType=SECTION_TYPE? __ reservedName=ReservedSectionName) __? sectionParam=SectionParameter? __? (NL | EOF)?;
+// Import expression definitions
+import "./expressions/expression-types";
 
 // ======== Entry Point ========
-// RCL files start with imports and contain a single agent section
+// An RCL file consists of zero or more import statements, followed by
+// optional empty lines, and finally a single top-level 'agent' section.
 entry RclFile:
     (imports+=ImportStatement)*
-    // // THE RULE BELOW MUST USE WS instead of __ or the grammar will not work
-    // // This happens because Langium requires a WS terminal to be defined AND USED in indentation aware grammars
-    // | EmptyLine* // Allow blank lines (with or without spaces) or lines with only spaces, after imports or before agent section
-    (INDENT? __? NL DEDENT?)*
-    agentSection=(Section);
+    (emptyLines+=EmptyLine)*
+    agentSection=Section;
 
   

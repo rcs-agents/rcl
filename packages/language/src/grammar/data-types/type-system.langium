@@ -2,23 +2,18 @@
 // This file contains type conversion and tagging mechanisms
 
 import "../core/primitives";
-import "../expressions/expression-types";
 
 // ======== Type Tag Terminals ========
-// terminal TYPE_TAG_NAME: /(date|datetime|time|email|phone|msisdn|url|zipcode|zip)/; // Specific type keywords
-// terminal TYPE_TAG_VALUE_CONTENT: /[^\|>]+/;             // Raw string content of tag's value
-// terminal TYPE_TAG_MODIFIER_CONTENT: /[^>]+/;            // Raw string content of tag's modifier
+terminal TYPE_TAG_NAME: /(date|datetime|dt|time|t|email|phone|msisdn|url|zipcode|zip|duration|ttl)/;
+terminal ISO_DURATION_LITERAL: /P(\d+[YMWD])*T?(\d+[HMS])*|(\d+(\.\d+)?s)/;
 
-// ======== Type Conversion ========
-TypeConversionValue infers TypeConversionValue:
-    LiteralValue | Identifier;
+// ======== Type Tag Data Type Rules ========
+// Using datatype rules for values that return primitive types
+TypeTagValue returns string: STRING | NUMBER | TRUE_KW | FALSE_KW | NULL_KW | ATOM | PROPER_NOUN | COMMON_NOUN | ISO_DURATION_LITERAL;
 
-TypeConversion infers TypeConversion:
-    LT __? type=TYPE_TAG_NAME __ value=TypeConversionValue (__? '|' __? modifier=STRING)? __? GT;
-
-// ======== Type Tag Rules ========
-TypeTag infers TypeTag:
-    LT __? type=TYPE_TAG_NAME __ value=TYPE_TAG_VALUE_CONTENT (__? '|' __? modifier=TYPE_TAG_MODIFIER_CONTENT)? __? GT;
-
-TypedValue infers TypedValue:
-    TypeConversion | LiteralValue; 
+// ======== Type Tag Parser Rules ========
+// NOTE: Interface is defined in ast-nodes.langium
+// A TypeTag applies a specific type to a value, with an optional modifier.
+// e.g., <time "4pm" | "Z"> or <zip "94103">
+TypeTag returns TypeTag:
+    '<' type=TYPE_TAG_NAME value=TypeTagValue ('|' modifier=STRING)? '>'; 

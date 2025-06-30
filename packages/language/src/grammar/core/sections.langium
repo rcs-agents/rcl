@@ -1,13 +1,14 @@
 // ======== Core Section Infrastructure ========
 // This file contains the base section grammar that all RCL sections follow
 
-import "./primitives";
+import "./ast-nodes";
+import "../core/primitives";
+import "../data-types/collections";
+import "../specialized/flow-rules";
 // import "../data-types/type-system";
-// import "../data-types/collections";
-// import "../specialized/flow-rules";
 
-// ======== Core Section Grammar ========
-// terminal SECTION_TYPE: /\b(agent|agentConfig|agentDefaults|flow|messages|(authentication|transaction|promotion|servicerequest|acknowledge) message)\b/;
+// ======== Data Type Rules ========
+// SectionType defines the valid keywords that can start a section block.
 SectionType returns string:
   'agent'
   | 'agentConfig'
@@ -20,36 +21,31 @@ SectionType returns string:
       | 'promotion'
       | 'servicerequest'
       | 'acknowledge'
-    )
-    __ 'message');
+    ) __ 'message');
 
-// Reserved section names that have implicit types
+// Reserved section names have implicit types and must be used with the correct section keyword.
 ReservedSectionName returns string:
     'Config' | 'Defaults' | 'Messages';
 
+// ======== Parser Rules ========
+// NOTE: Interfaces are defined in ast-nodes.langium
+// A Section is a fundamental building block of an RCL file.
+// It can be a standard section with a user-defined name or a reserved section.
+Section returns Section:
+    (sectionType=SectionType __ name=PROPER_NOUN | sectionType=SectionType? name=ReservedSectionName)
+    (NL)?
+    (
+        INDENT
+        (
+            attributes+=Attribute
+            | subSections+=Section
+            | flowContent+=FlowContent
+            | emptyLines+=EmptyLine
+        )*
+        DEDENT
+    )?;
 
-// Base section structure - unified for all sections
-// Supports both explicit section types and implicit reserved section names
-Section:
-    (sectionType=SectionType __ sectionName=PROPER_NOUN | sectionType=SectionType? __ reservedName=ReservedSectionName) __? sectionParam=LiteralValue? __? (NL | EOF)
-    // INDENT
-    //     (attributes+=Attribute | nestedAttributes+=NestedBlockAttribute | subSections+=Section | flowContent+=FlowContent | emptyLines+=EmptyLine)*
-    ;
-
-// AgentSection:
-//     'agent' __ sectionName=PROPER_NOUN __? sectionParam=SectionParameter? __? (NL | EOF)
-//     INDENT
-//         (attributes+=Attribute | nestedAttributes+=NestedBlockAttribute | subSections+=Section | flowContent+=FlowContent | emptyLines+=EmptyLine)*
-//     DEDENT;
-
-
-Attribute:
-    key=COMMON_NOUN __? ':' __? value=(LiteralValue | NestedBlockAttribute) __? (NL | EOF);
-
-// Attribute with a nested block of attributes (e.g., 'expressions')
-NestedBlockAttribute:
-    key=COMMON_NOUN __? (NL | EOF)
-    INDENT
-        (attributes+=Attribute)+
-    DEDENT;// Rule to handle empty lines within indented blocks
+// An Attribute is a simple key-value pair within a section.
+Attribute returns Attribute:
+    key=COMMON_NOUN ':' __ value=SimpleValue;
 

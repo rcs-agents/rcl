@@ -1,19 +1,18 @@
-import "../data-types/primitives";
+// ======== String and Multi-line String Handling ========
+// This file contains string-related grammar rules
+
+import "../core/primitives";
 
 // ======== Multi-line String Terminals ========
-terminal MULTILINE_STR_TRIM_LEAD_ONE_NL_END: /\|\s*/;        // | (trim common leading, one newline at end)
-terminal MULTILINE_STR_TRIM_LEAD_NO_NL_END: /\|-\s*/;        // |- (trim common leading, no trailing newline)
-terminal MULTILINE_STR_KEEP_LEAD_ONE_NL_END: /\+\|\s*/;      // +| (preserve leading, one newline at end)
-terminal MULTILINE_STR_KEEP_ALL: /\+\|\+\s*/;                // +|+ (preserve all whitespace/newlines)
+// These markers must be followed by a newline to trigger a multi-line block.
+terminal MULTILINE_STR_CLEAN: /\|(?=\s*#|\s*[\r\n])/;          // |
+terminal MULTILINE_STR_TRIM: /\|-(?=\s*#|\s*[\r\n])/;         // |-
+terminal MULTILINE_STR_PRESERVE: /\+\|(?=\s*#|\s*[\r\n])/;       // +|
+terminal MULTILINE_STR_PRESERVE_ALL: /\+\|\+(?=\s*#|\s*[\r\n])/; // +|+
 
-// ======== Multi-line String Rules ========
-MultiLineString infers MultiLineString:
-    ( marker=MULTILINE_STR_TRIM_LEAD_ONE_NL_END
-    | marker=MULTILINE_STR_TRIM_LEAD_NO_NL_END
-    | marker=MULTILINE_STR_KEEP_LEAD_ONE_NL_END
-    | marker=MULTILINE_STR_KEEP_ALL
-    )
-    // This is a conceptual placeholder. The actual multi-line content
-    // exists between the implicit INDENT/DEDENT that follows the marker.
-    // Adding a dummy optional assignment can help the generator see this rule as more substantial.
-    has_block_content?='true'; // Dummy assignment
+// ======== Parser Rules ========
+// NOTE: Interface is defined in ast-nodes.langium
+// A multi-line string with various whitespace handling modes.
+MultiLineString returns MultiLineString:
+    marker=(MULTILINE_STR_CLEAN | MULTILINE_STR_TRIM | MULTILINE_STR_PRESERVE | MULTILINE_STR_PRESERVE_ALL)
+    has_block_content?='true';

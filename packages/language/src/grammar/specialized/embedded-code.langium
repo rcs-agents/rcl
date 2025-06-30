@@ -1,16 +1,13 @@
-import "../data-types/primitives"; // For basic terminals and types
+// ======== Embedded Code Support ========
+// This file contains support for embedded code expressions
 
-// ======== Embedded Code Block Terminals ========
-terminal SINGLE_LINE_EMBEDDED_CODE_BLOCK: /\$((js|ts)?>)\s*[^\r\n]*/;     // $js> code, $ts> code, $> code
-terminal MULTI_LINE_EMBEDDED_CODE_BLOCK_START: /\$((js|ts)?)>>>/;         // $ts>>>, $js>>>, $>>>
+import "../core/primitives"; // For basic terminals and types
 
-// ======== Embedded Code Block Rules ========
-SingleLineEmbeddedCodeBlock infers SingleLineEmbeddedCodeBlock:
-    content=SINGLE_LINE_EMBEDDED_CODE_BLOCK;
+// ======== Embedded Code Terminals ========
+terminal SINGLE_LINE_EXPRESSION: /\$((js|ts)?>)\s*[^\r\n]*/;
+terminal MULTI_LINE_EXPRESSION_START: /\$((js|ts)?)>>>/;
 
-MultiLineEmbeddedCodeBlock infers MultiLineEmbeddedCodeBlock:
-    start=MULTI_LINE_EMBEDDED_CODE_BLOCK_START
-    has_code_block?='true'; // Dummy assignment
-
-EmbeddedCodeBlock infers EmbeddedCodeBlock:
-    SingleLineEmbeddedCodeBlock | MultiLineEmbeddedCodeBlock;
+// ======== Parser Rules ========
+// NOTE: Interface is defined in ast-nodes.langium
+SingleLineEmbeddedExpression returns SingleLineEmbeddedExpression:
+    content=SINGLE_LINE_EXPRESSION;

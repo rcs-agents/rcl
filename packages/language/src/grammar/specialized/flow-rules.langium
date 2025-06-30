@@ -1,24 +1,25 @@
 // ======== Flow Rules Grammar ========
-// This file contains grammar rules for flow definitions
+// This file contains flow control and transition rules
 
-import "../data-types/primitives";
-import "../expressions/expression-types";
+import "../core/primitives";
+import "../data-types/parameters";
+import "../specialized/embedded-code";
+import "../specialized/strings";
+import "../data-types/collections";
 
-// ======== Flow Rule Grammar ========
+// ======== Data Type Rules ========
+FlowOperand returns string: ATOM | PROPER_NOUN | STRING | NUMBER | SINGLE_LINE_EXPRESSION | MULTI_LINE_EXPRESSION_START | FlowTextAction | FlowStartAction;
+FlowTextAction returns string: 'text' (STRING | MULTILINE_STR_CLEAN | MULTILINE_STR_TRIM | MULTILINE_STR_PRESERVE | MULTILINE_STR_PRESERVE_ALL);
+FlowStartAction returns string: 'start' PROPER_NOUN;
 
-// Flow content that can appear inside flow sections
-FlowContent infers FlowContent:
-    FlowRule;
+// ======== Parser Rules ========
+// NOTE: Interfaces are defined in ast-nodes.langium
+FlowContent returns FlowContent:
+    rules+=FlowRule+;
 
-// A flow rule like ":start -> Welcome" or "checkUser -> when condition -> result"
-// Enhanced to be more specific about what constitutes flow operands
-FlowRule infers FlowRule:
-    source=FlowOperand __ '->' __ target=FlowOperand __? (End | EOF);
+FlowRule returns FlowRule:
+    source=FlowOperand ('->' transitions+=FlowOperand)+
+    (withClause=WithClause)?;
 
-// Flow operands can be symbols, proper nouns (variables), common nouns (attributes), or strings
-// This provides better semantic distinction for syntax highlighting
-FlowOperand infers FlowOperand:
-    symbol=ATOM                    // Flow symbols like :start, :end
-    | variable=ProperNoun          // Flow variables (proper nouns) 
-    | attribute=COMMON_NOUN        // Flow attributes (common nouns)
-    | string=STRING;               // String literals
+WithClause returns WithClause:
+    'with' parameters+=Parameter (',' parameters+=Parameter)*;
