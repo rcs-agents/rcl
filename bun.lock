@@ -18,6 +18,7 @@
         "rcl-cli": "workspace:*",
         "rcl-language": "workspace:*",
         "ts-toolbelt": "9.6.0",
+        "tsconfig-moon": "^1.4.0",
         "tsx": "4.16.2",
         "typescript": "5.5.4",
         "vitest": "2.0.5",
@@ -1181,6 +1182,8 @@
     "tree-kill": ["tree-kill@1.2.2", "", { "bin": { "tree-kill": "cli.js" } }, "sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A=="],
 
     "ts-toolbelt": ["ts-toolbelt@9.6.0", "", {}, "sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w=="],
+
+    "tsconfig-moon": ["tsconfig-moon@1.4.0", "", {}, "sha512-ivvD7Cmx/DZ5v9NVqoQmsNPl7Pvg8VUvc4P5yHG/JuYb0nTcbRzElH55HX+ul+xomuzsq4hxjWGsex6FsLufTw=="],
 
     "tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
 
