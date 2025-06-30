@@ -7,7 +7,11 @@ import "../core/primitives"; // For basic terminals and types
 terminal SINGLE_LINE_EXPRESSION: /\$((js|ts)?>)\s*[^\r\n]*/;
 terminal MULTI_LINE_EXPRESSION_START: /\$((js|ts)?)>>>/;
 
+// ======== Embedded Expression Interface ========
+interface SingleLineEmbeddedExpression {
+    content: string;
+}
+
 // ======== Parser Rules ========
-// NOTE: Interface is defined in ast-nodes.langium
 SingleLineEmbeddedExpression returns SingleLineEmbeddedExpression:
     content=SINGLE_LINE_EXPRESSION;

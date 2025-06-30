@@ -13,11 +13,11 @@
  * 
  * Any direct edits to this file WILL BE LOST on the next build!
  * 
- * Generated at: 2025-06-30T09:42:32.226Z
+ * Generated at: 2025-06-30T09:22:10.390Z
  * ========================================================================
  */
 
-grammar RclLanguage
+grammar RclTestLanguage
 
 interface AbstractNamedSection {
     name: string;
@@ -826,7 +826,20 @@ ShortcutAttribute returns ShortcutAttribute:
     key=('filename' | 'thumbnailUrl' | 'fileUrl') ':' __ value=SimpleValue
     | key=COMMON_NOUN ':' __ value=SimpleValue; 
 
-entry RclFile:
-    (imports+=ImportStatement | emptyLines+=EmptyLine)*
-    agentSection=Section;
+entry RclTestFile:
+    (imports+=ImportStatement | comments+=COMMENT | emptyLines+=EmptyLine | testSections+=TestSection)*;
 
+terminal COMMENT: /\/\/[^\r\n]*/;
+
+TestSection:
+    Section |
+    SimpleValue |
+    MultiLineString |
+    Parameter |
+    ParenthesesList |
+    InlineList |
+    IndentedList |
+    BraceObject |
+    IndentedObject |
+    ConfigProperty |
+    DefaultProperty;

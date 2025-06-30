@@ -5,6 +5,7 @@ import "./ast-nodes";
 import "../core/primitives";
 import "../data-types/collections";
 import "../specialized/flow-rules";
+import "../specialized/configuration";
 // import "../data-types/type-system";
 
 // ======== Data Type Rules ========
@@ -23,29 +24,38 @@ SectionType returns string:
       | 'acknowledge'
     ) __ 'message');
 
-// Reserved section names have implicit types and must be used with the correct section keyword.
+// Reserved section names have implicit types and must be used with
+// specific content structures.
 ReservedSectionName returns string:
     'Config' | 'Defaults' | 'Messages';
 
-// ======== Parser Rules ========
-// NOTE: Interfaces are defined in ast-nodes.langium
-// A Section is a fundamental building block of an RCL file.
-// It can be a standard section with a user-defined name or a reserved section.
+// ======== Section Content Rules ========
+// Section is the main section rule that matches all section types.
+// It handles both explicit type declarations and implicit reserved names.
 Section returns Section:
-    (sectionType=SectionType __ name=PROPER_NOUN | sectionType=SectionType? name=ReservedSectionName)
-    (NL)?
+    name=SectionType (__? sectionName=PROPER_NOUN)?
+    NL?
+    INDENT
     (
-        INDENT
-        (
-            attributes+=Attribute
-            | subSections+=Section
-            | flowContent+=FlowContent
-            | emptyLines+=EmptyLine
-        )*
-        DEDENT
-    )?;
+        attributes+=Attribute 
+        | agentAttributes+=AgentAttribute
+        | configProperties+=ConfigProperty
+        | defaultProperties+=DefaultProperty
+        | subSections+=Section
+        | flowContent+=FlowContent 
+        | emptyLines+=EmptyLine
+    )*
+    DEDENT;
 
-// An Attribute is a simple key-value pair within a section.
+// ======== Attribute System ========
+// The attribute system provides key-value properties for sections
+
+// Attribute represents a general key-value pair for any section
 Attribute returns Attribute:
-    key=COMMON_NOUN ':' __ value=SimpleValue;
+    key=COMMON_NOUN ':' __? value=SimpleValue;
+
+// Agent-specific attributes (for agent sections only)
+AgentAttribute returns AgentAttribute:
+    key=('displayName' | 'brandName') ':' __? value=SimpleValue
+    | key=COMMON_NOUN ':' __? value=SimpleValue;
 

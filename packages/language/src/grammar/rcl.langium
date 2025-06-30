@@ -1,4 +1,4 @@
-grammar Rcl
+grammar RclLanguage
 
 // ======== Main Grammar Entry Point ========
 // This file orchestrates the entire RCL grammar by importing all modular components.
@@ -18,16 +18,22 @@ import "./data-types/type-system";
 import "./specialized/embedded-code";
 import "./specialized/flow-rules";
 import "./specialized/strings";
+import "./specialized/messages";
+import "./specialized/rich-cards";
+import "./specialized/suggestions";
+import "./specialized/shortcuts";
+import "./specialized/configuration";
 
 // Import expression definitions
 import "./expressions/expression-types";
 
 // ======== Entry Point ========
-// An RCL file consists of zero or more import statements, followed by
-// optional empty lines, and finally a single top-level 'agent' section.
+// An RCL file consists of zero or more import statements and empty lines,
+// followed by a single top-level section.
 entry RclFile:
-    (imports+=ImportStatement)*
-    (emptyLines+=EmptyLine)*
+    (imports+=ImportStatement | emptyLines+=EmptyLine)*
     agentSection=Section;
+
+// NOTE: ImportStatement is defined in ./core/import.langium
 
   

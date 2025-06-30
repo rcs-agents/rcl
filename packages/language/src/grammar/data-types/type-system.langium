@@ -11,8 +11,14 @@ terminal ISO_DURATION_LITERAL: /P(\d+[YMWD])*T?(\d+[HMS])*|(\d+(\.\d+)?s)/;
 // Using datatype rules for values that return primitive types
 TypeTagValue returns string: STRING | NUMBER | TRUE_KW | FALSE_KW | NULL_KW | ATOM | PROPER_NOUN | COMMON_NOUN | ISO_DURATION_LITERAL;
 
+// ======== Type Tag Interface ========
+interface TypeTag {
+    type: string;
+    value: string;
+    modifier?: string;
+}
+
 // ======== Type Tag Parser Rules ========
-// NOTE: Interface is defined in ast-nodes.langium
 // A TypeTag applies a specific type to a value, with an optional modifier.
 // e.g., <time "4pm" | "Z"> or <zip "94103">
 TypeTag returns TypeTag:
