@@ -1,14 +1,11 @@
 {
-    "extends": "./tsconfig.src.json",
+    "extends": "../tsconfig.json",
     "compilerOptions": {
-      "noEmit": true,
-      "rootDir": "test"
+      "types": ["vitest/globals"]
     },
-    "references": [{
-      "path": "./tsconfig.src.json"
-    }],
     "include": [
-      "test/**/*.ts",
+      "**/*.ts",
+      "../src/**/*.ts"
     ]
   }
   

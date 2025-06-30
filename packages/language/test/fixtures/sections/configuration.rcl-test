@@ -1,0 +1,32 @@
+// Test file for configuration properties
+// This tests all config properties in isolation
+
+Config
+  description: "Agent description text"
+  logoUri: "https://example.com/logo.png"
+  heroUri: "https://example.com/hero.jpg"
+  color: "#FF6B35"
+  agentUseCase: :TRANSACTIONAL
+  hostingRegion: :NORTH_AMERICA
+
+// Test with different enum values
+Config
+  agentUseCase: :PROMOTION
+  hostingRegion: :EUROPE
+
+Config
+  agentUseCase: :CUSTOMER_CARE
+  hostingRegion: :ASIA_PACIFIC
+
+// Test minimal config
+Config
+  description: "Minimal config"
+
+// Test config with all properties
+Config
+  description: "Complete configuration with all properties"
+  logoUri: "https://cdn.example.com/assets/logo-2024.png"
+  heroUri: "https://cdn.example.com/assets/hero-banner.jpg"
+  color: "#1A73E8"
+  agentUseCase: :TRANSACTIONAL
+  hostingRegion: :NORTH_AMERICA 

@@ -1,0 +1,102 @@
+// Test file for rich card structures
+// This tests all rich card types and configurations
+
+// ======== Standalone Cards ========
+
+richCard
+  standaloneCard
+    cardOrientation: :HORIZONTAL
+    thumbnailImageAlignment: :LEFT
+    cardContent
+      title: "Product Showcase"
+      description: "Explore our latest product with amazing features."
+      media
+        height: :MEDIUM
+        contentInfo
+          fileUrl: "https://example.com/product.jpg"
+
+// Vertical orientation card
+richCard
+  standaloneCard
+    cardOrientation: :VERTICAL
+    thumbnailImageAlignment: :RIGHT
+    cardContent
+      title: "Service Overview"
+      description: "Learn about our comprehensive service offerings."
+      media
+        height: :TALL
+        contentInfo
+          fileUrl: "https://example.com/service.jpg"
+          forceRefresh: True
+
+// ======== Carousel Cards ========
+
+richCard
+  carouselCard
+    cardWidth: :MEDIUM
+
+    cardContent
+      title: "Item 1"
+      description: "First carousel item"
+      media
+        height: :SHORT
+        contentInfo
+          fileUrl: "https://example.com/item1.jpg"
+      suggestion
+        action: text: "View Item 1", postbackData: "item1_view"
+          openUrlAction: url: "https://example.com/item1"
+
+    cardContent
+      title: "Item 2"
+      description: "Second carousel item"
+      media
+        height: :SHORT
+        contentInfo
+          fileUrl: "https://example.com/item2.jpg"
+      suggestion
+        action: text: "View Item 2", postbackData: "item2_view"
+          openUrlAction: url: "https://example.com/item2"
+
+// Wide carousel
+richCard
+  carouselCard
+    cardWidth: :SMALL
+    
+    cardContent
+      title: "Compact Item A"
+      description: "Small card format"
+      suggestion
+        reply: text: "Select A", postbackData: "choice_a"
+        
+    cardContent
+      title: "Compact Item B" 
+      description: "Small card format"
+      suggestion
+        reply: text: "Select B", postbackData: "choice_b"
+
+// ======== Cards with Complex Suggestions ========
+
+richCard
+  standaloneCard
+    cardOrientation: :HORIZONTAL
+    cardContent
+      title: "Interactive Card"
+      description: "Card with multiple action types"
+      media
+        height: :MEDIUM
+        contentInfo
+          fileUrl: "https://example.com/interactive.jpg"
+          
+      suggestion
+        reply: text: "I'm Interested", postbackData: "interest_reply"
+      suggestion
+        action: text: "Call Now", postbackData: "call_action"
+          dialAction: phoneNumber: "+1234567890"
+      suggestion
+        action: text: "Visit Site", postbackData: "visit_action"
+          openUrlAction: url: "https://example.com/details"
+      suggestion
+        action: text: "Get Directions", postbackData: "directions_action"
+          viewLocationAction
+            query: "123 Main St, Anytown USA"
+            label: "Our Location" 

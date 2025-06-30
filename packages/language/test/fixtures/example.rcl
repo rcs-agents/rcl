@@ -1,5 +1,5 @@
-import My Brand / Samples.one as Sample One
-import My Brand / Samples.two as Sample Two
+import My Brand / Samples.One as Sample One
+import My Brand / Samples.Two as Sample Two
 
 agent My Brand
   brandName: "Sample Brand"

@@ -1,0 +1,30 @@
+// Test file for agent definition structures
+// This tests the core agent syntax with various configurations
+
+agent Test Agent
+  brandName: "Test Brand"
+  displayName: "Test Display Name"
+
+agent "Spaced Agent Name"
+  brandName: "Multi Word Brand"
+  displayName: "Multi Word Display"
+
+agent SimpleAgent
+  displayName: "Minimal Agent"
+
+// Test agent with all major sections
+agent Complete Agent
+  brandName: "Complete Brand"
+  displayName: "Complete Display"
+  
+  Config
+    description: "Test agent description"
+    logoUri: "https://example.com/logo.png"
+    
+  Defaults
+    messageTrafficType: :TRANSACTION
+    fallback_message: "Default fallback message"
+    
+  Messages
+    message Welcome
+      text: "Welcome message" 

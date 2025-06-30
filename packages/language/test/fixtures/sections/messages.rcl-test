@@ -1,0 +1,58 @@
+// Test file for message structures
+// This tests all message types and properties
+
+Messages
+  message Welcome
+    text: "Hello! Welcome to our service."
+    
+  message "Spaced Message Name"
+    text: "Message with spaced name"
+    
+  message WithSuggestions
+    text: "Message with reply suggestions"
+    suggestions
+      reply: "Option 1"
+      reply: "Option 2"
+      dialAction: "Call Us", "+1234567890"
+      
+// Test acknowledgement messages
+acknowledgement message FileReceipt "PT2H"
+  fileName: "receipt.pdf"
+  reply: text: "Got it!", postbackData: "ack_receipt"
+
+// Test transaction messages  
+transaction message Invoice "PT24H"
+  uploadedRbmFile %{
+    fileName: "invoice_456.pdf",
+    thumbnailUrl: "https://example.com/thumb.png",
+    thumbnailName: "invoice_thumb.png"
+  }
+
+// Test promotion messages
+promotion message Newsletter "P7D"
+  contentInfo %{
+    fileUrl: "https://example.com/newsletter.pdf",
+    thumbnailUrl: "https://example.com/newsletter_thumb.jpg",
+    forceRefresh: True
+  }
+  suggestion
+    reply: text: "Interested", postbackData: "newsletter_interest"
+
+// Test agentMessage structures
+agentMessage CompleteExample
+  messageTrafficType: :TRANSACTION
+  expireTime: "2024-12-31T23:59:59Z"
+  
+  contentMessage
+    text: "Complete agent message example"
+    richCard
+      standaloneCard
+        cardOrientation: :VERTICAL
+        cardContent
+          title: "Example Card"
+          description: "This is an example card"
+          
+  suggestions
+    reply: text: "Reply Option", postbackData: "reply_pb"
+    action: text: "Action Option", postbackData: "action_pb"
+      dialAction: phoneNumber: "+1234567890" 

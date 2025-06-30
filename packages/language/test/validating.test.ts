@@ -1,11 +1,11 @@
-import { beforeAll, describe, expect, test } from "vitest";
-import { EmptyFileSystem, type LangiumDocument } from "langium";
-import { expandToString as s } from "langium/generate";
-import { parseHelper } from "langium/test";
-import type { Diagnostic } from "vscode-languageserver-types";
-import type { RclFile } from "rcl-language";
-import { createRclServices, isRclFile } from "rcl-language";
-import { KW } from "../src/constants.js";
+import { describe, test, expect, beforeAll } from 'vitest';
+import { EmptyFileSystem } from 'langium';
+import { expandToString as s } from 'langium/generate';
+import { parseHelper, expectNoError, validationHelper, expectError, expectWarning } from 'langium/test';
+import type { Diagnostic } from 'vscode-languageserver-types';
+import { createRclServices } from '../src/rcl-module.js';
+import { isRclFile, type RclFile } from '../src/generated/ast.js';
+import { KW } from '../src/constants.js';
 
 let services: ReturnType<typeof createRclServices>;
 let parse:    ReturnType<typeof parseHelper<RclFile>>;

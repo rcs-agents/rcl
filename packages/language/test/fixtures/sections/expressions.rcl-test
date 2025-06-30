@@ -1,0 +1,71 @@
+// Test file for expression syntax
+// This tests all expression types and embedded code
+
+// ======== Single Line Expressions ========
+
+simpleExpression: $js> @user.name
+mathExpression: $js> @price * 0.8  
+conditionalExpression: $js> @status === "active" ? "Welcome" : "Please activate"
+
+// ======== Multi-Line Expressions ========
+
+complexCalculation: $js> {
+  const basePrice = @product.price;
+  const discount = @user.memberLevel === "premium" ? 0.2 : 0.1;
+  const tax = basePrice * 0.08;
+  return (basePrice * (1 - discount)) + tax;
+}
+
+userGreeting: $js> {
+  const hour = new Date().getHours();
+  const name = @user.firstName || "there";
+  
+  if (hour < 12) {
+    return `Good morning, ${name}!`;
+  } else if (hour < 18) {
+    return `Good afternoon, ${name}!`;
+  } else {
+    return `Good evening, ${name}!`;
+  }
+}
+
+// ======== Template Expressions ========
+
+simpleTemplate: $template> "Hello, @{user.name}!"
+conditionalTemplate: $template> "You have @{items.length} item@{items.length === 1 ? '' : 's'}"
+
+multiLineTemplate: $template> """
+  Dear @{user.firstName},
+  
+  Your order #@{order.id} has been @{order.status}.
+  Total: $@{order.total.toFixed(2)}
+  
+  Thank you for your business!
+"""
+
+// ======== RCL Script Expressions ========
+
+rclScriptSimple: $rcl> format @user.name as :title_case
+rclScriptComplex: $rcl> {
+  when @user.memberLevel is "premium" then "VIP Access"
+  when @user.memberLevel is "standard" then "Standard Access"  
+  else "Limited Access"
+}
+
+// ======== Mixed Expression Usage ========
+
+dynamicMessage: $js> {
+  const responses = [
+    "Great choice!",
+    "Excellent selection!",  
+    "Perfect!"
+  ];
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+contextualData: $js> {
+  option: @selectedOption.text,
+  timestamp: Date.now(),
+  userId: @user.id,
+  sessionId: @session.id
+} 

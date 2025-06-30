@@ -1,0 +1,83 @@
+// Test file for suggestion structures
+// This tests all suggestion types and action configurations
+
+// ======== Simple Reply Suggestions ========
+
+suggestions
+  reply: "Yes"
+  reply: "No"
+  reply: "Maybe Later"
+
+// Reply with postback data
+suggestions
+  reply: text: "Confirm", postbackData: "confirm_action"
+  reply: text: "Cancel", postbackData: "cancel_action"
+
+// ======== Action Suggestions ========
+
+// Dial actions
+suggestions
+  action: text: "Call Support", postbackData: "call_support"
+    dialAction: phoneNumber: "+1-800-123-4567"
+  action: text: "Call Sales", postbackData: "call_sales"
+    dialAction: phoneNumber: "+1-800-SALES-01"
+
+// URL actions
+suggestions
+  action: text: "Visit Website", postbackData: "visit_home"
+    openUrlAction: url: "https://example.com"
+  action: text: "View Details", postbackData: "view_product"
+    openUrlAction: url: "https://example.com/product/details"
+
+// Location sharing
+suggestions
+  action: text: "Share My Location", postbackData: "share_location"
+    shareLocationAction
+
+// Location viewing
+suggestions
+  action: text: "View Store Location", postbackData: "view_store"
+    viewLocationAction
+      query: "Best Buy, 123 Main St, Anytown"
+      label: "Nearest Store"
+  action: text: "View Coordinates", postbackData: "view_coords"
+    viewLocationAction
+      label: "Meeting Point"
+      latLong: latitude: 37.7749, longitude: -122.4194
+
+// Calendar events
+suggestions
+  action: text: "Schedule Meeting", postbackData: "schedule_meeting"
+    createCalendarEventAction
+      title: "Product Demo"
+      startTime: "2024-12-15T14:00:00Z"
+      endTime: "2024-12-15T15:00:00Z"
+      description: "Product demonstration and Q&A session"
+
+// ======== Mixed Suggestion Types ========
+
+suggestions
+  reply: text: "Not Now", postbackData: "decline"
+  action: text: "Call Us", postbackData: "contact_call"
+    dialAction: phoneNumber: "+1234567890"
+  action: text: "Email Us", postbackData: "contact_email"
+    openUrlAction: url: "mailto:support@example.com"
+  action: text: "Find Us", postbackData: "locate_store"
+    viewLocationAction
+      query: "Example Store, Downtown"
+      label: "Main Store Location"
+
+// ======== Standalone Suggestion Blocks ========
+
+suggestion
+  reply: text: "Single Reply", postbackData: "single_reply"
+
+suggestion
+  action
+    text: "Complex Action"
+    postbackData: "complex_action_pb"
+    createCalendarEventAction
+      title: "Follow-up Meeting"
+      startTime: "2024-12-20T10:00:00Z"
+      endTime: "2024-12-20T11:00:00Z"
+      description: "Follow-up discussion and next steps" 

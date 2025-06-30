@@ -1,0 +1,46 @@
+{
+  "name": "rcl",
+  "scopeName": "source.rcl",
+  "fileTypes": [
+    ".rcl"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "name": "keyword.control.rcl",
+      "match": "\\b(acknowledge|address|agent|agentConfig|agentDefaults|agentUseCase|as|authentication|billingCategory|billingConfig|brandName|color|description|displayName|emailEntry|expressions|fallback_message|flow|heroUri|hostingRegion|import|label|language|logoUri|message|messageTrafficType|messages|number|phoneNumberEntry|postbackData|privacy|promotion|servicerequest|start|termsConditions|text|transaction|true|ttl|url|websiteEntry|with)\\b"
+    },
+    {
+      "name": "string.quoted.double.rcl",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "include": "#string-character-escape"
+        }
+      ]
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "begin": "#",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.whitespace.comment.leading.rcl"
+            }
+          },
+          "end": "(?=$)",
+          "name": "comment.line.rcl"
+        }
+      ]
+    },
+    "string-character-escape": {
+      "name": "constant.character.escape.rcl",
+      "match": "\\\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|u\\{[0-9A-Fa-f]+\\}|[0-2][0-7]{0,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.|$)"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+// Test file for collection structures  
+// This tests all list and dictionary syntax variations
+
+// ======== List Testing ========
+
+// Parentheses lists
+myParenList: ("item1", "item2", "item3")
+numberList: (1, 2, 3, 4, 5)
+mixedList: ("text", 42, True, :ENUM_VALUE)
+
+// Inline lists
+inlineList: "item1", "item2", "item3"
+shortList: "single item"
+
+// Indented lists
+longList:
+  - "First item in indented list"
+  - "Second item"
+  - "Third item with more content"
+  - "Fourth item"
+
+// Nested collections
+nestedLists:
+  - ("sublist1", "sublist2")
+  - "standalone item"
+  - ("another", "sublist")
+
+// ======== Dictionary Testing ========
+
+// Brace objects
+compactObject: { key1: "value1", key2: "value2", key3: 42 }
+emptyObject: {}
+
+// Indented objects
+largeObject:
+  property1: "string value"
+  property2: 123
+  property3: True
+  property4: :ENUM_VALUE
+  nestedObject:
+    subProp1: "nested value"
+    subProp2: False
+
+// Mixed nested structures
+complexStructure:
+  users:
+    - name: "John Doe"
+      email: "john@example.com"
+      preferences: { theme: "dark", notifications: True }
+    - name: "Jane Smith"  
+      email: "jane@example.com"
+      preferences: { theme: "light", notifications: False }
+  settings:
+    timeout: "PT30M"
+    retries: 3
+    endpoints: ("api.example.com", "backup.example.com")
+
+// ======== Type Conversion Testing ========
+
+stringList list of (string):
+  - "converted string 1"
+  - "converted string 2"
+  - "converted string 3"
+
+numberMapping list of (number):
+  - 1
+  - 2  
+  - 3
+
+// Complex type conversions
+userProfiles list of (UserProfile):
+  - name: "User 1"
+    age: 25
+    active: True
+  - name: "User 2"
+    age: 30
+    active: False 
