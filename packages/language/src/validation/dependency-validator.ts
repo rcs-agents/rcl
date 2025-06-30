@@ -7,6 +7,9 @@ import { KW } from '../constants.js';
  * Validates dependencies and detects circular references in flow rules and sections.
  */
 export class DependencyValidator {
+  constructor() {
+    // Constructor simplified for current grammar implementation
+  }
 
   /**
    * Check for circular dependencies in flow rules within a section
@@ -51,17 +54,19 @@ export class DependencyValidator {
       if (!reachableNodes.has(node) && node !== KW.Start && node !== KW.End) {
         // Find the first flow rule that references this unreachable node
         const ruleWithUnreachableNode = flowRules.find(rule => {
-          if (!rule.source || !rule.target) {
+          if (!rule.source || !rule.transitions || rule.transitions.length === 0) {
             return false; // Skip malformed flow rules
           }
           return this.getFlowOperandValue(rule.source) === node ||
-            this.getFlowOperandValue(rule.target) === node;
+            rule.transitions.some(transition => this.getFlowOperandValue(transition) === node);
         });
 
-        if (ruleWithUnreachableNode && ruleWithUnreachableNode.source && ruleWithUnreachableNode.target) {
+        if (ruleWithUnreachableNode && ruleWithUnreachableNode.source && ruleWithUnreachableNode.transitions) {
+          const isSource = this.getFlowOperandValue(ruleWithUnreachableNode.source) === node;
+          const property = isSource ? 'source' : 'transitions';
           accept('warning', `Flow operand '${node}' appears to be unreachable`, {
             node: ruleWithUnreachableNode,
-            property: this.getFlowOperandValue(ruleWithUnreachableNode.source) === node ? 'source' : 'target',
+            property,
             code: 'unreachable-flow-operand'
           });
         }
@@ -76,19 +81,25 @@ export class DependencyValidator {
     const graph = new Map<string, Set<string>>();
 
     flowRules.forEach(rule => {
-      // Check if source and target operands exist before processing
-      if (!rule.source || !rule.target) {
+      // Check if source and transitions exist before processing
+      if (!rule.source || !rule.transitions || rule.transitions.length === 0) {
         return; // Skip malformed flow rules
       }
 
       const source = this.getFlowOperandValue(rule.source);
-      const target = this.getFlowOperandValue(rule.target);
 
-      if (source && target) {
+      if (source) {
         if (!graph.has(source)) {
           graph.set(source, new Set());
         }
-        graph.get(source)!.add(target);
+
+        // Add all transitions from this source
+        for (const transition of rule.transitions) {
+          const target = this.getFlowOperandValue(transition);
+          if (target) {
+            graph.get(source)!.add(target);
+          }
+        }
       }
     });
 
@@ -217,16 +228,19 @@ export class DependencyValidator {
     const operands = new Set<string>();
 
     flowRules.forEach(rule => {
-      // Check if source and target operands exist before processing
-      if (!rule.source || !rule.target) {
+      // Check if source and transitions exist before processing
+      if (!rule.source || !rule.transitions || rule.transitions.length === 0) {
         return; // Skip malformed flow rules
       }
 
       const source = this.getFlowOperandValue(rule.source);
-      const target = this.getFlowOperandValue(rule.target);
-
       if (source) operands.add(source);
-      if (target) operands.add(target);
+
+      // Add all transitions
+      for (const transition of rule.transitions) {
+        const target = this.getFlowOperandValue(transition);
+        if (target) operands.add(target);
+      }
     });
 
     return Array.from(operands);
@@ -241,28 +255,33 @@ export class DependencyValidator {
       return undefined;
     }
 
-    // FlowOperand could be a symbol (:start, :end), identifier (ProperNoun as variable), common_noun (attribute), or string
-    if (operand.symbol) { // ATOM terminal like :start, :end
-      return operand.symbol;
-    }
-    if (operand.variable) { // ProperNoun rule
-      return operand.variable;
-    }
-    if (operand.attribute) { // COMMON_NOUN rule
-      return operand.attribute;
-    }
-    if (operand.string) { // STRING terminal
-      // Remove quotes from string literals
-      const str = operand.string;
-      if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
-        return str.slice(1, -1);
-      }
-      return str;
+    // FlowOperand can be string | FlowStartAction | FlowTextAction
+    if (typeof operand === 'string') {
+      return operand;
     }
 
-    // Fallback: try to extract from the $cstNode if available
-    if (operand.$cstNode) {
-      return operand.$cstNode.text;
+    // Handle FlowStartAction and FlowTextAction objects
+    if (typeof operand === 'object' && operand !== null) {
+      // Type guard to ensure we have an AST node
+      const astNode = operand as any;
+      
+      // Check if it has $cstNode (it's an AstNode)
+      if ('$cstNode' in astNode && astNode.$cstNode) {
+        return astNode.$cstNode.text?.trim() || undefined;
+      }
+      
+      // Check for specific action types
+      if ('$type' in astNode) {
+        if (astNode.$type === 'FlowStartAction') {
+          return ':start';
+        }
+        if (astNode.$type === 'FlowTextAction') {
+          // Extract text from FlowTextAction if it has a text property
+          if ('text' in astNode && typeof astNode.text === 'string') {
+            return astNode.text;
+          }
+        }
+      }
     }
 
     return undefined;

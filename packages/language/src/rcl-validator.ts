@@ -1,10 +1,11 @@
-import type { ValidationAcceptor, ValidationChecks, AstNode } from 'langium';
-import type { RclAstType, Section, RclFile, EmbeddedCodeBlock, FlowRule, TypeConversion, ReservedSectionName } from './generated/ast.js';
+import type { ValidationAcceptor, ValidationChecks } from 'langium';
+import type { LangiumDocument, AstNode } from 'langium';
+import type { CancellationToken } from 'vscode-languageserver-protocol';
+import type { RclFile, RclAstType, Section, FlowRule, TypeConversion, ReservedSectionName } from './generated/ast.js';
 import { isSection } from './generated/ast.js';
 import type { RclServices } from './rcl-module.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
 import { SectionValidator } from './validation/section-validator.js';
-import { EmbeddedCodeValidator } from './validation/embedded-code-validator.js';
 import { DependencyValidator } from './validation/dependency-validator.js';
 import { TypeValidator } from './validation/type-validator.js';
 import { KW } from './constants.js';
@@ -15,14 +16,12 @@ import { KW } from './constants.js';
 export class RclValidator {
   private sectionRegistry: SectionTypeRegistry;
   private sectionValidator: SectionValidator;
-  private embeddedCodeValidator: EmbeddedCodeValidator;
   private dependencyValidator: DependencyValidator;
   private typeValidator: TypeValidator;
 
-  constructor() {
+  constructor(services: RclServices) {
     this.sectionRegistry = new SectionTypeRegistry();
     this.sectionValidator = new SectionValidator(this.sectionRegistry);
-    this.embeddedCodeValidator = new EmbeddedCodeValidator();
     this.dependencyValidator = new DependencyValidator();
     this.typeValidator = new TypeValidator();
   }
@@ -70,40 +69,12 @@ export class RclValidator {
 
   /**
    * Validate message section parameters (expiration settings)
+   * Note: Section parameters are currently not supported in the grammar
    */
   checkMessageSectionParameters(section: Section, accept: ValidationAcceptor): void {
-    const sectionType = section.sectionType;
-
-    // Only message sections can have parameters
-    if (sectionType?.includes(KW.Message)) {
-      if (section.sectionParam) {
-        // Validate that the parameter is either a timestamp or duration
-        this.validateMessageExpiration(section, accept);
-      }
-    } else if (section.sectionParam) {
-      accept('error', `Section type '${sectionType}' does not support parameters`, {
-        node: section,
-        property: 'sectionParam'
-      });
-    }
-  }
-
-  /**
-   * Validate message expiration parameter
-   */
-  private validateMessageExpiration(section: Section, accept: ValidationAcceptor): void {
-    if (!section.sectionParam) return;
-
-    // Check if it's a type-tagged timestamp
-    const param = section.sectionParam;
-
-    // This is a simplified validation - in a full implementation,
-    // you'd check the actual TypedValue structure more thoroughly
-    if (param && typeof param === 'object') {
-      // If it's a TypeConversion with date/datetime type, that's valid for expireTime
-      // If it's a string ending with 's', that's valid for ttl
-      // For now, we'll accept any TypedValue and let runtime validation handle specifics
-    }
+    // Temporarily disabled until section parameters are added back to the grammar
+    // const sectionType = section.sectionType;
+    // This validation will be re-enabled when section parameters are supported
   }
 
   /**
@@ -184,13 +155,6 @@ export class RclValidator {
   }
 
   /**
-   * New method to validate embedded code blocks by delegating to EmbeddedCodeValidator
-   */
-  public validateEmbeddedCodeBlock(codeBlock: EmbeddedCodeBlock, accept: ValidationAcceptor): void {
-    this.embeddedCodeValidator.checkEmbeddedCode(codeBlock, accept);
-  }
-
-  /**
    * Validate flow rules for circular dependencies and reachability
    */
   checkFlowRule(flowRule: FlowRule, accept: ValidationAcceptor): void {
@@ -203,6 +167,14 @@ export class RclValidator {
    */
   checkTypeConversion(typeConversion: TypeConversion, accept: ValidationAcceptor): void {
     this.typeValidator.checkTypeConversion(typeConversion, accept);
+  }
+
+  protected checkDocument(
+    document: LangiumDocument<RclFile>,
+    cancelToken: CancellationToken
+  ): Promise<void> {
+    // Implementation placeholder
+    return Promise.resolve();
   }
 }
 
@@ -219,7 +191,6 @@ export function registerValidationChecks(services: RclServices) {
       validator.checkReservedSectionNames
     ],
     RclFile: validator.checkRclFile,
-    EmbeddedCodeBlock: validator.validateEmbeddedCodeBlock,
     FlowRule: validator.checkFlowRule,
     TypeConversion: validator.checkTypeConversion
   };

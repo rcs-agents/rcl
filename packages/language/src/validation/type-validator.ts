@@ -1,24 +1,27 @@
 import type { ValidationAcceptor } from 'langium';
 import type { TypeConversion } from '../generated/ast.js';
-import { isLiteralValue, isTypeConversion } from '../generated/ast.js';
+import { isTypeConversion } from '../generated/ast.js';
 import { KW } from '../constants.js';
 
 /**
  * Validates type conversions and type constraints.
  */
 export class TypeValidator {
+  constructor() {
+    // Constructor simplified for current grammar implementation
+  }
 
   /**
    * Validate a TypeConversion node
    */
   checkTypeConversion(typeConversion: TypeConversion, accept: ValidationAcceptor): void {
-    const typeName = typeConversion.type;
+    const typeName = typeConversion.target;
     const value = this.getTypeConversionValue(typeConversion);
 
     if (!typeName) {
-      accept('error', 'Type conversion must specify a type', {
+      accept('error', 'Type conversion must specify a target type', {
         node: typeConversion,
-        property: 'type',
+        property: 'target',
         code: 'missing-type'
       });
       return;
@@ -28,7 +31,7 @@ export class TypeValidator {
     if (!validator) {
       accept('error', `Unknown type: ${typeName}`, {
         node: typeConversion,
-        property: 'type',
+        property: 'target',
         code: 'unknown-type'
       });
       return;
@@ -51,25 +54,18 @@ export class TypeValidator {
         code: 'invalid-type-value'
       });
     }
-
-    // Validate modifier if present
-    if (typeConversion.modifier) {
-      this.validateTypeModifier(typeConversion, typeName, typeConversion.modifier, accept);
-    }
   }
 
   /**
-   * Get the string value from TypeConversionValue
+   * Get the string value from SimpleValue
    */
   private getTypeConversionValue(typeConversion: TypeConversion): string | undefined {
     const value = typeConversion.value;
     if (!value) return undefined;
 
-    // Handle different TypeConversionValue types
-    if (isLiteralValue(value)) {
-      if (value.val_str) return value.val_str;
-      if (value.val_num !== undefined) return value.val_num.toString();
-      if (value.val_bool !== undefined) return value.val_bool.toString();
+    // Handle SimpleValue with a value property
+    if (value.value) {
+      return value.value;
     }
 
     // For nested TypeConversion
@@ -332,43 +328,7 @@ export class TypeValidator {
     return { isValid: true, message: '' };
   };
 
-  /**
-   * Validate type modifiers
-   */
-  private validateTypeModifier(
-    typeConversion: TypeConversion,
-    typeName: string,
-    modifier: string,
-    accept: ValidationAcceptor
-  ): void {
-    const allowedModifiers: Record<string, string[]> = {
-      [KW.Date]: ['format'],
-      [KW.Time]: ['format', 'timezone'],
-      [KW.Datetime]: ['format', 'timezone'],
-      'currency': ['symbol', 'precision'],
-      'number': ['precision', 'format'],
-      'percentage': ['precision']
-    };
 
-    const allowed = allowedModifiers[typeName];
-    if (!allowed) {
-      accept('warning', `Type '${typeName}' does not support modifiers`, {
-        node: typeConversion,
-        property: 'modifier',
-        code: 'unsupported-modifier'
-      });
-      return;
-    }
-
-    // Basic modifier format validation (simplified)
-    if (!modifier.includes('=')) {
-      accept('error', 'Modifier must be in key=value format', {
-        node: typeConversion,
-        property: 'modifier',
-        code: 'invalid-modifier-format'
-      });
-    }
-  }
 }
 
 /**

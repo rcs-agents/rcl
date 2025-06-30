@@ -1,6 +1,6 @@
 import { type Module, inject, IndentationAwareLexer } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
-import { RclGeneratedModule, RclGeneratedSharedModule } from './generated/module.js';
+import { RclLanguageGeneratedModule, RclTestLanguageGeneratedModule, RclGeneratedSharedModule } from './generated/module.js';
 import { RclValidator, registerValidationChecks } from './rcl-validator.js';
 import { RclCompletionProvider } from './rcl-completion-provider.js';
 import { RclCustomTokenBuilder } from './services/rcl-custom-token-builder.js';
@@ -42,6 +42,11 @@ export type RclAddedServices = {
 export type RclServices = LangiumServices & RclAddedServices
 
 /**
+ * Test grammar services type - same as RclServices but for the test grammar
+ */
+export type RclTestServices = LangiumServices & RclAddedServices
+
+/**
  * Dependency injection module that overrides Langium default services and contributes the
  * declared custom services. The Langium defaults can be partially specified to override only
  * selected services, while the custom services must be fully specified.
@@ -52,7 +57,7 @@ export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedSer
     Lexer: (services) => new IndentationAwareLexer(services),
   },
   validation: {
-    RclValidator: () => new RclValidator()
+    RclValidator: (services) => new RclValidator(services)
   },
   lsp: {
     CompletionProvider: (services) => new RclCompletionProvider(services),
@@ -94,7 +99,7 @@ export function createRclServices(context: DefaultSharedModuleContext): {
   );
   const Rcl = inject(
     createDefaultModule({ shared }),
-    RclGeneratedModule,
+    RclLanguageGeneratedModule,
     RclModule
   );
   shared.ServiceRegistry.register(Rcl);
@@ -105,4 +110,34 @@ export function createRclServices(context: DefaultSharedModuleContext): {
     shared.workspace.ConfigurationProvider.initialized({});
   }
   return { shared, Rcl };
+}
+
+/**
+ * Create the full set of services required by Langium for the test grammar.
+ * This uses the same service configuration as the main grammar but with the test grammar module.
+ *
+ * @param context Optional module context with the LSP connection
+ * @returns An object wrapping the shared services and the test language-specific services
+ */
+export function createRclTestServices(context: DefaultSharedModuleContext): {
+  shared: LangiumSharedServices,
+  RclTest: RclTestServices
+} {
+  const shared = inject(
+    createDefaultSharedModule(context),
+    RclGeneratedSharedModule
+  );
+  const RclTest = inject(
+    createDefaultModule({ shared }),
+    RclTestLanguageGeneratedModule,
+    RclModule
+  );
+  shared.ServiceRegistry.register(RclTest);
+  registerValidationChecks(RclTest);
+  if (!context.connection) {
+    // We don't run inside a language server
+    // Therefore, initialize the configuration provider instantly
+    shared.workspace.ConfigurationProvider.initialized({});
+  }
+  return { shared, RclTest };
 }

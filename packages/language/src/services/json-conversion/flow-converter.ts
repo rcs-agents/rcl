@@ -1,8 +1,10 @@
-import type { Section, FlowRule, FlowOperand } from '../../generated/ast.js';
+import type { Section, FlowRule } from '../../generated/ast.js';
+import { isFlowRule } from '../../generated/ast.js';
 import { ValueConverter } from './value-converter.js';
 
 /**
  * Converts RCL flow sections to XState-compatible configurations
+ * Note: Simplified implementation for current grammar structure
  */
 export class FlowConverter {
   private valueConverter: ValueConverter;
@@ -21,11 +23,10 @@ export class FlowConverter {
     // Extract flow attributes for configuration
     const flowAttributes = this.valueConverter.convertAttributes(flowSection.attributes);
     
-    // Process flow rules to create states and transitions
+    // Process flow content to find flow rules
     for (const flowContent of flowSection.flowContent) {
-      if (flowContent.$type === 'FlowRule') {
-        const rule = flowContent as FlowRule;
-        this.processFlowRule(rule, states, transitions);
+      if (isFlowRule(flowContent)) {
+        this.processFlowRule(flowContent, states, transitions);
       }
     }
 
@@ -52,7 +53,6 @@ export class FlowConverter {
    */
   private processFlowRule(rule: FlowRule, states: Record<string, any>, transitions: Record<string, any>): void {
     const sourceState = this.getStateFromOperand(rule.source);
-    const targetState = this.getStateFromOperand(rule.target);
 
     // Ensure source state exists
     if (!states[sourceState]) {
@@ -61,38 +61,48 @@ export class FlowConverter {
       };
     }
 
-    // Ensure target state exists
-    if (!states[targetState]) {
-      states[targetState] = {
-        on: {}
-      };
-    }
+    // Process each transition
+    for (const transition of rule.transitions || []) {
+      const targetState = this.getStateFromOperand(transition);
 
-    // Create transition
-    const transitionEvent = this.createTransitionEvent(rule.source, rule.target);
-    
-    if (!states[sourceState].on[transitionEvent]) {
-      states[sourceState].on[transitionEvent] = {
-        target: targetState,
-        actions: this.createTransitionActions(rule)
-      };
+      // Ensure target state exists
+      if (!states[targetState]) {
+        states[targetState] = {
+          on: {}
+        };
+      }
+
+      // Create transition
+      const transitionEvent = this.createTransitionEvent(rule.source, transition);
+      
+      if (!states[sourceState].on[transitionEvent]) {
+        states[sourceState].on[transitionEvent] = {
+          target: targetState,
+          actions: this.createTransitionActions(rule.source, transition)
+        };
+      }
     }
   }
 
   /**
-   * Extract state name from flow operand
+   * Extract state name from flow operand (now a string)
    */
-  private getStateFromOperand(operand: FlowOperand): string {
-    if (operand.symbol) {
-      return this.sanitizeStateName(operand.symbol);
-    } else if (operand.variable) {
-      return this.sanitizeStateName(operand.variable);
-    } else if (operand.attribute) {
-      return this.sanitizeStateName(operand.attribute);
-    } else if (operand.string) {
-      return this.sanitizeStateName(operand.string.replace(/"/g, ''));
+  private getStateFromOperand(operand: string): string {
+    if (!operand) return 'unknown';
+    
+    // Handle special prefixes
+    if (operand.startsWith(':')) {
+      return this.sanitizeStateName(operand.slice(1));
     }
-    return 'unknown';
+    
+    // Remove quotes if present
+    let cleaned = operand;
+    if ((operand.startsWith('"') && operand.endsWith('"')) || 
+        (operand.startsWith("'") && operand.endsWith("'"))) {
+      cleaned = operand.slice(1, -1);
+    }
+    
+    return this.sanitizeStateName(cleaned);
   }
 
   /**
@@ -108,32 +118,38 @@ export class FlowConverter {
   /**
    * Create transition event name
    */
-  private createTransitionEvent(source: FlowOperand, target: FlowOperand): string {
-    // const sourceStr = this.operandToString(source);
+  private createTransitionEvent(source: string, target: string): string {
     const targetStr = this.operandToString(target);
     return `TO_${this.sanitizeStateName(targetStr).toUpperCase()}`;
   }
 
   /**
-   * Convert operand to string representation
+   * Convert operand to string representation (simplified)
    */
-  private operandToString(operand: FlowOperand): string {
-    if (operand.symbol) return operand.symbol;
-    if (operand.variable) return operand.variable;
-    if (operand.attribute) return operand.attribute;
-    if (operand.string) return operand.string.replace(/"/g, '');
-    return 'unknown';
+  private operandToString(operand: string): string {
+    if (!operand) return 'unknown';
+    
+    // Remove special prefixes and quotes
+    let result = operand;
+    if (result.startsWith(':')) {
+      result = result.slice(1);
+    }
+    if ((result.startsWith('"') && result.endsWith('"')) || 
+        (result.startsWith("'") && result.endsWith("'"))) {
+      result = result.slice(1, -1);
+    }
+    
+    return result || 'unknown';
   }
 
   /**
-   * Create transition actions
+   * Create transition actions (simplified)
    */
-  private createTransitionActions(rule: FlowRule): any[] {
-    // Create placeholders for actions that will be implemented by the backend
+  private createTransitionActions(source: string, target: string): any[] {
     const actions: any[] = [];
 
-    const sourceStr = this.operandToString(rule.source);
-    const targetStr = this.operandToString(rule.target);
+    const sourceStr = this.operandToString(source);
+    const targetStr = this.operandToString(target);
 
     // Add logging action
     actions.push({
@@ -145,20 +161,8 @@ export class FlowConverter {
       }
     });
 
-    // Add conditional action processing if needed
-    if (rule.source.attribute || rule.target.attribute) {
-      actions.push({
-        type: 'processAttributes',
-        params: {
-          sourceAttribute: rule.source.attribute,
-          targetAttribute: rule.target.attribute,
-          __rclPlaceholder: true
-        }
-      });
-    }
-
     // Add message handling if operands suggest messaging
-    if (this.isMessageOperand(rule.source) || this.isMessageOperand(rule.target)) {
+    if (this.isMessageOperand(source) || this.isMessageOperand(target)) {
       actions.push({
         type: 'handleMessage',
         params: {
@@ -173,9 +177,9 @@ export class FlowConverter {
   }
 
   /**
-   * Check if an operand represents a message
+   * Check if an operand represents a message (simplified)
    */
-  private isMessageOperand(operand: FlowOperand): boolean {
+  private isMessageOperand(operand: string): boolean {
     const str = this.operandToString(operand).toLowerCase();
     return str.includes('message') || 
            str.includes('reply') || 
@@ -203,27 +207,17 @@ export class FlowConverter {
       }
     }
 
-    // Return the first state alphabetically
-    return stateNames.sort()[0];
+    // Default to first state
+    return stateNames[0];
   }
 
   /**
-   * Create XState context from flow attributes
+   * Create context object from flow attributes
    */
   private createContext(attributes: Record<string, any>): Record<string, any> {
-    const context: Record<string, any> = {};
-
-    // Add flow attributes to context
-    for (const [key, value] of Object.entries(attributes)) {
-      context[key] = value;
-    }
-
-    // Add default context values
-    context.currentMessage = null;
-    context.userInput = null;
-    context.conversationState = 'active';
-    context.__rclGenerated = true;
-
-    return context;
+    return {
+      rclAttributes: attributes,
+      __generatedFromRcl: true
+    };
   }
 } 

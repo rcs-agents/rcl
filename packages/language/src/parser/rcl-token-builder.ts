@@ -48,15 +48,15 @@ export class RclTokenBuilder extends IndentationAwareTokenBuilder {
       [':', ',', '.', '(', ')', '{', '}', '%', '|', '-', 'import', 'as', "'s"].includes(token.name);
     });
 
-    // Regular mode: exclude boolean keywords from PROPER_NOUN context
+    // Regular mode: exclude boolean keywords from PROPER_WORD context
     const regularModeTokens = tokens.filter(token =>
       ![TK.TRUE_KW, TK.FALSE_KW].includes(token.name as TK) ||
       essentialTokens.includes(token)
     );
 
-    // Boolean context mode: prioritize boolean keywords over PROPER_NOUN
+    // Boolean context mode: prioritize boolean keywords over PROPER_WORD
     const booleanModeTokens = tokens.filter(token =>
-      token.name !== TK.PROPER_NOUN ||
+      token.name !== TK.PROPER_WORD ||
       essentialTokens.includes(token)
     );
 
@@ -66,7 +66,7 @@ export class RclTokenBuilder extends IndentationAwareTokenBuilder {
       essentialTokens.includes(token)
     );
 
-    // Section name mode: allow all PROPER_NOUN including reserved keywords
+    // Section name mode: allow all PROPER_WORD including reserved keywords
     const sectionNameModeTokens = tokens.filter(token =>
       ![TK.TRUE_KW, TK.FALSE_KW, TK.TYPE_TAG_NAME].includes(token.name as TK) ||
       essentialTokens.includes(token)
@@ -122,7 +122,7 @@ export class RclTokenBuilder extends IndentationAwareTokenBuilder {
 
 
 
-    const keywordsConflictingWithProperNoun = [KW.Config, KW.Defaults, KW.MessagesReserved, KW.Null, KW.As];
+    const keywordsConflictingWithProperWord = [KW.Config, KW.Defaults, KW.MessagesReserved, KW.Null, KW.As];
 
     // Keywords listed in the test error output as having COMMON_NOUN as a problematic LONGER_ALT
     // in modes other than type_tag_mode.
@@ -130,16 +130,16 @@ export class RclTokenBuilder extends IndentationAwareTokenBuilder {
       KW.Authentication, KW.ServiceRequest, KW.AgentDefaults, KW.AgentConfig, KW.Transaction,
       KW.Acknowledge, KW.Promotion, KW.Message, KW.Messages, KW.Import, KW.Agent, KW.List, KW.Flow, KW.As, KW.Of
       // Note: KW.Messages (lowercase section type) added here.
-      // KW.MessagesReserved (uppercase reserved name) is handled by keywordsConflictingWithProperNoun.
+      // KW.MessagesReserved (uppercase reserved name) is handled by keywordsConflictingWithProperWord.
       // Boolean keywords (True, False, etc.) are handled by specific modes.
       // Type Tag names (date, time, etc.) are handled by TYPE_TAG_MODE.
     ];
 
-    if (keywordsConflictingWithProperNoun.includes(tokenType.name as KW)) {
-      // For these keywords, PROPER_NOUN is often the LONGER_ALT.
+    if (keywordsConflictingWithProperWord.includes(tokenType.name as KW)) {
+      // For these keywords, PROPER_WORD is often the LONGER_ALT.
       // Deleting LONGER_ALT makes them distinct keywords.
       // This is particularly important if they are used in SECTION_NAME_MODE
-      // where PROPER_NOUN is also active.
+      // where PROPER_WORD is also active.
 
       tokenType.LONGER_ALT = undefined;
     }

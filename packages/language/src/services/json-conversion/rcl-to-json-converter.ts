@@ -101,19 +101,19 @@ export class RclToJsonConverter {
   }
 
   /**
-   * Check if a section is the Messages section
+   * Check if a section is a messages section (simplified)
    */
   private isMessagesSection(section: Section): boolean {
-    return section.sectionType === 'messages' || section.reservedName === 'Messages';
+    return (section.sectionType === 'messages') || 
+           (section.sectionName?.toLowerCase().includes('message') ?? false);
   }
 
   /**
-   * Check if a section is an individual message section
+   * Check if a section represents a message (simplified)
    */
   private isMessageSection(section: Section): boolean {
-    // Message sections can be typed messages like "authentication message" or just "message"
-    return section.sectionType === 'message' || 
-           section.sectionType.includes('message');
+    const sectionType = section.sectionType?.toLowerCase() || '';
+    return sectionType.includes('message');
   }
 
   /**

@@ -1,154 +1,117 @@
 import type { 
-  Value, 
-  LiteralValue, 
-  Identifier, 
-  TypeConversion, 
-  Dictionary, 
-  ExplicitMap, 
-  List,
+  SimpleValue,
+  TypeConversion,
   Attribute,
-  DictionaryEntry
+  ParenthesesList,
+  InlineList,
+  IndentedList,
+  BraceObject,
+  IndentedObject
 } from '../../generated/ast.js';
 import { 
-  isLiteralValue, 
-  isIdentifier, 
-  isTypeConversion, 
-  isDictionary, 
-  isExplicitMap, 
-  isList,
+  isTypeConversion,
+  isParenthesesList,
+  isInlineList,
   isIndentedList,
-  isInlineList
+  isBraceObject,
+  isIndentedObject
 } from '../../generated/ast.js';
 
 /**
  * Converts RCL AST values to JSON-compatible values
+ * Note: Simplified implementation for current grammar structure
  */
 export class ValueConverter {
   
   /**
-   * Convert any RCL Value to a JSON-compatible value
+   * Convert any RCL SimpleValue to a JSON-compatible value
    */
-  convertValue(value: Value | undefined): any {
+  convertValue(value: SimpleValue | undefined): any {
     if (!value) {
       return null;
-    }
-
-    if (isLiteralValue(value)) {
-      return this.convertLiteralValue(value);
-    }
-
-    if (isIdentifier(value)) {
-      return this.convertIdentifier(value);
     }
 
     if (isTypeConversion(value)) {
       return this.convertTypeConversion(value);
     }
 
-    if (isDictionary(value)) {
-      return this.convertDictionary(value);
+    if (isBraceObject(value) || isIndentedObject(value)) {
+      return this.convertObject(value);
     }
 
-    if (isExplicitMap(value)) {
-      return this.convertExplicitMap(value);
-    }
-
-    if (isList(value)) {
+    if (isParenthesesList(value) || isInlineList(value) || isIndentedList(value)) {
       return this.convertList(value);
     }
 
-    // Fallback: return string representation
-    return value.$cstNode?.text || null;
+    // Handle simple string values
+    if (value.value !== undefined) {
+      return this.convertStringValue(value.value);
+    }
+
+    // Fallback: return string representation from CST
+    return value.$cstNode?.text?.trim() || null;
   }
 
   /**
-   * Convert RCL LiteralValue to JSON value
+   * Convert simple string values (remove quotes, handle booleans, etc.)
    */
-  private convertLiteralValue(literal: LiteralValue): any {
-    if (literal.val_str !== undefined) {
-      // Remove quotes from string literals
-      return literal.val_str.replace(/^"|"$/g, '');
+  private convertStringValue(str: string): any {
+    if (!str) return null;
+
+    // Remove quotes from string literals
+    if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+      return str.slice(1, -1);
     }
 
-    if (literal.val_num !== undefined) {
-      return literal.val_num;
-    }
+    // Handle boolean values
+    const truthyValues = ['True', 'On', 'Yes', 'Active', 'Enabled'];
+    const falsyValues = ['False', 'Off', 'No', 'Inactive', 'Disabled'];
+    if (truthyValues.includes(str)) return true;
+    if (falsyValues.includes(str)) return false;
 
-    if (literal.val_bool !== undefined) {
-      return this.convertBooleanValue(literal.val_bool.value);
-    }
-
-    if (literal.val_atom !== undefined) {
-      // Convert atoms (e.g., :TRANSACTIONAL) to strings without the colon
-      return literal.val_atom.startsWith(':') ? literal.val_atom.slice(1) : literal.val_atom;
-    }
-
-    if (literal.val_null !== undefined) {
+    // Handle null values
+    if (['Null', 'None', 'Void'].includes(str)) {
       return null;
     }
 
-    return null;
-  }
+    // Handle numbers
+    const numValue = Number(str);
+    if (!isNaN(numValue) && isFinite(numValue)) {
+      return numValue;
+    }
 
-  /**
-   * Convert RCL boolean values to JSON boolean
-   */
-  private convertBooleanValue(boolValue: string): boolean {
-    const truthyValues = ['True', 'On', 'Yes', 'Active', 'Enabled'];
-    return truthyValues.includes(boolValue);
-  }
+    // Handle atoms (remove colon prefix)
+    if (str.startsWith(':')) {
+      return str.slice(1);
+    }
 
-  /**
-   * Convert RCL Identifier to JSON value
-   */
-  private convertIdentifier(identifier: Identifier): string {
-    return identifier.value || '';
+    return str;
   }
 
   /**
    * Convert RCL TypeConversion to JSON value
    */
   private convertTypeConversion(typeConversion: TypeConversion): any {
-    // For now, return the converted value as a placeholder
-    // In a more complete implementation, this would apply the type conversion
-    const value = this.convertValue(typeConversion.value as Value);
+    const value = this.convertValue(typeConversion.value);
     
     // Create a placeholder object for type conversions that need post-processing
     return {
-      type: typeConversion.type,
+      target: typeConversion.target,
       value: value,
-      modifier: typeConversion.modifier,
       __rclTypeConversion: true
     };
   }
 
   /**
-   * Convert RCL Dictionary to JSON object
+   * Convert RCL Object (BraceObject or IndentedObject) to JSON object
    */
-  private convertDictionary(dictionary: Dictionary): Record<string, any> {
+  private convertObject(obj: BraceObject | IndentedObject): Record<string, any> {
     const result: Record<string, any> = {};
     
-    for (const entry of dictionary.entries) {
-      const key = this.convertDictionaryKey(entry);
-      const value = this.convertValue(entry.value);
-      if (key) {
-        result[key] = value;
-      }
-    }
-    
-    return result;
-  }
-
-  /**
-   * Convert RCL ExplicitMap to JSON object
-   */
-  private convertExplicitMap(map: ExplicitMap): Record<string, any> {
-    const result: Record<string, any> = {};
-    
-    for (const entry of map.entries) {
-      const key = entry.key;
-      const value = this.convertValue(entry.value);
-      if (key) {
+    for (const pair of obj.pairs || []) {
+      const key = this.convertValue(pair.key);
+      const value = this.convertValue(pair.value);
+      if (key && typeof key === 'string') {
         result[key] = value;
       }
     }
@@ -159,67 +122,25 @@ export class ValueConverter {
   /**
    * Convert RCL List to JSON array
    */
-  private convertList(list: List): any[] {
-    if (isIndentedList(list)) {
-      return list.items.map(item => this.convertValue(item.item as Value));
+  private convertList(list: ParenthesesList | InlineList | IndentedList): any[] {
+    const result: any[] = [];
+    
+    for (const item of list.items || []) {
+      result.push(this.convertValue(item));
     }
     
-    if (isInlineList(list)) {
-      const result: any[] = [];
-      
-      // Handle first item
-      if (list.firstSimpleListItem) {
-        result.push(this.convertValue(list.firstSimpleListItem as Value));
-      }
-      if (list.firstNestedListItem) {
-        result.push(this.convertValue(list.firstNestedListItem as unknown as Value));
-      }
-      
-      // Handle second item
-      if (list.secondListItem) {
-        result.push(this.convertValue(list.secondListItem as Value));
-      }
-      
-      // Handle remaining items
-      for (const item of list.remainingItems || []) {
-        result.push(this.convertValue(item as Value));
-      }
-      
-      // Handle subsequent items
-      for (const item of list.subsequentItems || []) {
-        result.push(this.convertValue(item as Value));
-      }
-      
-      return result;
-    }
-    
-    return [];
+    return result;
   }
 
   /**
-   * Convert dictionary entry key to string
-   */
-  private convertDictionaryKey(entry: DictionaryEntry): string | null {
-    if (typeof entry.key === 'string') {
-      return entry.key;
-    }
-    
-    if (isIdentifier(entry.key)) {
-      return entry.key.value || '';
-    }
-    
-    return (entry.key as any)?.$cstNode?.text || null;
-  }
-
-  /**
-   * Convert RCL attributes to a JSON object
+   * Convert array of attributes to JSON object
    */
   convertAttributes(attributes: Attribute[]): Record<string, any> {
     const result: Record<string, any> = {};
     
     for (const attr of attributes) {
       if (attr.key) {
-        result[attr.key] = this.convertValue(attr.value as Value);
+        result[attr.key] = this.convertValue(attr.value);
       }
     }
     
@@ -227,7 +148,7 @@ export class ValueConverter {
   }
 
   /**
-   * Extract string value from various RCL constructs
+   * Extract string value from various value types
    */
   extractStringValue(value: any): string | null {
     if (typeof value === 'string') {
@@ -239,7 +160,7 @@ export class ValueConverter {
     }
     
     if (value && value.$cstNode) {
-      return value.$cstNode.text;
+      return value.$cstNode.text?.trim() || null;
     }
     
     return value ? String(value) : null;

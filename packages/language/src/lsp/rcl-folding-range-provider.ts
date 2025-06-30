@@ -2,7 +2,7 @@ import type { AstNode, LangiumDocument, MaybePromise } from 'langium';
 import { AstUtils } from 'langium'; // For AstUtils.streamAllContents
 import type { FoldingRangeProvider } from 'langium/lsp';
 import { FoldingRange, FoldingRangeKind, type CancellationToken, type FoldingRangeParams } from 'vscode-languageserver-protocol';
-import { isSection, isMultiLineEmbeddedCodeBlock } from '../generated/ast.js';
+import { isSection } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
 
 export class RclFoldingRangeProvider implements FoldingRangeProvider {
@@ -21,7 +21,7 @@ export class RclFoldingRangeProvider implements FoldingRangeProvider {
 
     const foldingRanges: FoldingRange[] = [];
     const nodes = AstUtils.streamAllContents(rootNode).filter((n: AstNode) =>
-      isSection(n) || isMultiLineEmbeddedCodeBlock(n)
+      isSection(n)
     );
 
     for (const node of nodes) {
@@ -44,14 +44,6 @@ export class RclFoldingRangeProvider implements FoldingRangeProvider {
           startLine = nodeCst.range.start.line + 1;
         } else {
           continue; // Not enough lines to fold content
-        }
-      } else if (isMultiLineEmbeddedCodeBlock(node)) {
-        kind = FoldingRangeKind.Region;
-        // Fold content after the line of the start marker (e.g., $js>>>)
-        if (endLine > nodeCst.range.start.line) {
-          startLine = nodeCst.range.start.line + 1;
-        } else {
-          continue; // No content lines to fold
         }
       }
 

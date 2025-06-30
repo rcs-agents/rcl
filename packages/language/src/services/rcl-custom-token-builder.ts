@@ -1,6 +1,6 @@
 import { IndentationAwareTokenBuilder, isTokenTypeArray, type GrammarAST } from "langium";
 import type { IMultiModeLexerDefinition, TokenType, TokenVocabulary } from "chevrotain";
-import { KW, TK } from "../constants.js";
+import { TK } from "../constants.js";
 
 const DEFAULT_MODE = 'default_mode';
 const BOOLEAN_CONTEXT_MODE = 'boolean_context_mode';
@@ -71,6 +71,9 @@ export class RclCustomTokenBuilder extends IndentationAwareTokenBuilder {
   protected override buildTerminalToken(terminal: GrammarAST.TerminalRule): TokenType {
     const tokenType = super.buildTerminalToken(terminal);
 
+    // Clear LONGER_ALT relationships for all terminals to prevent multi-mode lexer conflicts
+    tokenType.LONGER_ALT = undefined;
+
     // Add mode transitions for specific terminals
     if (tokenType.name === TK.LT) { // '<' starts type conversion
       tokenType.PUSH_MODE = TYPE_TAG_MODE;
@@ -88,34 +91,9 @@ export class RclCustomTokenBuilder extends IndentationAwareTokenBuilder {
   ): TokenType {
     const tokenType = super.buildKeywordToken(keyword, terminalTokens, caseInsensitive);
 
-    const keywordsConflictingWithProperWord = [KW.Config, KW.Defaults, KW.MessagesReserved];
-
-    // Keywords listed in the test error output as having COMMON_NOUN as a problematic LONGER_ALT
-    // in modes other than type_tag_mode.
-    const generalKeywordsConflictingWithCommonNoun = [
-      KW.Authentication, KW.ServiceRequest, KW.AgentDefaults, KW.AgentConfig, KW.Transaction,
-      KW.Acknowledge, KW.Promotion, KW.Message, KW.Messages, KW.Import, KW.Agent, KW.List, KW.Flow, KW.As, KW.Of
-      // Note: KW.Messages (lowercase section type) added here.
-      // KW.MessagesReserved (uppercase reserved name) is handled by keywordsConflictingWithProperWord.
-      // Boolean keywords (True, False, etc.) are handled by specific modes.
-      // Type Tag names (date, time, etc.) are handled by TYPE_TAG_MODE.
-    ];
-
-    if (keywordsConflictingWithProperWord.includes(tokenType.name as KW)) {
-      // For these keywords, PROPER_WORD is often the LONGER_ALT.
-      // Deleting LONGER_ALT makes them distinct keywords.
-      // This is particularly important if they are used in SECTION_NAME_MODE
-      // where PROPER_WORD is also active.
-      tokenType.LONGER_ALT = undefined;
-    }
-
-    if (generalKeywordsConflictingWithCommonNoun.includes(tokenType.name as KW)) {
-      // For these general keywords, COMMON_NOUN is their LONGER_ALT.
-      // In modes where both the keyword and COMMON_NOUN are active (e.g., DEFAULT_MODE),
-      // this LONGER_ALT relationship causes issues with the multi-mode lexer.
-      // Deleting LONGER_ALT ensures the keyword is prioritized and tokenized as itself.
-      tokenType.LONGER_ALT = undefined;
-    }
+    // Clear ALL LONGER_ALT relationships to prevent multi-mode lexer conflicts
+    // This includes boolean keywords, type tag names, and general keywords
+    tokenType.LONGER_ALT = undefined;
 
     return tokenType;
   }

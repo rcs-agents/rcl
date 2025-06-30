@@ -1,7 +1,7 @@
 import { AbstractSemanticTokenProvider, type SemanticTokenAcceptor } from 'langium/lsp';
 import type { AstNode } from 'langium';
-import { SemanticTokenModifiers, SemanticTokenTypes } from 'vscode-languageserver-protocol';
-import { isSection, type Section, isAttribute, type Attribute, isBooleanValue, type BooleanValue, type ReservedSectionName } from '../generated/ast.js';
+import { SemanticTokenTypes } from 'vscode-languageserver-protocol';
+import { isSection, type Section, isAttribute, type Attribute } from '../generated/ast.js';
 
 export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
 
@@ -10,9 +10,11 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
       this.highlightSection(node, acceptor);
     } else if (isAttribute(node)) {
       this.highlightAttribute(node, acceptor);
-    } else if (isBooleanValue(node)) {
-      this.highlightBoolean(node, acceptor);
     }
+    // TODO: Re-enable when BooleanValue type is available
+    // else if (isBooleanValue(node)) {
+    //   this.highlightBoolean(node, acceptor);
+    // }
   }
 
   private highlightSection(section: Section, acceptor: SemanticTokenAcceptor): void {
@@ -32,15 +34,16 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
       });
     }
 
-    const typedSection = section as Section & { reservedName?: ReservedSectionName };
-    if (typedSection.reservedName) {
-      acceptor({
-        node: section,
-        property: 'reservedName',
-        type: SemanticTokenTypes.keyword,
-        modifier: [SemanticTokenModifiers.defaultLibrary]
-      });
-    }
+    // TODO: Re-enable when reservedName property is available on Section type
+    // const typedSection = section as Section & { reservedName?: ReservedSectionName };
+    // if (typedSection.reservedName) {
+    //   acceptor({
+    //     node: section,
+    //     property: 'reservedName',
+    //     type: SemanticTokenTypes.keyword,
+    //     modifier: [SemanticTokenModifiers.defaultLibrary]
+    //   });
+    // }
   }
 
   private highlightAttribute(attribute: Attribute, acceptor: SemanticTokenAcceptor): void {
@@ -53,12 +56,5 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
     }
   }
 
-  private highlightBoolean(booleanNode: BooleanValue, acceptor: SemanticTokenAcceptor): void {
-    acceptor({
-      node: booleanNode,
-      property: 'value',
-      type: SemanticTokenTypes.enumMember,
-      modifier: [SemanticTokenModifiers.readonly]
-    });
-  }
+
 }
