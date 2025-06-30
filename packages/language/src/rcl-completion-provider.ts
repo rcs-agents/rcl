@@ -1,7 +1,7 @@
 import type { AstNode } from 'langium';
 import type { CompletionAcceptor, CompletionContext, NextFeature } from 'langium/lsp';
 import { DefaultCompletionProvider } from 'langium/lsp';
-import type { Section, ReservedSectionName } from './generated/ast.js';
+import type { Section } from './generated/ast.js';
 import { isSection } from './generated/ast.js';
 import type { SectionTypeRegistry } from './services/section-registry.js';
 import type { RclServices } from './rcl-module.js';
@@ -11,7 +11,7 @@ import { KW } from './constants.js';
  * Context information for completion
  */
 interface CompletionContextInfo {
-  type: 'section-type' | 'attribute-name' | 'attribute-value' | 'reserved-section-name' | 'unknown';
+  type: 'section-type' | 'attribute-name' | 'attribute-value' | 'unknown';
   currentSection?: Section;
   parentSection?: Section;
   isAtRootLevel: boolean;
@@ -55,9 +55,6 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
       case 'attribute-value':
         this.completeAttributeValues(completionContext, acceptor);
         break;
-      case 'reserved-section-name':
-        this.completeReservedSectionNames(completionContext, acceptor);
-        break;
     }
   }
 
@@ -79,24 +76,7 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
    * Extract section type string from Section node
    */
   private getSectionType(section: Section): string | undefined {
-    // Cast to include reservedName for type inference if needed by logic below
-    const typedSection = section as Section & { reservedName?: ReservedSectionName };
-    if (typedSection.sectionType) {
-        return typedSection.sectionType;
-    }
-    // If no explicit type, check if it's a reserved name with an implied type
-    if (typedSection.reservedName) {
-        const parentSection = this.findParentSection(section);
-        if (parentSection) {
-            const parentType = this.getSectionType(parentSection); // Recursive call to get parent's actual type
-            if (parentType) {
-                const reservedInfo = this.registry.getReservedSubSections(parentType)
-                    .find(r => r.name === typedSection.reservedName);
-                return reservedInfo?.impliedType;
-            }
-        }
-    }
-    return undefined;
+    return section.type;
   }
 
   /**
@@ -128,18 +108,14 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
       // We're after a colon, completing attribute value
       type = 'attribute-value';
     } else if (isAtRootLevel || indentationLevel === 0) {
-      // At root level, can only complete section types or reserved section names
+      // At root level, can only complete section types
       if (lineText === '' || /^[a-zA-Z]*$/.test(lineText)) {
         type = 'section-type';
       }
     } else if (isInsideSection) {
       // Inside a section with indentation
       if (lineText === '' || lineText.endsWith(':') || /^[a-zA-Z_]*$/.test(lineText)) {
-        // Check if we might be completing a reserved section name
-        const sectionType = this.getSectionType(currentSection!);
-        if (sectionType && this.couldBeReservedSectionName(lineText, sectionType)) {
-          type = 'reserved-section-name';
-        } else if (this.isLikelyAttributeName(lineText, indentationLevel)) {
+        if (this.isLikelyAttributeName(lineText, indentationLevel)) {
           type = 'attribute-name';
         } else {
           type = 'section-type'; // Subsection
@@ -157,21 +133,6 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
       indentationLevel,
       context
     };
-  }
-
-  /**
-   * Check if the current input could be a reserved section name
-   */
-  private couldBeReservedSectionName(lineText: string, sectionType: string): boolean {
-    if (!lineText || lineText.toLowerCase() === lineText) return false; // Reserved names are capitalized
-
-    const reservedNames = this.registry.getReservedSubSections(sectionType)
-      .map(r => r.name);
-
-    return reservedNames.some(name =>
-      name.toLowerCase().startsWith(lineText.toLowerCase()) ||
-      lineText === ''
-    );
   }
 
   /**
@@ -250,55 +211,23 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
       return;
     }
 
-    if (!contextInfo.currentSection) return;
+    const { currentSection, parentSection } = contextInfo;
+    const sectionForContext = parentSection || currentSection;
 
-    const parentSectionType = this.getSectionType(contextInfo.currentSection);
-    if (!parentSectionType) return;
-
-    const allowedSubSections = this.registry.getAllowedSubSections(parentSectionType);
-
-    // Add allowed subsection types
-    for (const subType of allowedSubSections) {
-      acceptor(contextInfo.context, {
-        label: subType, // subType is already a string like 'flow', 'message' from constants
-        kind: 14, // Module
-        detail: `${subType} section`,
-        documentation: this.getSectionDocumentation(subType),
-        insertText: `${subType} `,
-        sortText: `2_${subType}`
-      });
-    }
-  }
-
-  /**
- * Complete reserved section names (Config, Defaults, Messages)
- */
-  private completeReservedSectionNames(
-    contextInfo: CompletionContextInfo,
-    acceptor: CompletionAcceptor
-  ): void {
-    if (!contextInfo.currentSection) return;
-
-    const sectionType = this.getSectionType(contextInfo.currentSection);
-    if (!sectionType) return;
-
-    const reservedSubSections = this.registry.getReservedSubSections(sectionType);
-
-    // Get existing subsection names to avoid duplicates
-    const existingSubSections = contextInfo.currentSection.subSections
-      .map(sub => this.getSectionName(sub))
-      .filter(name => name !== undefined);
-
-    for (const reserved of reservedSubSections) {
-      if (!existingSubSections.includes(reserved.name)) {
-        acceptor(contextInfo.context, {
-          label: reserved.name,
-          kind: 14, // Module
-          detail: `${reserved.name} (${reserved.impliedType})${reserved.required ? ' - required' : ''}`,
-          documentation: `Reserved ${reserved.name} subsection of type ${reserved.impliedType}`,
-          insertText: `${reserved.name}`,
-          sortText: reserved.required ? `0_${reserved.name}` : `1_${reserved.name}`
-        });
+    if (sectionForContext) {
+      const sectionType = this.getSectionType(sectionForContext);
+      if (sectionType) {
+        // Suggest allowed subsections
+        const allowedSubSections = this.registry.getAllowedSubSections(sectionType);
+        for (const sub of allowedSubSections) {
+          acceptor(contextInfo.context, {
+            label: sub,
+            kind: 14, // Module
+            detail: `${sub} section`,
+            documentation: this.getSectionDocumentation(sub),
+            insertText: `${sub} `
+          });
+        }
       }
     }
   }
@@ -359,23 +288,5 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
     };
 
     return sectionDocs[sectionType] || `${sectionType} section`;
-  }
-
-  /**
- * Extract section name from section node
- */
-  private getSectionName(section: Section): string | undefined {
-    // Check if section has a reserved name
-    // Cast to include reservedName property
-    const typedSection = section as Section & { reservedName?: ReservedSectionName }; 
-    if (typedSection.reservedName) {
-      return typedSection.reservedName;
-    }
-
-    // section.sectionName is directly a string
-    if (section.sectionName) {
-      return section.sectionName;
-    }
-    return undefined;
   }
 }

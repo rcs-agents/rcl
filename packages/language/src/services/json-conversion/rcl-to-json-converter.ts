@@ -97,22 +97,22 @@ export class RclToJsonConverter {
    * Check if a section is a flow section
    */
   private isFlowSection(section: Section): boolean {
-    return section.sectionType === 'flow';
+    return section.type === 'flow';
   }
 
   /**
    * Check if a section is a messages section (simplified)
    */
   private isMessagesSection(section: Section): boolean {
-    return (section.sectionType === 'messages') || 
-           (section.sectionName?.toLowerCase().includes('message') ?? false);
+    return (section.type === 'messages') || 
+           (section.name?.toLowerCase().includes('message') ?? false);
   }
 
   /**
    * Check if a section represents a message (simplified)
    */
   private isMessageSection(section: Section): boolean {
-    const sectionType = section.sectionType?.toLowerCase() || '';
+    const sectionType = section.type?.toLowerCase() || '';
     return sectionType.includes('message');
   }
 
@@ -120,13 +120,13 @@ export class RclToJsonConverter {
    * Extract flow ID from a flow section
    */
   private getFlowId(section: Section): string {
-    return section.sectionName || 'default-flow';
+    return section.name || 'default-flow';
   }
 
   /**
    * Extract message ID from a message section
    */
   private getMessageId(section: Section): string {
-    return section.sectionName || 'default-message';
+    return section.name || 'default-message';
   }
 } 

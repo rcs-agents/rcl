@@ -14,12 +14,14 @@ const SECTION_NAME_MODE = 'section_name_mode';
  */
 export class RclTokenBuilder extends IndentationAwareTokenBuilder {
 
-  override options = {
-    indentTokenName: TK.INDENT,
-    dedentTokenName: TK.DEDENT,
-    whitespaceTokenName: TK.WS,
-    ignoreIndentationDelimiters: []
-  };
+  constructor() {
+    super({
+      indentTokenName: TK.INDENT,
+      dedentTokenName: TK.DEDENT,
+      whitespaceTokenName: TK.WS,
+      ignoreIndentationDelimiters: []
+    });
+  }
 
   override buildTokens(grammar: GrammarAST.Grammar, options?: { caseInsensitive?: boolean }): TokenVocabulary {
     // First, get tokens from the parent IndentationAwareTokenBuilder

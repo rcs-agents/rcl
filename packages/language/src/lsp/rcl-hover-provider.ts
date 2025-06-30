@@ -50,8 +50,8 @@ export class RclHoverProvider extends AstNodeHoverProvider {
   }
 
   private getSectionHoverDetails(section: Section): Hover | undefined {
-    const actualSectionType: string | undefined = section.sectionType;
-    const sectionTitle = section.sectionName || section.sectionType || "Section";
+    const actualSectionType: string | undefined = section.type;
+    const sectionTitle = section.name || section.type || "Section";
     const markdownLines: string[] = [];
 
     const typeForDisplay = actualSectionType || 'Generic Section';
@@ -86,7 +86,7 @@ ${attributeName}
 \`\`\``);
 
     const parentSection = AstUtils.getContainerOfType(attribute, isSection);
-    const parentSectionTypeName = parentSection?.sectionType;
+    const parentSectionTypeName = parentSection?.type;
 
     if (parentSectionTypeName) {
       markdownLines.push(`\nAttribute of section type **${parentSectionTypeName}**.`);

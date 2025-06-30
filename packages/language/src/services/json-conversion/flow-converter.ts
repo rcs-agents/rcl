@@ -32,7 +32,7 @@ export class FlowConverter {
 
     // Create XState configuration
     const xstateConfig: Record<string, any> = {
-      id: flowSection.sectionName || 'flow',
+      id: flowSection.name || 'flow',
       initial: this.determineInitialState(states),
       states: states,
       context: this.createContext(flowAttributes)
@@ -62,8 +62,8 @@ export class FlowConverter {
     }
 
     // Process each transition
-    for (const transition of rule.transitions || []) {
-      const targetState = this.getStateFromOperand(transition);
+    if (rule.destination?.ref) {
+      const targetState = this.getStateFromOperand(rule.destination.ref.name);
 
       // Ensure target state exists
       if (!states[targetState]) {
@@ -73,12 +73,12 @@ export class FlowConverter {
       }
 
       // Create transition
-      const transitionEvent = this.createTransitionEvent(rule.source, transition);
+      const transitionEvent = this.createTransitionEvent(rule.source, rule.destination.ref.name);
       
       if (!states[sourceState].on[transitionEvent]) {
         states[sourceState].on[transitionEvent] = {
           target: targetState,
-          actions: this.createTransitionActions(rule.source, transition)
+          actions: this.createTransitionActions(rule.source, rule.destination.ref.name)
         };
       }
     }

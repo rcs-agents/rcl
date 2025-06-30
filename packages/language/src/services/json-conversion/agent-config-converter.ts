@@ -36,8 +36,8 @@ export class AgentConfigConverter {
     if (agentSection.subSections && agentSection.subSections.length > 0) {
       config.subSections = agentSection.subSections.map(section => {
         const sectionConfig: Record<string, any> = {
-          type: section.sectionType || 'unknown',
-          name: section.sectionName,
+          type: section.type || 'unknown',
+          name: section.name,
           attributes: this.valueConverter.convertAttributes(section.attributes)
         };
         return sectionConfig;

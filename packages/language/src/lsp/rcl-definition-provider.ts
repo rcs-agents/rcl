@@ -1,18 +1,22 @@
-import { type AstNode, type MaybePromise, AstUtils, CstUtils, type LangiumDocument } from 'langium';
-import type { DefinitionProvider } from 'langium/lsp';
-import type { Location, DefinitionParams, CancellationToken, LocationLink } from 'vscode-languageserver-protocol';
-import { isSection, isFlowOperand, type FlowOperand, type Section, type ReservedSectionName } from '../generated/ast.js';
+import { AstNode, AstUtils, NameProvider } from 'langium';
+import { CstUtils } from 'langium';
+import { DefaultDefinitionProvider } from 'langium/lsp';
+import type { LangiumDocument } from 'langium';
+import type { CancellationToken, DefinitionParams, Location, LocationLink } from 'vscode-languageserver-protocol';
+
 import type { RclServices } from '../rcl-module.js';
+import { isSection } from '../generated/ast.js';
 
-export class RclDefinitionProvider implements DefinitionProvider {
+export class RclDefinitionProvider extends DefaultDefinitionProvider {
 
-  protected readonly services: RclServices;
+  protected override readonly nameProvider: NameProvider;
 
   constructor(services: RclServices) {
-    this.services = services;
+    super(services);
+    this.nameProvider = services.references.NameProvider;
   }
 
-  getDefinition(document: LangiumDocument, params: DefinitionParams, cancelToken?: CancellationToken): MaybePromise<LocationLink[] | undefined> {
+  override async getDefinition(document: LangiumDocument, params: DefinitionParams, cancelToken?: CancellationToken): Promise<LocationLink[] | undefined> {
     const rootAstNode = document.parseResult.value;
     if (!rootAstNode?.$cstNode) {
       return undefined;
@@ -26,72 +30,28 @@ export class RclDefinitionProvider implements DefinitionProvider {
 
     const astNodeForLeaf = cstLeaf.element;
 
-    // TODO: Re-enable when Identifier type is available
-    // if (isIdentifier(astNodeForLeaf)) {
-    //   return this.findIdentifierDefinition(astNodeForLeaf, document, cancelToken);
-    // }
-
-    // Handle flow operands (e.g., message references in flow rules)
-    if (isFlowOperand(astNodeForLeaf)) {
-      return this.findFlowOperandDefinition(astNodeForLeaf, document, cancelToken);
-    }
-
     // Handle section name references
-    const typedAstNodeForLeaf = astNodeForLeaf as Section & { sectionName?: string, reservedName?: ReservedSectionName };
-    if (isSection(astNodeForLeaf) && typedAstNodeForLeaf.sectionName && cstLeaf.text === typedAstNodeForLeaf.sectionName) {
+    if (isSection(astNodeForLeaf) && astNodeForLeaf.name && cstLeaf.text === astNodeForLeaf.name) {
       // This is already the definition, so return it
-      const nameCstNode = this.services.references.NameProvider.getNameNode(astNodeForLeaf);
+      const nameCstNode = this.nameProvider.getNameNode(astNodeForLeaf);
       const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(astNodeForLeaf, document);
       return loc ? [{ targetUri: loc.uri, targetRange: loc.range, targetSelectionRange: loc.range }] : undefined;
     }
 
     // Check if we're clicking on a section name that's part of a larger context
     const enclosingSection = AstUtils.getContainerOfType(astNodeForLeaf, isSection);
-    const typedEnclosingSection = enclosingSection as Section & { sectionName?: string, reservedName?: ReservedSectionName };
-    if (typedEnclosingSection?.sectionName && cstLeaf.text === typedEnclosingSection.sectionName) {
-      const nameCstNode = this.services.references.NameProvider.getNameNode(typedEnclosingSection);
-      const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(typedEnclosingSection, document);
+    if (enclosingSection?.name && cstLeaf.text === enclosingSection.name) {
+      const nameCstNode = this.nameProvider.getNameNode(enclosingSection);
+      const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(enclosingSection, document);
       return loc ? [{ targetUri: loc.uri, targetRange: loc.range, targetSelectionRange: loc.range }] : undefined;
     }
 
-    return undefined;
-  }
+    const targetNode = this.references.findDeclaration(cstLeaf);
 
-  // TODO: Re-enable when Identifier type is available
-  // protected findIdentifierDefinition(identifierNode: Identifier, document: LangiumDocument, cancelToken?: CancellationToken): LocationLink[] | undefined {
-  //   const targetName = identifierNode.value;
-  //   if (!targetName) return undefined;
-
-  //   // Look for sections with the same name as this identifier
-  //   for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
-  //     if (cancelToken?.isCancellationRequested) return undefined;
-
-  //     const typedNode = node as Section & { sectionName?: string };
-  //     if (isSection(node) && typedNode.sectionName === targetName) {
-  //       // Found the section definition
-  //       const nameCstNode = this.services.references.NameProvider.getNameNode(node);
-  //       const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(node, document);
-  //       return loc ? [{ targetUri: loc.uri, targetRange: loc.range, targetSelectionRange: loc.range }] : undefined;
-  //     }
-  //   }
-
-  //   return undefined;
-  // }
-
-  protected findFlowOperandDefinition(operandNode: FlowOperand, document: LangiumDocument, cancelToken?: CancellationToken): LocationLink[] | undefined {
-    const targetValue = this.getFlowOperandValue(operandNode);
-    if (!targetValue) return undefined;
-
-    // Look for sections with the same name as this flow operand
-    for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
-      if (cancelToken?.isCancellationRequested) return undefined;
-
-      const typedNode = node as Section & { sectionName?: string };
-      if (isSection(node) && typedNode.sectionName === targetValue) {
-        // Found the section definition
-        const nameCstNode = this.services.references.NameProvider.getNameNode(node);
-        const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(node, document);
-        return loc ? [{ targetUri: loc.uri, targetRange: loc.range, targetSelectionRange: loc.range }] : undefined;
+    if (targetNode) {
+      const definition = await super.getDefinition(document, params, cancelToken);
+      if (definition) {
+        return definition;
       }
     }
 
@@ -109,13 +69,5 @@ export class RclDefinitionProvider implements DefinitionProvider {
   protected getNodeLocationFromCst(cstNode: AstNode['$cstNode'], document: LangiumDocument): Location | undefined {
     if (!cstNode) return undefined;
     return { uri: document.uri.toString(), range: cstNode.range };
-  }
-
-  /**
-   * Extract the value from a FlowOperand
-   */
-  private getFlowOperandValue(operand: FlowOperand): string | undefined {
-    // FlowOperand is now a string type according to current grammar
-    return operand;
   }
 }

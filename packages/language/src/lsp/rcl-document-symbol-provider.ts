@@ -2,7 +2,7 @@ import type { LangiumDocument, MaybePromise } from 'langium';
 import type { DocumentSymbolProvider } from 'langium/lsp';
 import { type DocumentSymbol, SymbolKind } from 'vscode-languageserver-protocol';
 import type { CancellationToken, DocumentSymbolParams } from 'vscode-languageserver-protocol';
-import type { ImportStatement, Section, Attribute, ReservedSectionName } from '../generated/ast.js';
+import type { ImportStatement, Section, Attribute } from '../generated/ast.js';
 import { isRclFile } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
 
@@ -59,9 +59,8 @@ export class RclDocumentSymbolProvider implements DocumentSymbolProvider {
     const range = section.$cstNode?.range;
     if (!range) return undefined;
 
-    const typedSection = section as Section & { reservedName?: ReservedSectionName };
-    const sectionTypeStr = section.sectionType || (typedSection.reservedName ? 'Reserved' : 'UnnamedType');
-    const sectionDisplayName = section.sectionName || typedSection.reservedName || sectionTypeStr;
+    const sectionTypeStr = section.type ?? 'UnnamedType';
+    const sectionDisplayName = section.name || sectionTypeStr;
     const name = `${sectionDisplayName} (${sectionTypeStr})`;
 
     let selectionRange = range;

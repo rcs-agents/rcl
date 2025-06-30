@@ -18,18 +18,18 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
   }
 
   private highlightSection(section: Section, acceptor: SemanticTokenAcceptor): void {
-    if (section.sectionType) {
+    if (section.type) {
       acceptor({
         node: section,
-        property: 'sectionType',
+        property: 'type',
         type: SemanticTokenTypes.type
       });
     }
 
-    if (section.sectionName) {
+    if (section.name) {
       acceptor({
         node: section,
-        property: 'sectionName',
+        property: 'name',
         type: SemanticTokenTypes.class
       });
     }

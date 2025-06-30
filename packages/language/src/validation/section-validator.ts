@@ -1,8 +1,7 @@
 import type { ValidationAcceptor } from 'langium';
-import type { Section, Attribute, ReservedSectionName } from '../generated/ast.js';
+import type { Section, Attribute } from '../generated/ast.js';
 import { SectionTypeRegistry } from '../services/section-registry.js';
 import { type SectionTypeConstants } from '../services/section-type-constants.js';
-import { KW } from '../constants.js';
 
 /**
  * Validation result for section validation
@@ -31,7 +30,7 @@ export class SectionValidator {
         if (!sectionType) {
             accept('error', 'Unable to determine section type', {
                 node: section,
-                property: 'sectionType'
+                property: 'type'
             });
             return;
         }
@@ -40,7 +39,7 @@ export class SectionValidator {
         if (!config) {
             accept('error', `Unknown section type: ${sectionType}`, {
                 node: section,
-                property: 'sectionType'
+                property: 'type'
             });
             return;
         }
@@ -50,9 +49,6 @@ export class SectionValidator {
         
         // Validate required attributes
         this.validateRequiredAttributes(section, config, accept);
-        
-        // Validate reserved subsections
-        this.validateReservedSubSections(section, config, accept);
         
         // Validate allowed subsections
         this.validateAllowedSubSections(section, config, accept);
@@ -68,29 +64,7 @@ export class SectionValidator {
      * Extract section type from section node
      */
     private getSectionType(section: Section): string | undefined {
-        // Check if section has an explicit type
-        if (section.sectionType) {
-            // Handle message section types (e.g., "authentication message")
-            if (section.sectionType.includes(KW.Message)) {
-                return section.sectionType;
-            }
-            return section.sectionType;
-        }
-        
-        // Check if section has a reserved name that implies a type
-        const typedSection = section as Section & { reservedName?: ReservedSectionName };
-        if (typedSection.reservedName) {
-            const reservedName = typedSection.reservedName;
-            // Map reserved names to their implied types
-            const reservedTypeMap: Record<string, string> = {
-                [KW.Config]: KW.AgentConfig,
-                [KW.Defaults]: KW.AgentDefaults,
-                [KW.MessagesReserved]: KW.Messages
-            };
-            return reservedTypeMap[reservedName];
-        }
-        
-        return undefined;
+        return section.type;
     }
     
     /**
@@ -130,67 +104,18 @@ export class SectionValidator {
     }
     
     /**
-     * Validate reserved subsections
-     */
-    private validateReservedSubSections(section: Section, config: SectionTypeConstants, accept: ValidationAcceptor): void {
-        const reservedSubSections = config.reservedSubSections || [];
-        const subSections = section.subSections || [];
-        
-        // Check for required reserved subsections
-        for (const reserved of reservedSubSections) {
-            if (reserved.required) {
-                const found = subSections.some(sub => {
-                    const subSectionName = this.getSectionName(sub);
-                    return subSectionName === reserved.name;
-                });
-                
-                if (!found) {
-                    accept('error', `Missing required ${reserved.name} subsection in ${config.name} section`, {
-                        node: section,
-                        property: 'subSections'
-                    });
-                }
-            }
-        }
-        
-        // Check that reserved names are not used by other section types
-        for (const subSection of subSections) {
-            const subSectionName = this.getSectionName(subSection);
-            if (!subSectionName) continue;
-            
-            const reservedMatch = reservedSubSections.find(r => r.name === subSectionName);
-            if (reservedMatch) {
-                const actualType = this.getSectionType(subSection);
-                if (actualType !== reservedMatch.impliedType) {
-                    accept('error', `Reserved subsection '${subSectionName}' must be of type '${reservedMatch.impliedType}', not '${actualType}'`, {
-                        node: subSection,
-                        property: 'sectionType'
-                    });
-                }
-            }
-        }
-    }
-    
-    /**
      * Validate allowed subsections
      */
     private validateAllowedSubSections(section: Section, config: SectionTypeConstants, accept: ValidationAcceptor): void {
         const allowedSubSections = config.allowedSubSections || [];
-        const reservedNames = (config.reservedSubSections || []).map(r => r.name);
         
         for (const subSection of (section.subSections || [])) {
             const subSectionType = this.getSectionType(subSection);
-            const subSectionName = this.getSectionName(subSection);
-            
-            // Skip validation for reserved subsections (handled separately)
-            if (subSectionName && reservedNames.includes(subSectionName)) {
-                continue;
-            }
             
             if (subSectionType && !allowedSubSections.includes(subSectionType)) {
                 accept('error', `Subsection type '${subSectionType}' is not allowed in ${config.name} section`, {
                     node: subSection,
-                    property: 'sectionType'
+                    property: 'type'
                 });
             }
         }
@@ -237,7 +162,7 @@ export class SectionValidator {
                 if (seenIds.has(subSectionId)) {
                     accept('error', `Duplicate subsection ID '${subSectionId}' in ${config.name} section`, {
                         node: subSection,
-                        property: 'sectionName'
+                        property: 'name'
                     });
                 }
                 seenIds.add(subSectionId);
@@ -249,16 +174,6 @@ export class SectionValidator {
      * Extract section name from section node
      */
     private getSectionName(section: Section): string | undefined {
-        // Check if section has a reserved name
-        const typedSection = section as Section & { reservedName?: ReservedSectionName };
-        if (typedSection.reservedName) {
-            return typedSection.reservedName;
-        }
-
-        // section.sectionName is now directly a string
-        if (section.sectionName) {
-            return section.sectionName;
-        }
-        return undefined;
+        return section.name;
     }
 } 

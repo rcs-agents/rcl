@@ -1,5 +1,5 @@
 import type { ValidationAcceptor, AstNode } from 'langium';
-import type { FlowRule, FlowOperand, Section } from '../generated/ast.js';
+import type { FlowRule, Section } from '../generated/ast.js';
 import { isSection, isFlowRule } from '../generated/ast.js';
 import { KW } from '../constants.js';
 
@@ -54,16 +54,16 @@ export class DependencyValidator {
       if (!reachableNodes.has(node) && node !== KW.Start && node !== KW.End) {
         // Find the first flow rule that references this unreachable node
         const ruleWithUnreachableNode = flowRules.find(rule => {
-          if (!rule.source || !rule.transitions || rule.transitions.length === 0) {
+          if (!rule.source) {
             return false; // Skip malformed flow rules
           }
           return this.getFlowOperandValue(rule.source) === node ||
-            rule.transitions.some(transition => this.getFlowOperandValue(transition) === node);
+            (rule.destination?.ref && this.getFlowOperandValue(rule.destination.ref.name) === node);
         });
 
-        if (ruleWithUnreachableNode && ruleWithUnreachableNode.source && ruleWithUnreachableNode.transitions) {
+        if (ruleWithUnreachableNode && ruleWithUnreachableNode.source) {
           const isSource = this.getFlowOperandValue(ruleWithUnreachableNode.source) === node;
-          const property = isSource ? 'source' : 'transitions';
+          const property = isSource ? 'source' : 'destination';
           accept('warning', `Flow operand '${node}' appears to be unreachable`, {
             node: ruleWithUnreachableNode,
             property,
@@ -80,28 +80,27 @@ export class DependencyValidator {
   private buildFlowGraph(flowRules: FlowRule[]): FlowGraph {
     const graph = new Map<string, Set<string>>();
 
-    flowRules.forEach(rule => {
-      // Check if source and transitions exist before processing
-      if (!rule.source || !rule.transitions || rule.transitions.length === 0) {
-        return; // Skip malformed flow rules
-      }
+    const processRule = (rule: FlowRule) => {
+        const source = this.getFlowOperandValue(rule.source);
+        if (!source) return;
 
-      const source = this.getFlowOperandValue(rule.source);
-
-      if (source) {
         if (!graph.has(source)) {
-          graph.set(source, new Set());
+            graph.set(source, new Set());
         }
 
-        // Add all transitions from this source
-        for (const transition of rule.transitions) {
-          const target = this.getFlowOperandValue(transition);
-          if (target) {
-            graph.get(source)!.add(target);
-          }
+        if (rule.destination?.ref?.name) {
+            const target = this.getFlowOperandValue(rule.destination.ref.name);
+            if (target) {
+                graph.get(source)!.add(target);
+            }
         }
-      }
-    });
+
+        if (rule.rules) {
+            rule.rules.forEach(processRule);
+        }
+    };
+
+    flowRules.forEach(processRule);
 
     return graph;
   }
@@ -226,22 +225,21 @@ export class DependencyValidator {
    */
   private getAllFlowOperands(flowRules: FlowRule[]): string[] {
     const operands = new Set<string>();
+    
+    const processRule = (rule: FlowRule) => {
+        const source = this.getFlowOperandValue(rule.source);
+        if (source) operands.add(source);
 
-    flowRules.forEach(rule => {
-      // Check if source and transitions exist before processing
-      if (!rule.source || !rule.transitions || rule.transitions.length === 0) {
-        return; // Skip malformed flow rules
-      }
+        if (rule.destination?.ref?.name) {
+            const target = this.getFlowOperandValue(rule.destination.ref.name);
+            if (target) operands.add(target);
+        }
+        if (rule.rules) {
+            rule.rules.forEach(processRule);
+        }
+    };
 
-      const source = this.getFlowOperandValue(rule.source);
-      if (source) operands.add(source);
-
-      // Add all transitions
-      for (const transition of rule.transitions) {
-        const target = this.getFlowOperandValue(transition);
-        if (target) operands.add(target);
-      }
-    });
+    flowRules.forEach(processRule);
 
     return Array.from(operands);
   }
@@ -249,42 +247,11 @@ export class DependencyValidator {
   /**
    * Extract string value from a FlowOperand
    */
-  private getFlowOperandValue(operand: FlowOperand): string | undefined {
-    // Early return for undefined operands
+  private getFlowOperandValue(operand: string | undefined): string | undefined {
     if (!operand) {
       return undefined;
     }
-
-    // FlowOperand can be string | FlowStartAction | FlowTextAction
-    if (typeof operand === 'string') {
-      return operand;
-    }
-
-    // Handle FlowStartAction and FlowTextAction objects
-    if (typeof operand === 'object' && operand !== null) {
-      // Type guard to ensure we have an AST node
-      const astNode = operand as any;
-      
-      // Check if it has $cstNode (it's an AstNode)
-      if ('$cstNode' in astNode && astNode.$cstNode) {
-        return astNode.$cstNode.text?.trim() || undefined;
-      }
-      
-      // Check for specific action types
-      if ('$type' in astNode) {
-        if (astNode.$type === 'FlowStartAction') {
-          return ':start';
-        }
-        if (astNode.$type === 'FlowTextAction') {
-          // Extract text from FlowTextAction if it has a text property
-          if ('text' in astNode && typeof astNode.text === 'string') {
-            return astNode.text;
-          }
-        }
-      }
-    }
-
-    return undefined;
+    return operand.startsWith(':') ? operand.substring(1) : operand;
   }
 }
 

@@ -1,5 +1,5 @@
 import type { ValidationAcceptor } from 'langium';
-import type { SingleLineEmbeddedExpression } from '../generated/ast.js';
+import type { EmbeddedCodeExpression } from '../generated/ast.js';
 import { KW } from '../constants.js'; // Import KW
 
 // Define SyntaxError locally as in the plan if not imported from a general utility
@@ -12,9 +12,10 @@ class SyntaxError extends Error { // Basic error classes as per plan
 
 export class EmbeddedCodeValidator {
 
-  public checkEmbeddedCode(codeBlock: SingleLineEmbeddedExpression, accept: ValidationAcceptor): void {
-    const language = this.getEmbeddedLanguage(codeBlock);
-    const content = this.getCodeContent(codeBlock);
+  public checkEmbeddedCode(codeBlock: EmbeddedCodeExpression, accept: ValidationAcceptor): void {
+    const fullText = codeBlock.$cstNode?.text ?? '';
+    const language = this.getEmbeddedLanguage(fullText);
+    const content = this.getCodeContent(fullText);
 
     // Only single-line embedded expressions are supported now
 
@@ -39,10 +40,8 @@ export class EmbeddedCodeValidator {
     }
   }
 
-  private getEmbeddedLanguage(codeBlock: SingleLineEmbeddedExpression): 'javascript' | 'typescript' | 'unknown' {
-    // The 'content' property of SingleLineEmbeddedExpression includes the marker and the code.
-    // e.g., "$js> console.log('hello')"
-    const markerText = codeBlock.content.substring(0, 6); // Check first few chars for marker, e.g., $js> or $ts>
+  private getEmbeddedLanguage(fullText: string): 'javascript' | 'typescript' | 'unknown' {
+    const markerText = fullText.substring(0, 6); // Check first few chars for marker, e.g., $js> or $ts>
 
     if (markerText.startsWith(KW.JsPrefix)) return 'javascript';
     if (markerText.startsWith(KW.TsPrefix)) return 'typescript';
@@ -50,16 +49,15 @@ export class EmbeddedCodeValidator {
     return 'unknown';
   }
 
-  private getCodeContent(codeBlock: SingleLineEmbeddedExpression): string | null {
-    const fullContent = codeBlock.content;
-    if (fullContent.startsWith(KW.JsPrefix)) return fullContent.substring(KW.JsPrefix.length).trim();
-    if (fullContent.startsWith(KW.TsPrefix)) return fullContent.substring(KW.TsPrefix.length).trim();
-    if (fullContent.startsWith(KW.GenericPrefix)) return fullContent.substring(KW.GenericPrefix.length).trim();
-    return fullContent.trim(); // Fallback, though should have a marker
+  private getCodeContent(fullText: string): string | null {
+    if (fullText.startsWith(KW.JsPrefix)) return fullText.substring(KW.JsPrefix.length).trim();
+    if (fullText.startsWith(KW.TsPrefix)) return fullText.substring(KW.TsPrefix.length).trim();
+    if (fullText.startsWith(KW.GenericPrefix)) return fullText.substring(KW.GenericPrefix.length).trim();
+    return fullText.trim(); // Fallback, though should have a marker
   }
 
   private validateJavaScriptTypeScript(
-    codeBlock: SingleLineEmbeddedExpression,
+    codeBlock: EmbeddedCodeExpression,
     content: string,
     language: 'javascript' | 'typescript',
     accept: ValidationAcceptor
