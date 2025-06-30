@@ -1,9 +1,9 @@
 // Defines the general RCL expression language.
-import "../data-types/primitives";    // For LiteralValue, COMMON_NOUN, etc.
+import "../core/primitives";    // For LiteralValue, COMMON_NOUN, etc.
 import "../data-types/type-system";   // For TypeConversion
 
 // ======== Expression Terminals ========
-terminal IS_NOT: 'is not';
+terminal IS_NOT: /\bis\s+not\b/
 
 // ======== AST Interface Definitions ========
 interface RclExpression {}

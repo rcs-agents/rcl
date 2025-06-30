@@ -44,11 +44,11 @@
 	"scripts": {
 		"clean": "shx rm -fr *.tsbuildinfo out syntaxes",
 		"vscode:prepublish": "bun run build",
-		"build": "nr clean && nr build:prepare && nr check && nr build:esbuild",
+		"build": "nr clean && nr build:prepare && nr typecheck && nr build:esbuild",
 		"build:prepare": "shx mkdir -p ./syntaxes/ && shx cp -f ../language/src/syntaxes/rcl.tmLanguage.json ./syntaxes/rcl.tmLanguage.json",
-		"check": "tsc -p tsconfig.json --noEmit",
 		"build:esbuild": "bun esbuild.mjs",
-		"dev": "concurrently -n tscheck,esbuild -c blue,yellow \"tsc -b tsconfig.json --noEmit --watch --preserveWatchOutput\" \"bun esbuild.mjs --watch\"",
+		"dev": "concurrently -n tscheck,esbuild -c blue,yellow \"nr typecheck --watch --preserveWatchOutput\" \"nr build:esbuild --watch\"",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"reinstall-extension": "vsce package; cursor --install-extension ./vscode-rcl-0.0.2.vsix"
 	},
 	"dependencies": {
