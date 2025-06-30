@@ -3,42 +3,44 @@
 	"description": "The language specific package",
 	"version": "0.0.1",
 	"type": "module",
-	"engines": {
-		"node": ">=20.10.0",
-		"bun": ">=1.0.0"
-	},
-	"files": ["out", "src"],
-	"main": "./out/index.js",
-	"module": "./out/index.js",
+	"files": ["lib", "src"],
+	"main": "./lib/index.js",
+	"module": "./lib/index.js",
 	"exports": {
 		".": {
-			"types": "./out/index.d.ts",
-			"default": "./out/index.js"
+			"types": "./lib/index.d.ts",
+			"default": "./lib/index.js"
 		}
 	},
 	"typesVersions": {
 		"*": {
-			".": ["out/index"]
+			".": ["lib/index"]
 		}
 	},
 	"scripts": {
-		"clean": "shx rm -fr *.tsbuildinfo out",
-		"build": "tsc -b tsconfig.build.json && bun run build:tmlanguage",
-		"build:clean": "bun run clean && bun run build",
-		"build:tmlanguage": "bun syntaxes/build-syntax.ts",
-		"check:syntaxes": "tsc -p syntaxes/tsconfig.json",
-		"langium:generate": "langium generate",
-		"langium:watch": "langium generate --watch",
-		"watch": "concurrently \"bun run langium:watch\" \"chokidar 'syntaxes/rcl.base.tmLanguage.json' -c 'bun run build:tmlanguage'\"",
+		"clean": "tsc -b tsconfig.build.json --clean",
+		"build": "nr clean && nr build:lang && nr build:lsp && nr build:syntax",
+		"bundle:grammar": "bun run scripts/bundle-grammar.ts",
+		"build:lang": "nr bundle:grammar && langium generate",
+		"build:lsp": "tsc -p tsconfig.build.json",
+		"build:syntax": "bun syntaxes/build-syntax.ts",
+		"check:syntaxes": "tsc -p syntaxes/tsconfig.json --noEmit",
+		"dev": "concurrently -k -n lang,lsp,syntax -c blue,yellow,green 'nr dev:lang' 'nr dev:lsp' 'nr dev:syntax'",
+		"dev:lang": "chokidar 'src/grammar/**/*' -c 'nr bundle:grammar && langium generate'",
+		"dev:lsp": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+		"dev:syntax": "chokidar 'syntaxes/**/*' -c 'nr build:syntax'",
 		"test": "vitest run",
 		"test:tmlanguage": "bun run scripts/test-tmlanguage-build.ts",
 		"test:scopes": "bun run scripts/test-scope-inspector.ts test",
 		"test:comprehensive": "bun run scripts/test-scope-inspector.ts comprehensive",
 		"inspect:scopes": "bun run scripts/test-scope-inspector.ts",
-		"inspect:file": "bun run scripts/test-scope-inspector.ts file"
+		"inspect:file": "bun run scripts/test-scope-inspector.ts file",
+		"visualize:grammar": "bun run scripts/visualize-grammar-rules.ts"
 	},
 	"dependencies": {
-		"langium": "^3.5.0"
+		"commander": "^14.0.0",
+		"langium": "^3.5.0",
+		"langium-ast-helper": "^0.1.2"
 	},
 	"devDependencies": {
 		"chokidar-cli": "~3.0.0",
@@ -46,10 +48,11 @@
 		"langium-cli": "~3.5.0",
 		"shx": "~0.3.4",
 		"tmgrammar-toolkit": "workspace:*",
-		"vitest": "~3.1.3"
+		"vitest": "~3.1.3",
+		"vscode-uri": "^3.0.8"
 	},
-	"volta": {
-		"node": "20.19.2",
-		"bun": "^1.2.0"
+	"packageManager": "bun@1.2.17",
+	"engines": {
+		"bun": ">=1.2.17"
 	}
 }

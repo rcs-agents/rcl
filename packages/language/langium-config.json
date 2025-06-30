@@ -4,8 +4,8 @@
 	"languages": [
 		{
 			"id": "rcl",
-			"grammar": "src/rcl.langium",
-			"fileExtensions": ["rcl"],
+			"grammar": "src/rcl-grammar.langium",
+			"fileExtensions": [".rcl"],
 			"textMate": {
 				"out": "syntaxes/rcl.base.mLanguage.json"
 			}
