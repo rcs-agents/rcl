@@ -11,7 +11,7 @@ The main building blocks are:
   - `clauses`: clauses are used to define transitions in a conversation flow definition. They are written as `[condition] -> [consequence]`.
     The `[condition]` may be a value to be matched against the known scope (defined by the clauses container), or lambda functions that return a boolean.
     The `[consequence]` may also be a value, which will simply be returned, a statement, whose evaluated value will be returned, or a list of clauses for further matching.
-  - embedded code: Embedded expressions or embedded code blocks, written in either JavaScript or TypeScript.
+  - embedded code: Embedded code syntax for JavaScript or TypeScript code that is stored literally and executed at runtime.
   - `types`: In RCL, types cannot be created. There's a fixed set of native types in RCL, that expand on the JSON types, and the `section` types, which are defined by the RCS specification. The native RCL types are:
     - string
     - number (integers or floats)
@@ -51,12 +51,12 @@ The main building blocks are:
 
 ## Embedded Code
 
-RCL supports embedding executable JavaScript or TypeScript code within data structures through embedded expressions and embedded code blocks.
+RCL supports embedding executable JavaScript or TypeScript code within data structures through embedded code syntax. **Important**: Embedded code is stored as literal strings in the AST and is not parsed by the RCL parser. Code execution happens at runtime by appropriate engines.
 
-### Single-line Embedded Expressions
+### Single-line Embedded Code
 Start with `$[language]>` where language can be `js`, `ts`, or omitted (defaults to JavaScript):
-- `$js>` - Explicit JavaScript embedded expression
-- `$ts>` - TypeScript embedded expression  
+- `$js>` - Explicit JavaScript embedded code
+- `$ts>` - TypeScript embedded code  
 - `$>` - Uses default language from `Defaults.expressions.language` (defaults to JavaScript)
 
 ### Multi-line Embedded Code Blocks
@@ -65,14 +65,19 @@ Use `$[lang]>>>` with indented code blocks:
 - Block ends when indentation returns to less than the original level
 - Multi-statement blocks **MUST** use `return` to explicitly return a value
 
+### Storage Format
+Embedded code is stored in the AST as:
+- **Single-line**: `{ type: 'embedded_code', language: 'js', content: "code string" }`
+- **Multi-line**: `{ type: 'embedded_code_block', language: 'js', content: ["line1", "line2"] }`
+
 ### Runtime Environment
-Embedded expressions run in a sandboxed JavaScript runtime with access to:
+When executed, embedded code runs in a sandboxed JavaScript runtime with access to:
 - **ECMAScript 6** standard language features
 - `context` variable (current `flow`, `currentStep`, `currentState`, `selectedOption`)
 - `RclUtils` global utilities (like `format`)
 
 ### Language Configuration
-The default embedded expression language can be set via `Defaults.expressions.language: :javascript` or `:typescript`.
+The default embedded code language can be set via `Defaults.expressions.language: :javascript` or `:typescript`.
 
 ## Other data types
 
@@ -141,7 +146,7 @@ RCL flows define conversation paths with states, transitions, and parameters.
 ### Flow States and Transitions
 - **Start State**: All flows begin with the special `:start` state
 - **Clause Syntax**: `[condition] -> [consequence]` where conditions match against the current scope
-- **State References**: States can be literal values or computed embedded expressions (`$js> determine_next_step(context.user.type, context.message)`)
+- **State References**: States can be literal values or computed embedded code (`$js> determine_next_step(context.user.type, context.message)`)
 
 ### Parameter Passing
 Flow parameters are passed between states using the `with` clause:
@@ -160,6 +165,8 @@ Parameters become available in the next state's context.
 RCL files can import other RCL files to reuse flows, messages, and configurations. The import statement is composed of the `import` keyword, a `/` (slash) separated path of `Title` identifiers, and optionally the `as` keyword followed by a `Title` identifier:
 - **Project Root Resolution**: All imports are resolved from the project root (no relative paths)
 - **No Extension**: `.rcl` extension is not allowed in import statements
+- **Namespace Paths**: Multi-level namespace paths like `Shared / Common Flows / Support`
+- **Aliases with Spaces**: `import My Brand / Samples as Sample One`
 - **Example**: `import Shared / Common Flows / Support as Support Flow`
 
 ### Scoping and Resolution
@@ -171,13 +178,13 @@ RCL files can import other RCL files to reuse flows, messages, and configuration
 ### Cross-References
 - **Symbol Tables**: Hierarchical scoping with import resolution
 - **Message References**: Link flow actions to message definitions with validation
-- **Type System**: Simple type system focusing on context variables and function signatures
+- **Langium Integration**: Uses Langium's reference resolution system for linking and validation
 
 ## Defaults and Configuration
 
 ### Default Properties
 The `agentDefaults` section (reserved name: `Defaults`) supports configuring default behaviors:
-- **Embedded Expression Language**: `expressions.language: :javascript` or `:typescript` sets default for `$>` embedded expressions
+- **Embedded Code Language**: `expressions.language: :javascript` or `:typescript` sets default for `$>` embedded code
 - **PostbackData Generation**: `postbackData: $js> formatAsSnakeCase(context.text)` defines auto-generation rule
 - **Message Properties**: `messageTrafficType`, `ttl`, `fallback_message`
 - **UI Styling**: `color_scheme`, `greeting_style`

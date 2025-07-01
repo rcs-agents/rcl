@@ -14,7 +14,7 @@ In RCL, types cannot be created by users. There's a fixed set of native types th
 - **list** (arrays/sequences)
 - **object** (dictionaries/maps)
 - **type tags** (specialized typed values)
-- **embedded code** (JavaScript/TypeScript embedded code blocks and embedded expressions)
+- **embedded code** (JavaScript/TypeScript code stored as literal strings)
 
 ## Basic Types
 
@@ -134,9 +134,9 @@ eventDetails:
 
 ### Embedded Code
 
-RCL supports embedding executable JavaScript or TypeScript code within data structures:
+RCL supports embedding JavaScript or TypeScript code within data structures. **Important**: Embedded code is stored as literal strings in the AST and is not parsed by the RCL parser. Code execution happens at runtime by appropriate engines.
 
-#### Single-line Embedded Expressions
+#### Single-line Embedded Code
 Start with `$[language]>` where language can be `js`, `ts`, or omitted (defaults to JavaScript):
 
 ```rcl
@@ -159,7 +159,12 @@ complexLogic: $js>>>
   return discount;
 ```
 
-**Available in embedded code:**
+#### Storage Format
+Embedded code is stored in the AST as:
+- **Single-line**: `{ type: 'embedded_code', language: 'js', content: "code string" }`
+- **Multi-line**: `{ type: 'embedded_code_block', language: 'js', content: ["line1", "line2"] }`
+
+**Available when executed:**
 - `context` variable (current flow, step, state, selectedOption)  
 - `RclUtils` global utilities (like `format`)
 - Standard ECMAScript 6 features
@@ -762,5 +767,5 @@ agentMessage:
 
 - **Auto-Generated PostbackData**: When you don't specify custom `postbackData`, RCL automatically generates it by converting the button text to lowercase and replacing non-alphanumeric characters with underscores (e.g., `reply "Get Support"` → `postbackData: "get_support"`). You can customize this with `Defaults.postbackData`.
 - **Message Traffic Type**: Uses `Defaults.messageTrafficType` if not specified (system default: `:transactional`).
-- **Embedded Expression Language**: `$>` embedded expressions use `Defaults.expressions.language` (system default: `:javascript`).
+- **Embedded Code Language**: `$>` embedded code uses `Defaults.expressions.language` (system default: `:javascript`).
 - **TTL (Time To Live)**: Messages use `Defaults.ttl` if not set individually.

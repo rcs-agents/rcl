@@ -57,8 +57,8 @@ NUMBER ::= /[0-9]{1,3}(,[0-9]{3})*(\.[0-9]+)?([eE][-+]?[0-9]+)?|[0-9]+(\.[0-9]+)
 ISO_DURATION_LITERAL ::= /(P(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(\d+H)?(\d+M)?(\d+(\.\d+)?S)?)?)|([0-9]+(\.[0-9]+)?s)/ // ISO 8601 duration or simple seconds (e.g., "3.5s").
 ```
 
-### 2.4 Embedded Expression Terminals
-The content within these embedded expressions is treated as raw text by the RCL parser.
+### 2.4 Embedded Code Terminals
+The content within embedded code blocks is treated as raw text by the RCL parser and stored as literal strings.
 ```ebnf
 SINGLE_LINE_EXPRESSION ::= /\$((js|ts)?>)\s*[^\r\n]*/     // e.g., $js> console.log('hello'), $ts> 1+1, $> someValue. Optional lang tag: js or ts.
 MULTI_LINE_EXPRESSION_START ::= /\$((js|ts)?)>>>/          // e.g., $ts>>>, $js>>>, $>>>. Optional lang tag: js or ts.
@@ -173,10 +173,10 @@ Value ::= // Represents a value that can be assigned to a property or used elsew
 Ref ::= IDENTIFIER // This IDENTIFIER references another named entity (AbstractNamedSection).
 ```
 
-### 3.1 Embedded Expression Rules
+### 3.1 Embedded Code Rules
 
 ```ebnf
-SingleLineEmbeddedExpression ::= SINGLE_LINE_EXPRESSION
+SingleLineEmbeddedCode ::= SINGLE_LINE_EXPRESSION
 
 MultiLineEmbeddedCodeBlock ::=
     MULTI_LINE_EXPRESSION_START
@@ -184,9 +184,9 @@ MultiLineEmbeddedCodeBlock ::=
     MULTI_LINE_EXPRESSION_CONTENT
     DEDENT
 
-EmbeddedCode ::= SingleLineEmbeddedExpression | MultiLineEmbeddedCodeBlock
+EmbeddedCode ::= SingleLineEmbeddedCode | MultiLineEmbeddedCodeBlock
 
-ExpressionValue ::= EmbeddedCode | SimpleValue // A value can be embedded code or a simple literal.
+EmbeddedValue ::= EmbeddedCode | SimpleValue // A value can be embedded code or a simple literal.
 ```
 
 ### 3.2 Multi-line String Rules
@@ -372,7 +372,7 @@ AgentMessage ::=
 ContentMessage ::=
     'contentMessage'
     INDENT
-    ( ('text' ':' (EnhancedSimpleValue | ExpressionValue) ) // ExpressionValue can include embedded code
+    ( ('text' ':' (EnhancedSimpleValue | EmbeddedValue) ) // EmbeddedValue can include embedded code
     | ('fileName' ':' STRING)
     | ('uploadedRbmFile' UploadedRbmFile)
     | ('richCard' RichCard)
@@ -495,7 +495,7 @@ MessageShortcut ::=
     (('transactional' | 'promotional'))? (TextShortcut | FileShortcut | RichCardShortcut | CarouselShortcut)
 
 TextShortcut ::=
-    'text' (EnhancedSimpleValue | ExpressionValue) // ExpressionValue can include embedded code
+    'text' (EnhancedSimpleValue | EmbeddedValue) // EmbeddedValue can include embedded code
     ( INDENT (SuggestionShortcut)* DEDENT )?
 
 FileShortcut ::=
@@ -778,11 +778,11 @@ This transforms each tuple into an object with `label` and `number` properties, 
 ## 8. Embedded Code System
 
 ### 8.1 Embedded Code Syntax
-RCL allows embedding JavaScript or TypeScript code in specified parts of the language.
+RCL allows embedding JavaScript or TypeScript code in specified parts of the language. **Important**: Embedded code is stored as literal strings in the AST and is not parsed by the RCL parser.
 
-**Single-line embedded expressions**:
-- `$js>` - Explicit JavaScript embedded expression
-- `$ts>` - TypeScript embedded expression  
+**Single-line embedded code**:
+- `$js>` - Explicit JavaScript embedded code
+- `$ts>` - TypeScript embedded code  
 - `$>` - Uses default language from `Defaults.expressions.language` (defaults to JavaScript)
 
 **Multi-line embedded code blocks**:
@@ -791,14 +791,19 @@ RCL allows embedding JavaScript or TypeScript code in specified parts of the lan
 - Block ends when indentation returns to less than the original level
 - Multi-statement blocks **MUST** use `return` to explicitly return a value
 
-### 8.2 Runtime Environment
-Embedded expressions run in a sandboxed JavaScript runtime with access to:
+### 8.2 Storage Format
+Embedded code is stored in the AST as:
+- **Single-line**: `{ type: 'embedded_code', language: 'js', content: "code string" }`
+- **Multi-line**: `{ type: 'embedded_code_block', language: 'js', content: ["line1", "line2"] }`
+
+### 8.3 Runtime Environment
+When executed, embedded code runs in a sandboxed JavaScript runtime with access to:
 - **ECMAScript 6** standard language features
 - `context` variable (current `flow`, `currentStep`, `currentState`, `selectedOption`)
 - `RclUtils` global utilities (like `format`)
 
-### 8.3 Language Configuration
-The default embedded expression language can be set via `Defaults.expressions.language: :javascript` or `:typescript`.
+### 8.4 Language Configuration
+The default embedded code language can be set via `Defaults.expressions.language: :javascript` or `:typescript`.
 
 ## 9. Import and Module System
 
@@ -827,7 +832,7 @@ import Utils / Message Templates
 ### 10.1 Flow States and Transitions
 - **Start State**: All flows begin with the special `:start` state
 - **Clause Syntax**: `[condition] -> [consequence]` where conditions match against the current scope
-- **State References**: States can be literal values or computed expressions
+- **State References**: States can be literal values or computed embedded code
 
 ### 10.2 Parameter Passing
 Flow parameters are passed between states using the `with` clause:
@@ -897,8 +902,8 @@ When `postbackData` is not explicitly defined, RCL automatically generates it by
 
 The following items are beyond the scope of this EBNF specification but are important considerations for RCL implementation:
 
-### 14.1 Operator Precedence within Embedded Expressions
-Operator precedence and evaluation order within embedded JavaScript/TypeScript expressions are governed by the rules of the embedded language (e.g., ECMAScript), not by RCL's EBNF. The RCL parser treats embedded expression content as opaque strings that are later processed by the appropriate expression evaluation engine.
+### 14.1 Operator Precedence within Embedded Code
+Operator precedence and evaluation order within embedded JavaScript/TypeScript code are governed by the rules of the embedded language (e.g., ECMAScript), not by RCL's EBNF. The RCL parser treats embedded code content as opaque strings that are later processed by the appropriate code execution engine.
 
 ### 14.2 Semantic Validation
 Semantic validation occurs after successful parsing and involves validating the parsed RCL document against:
