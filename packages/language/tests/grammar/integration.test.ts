@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { RclCustomLexer } from './rcl-custom-lexer.js';
-import { RclCustomParser } from './rcl-custom-parser.js';
-import { AstUtils } from './rcl-simple-ast.js';
+import { RclCustomLexer } from '#src/parser/rcl-custom-lexer';
+import { RclCustomParser } from '#src/parser/rcl-custom-parser';
+import { AstUtils } from '#src/parser/rcl-simple-ast';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -37,6 +37,11 @@ messages:
       // Test parser
       const parser = new RclCustomParser();
       const parseResult = parser.parse(input);
+      
+      // Debug: show what errors are generated
+      if (parseResult.errors.length > 0) {
+        console.log('Integration test errors:', parseResult.errors);
+      }
       
       expect(parseResult.errors).toHaveLength(0);
       expect(parseResult.ast).toBeDefined();
@@ -103,6 +108,11 @@ messages:
       const parser = new RclCustomParser();
       const result = parser.parse(input);
       
+      // Debug: show what errors are generated
+      if (result.errors.length > 0) {
+        console.log('Integration test errors:', result.errors);
+      }
+      
       expect(result.errors).toHaveLength(0);
       expect(result.ast).toBeDefined();
       
@@ -158,6 +168,11 @@ messages:
       const parser = new RclCustomParser();
       const result = parser.parse(input);
       
+      // Debug: show what errors are generated
+      if (result.errors.length > 0) {
+        console.log('Integration test errors:', result.errors);
+      }
+      
       expect(result.errors).toHaveLength(0);
       expect(result.ast).toBeDefined();
       
@@ -209,6 +224,11 @@ messages:
 
       const parser = new RclCustomParser();
       const result = parser.parse(input);
+      
+      // Debug: show what errors are generated
+      if (result.errors.length > 0) {
+        console.log('Integration test errors:', result.errors);
+      }
       
       expect(result.errors).toHaveLength(0);
       expect(result.ast).toBeDefined();

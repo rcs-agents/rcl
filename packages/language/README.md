@@ -19,6 +19,6 @@ As a good entry point to our documentation, please use to this [guide](https://l
 If you selected the test option as well, then the following files will be present in addition:
 
 - [tsconfig.test.json](./tsconfig.test.json) - The package specific TypeScript compiler configuration for the unit tests extending the [tsconfig.src.config](./tsconfig.src.json)
-- [test/linking.test.ts](test/linking.test.ts) - Unit tests checking linking.
-- [test/parsing.test.ts](test/parsing.test.ts) - Unit tests regarding parsing.
-- [test/validating.test.ts](test/validating.test.ts) - Unit tests regarding validation.
+- [test/linking.test.ts](tests/linking.test.ts) - Unit tests checking linking.
+- [test/parsing.test.ts](tests/parsing.test.ts) - Unit tests regarding parsing.
+- [test/validating.test.ts](tests/validating.test.ts) - Unit tests regarding validation.

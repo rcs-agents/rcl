@@ -132,8 +132,11 @@ export class RclCustomLexer {
 
   // Null keywords
   static readonly NULL = createToken({ name: 'Null', pattern: /Null\b/ });
+  static readonly NULL_LOWER = createToken({ name: 'null', pattern: /null\b/ });
   static readonly NONE = createToken({ name: 'None', pattern: /None\b/ });
+  static readonly NONE_LOWER = createToken({ name: 'none', pattern: /none\b/ });
   static readonly VOID = createToken({ name: 'Void', pattern: /Void\b/ });
+  static readonly VOID_LOWER = createToken({ name: 'void', pattern: /void\b/ });
 
   // Reserved names
   static readonly DEFAULTS = createToken({ name: 'Defaults', pattern: /Defaults\b/ });
@@ -173,7 +176,7 @@ export class RclCustomLexer {
   // Literals (ISO Duration before NUMBER to avoid conflicts)
   static readonly ISO_DURATION_LITERAL = createToken({
     name: 'ISO_DURATION_LITERAL',
-    pattern: /P(?:(?:\d+Y)?(?:\d+M)?(?:\d+D)?)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?/,
+    pattern: /P(?:\d+Y|\d+M|\d+D|T(?:\d+H|\d+M|\d+(?:\.\d+)?S))+/,
     line_breaks: false
   });
   static readonly STRING = createToken({ 
@@ -182,7 +185,7 @@ export class RclCustomLexer {
   });
   static readonly NUMBER = createToken({ 
     name: 'NUMBER', 
-    pattern: /[0-9]{1,3}(,[0-9]{3})*(\.[0-9]+)?([eE][-+]?[0-9]+)?|[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?/
+    pattern: /[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?/
   });
   static readonly ATOM = createToken({ 
     name: 'ATOM', 
@@ -352,8 +355,11 @@ export class RclCustomLexer {
 
     // Null keywords
     RclCustomLexer.NULL,
+    RclCustomLexer.NULL_LOWER,
     RclCustomLexer.NONE,
+    RclCustomLexer.NONE_LOWER,
     RclCustomLexer.VOID,
+    RclCustomLexer.VOID_LOWER,
 
     // Reserved names
     RclCustomLexer.DEFAULTS,
@@ -592,7 +598,6 @@ export class RclCustomLexer {
       }
 
       // Check for indentation error (be tolerant of mixed indentation)
-      const currentLevel = this.indentationStack[this.indentationStack.length - 1];
       const hasReasonableMatch = this.indentationStack.some(level => Math.abs(level - indentLevel) <= 4);
       if (!hasReasonableMatch) {
         this.addError(`Invalid dedent level ${indentLevel} at line ${this.line}. Expected one of: ${this.indentationStack.join(', ')}`);
@@ -988,8 +993,11 @@ export const RclToken = {
 
   // Null literals
   NULL_KW: RclCustomLexer.NULL,
+  NULL_LOWER_KW: RclCustomLexer.NULL_LOWER,
   NONE_KW: RclCustomLexer.NONE,
+  NONE_LOWER_KW: RclCustomLexer.NONE_LOWER,
   VOID_KW: RclCustomLexer.VOID,
+  VOID_LOWER_KW: RclCustomLexer.VOID_LOWER,
 
   // Special keywords
   DEFAULTS_KW: RclCustomLexer.DEFAULTS,

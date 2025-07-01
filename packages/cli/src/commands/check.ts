@@ -1,11 +1,11 @@
-import { createRclServices, RclLanguageMetaData } from 'rcl-language';
+import { createRclServices, RclLanguageLanguageMetaData } from 'rcl-language';
 import chalk from 'chalk';
 
 import { extractDocumentForChecking } from '../util.js';
 import { NodeFileSystem } from 'langium/node';
 import { Command } from 'commander';
 
-export const fileExtensions = RclLanguageMetaData.fileExtensions.join(', ');
+export const fileExtensions = RclLanguageLanguageMetaData.fileExtensions.join(', ');
 
 export const configure = (program: Command): void => {
   program

@@ -3,12 +3,25 @@
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "noEmit": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "#src": ["./src/index.ts"],
+      "#src/*": [
+        "./src/*/index.ts",
+        "./src/*.ts",
+        "./src/*.js"
+      ],
+      "#tests/*": [
+        "./tests/*.ts",
+        "./tests/*.js"
+      ]
+    },
   },
   "include": [
     "src/**/*",
     "syntaxes/**/*",
-    "test/**/*"
+    "tests/**/*"
   ],
   "references": [
     {

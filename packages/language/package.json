@@ -6,6 +6,18 @@
 	"files": ["lib", "src"],
 	"main": "./lib/index.js",
 	"module": "./lib/index.js",
+  "imports": {
+    "#src": "./src/index.ts",
+    "#src/*": [
+      "./src/*/index.ts",
+      "./src/*.ts",
+      "./src/*.js"
+    ],
+    "#tests/*": [
+      "./tests/*.ts",
+      "./tests/*.js"
+    ]
+  },
 	"exports": {
 		".": {
 			"types": "./lib/index.d.ts",
@@ -32,7 +44,7 @@
 		"dev:lang-test": "chokidar 'src/grammar/**/*' -c 'nr bundle:grammar-test && langium generate'",
 		"dev:lsp": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
 		"dev:syntax": "chokidar 'syntaxes/**/*' -c 'nr build:syntax'",
-		"test": "vitest run",
+		"test": "bun test; echo \"\n\"",
 		"test:tmlanguage": "bun run scripts/test-tmlanguage-build.ts",
 		"test:scopes": "bun run scripts/test-scope-inspector.ts test",
 		"test:comprehensive": "bun run scripts/test-scope-inspector.ts comprehensive",

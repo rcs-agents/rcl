@@ -72,6 +72,7 @@ export interface FlowRule extends BaseAstNode {
   destination?: string;
   isStart?: boolean;
   withClause?: WithClause;
+  attributes: Attribute[];
   nestedRules: FlowRule[];
 }
 

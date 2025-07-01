@@ -1,5 +1,5 @@
-import type { IToken, ILexingError } from 'chevrotain';
-import { RclCustomLexer, RclToken } from './rcl-custom-lexer.js';
+import type { IToken } from 'chevrotain';
+import { RclCustomLexer } from './rcl-custom-lexer.js';
 import type {
   RclFile,
   Section,
@@ -13,9 +13,11 @@ import type {
   BooleanValue,
   NullValue,
   IdentifierValue,
-  Position,
-  SourceLocation
+  Position
 } from './rcl-simple-ast.js';
+
+// Import tokens from lexer
+const RclToken = RclCustomLexer;
 
 /**
  * Custom Recursive Descent Parser for RCL
@@ -52,6 +54,11 @@ export class RclCustomParser {
       }
 
       const ast = this.parseRclFile();
+
+      // If there are errors and no sections or imports were parsed, treat as fatal
+      if (this.errors.length > 0 && ast.sections.length === 0 && ast.imports.length === 0) {
+        return { ast: null, errors: this.errors };
+      }
       return { ast, errors: this.errors };
     } catch (error) {
       this.errors.push(`Parser error: ${error instanceof Error ? error.message : String(error)}`);
@@ -64,7 +71,7 @@ export class RclCustomParser {
     const sections: Section[] = [];
     
     // Parse imports at the top
-    while (this.match(RclToken.IMPORT_KW)) {
+    while (this.check(RclToken.IMPORT)) {
       try {
         const importStmt = this.parseImportStatement();
         imports.push(importStmt);
@@ -81,8 +88,17 @@ export class RclCustomParser {
           const section = this.parseSection();
           sections.push(section);
         } else {
-          // Skip unexpected tokens
-          this.advance();
+          // Skip whitespace tokens and empty tokens - they're valid between sections
+          if (this.check(RclToken.WS) || this.check(RclToken.NL) || this.isEmptyToken()) {
+            this.advance();
+          } else {
+            // Generate error for unexpected content in section body
+            const unexpectedToken = this.peek();
+            if (unexpectedToken) {
+              this.errors.push(`Unexpected token '${unexpectedToken.image}' at line ${unexpectedToken.startLine}, column ${unexpectedToken.startColumn}`);
+            }
+            this.advance();
+          }
         }
       } catch (error) {
         this.errors.push(`Section parsing error: ${error}`);
@@ -95,18 +111,31 @@ export class RclCustomParser {
 
   private parseImportStatement(): ImportStatement {
     const start = this.getPosition();
-    this.consume(RclToken.IMPORT_KW);
+    this.consume(RclToken.IMPORT);
+    
+    // Skip whitespace before import name
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
     
     const importedNames: string[] = [];
     
     // Parse import name(s)
-    if (this.check(RclToken.IDENTIFIER) || this.check(RclToken.PROPER_NOUN)) {
+    if (this.check(RclToken.IDENTIFIER)) {
       importedNames.push(this.advance().image);
     }
     
     // Handle 'as' alias
     let alias: string | undefined;
-    if (this.match(RclToken.AS_KW)) {
+    // Skip whitespace before 'as'
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    if (this.match(RclToken.AS)) {
+      // Skip whitespace before alias identifier
+      while (this.check(RclToken.WS)) {
+        this.advance();
+      }
       if (this.check(RclToken.IDENTIFIER)) {
         alias = this.advance().image;
       }
@@ -114,7 +143,15 @@ export class RclCustomParser {
     
     // Handle 'from' source
     let source: string | undefined;
-    if (this.match(RclToken.FROM_KW)) {
+    // Skip whitespace before 'from'
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    if (this.match(RclToken.FROM)) {
+      // Skip whitespace before source string
+      while (this.check(RclToken.WS)) {
+        this.advance();
+      }
       if (this.check(RclToken.STRING)) {
         const sourceStr = this.advance().image;
         source = sourceStr.slice(1, -1); // Remove quotes
@@ -143,18 +180,29 @@ export class RclCustomParser {
     // Check for section type keywords
     if (this.match(RclToken.AGENT_KW)) {
       sectionType = 'agent';
-    } else if (this.match(RclToken.FLOWS_KW)) {
+    } else if (this.match(RclToken.FLOWS)) {
       sectionType = 'flows';  
-    } else if (this.match(RclToken.MESSAGES_KW)) {
+    } else if (this.match(RclToken.MESSAGES)) {
       sectionType = 'messages';
-    } else if (this.match(RclToken.AGENT_CONFIG_KW)) {
+    } else if (this.match(RclToken.AGENT_CONFIG)) {
       sectionType = 'agentConfig';
-    } else if (this.match(RclToken.AGENT_DEFAULTS_KW)) {
+    } else if (this.match(RclToken.AGENT_DEFAULTS)) {
       sectionType = 'agentDefaults';
     }
 
-    // Parse section name (space-separated identifiers)
-    name = this.parseSpaceSeparatedIdentifier();
+    // Skip whitespace before section name or colon
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+
+    // Parse section name if present (some sections like 'flows:' have no name)
+    if (this.check(RclToken.COLON)) {
+      // No name provided, colon comes directly after keyword
+      name = '';
+    } else {
+      // Parse section name (space-separated identifiers)
+      name = this.parseSpaceSeparatedIdentifier();
+    }
 
     this.consume(RclToken.COLON);
     this.consumeNewlineOrEnd();
@@ -166,27 +214,47 @@ export class RclCustomParser {
     const messages: MessageDefinition[] = [];
 
     if (this.match(RclToken.INDENT)) {
+      let loopCount = 0;
+      const MAX_LOOPS = 1000; // Safety limit
+      
       while (!this.check(RclToken.DEDENT) && !this.isAtEnd()) {
+        loopCount++;
+        if (loopCount > MAX_LOOPS) {
+          this.errors.push(`Infinite loop detected in section parsing at token ${this.current}`);
+          break;
+        }
+        
+        const currentToken = this.current;
+        
         try {
           if (this.isNextSectionStart()) {
-            // Parse nested section
             const subSection = this.parseSection();
             subSections.push(subSection);
-          } else if (this.isFlowRule()) {
-            // Parse flow rule
+          } else if (sectionType === 'flows' && this.isFlowRule()) {
             const flowRule = this.parseFlowRule();
             flowRules.push(flowRule);
-          } else if (this.isMessageDefinition()) {
-            // Parse message definition
+          } else if (sectionType === 'messages' && this.isMessageDefinition()) {
             const message = this.parseMessageDefinition();
             messages.push(message);
           } else if (this.isAttribute()) {
-            // Parse attribute
             const attr = this.parseAttribute();
             attributes.push(attr);
           } else {
-            // Skip unknown content
-            this.advance();
+            // Skip whitespace tokens and empty tokens - they're valid between sections
+            if (this.check(RclToken.WS) || this.check(RclToken.NL) || this.isEmptyToken()) {
+              this.advance();
+            } else {
+              // Generate error for unexpected content in section body
+              const unexpectedToken = this.peek();
+              if (unexpectedToken) {
+                this.errors.push(`Unexpected token '${unexpectedToken.image}' at line ${unexpectedToken.startLine}, column ${unexpectedToken.startColumn}`);
+              }
+              this.advance();
+            }
+          }
+          
+          if (this.current === currentToken) {
+            this.advance(); // Force progress to avoid infinite loop
           }
         } catch (error) {
           this.errors.push(`Section content parsing error: ${error}`);
@@ -244,14 +312,55 @@ export class RclCustomParser {
     this.consume(RclToken.COLON);
     this.consumeNewlineOrEnd();
     
-    // For now, create a simple flow rule
-    // TODO: Parse nested flow content and arrows
+    const attributes: Attribute[] = [];
+    const nestedRules: FlowRule[] = [];
+    
+    // Parse flow rule content if indented
+    if (this.match(RclToken.INDENT)) {
+      let loopCount = 0;
+      const MAX_LOOPS = 1000; // Safety limit
+      
+      while (!this.check(RclToken.DEDENT) && !this.isAtEnd()) {
+        loopCount++;
+        if (loopCount > MAX_LOOPS) {
+          this.errors.push(`Infinite loop detected in flow rule parsing at token ${this.current}`);
+          break;
+        }
+        
+        const currentToken = this.current;
+        
+        try {
+          if (this.isAttribute()) {
+            const attr = this.parseAttribute();
+            attributes.push(attr);
+          } else if (this.isFlowRule()) {
+            const nestedRule = this.parseFlowRule();
+            nestedRules.push(nestedRule);
+          } else {
+            this.advance();
+          }
+          
+          if (this.current === currentToken) {
+            this.advance(); // Force progress to avoid infinite loop
+          }
+        } catch (error) {
+          this.errors.push(`Flow rule content parsing error: ${error}`);
+          this.synchronize();
+        }
+      }
+      
+      if (this.check(RclToken.DEDENT)) {
+        this.advance(); // consume DEDENT
+      }
+    }
+    
     const end = this.getPosition();
 
     return {
       type: 'FlowRule',
       name,
-      nestedRules: [],
+      nestedRules,
+      attributes, // Add attributes to flow rule
       location: { start, end }
     };
   }
@@ -325,7 +434,7 @@ export class RclCustomParser {
       } as NumberValue;
     }
     
-    if (this.check(RclToken.TRUE_KW)) {
+    if (this.check(RclToken.TRUE)) {
       const token = this.advance();
       const end = this.getPosition();
       return {
@@ -336,7 +445,7 @@ export class RclCustomParser {
       } as BooleanValue;
     }
     
-    if (this.check(RclToken.FALSE_KW)) {
+    if (this.check(RclToken.FALSE)) {
       const token = this.advance();
       const end = this.getPosition();
       return {
@@ -347,7 +456,7 @@ export class RclCustomParser {
       } as BooleanValue;
     }
     
-    if (this.check(RclToken.NULL_KW)) {
+    if (this.check(RclToken.NULL)) {
       const token = this.advance();
       const end = this.getPosition();
       return {
@@ -357,8 +466,59 @@ export class RclCustomParser {
       } as NullValue;
     }
     
-    // Default to identifier
-    if (this.check(RclToken.IDENTIFIER) || this.check(RclToken.PROPER_NOUN)) {
+    if (this.check(RclToken.NULL_LOWER)) {
+      const token = this.advance();
+      const end = this.getPosition();
+      return {
+        type: 'NullValue',
+        rawValue: token.image,
+        location: { start, end }
+      } as NullValue;
+    }
+    
+    if (this.check(RclToken.NONE)) {
+      const token = this.advance();
+      const end = this.getPosition();
+      return {
+        type: 'NullValue',
+        rawValue: token.image,
+        location: { start, end }
+      } as NullValue;
+    }
+    
+    if (this.check(RclToken.NONE_LOWER)) {
+      const token = this.advance();
+      const end = this.getPosition();
+      return {
+        type: 'NullValue',
+        rawValue: token.image,
+        location: { start, end }
+      } as NullValue;
+    }
+    
+    if (this.check(RclToken.VOID)) {
+      const token = this.advance();
+      const end = this.getPosition();
+      return {
+        type: 'NullValue',
+        rawValue: token.image,
+        location: { start, end }
+      } as NullValue;
+    }
+    
+    if (this.check(RclToken.VOID_LOWER)) {
+      const token = this.advance();
+      const end = this.getPosition();
+      return {
+        type: 'NullValue',
+        rawValue: token.image,
+        location: { start, end }
+      } as NullValue;
+    }
+    
+    // Check for identifier-like tokens (including space-separated)
+    const currentToken = this.peek();
+    if (currentToken && this.isIdentifierLikeToken(currentToken)) {
       const value = this.parseSpaceSeparatedIdentifier();
       const end = this.getPosition();
       return {
@@ -375,24 +535,93 @@ export class RclCustomParser {
   private parseSpaceSeparatedIdentifier(): string {
     const parts: string[] = [];
     
-    // Collect identifiers separated by spaces
-    while (this.check(RclToken.IDENTIFIER) || this.check(RclToken.PROPER_NOUN)) {
-      parts.push(this.advance().image);
+    // Parse first identifier part - can be IDENTIFIER or reserved words
+    const firstToken = this.peek();
+    if (firstToken && this.isIdentifierLikeToken(firstToken)) {
+      const firstPart = this.advance().image;
+      parts.push(firstPart);
+    }
+    
+    // If we didn't get any parts, return empty string
+    if (parts.length === 0) {
+      return '';
+    }
+    
+    // Continue while we have space followed by identifier-like token
+    let loopCount = 0;
+    const MAX_LOOPS = 50; // Safety limit for space-separated identifiers
+    
+    while (loopCount < MAX_LOOPS) {
+      loopCount++;
       
-      // Check for space between identifiers
-      if (this.check(RclToken.WS)) {
-        const nextToken = this.tokens[this.current + 1];
-        if (nextToken && (nextToken.tokenType === RclToken.IDENTIFIER || nextToken.tokenType === RclToken.PROPER_NOUN)) {
-          this.advance(); // consume space
-        } else {
-          break;
-        }
+      // Check if next token is whitespace
+      if (!this.check(RclToken.WS)) {
+        break;
+      }
+      
+      // Look ahead past whitespace to see if there's an identifier-like token
+      let lookAheadIdx = this.current + 1;
+      
+      // Skip multiple whitespace tokens
+      while (lookAheadIdx < this.tokens.length && 
+             this.tokens[lookAheadIdx].tokenType === RclToken.WS) {
+        lookAheadIdx++;
+      }
+      
+      // Check if the next non-whitespace token is identifier-like
+      if (lookAheadIdx < this.tokens.length && 
+          this.isIdentifierLikeToken(this.tokens[lookAheadIdx])) {
+        
+        // Consume the whitespace
+        this.advance();
+        
+        // Consume the identifier token
+        const nextPart = this.advance().image;
+        parts.push(nextPart);
       } else {
+        // No more identifier-like tokens, stop
         break;
       }
     }
     
+    if (loopCount >= MAX_LOOPS) {
+      console.error(`[ERROR] Infinite loop detected in parseSpaceSeparatedIdentifier`);
+    }
+    
     return parts.join(' ');
+  }
+
+  private isIdentifierLikeToken(token: IToken): boolean {
+    if (!token || !token.tokenType) return false;
+    
+    const tokenName = token.tokenType.name;
+    
+    return tokenName === 'IDENTIFIER' ||
+           tokenName === 'Config' ||
+           tokenName === 'DEFAULTS' ||
+           tokenName === 'MESSAGES_RESERVED' ||
+           tokenName === 'AGENT_MESSAGE' ||
+           tokenName === 'MESSAGE' ||
+           tokenName === 'CONTENT_MESSAGE' ||
+           tokenName === 'FLOW' ||
+           tokenName === 'TEXT' ||
+           tokenName === 'RICH_CARD' ||
+           tokenName === 'CAROUSEL' ||
+           tokenName === 'ACTION' ||
+           tokenName === 'REPLY' ||
+           tokenName === 'DIAL' ||
+           tokenName === 'OPEN_URL' ||
+           tokenName === 'SHARE_LOCATION' ||
+           tokenName === 'start' ||  // lowercase as defined in token
+           tokenName === 'end' ||   // lowercase as defined in token
+           // Add more valid token types that could be part of identifiers
+           tokenName === 'AGENT_KW' ||
+           tokenName === 'FLOWS' ||
+           tokenName === 'MESSAGES' ||
+           tokenName === 'AGENT_DEFAULTS' ||
+           tokenName === 'agentConfig' ||
+           tokenName === 'TRANSACTIONAL' ||
+           tokenName === 'PROMOTIONAL';
   }
 
   // Helper methods
@@ -406,26 +635,105 @@ export class RclCustomParser {
 
   private isNextSectionStart(): boolean {
     return this.check(RclToken.AGENT_KW) || 
-           this.check(RclToken.FLOWS_KW) || 
-           this.check(RclToken.MESSAGES_KW) ||
-           this.check(RclToken.AGENT_CONFIG_KW) ||
-           this.check(RclToken.AGENT_DEFAULTS_KW);
+           this.check(RclToken.FLOWS) || 
+           this.check(RclToken.MESSAGES) ||
+           this.check(RclToken.AGENT_CONFIG) ||
+           this.check(RclToken.AGENT_DEFAULTS);
   }
 
   private isFlowRule(): boolean {
-    // Simple heuristic: if we see an identifier followed by colon in a flows section
-    return (this.check(RclToken.IDENTIFIER) || this.check(RclToken.PROPER_NOUN));
+    // Check if current token pattern matches: identifier(s) : newline
+    const currentToken = this.peek();
+    if (!currentToken || !this.isIdentifierLikeToken(currentToken)) {
+      return false;
+    }
+    
+    // Look ahead for colon
+    let idx = this.current;
+    let foundColon = false;
+    let searchCount = 0;
+    const MAX_SEARCH = 10; // Limit lookahead
+    
+    // Skip identifier-like tokens and spaces (for space-separated identifiers)
+    while (idx < this.tokens.length && searchCount < MAX_SEARCH) {
+      searchCount++;
+      const token = this.tokens[idx];
+      
+      if (token.tokenType === RclToken.COLON) {
+        foundColon = true;
+        idx++;
+        break;
+      } else if (token.tokenType === RclToken.WS) {
+        idx++;
+        continue;
+      } else if (this.isIdentifierLikeToken(token)) {
+        idx++;
+        continue;
+      } else {
+        break;
+      }
+    }
+    
+    if (!foundColon || searchCount >= MAX_SEARCH) {
+      return false;
+    }
+    
+    // Check if colon is followed by newline (possibly with whitespace)
+    while (idx < this.tokens.length && this.tokens[idx].tokenType === RclToken.WS) {
+      idx++;
+    }
+    
+    if (idx < this.tokens.length && this.tokens[idx].tokenType === RclToken.NL) {
+      return true;
+    }
+    
+    return false;
   }
 
   private isMessageDefinition(): boolean {
-    // Similar to flow rule, but in messages section
-    return (this.check(RclToken.IDENTIFIER) || this.check(RclToken.PROPER_NOUN));
+    // Similar to isAttribute but for message definitions in messages section
+    const currentToken = this.peek();
+    return !!(currentToken && this.isIdentifierLikeToken(currentToken) && 
+           this.tokens[this.current + 1]?.tokenType === RclToken.COLON);
   }
 
   private isAttribute(): boolean {
-    return (this.check(RclToken.IDENTIFIER) || this.check(RclToken.PROPER_NOUN)) &&
-           this.tokens.slice(this.current).some((token, i) => 
-             i < 5 && token.tokenType === RclToken.COLON);
+    // An attribute starts with an identifier-like token followed by a colon
+    const currentToken = this.peek();
+    if (!currentToken || !this.isIdentifierLikeToken(currentToken)) {
+      return false;
+    }
+    
+    // Look ahead for colon
+    let idx = this.current + 1;
+    let foundColon = false;
+    let searchCount = 0;
+    const MAX_SEARCH = 10; // Limit lookahead
+    
+    // Skip spaces and identifier-like tokens (for space-separated keys)
+    while (idx < this.tokens.length && searchCount < MAX_SEARCH) {
+      searchCount++;
+      const token = this.tokens[idx];
+      
+      if (token.tokenType === RclToken.COLON) {
+        foundColon = true;
+        break;
+      } else if (token.tokenType === RclToken.WS) {
+        idx++;
+        continue;
+      } else if (this.isIdentifierLikeToken(token)) {
+        idx++;
+        continue;
+      } else {
+        break;
+      }
+    }
+    
+    if (searchCount >= MAX_SEARCH) {
+      return false;
+    }
+    
+    return foundColon;
   }
 
   private match(...types: any[]): boolean {
@@ -491,14 +799,19 @@ export class RclCustomParser {
 
       switch (this.peek()?.tokenType) {
         case RclToken.AGENT_KW:
-        case RclToken.FLOWS_KW:
-        case RclToken.MESSAGES_KW:
-        case RclToken.AGENT_CONFIG_KW:
-        case RclToken.AGENT_DEFAULTS_KW:
+        case RclToken.FLOWS:
+        case RclToken.MESSAGES:
+        case RclToken.AGENT_CONFIG:
+        case RclToken.AGENT_DEFAULTS:
           return;
       }
 
       this.advance();
     }
+  }
+
+  private isEmptyToken(): boolean {
+    const token = this.peek();
+    return !!(token && token.image === '');
   }
 } 

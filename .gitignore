@@ -15,4 +15,8 @@ dist/
 .moon/cache
 .moon/docker
 .bun/cache
+
+# cursor
+.cursor/temp
+
 packages/language/logs

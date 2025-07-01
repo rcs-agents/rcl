@@ -1,6 +1,6 @@
-import { RclCustomLexer } from './rcl-custom-lexer.js';
+import { RclCustomLexer } from '#src/parser/rcl-custom-lexer';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclToken } from './rcl-custom-lexer.js';
+import { RclToken } from '#src/parser/rcl-custom-lexer';
 
 /**
  * Test suite to demonstrate the RclCustomLexer functionality

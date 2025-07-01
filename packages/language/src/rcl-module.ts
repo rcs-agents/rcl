@@ -12,6 +12,7 @@ import { RclFoldingRangeProvider } from './lsp/rcl-folding-range-provider.js';
 import { RclDefinitionProvider } from './lsp/rcl-definition-provider.js';
 import { RclFormatter } from './lsp/rcl-formatter.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
+// Custom parser import removed - not used in current Langium integration
 
 /**
  * Declaration of custom services - add your own service classes here.

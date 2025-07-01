@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclCustomParser } from './rcl-custom-parser.js';
-import type { RclFile, Section, Attribute } from './rcl-simple-ast.js';
+import { RclCustomParser } from '#src/parser/rcl-custom-parser';
+// Import removed as the types are not used in tests
 
 describe('RclCustomParser', () => {
   let parser: RclCustomParser;
@@ -159,7 +159,6 @@ agent Second Agent:
 
       const result = parser.parse(input);
       
-      // Should have some errors but still parse valid parts
       expect(result.errors.length).toBeGreaterThan(0);
       expect(result.ast).toBeDefined();
     });

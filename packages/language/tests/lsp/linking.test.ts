@@ -2,8 +2,8 @@ import { afterEach, beforeAll, describe, expect, test } from "vitest";
 import { EmptyFileSystem, type LangiumDocument } from "langium";
 import { expandToString as s } from "langium/generate";
 import { clearDocuments, parseHelper } from "langium/test";
-import { createRclTestServices } from '../src/rcl-module.js';
-import { type RclTestFile } from '../src/generated/ast.js';
+import { createRclTestServices } from '../../src/rcl-module.js';
+import { type RclTestFile } from '../../src/generated/ast.js';
 
 let testServices: ReturnType<typeof createRclTestServices>;
 let parseTest: ReturnType<typeof parseHelper<RclTestFile>>;
