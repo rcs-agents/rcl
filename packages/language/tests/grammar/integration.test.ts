@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { RclCustomLexer } from '#src/parser/rcl-custom-lexer';
-import { RclCustomParser } from '#src/parser/rcl-custom-parser';
-import { AstUtils } from '#src/parser/rcl-simple-ast';
+import { RclCustomLexer } from '../../src/parser/rcl-custom-lexer.js';
+import { RclCustomParser } from '../../src/parser/rcl-custom-parser.js';
+import { AstUtils } from '../../src/parser/rcl-simple-ast.js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 

@@ -1,6 +1,5 @@
-import { RclCustomLexer } from '#src/parser/rcl-custom-lexer';
+import { RclCustomLexer, RclToken } from '../../src/parser/rcl-custom-lexer.js';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclToken } from '#src/parser/rcl-custom-lexer';
 
 /**
  * Test suite to demonstrate the RclCustomLexer functionality
@@ -442,7 +441,7 @@ agent Test: # Another comment
       const result = lexer.tokenize(input);
       
       expect(result.errors).toHaveLength(0);
-      const startMarker = result.tokens.find(t => t.tokenType === RclToken.MULTI_LINE_EXPRESSION_START);
+      const startMarker = result.tokens.find(t => t.tokenType === RclToken.MULTI_LINE_EXPRESSION);
       expect(startMarker).toBeDefined();
     });
   });

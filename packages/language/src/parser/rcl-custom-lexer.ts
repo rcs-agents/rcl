@@ -192,18 +192,15 @@ export class RclCustomLexer {
     pattern: /:([_a-zA-Z][\w_]*|"[^"\\]*")/
   });
 
-  // Embedded expressions (multi-line before single-line to avoid conflicts)
-  static readonly MULTI_LINE_EXPRESSION_START = createToken({
-    name: 'MULTI_LINE_EXPRESSION_START',
-    pattern: /\$((js|ts)?)>>>|\$\{\{/
+  // Embedded expressions (capture entire multi-line blocks)
+  static readonly MULTI_LINE_EXPRESSION = createToken({
+    name: 'MULTI_LINE_EXPRESSION',
+    pattern: /\$((js|ts|template|rcl)?)>>>[ \t]*\{[\s\S]*?\}/
   });
+  
   static readonly SINGLE_LINE_EXPRESSION = createToken({
     name: 'SINGLE_LINE_EXPRESSION',
-    pattern: /\$((js|ts)>)[^\r\n]*|\$\{[^}]*\}/
-  });
-  static readonly MULTI_LINE_EXPRESSION_CONTENT = createToken({
-    name: 'MULTI_LINE_EXPRESSION_CONTENT',
-    pattern: Lexer.NA
+    pattern: /\$((js|ts|template|rcl)>)[^\r\n]*|\$\{[^}]*\}/
   });
 
   // Multi-line string markers (after PIPE to avoid conflicts)
@@ -393,9 +390,8 @@ export class RclCustomLexer {
     RclCustomLexer.SECTION_TYPE,
 
     // Embedded expressions
-    RclCustomLexer.MULTI_LINE_EXPRESSION_START,
+    RclCustomLexer.MULTI_LINE_EXPRESSION,
     RclCustomLexer.SINGLE_LINE_EXPRESSION,
-    RclCustomLexer.MULTI_LINE_EXPRESSION_CONTENT,
 
     // Multi-line string markers (specific before general)
     RclCustomLexer.MULTILINE_STR_PRESERVE_ALL,
@@ -492,7 +488,6 @@ export class RclCustomLexer {
     for (const tokenType of RclCustomLexer.allTokens) {
       if (tokenType === RclCustomLexer.INDENT || 
           tokenType === RclCustomLexer.DEDENT ||
-          tokenType === RclCustomLexer.MULTI_LINE_EXPRESSION_CONTENT ||
           tokenType === RclCustomLexer.STRING_CONTENT ||
           tokenType === RclCustomLexer.TYPE_TAG_VALUE_CONTENT ||
           tokenType === RclCustomLexer.TYPE_TAG_MODIFIER_CONTENT) {
@@ -533,7 +528,7 @@ export class RclCustomLexer {
     this.advance(match[0].length);
 
     // Handle special multi-line constructs
-    if (tokenType === RclCustomLexer.MULTI_LINE_EXPRESSION_START) {
+    if (tokenType === RclCustomLexer.MULTI_LINE_EXPRESSION) {
       this.startMultiLineBlock('expression');
     } else if (this.isMultiLineStringMarker(tokenType)) {
       this.startMultiLineBlock('string');
@@ -658,7 +653,7 @@ export class RclCustomLexer {
     if (content) {
       // Create appropriate token for the content
       const tokenType = this.multiLineBlockType === 'expression' 
-        ? RclCustomLexer.MULTI_LINE_EXPRESSION_CONTENT
+        ? RclCustomLexer.MULTI_LINE_EXPRESSION
         : RclCustomLexer.STRING_CONTENT;
       
       const token = this.createToken(tokenType, content.text, content.startOffset);
@@ -1028,9 +1023,8 @@ export const RclToken = {
   ATOM: RclCustomLexer.ATOM,
 
   // Expressions
-  MULTI_LINE_EXPRESSION_START: RclCustomLexer.MULTI_LINE_EXPRESSION_START,
+  MULTI_LINE_EXPRESSION: RclCustomLexer.MULTI_LINE_EXPRESSION,
   SINGLE_LINE_EXPRESSION: RclCustomLexer.SINGLE_LINE_EXPRESSION,
-  MULTI_LINE_EXPRESSION_CONTENT: RclCustomLexer.MULTI_LINE_EXPRESSION_CONTENT,
 
   // Multi-line strings
   MULTILINE_STR_PRESERVE_ALL: RclCustomLexer.MULTILINE_STR_PRESERVE_ALL,
@@ -1071,8 +1065,8 @@ export const RclToken = {
   // Convenience aliases
   TYPE_TAG_NAME: RclCustomLexer.EMAIL_TYPE, // We'll use this for any type name
   PROPER_NOUN: RclCustomLexer.IDENTIFIER, // We'll use identifier for proper nouns for now
-  EMBEDDED_CODE_START: RclCustomLexer.MULTI_LINE_EXPRESSION_START,
-  CODE_BLOCK_START: RclCustomLexer.MULTI_LINE_EXPRESSION_START,
-  CODE_LINE: RclCustomLexer.MULTI_LINE_EXPRESSION_CONTENT,
+  EMBEDDED_CODE_START: RclCustomLexer.MULTI_LINE_EXPRESSION,
+  CODE_BLOCK_START: RclCustomLexer.MULTI_LINE_EXPRESSION,
+  CODE_LINE: RclCustomLexer.MULTI_LINE_EXPRESSION,
   EQUALS: RclCustomLexer.COLON, // We'll use colon for equals for now
 } as const; 

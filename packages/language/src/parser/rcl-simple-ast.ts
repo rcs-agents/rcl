@@ -63,17 +63,50 @@ export interface Attribute extends BaseAstNode {
 }
 
 /**
- * Flow rule: source -> destination
+ * Flow operand (source or destination in flow transitions)
+ */
+export interface FlowOperand extends BaseAstNode {
+  type: 'FlowOperand';
+  operandType: 'atom' | 'identifier' | 'string';
+  value: string;
+}
+
+/**
+ * Flow transition: source -> destination
+ */
+export interface FlowTransition extends BaseAstNode {
+  type: 'FlowTransition';
+  source: FlowOperand;
+  destination: FlowOperand;
+  withClause?: WithClause;
+  whenClause?: WhenClause;
+}
+
+/**
+ * When clause for conditional flow rules
+ */
+export interface WhenClause extends BaseAstNode {
+  type: 'WhenClause';
+  condition: EmbeddedExpression | Value;
+  transitions: FlowTransition[];
+}
+
+/**
+ * Flow rule: can be a named flow or a transition
  */
 export interface FlowRule extends BaseAstNode {
   type: 'FlowRule';
   name: string;
+  // Legacy fields for backward compatibility
   source?: string;
   destination?: string;
   isStart?: boolean;
   withClause?: WithClause;
   attributes: Attribute[];
   nestedRules: FlowRule[];
+  // Enhanced fields for arrow-based flows
+  transitions: FlowTransition[];
+  whenClauses: WhenClause[];
 }
 
 /**
@@ -105,6 +138,27 @@ export interface MessageDefinition extends BaseAstNode {
 }
 
 /**
+ * Embedded expression (single line): $js> code, $template> code, $rcl> code
+ */
+export interface EmbeddedExpression extends BaseAstNode {
+  type: 'EmbeddedExpression';
+  language: 'js' | 'ts' | 'template' | 'rcl';
+  content: string;
+  isMultiline: boolean;
+  location?: SourceLocation;
+}
+
+/**
+ * Embedded code block (multi-line): $js> { ... }
+ */
+export interface EmbeddedCodeBlock extends BaseAstNode {
+  type: 'EmbeddedCodeBlock';
+  language: 'js' | 'ts' | 'template' | 'rcl';
+  content: string[]; // Array of lines
+  location?: SourceLocation;
+}
+
+/**
  * Various value types
  */
 export type Value = 
@@ -116,7 +170,8 @@ export type Value =
   | ListValue 
   | ObjectValue
   | TypeTaggedValue
-  | EmbeddedExpression;
+  | EmbeddedExpression
+  | EmbeddedCodeBlock;
 
 export interface StringValue extends BaseAstNode {
   type: 'StringValue';
@@ -171,13 +226,6 @@ export interface TypeTaggedValue extends BaseAstNode {
   tagType: string; // 'email', 'phone', 'url', etc.
   value: Value;
   modifier?: string; // Optional type modifier
-}
-
-export interface EmbeddedExpression extends BaseAstNode {
-  type: 'EmbeddedExpression';
-  language?: string; // 'js', 'ts', etc.
-  content: string;
-  isMultiline: boolean;
 }
 
 /**

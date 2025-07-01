@@ -13,7 +13,14 @@ import type {
   BooleanValue,
   NullValue,
   IdentifierValue,
-  Position
+  Position,
+  FlowTransition,
+  FlowOperand,
+  WithClause,
+  WhenClause,
+  Parameter,
+  EmbeddedExpression,
+  EmbeddedCodeBlock
 } from './rcl-simple-ast.js';
 
 // Import tokens from lexer
@@ -120,12 +127,31 @@ export class RclCustomParser {
     
     const importedNames: string[] = [];
     
-    // Parse import name(s)
-    if (this.check(RclToken.IDENTIFIER)) {
-      importedNames.push(this.advance().image);
-    }
+    // Parse namespace-style import names separated by '/'
+    // e.g., "My Brand / Samples" or "Shared / Common Flows / Support"
+    do {
+      // Parse space-separated identifier for each namespace part
+      const namespacePart = this.parseSpaceSeparatedIdentifier();
+      importedNames.push(namespacePart);
+      
+      // Skip whitespace around '/'
+      while (this.check(RclToken.WS)) {
+        this.advance();
+      }
+      
+      // Check for slash separator
+      if (this.check(RclToken.SLASH)) {
+        this.advance(); // consume '/'
+        // Skip whitespace after '/'
+        while (this.check(RclToken.WS)) {
+          this.advance();
+        }
+      } else {
+        break; // No more namespace parts
+      }
+    } while (!this.isAtEnd() && !this.check(RclToken.AS) && !this.check(RclToken.FROM));
     
-    // Handle 'as' alias
+    // Handle 'as' alias (with space-separated identifiers)
     let alias: string | undefined;
     // Skip whitespace before 'as'
     while (this.check(RclToken.WS)) {
@@ -136,9 +162,8 @@ export class RclCustomParser {
       while (this.check(RclToken.WS)) {
         this.advance();
       }
-      if (this.check(RclToken.IDENTIFIER)) {
-        alias = this.advance().image;
-      }
+      // Parse space-separated alias (e.g., "Sample One", "Customer Support")
+      alias = this.parseSpaceSeparatedIdentifier();
     }
     
     // Handle 'from' source
@@ -314,6 +339,8 @@ export class RclCustomParser {
     
     const attributes: Attribute[] = [];
     const nestedRules: FlowRule[] = [];
+    const transitions: FlowTransition[] = [];
+    const whenClauses: WhenClause[] = [];
     
     // Parse flow rule content if indented
     if (this.match(RclToken.INDENT)) {
@@ -330,7 +357,13 @@ export class RclCustomParser {
         const currentToken = this.current;
         
         try {
-          if (this.isAttribute()) {
+          if (this.isFlowTransition()) {
+            const transition = this.parseFlowTransition();
+            transitions.push(transition);
+          } else if (this.isWhenClause()) {
+            const whenClause = this.parseWhenClause();
+            whenClauses.push(whenClause);
+          } else if (this.isAttribute()) {
             const attr = this.parseAttribute();
             attributes.push(attr);
           } else if (this.isFlowRule()) {
@@ -360,7 +393,238 @@ export class RclCustomParser {
       type: 'FlowRule',
       name,
       nestedRules,
-      attributes, // Add attributes to flow rule
+      attributes,
+      transitions,
+      whenClauses,
+      location: { start, end }
+    };
+  }
+
+  /**
+   * Parse a flow transition: source -> destination
+   */
+  private parseFlowTransition(): FlowTransition {
+    const start = this.getPosition();
+    
+    // Parse source operand
+    const source = this.parseFlowOperand();
+    
+    // Skip whitespace before arrow
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    
+    // Consume arrow
+    this.consume(RclToken.ARROW);
+    
+    // Skip whitespace after arrow
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    
+    // Parse destination operand
+    const destination = this.parseFlowOperand();
+    
+    // Parse optional with clause
+    let withClause: WithClause | undefined;
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    
+    if (this.check(RclToken.WITH)) {
+      withClause = this.parseWithClause();
+    }
+    
+    this.consumeNewlineOrEnd();
+    const end = this.getPosition();
+    
+    return {
+      type: 'FlowTransition',
+      source,
+      destination,
+      withClause,
+      location: { start, end }
+    };
+  }
+
+  /**
+   * Parse a flow operand (atom, identifier, or string)
+   */
+  private parseFlowOperand(): FlowOperand {
+    const start = this.getPosition();
+    
+    if (this.check(RclToken.ATOM)) {
+      const token = this.advance();
+      const end = this.getPosition();
+      return {
+        type: 'FlowOperand',
+        operandType: 'atom',
+        value: token.image,
+        location: { start, end }
+      };
+    }
+    
+    if (this.check(RclToken.STRING)) {
+      const token = this.advance();
+      const value = token.image.slice(1, -1); // Remove quotes
+      const end = this.getPosition();
+      return {
+        type: 'FlowOperand',
+        operandType: 'string',
+        value,
+        location: { start, end }
+      };
+    }
+    
+    // Parse space-separated identifier
+    const value = this.parseSpaceSeparatedIdentifier();
+    const end = this.getPosition();
+    
+    return {
+      type: 'FlowOperand',
+      operandType: 'identifier',
+      value,
+      location: { start, end }
+    };
+  }
+
+  /**
+   * Parse a with clause: with param: value, param2: value2
+   */
+  private parseWithClause(): WithClause {
+    const start = this.getPosition();
+    
+    this.consume(RclToken.WITH);
+    
+    // Skip whitespace after 'with'
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    
+    const parameters: Parameter[] = [];
+    
+    // Parse first parameter
+    if (this.isParameterStart()) {
+      parameters.push(this.parseParameter());
+    }
+    
+    // Parse additional parameters separated by commas
+    while (this.check(RclToken.COMMA)) {
+      this.advance(); // consume comma
+      
+      // Skip whitespace after comma
+      while (this.check(RclToken.WS)) {
+        this.advance();
+      }
+      
+      if (this.isParameterStart()) {
+        parameters.push(this.parseParameter());
+      }
+    }
+    
+    const end = this.getPosition();
+    
+    return {
+      type: 'WithClause',
+      parameters,
+      location: { start, end }
+    };
+  }
+
+  /**
+   * Parse a when clause for conditional flow rules
+   */
+  private parseWhenClause(): WhenClause {
+    const start = this.getPosition();
+    
+    this.consume(RclToken.WHEN);
+    
+    // Skip whitespace after 'when'
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    
+    // Parse condition (for now, just store as embedded expression placeholder)
+    // TODO: Implement proper condition parsing
+    const condition: EmbeddedExpression = {
+      type: 'EmbeddedExpression',
+      language: 'rcl',
+      content: 'placeholder condition',
+      isMultiline: false,
+      location: { start: this.getPosition(), end: this.getPosition() }
+    };
+    
+    this.consumeNewlineOrEnd();
+    
+    const transitions: FlowTransition[] = [];
+    
+    // Parse indented transitions
+    if (this.match(RclToken.INDENT)) {
+      while (!this.check(RclToken.DEDENT) && !this.isAtEnd()) {
+        if (this.isFlowTransition()) {
+          transitions.push(this.parseFlowTransition());
+        } else {
+          this.advance();
+        }
+      }
+      
+      if (this.check(RclToken.DEDENT)) {
+        this.advance();
+      }
+    }
+    
+    const end = this.getPosition();
+    
+    return {
+      type: 'WhenClause',
+      condition,
+      transitions,
+      location: { start, end }
+    };
+  }
+
+  /**
+   * Parse a parameter: name: value
+   */
+  private parseParameter(): Parameter {
+    const start = this.getPosition();
+    
+    // Parse parameter name
+    let name: string;
+    const currentToken = this.peek();
+    
+    if (this.check(RclToken.ATTRIBUTE_KEY)) {
+      name = this.advance().image;
+    } else if (this.check(RclToken.IDENTIFIER)) {
+      name = this.advance().image;
+    } else if (currentToken && this.isKeywordValidAsParameterName(currentToken)) {
+      // Handle keywords that can be parameter names (like "time", "date", etc.)
+      name = this.advance().image;
+    } else {
+      throw new Error(`Expected parameter name, got ${this.peek()?.image}`);
+    }
+    
+    // Skip whitespace before colon
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    
+    this.consume(RclToken.COLON);
+    
+    // Skip whitespace after colon
+    while (this.check(RclToken.WS)) {
+      this.advance();
+    }
+    
+    // Parse parameter value
+    const defaultValue = this.parseValue();
+    
+    const end = this.getPosition();
+    
+    return {
+      type: 'Parameter',
+      name,
+      defaultValue,
       location: { start, end }
     };
   }
@@ -410,6 +674,15 @@ export class RclCustomParser {
   private parseValue(): Value {
     const start = this.getPosition();
     
+    // Handle embedded expressions first (before other tokens)
+    if (this.check(RclToken.SINGLE_LINE_EXPRESSION)) {
+      return this.parseEmbeddedExpression();
+    }
+    
+    if (this.check(RclToken.MULTI_LINE_EXPRESSION)) {
+      return this.parseEmbeddedCodeBlock();
+    }
+    
     if (this.check(RclToken.STRING)) {
       const token = this.advance();
       const value = token.image.slice(1, -1); // Remove quotes
@@ -424,112 +697,57 @@ export class RclCustomParser {
     if (this.check(RclToken.NUMBER)) {
       const token = this.advance();
       const rawValue = token.image;
-      const value = parseFloat(rawValue);
+      const value = rawValue.includes('.') ? parseFloat(rawValue) : parseInt(rawValue);
       const end = this.getPosition();
       return {
         type: 'NumberValue',
         value,
-        rawValue,
         location: { start, end }
       } as NumberValue;
     }
     
-    if (this.check(RclToken.TRUE)) {
-      const token = this.advance();
+    if (this.check(RclToken.TRUE) || this.check(RclToken.YES) || this.check(RclToken.ON) || this.check(RclToken.ENABLED) || this.check(RclToken.ACTIVE)) {
+      this.advance();
       const end = this.getPosition();
       return {
         type: 'BooleanValue',
         value: true,
-        rawValue: token.image,
         location: { start, end }
       } as BooleanValue;
     }
     
-    if (this.check(RclToken.FALSE)) {
-      const token = this.advance();
+    if (this.check(RclToken.FALSE) || this.check(RclToken.NO) || this.check(RclToken.OFF) || this.check(RclToken.DISABLED) || this.check(RclToken.INACTIVE)) {
+      this.advance();
       const end = this.getPosition();
       return {
         type: 'BooleanValue',
         value: false,
-        rawValue: token.image,
         location: { start, end }
       } as BooleanValue;
     }
     
-    if (this.check(RclToken.NULL)) {
-      const token = this.advance();
+    if (this.check(RclToken.NULL) || this.check(RclToken.NULL_LOWER) || this.check(RclToken.NONE) || this.check(RclToken.NONE_LOWER) || this.check(RclToken.VOID) || this.check(RclToken.VOID_LOWER)) {
+      this.advance();
       const end = this.getPosition();
       return {
         type: 'NullValue',
-        rawValue: token.image,
         location: { start, end }
       } as NullValue;
     }
     
-    if (this.check(RclToken.NULL_LOWER)) {
-      const token = this.advance();
-      const end = this.getPosition();
-      return {
-        type: 'NullValue',
-        rawValue: token.image,
-        location: { start, end }
-      } as NullValue;
-    }
-    
-    if (this.check(RclToken.NONE)) {
-      const token = this.advance();
-      const end = this.getPosition();
-      return {
-        type: 'NullValue',
-        rawValue: token.image,
-        location: { start, end }
-      } as NullValue;
-    }
-    
-    if (this.check(RclToken.NONE_LOWER)) {
-      const token = this.advance();
-      const end = this.getPosition();
-      return {
-        type: 'NullValue',
-        rawValue: token.image,
-        location: { start, end }
-      } as NullValue;
-    }
-    
-    if (this.check(RclToken.VOID)) {
-      const token = this.advance();
-      const end = this.getPosition();
-      return {
-        type: 'NullValue',
-        rawValue: token.image,
-        location: { start, end }
-      } as NullValue;
-    }
-    
-    if (this.check(RclToken.VOID_LOWER)) {
-      const token = this.advance();
-      const end = this.getPosition();
-      return {
-        type: 'NullValue',
-        rawValue: token.image,
-        location: { start, end }
-      } as NullValue;
-    }
-    
-    // Check for identifier-like tokens (including space-separated)
-    const currentToken = this.peek();
-    if (currentToken && this.isIdentifierLikeToken(currentToken)) {
-      const value = this.parseSpaceSeparatedIdentifier();
+    // Identifier or space-separated identifier
+    if (this.check(RclToken.IDENTIFIER) || this.isIdentifierLikeToken(this.peek())) {
+      const identifier = this.parseSpaceSeparatedIdentifier();
       const end = this.getPosition();
       return {
         type: 'IdentifierValue',
-        value,
-        isSpaceSeparated: value.includes(' '),
+        value: identifier,
+        isSpaceSeparated: identifier.includes(' '),
         location: { start, end }
       } as IdentifierValue;
     }
     
-    throw new Error('Expected value');
+    throw new Error(`Unexpected token: ${this.peek()?.image}`);
   }
 
   private parseSpaceSeparatedIdentifier(): string {
@@ -642,52 +860,154 @@ export class RclCustomParser {
   }
 
   private isFlowRule(): boolean {
-    // Check if current token pattern matches: identifier(s) : newline
-    const currentToken = this.peek();
-    if (!currentToken || !this.isIdentifierLikeToken(currentToken)) {
-      return false;
+    // Check if current token sequence looks like a flow rule
+    // Flow rules can start with:
+    // 1. IDENTIFIER followed by COLON (named flow)
+    // 2. ATOM, STRING, or IDENTIFIER followed by ARROW (transition)
+    
+    const currentPos = this.current;
+    
+    // Skip whitespace
+    while (this.check(RclToken.WS) && !this.isAtEnd()) {
+      this.advance();
     }
     
-    // Look ahead for colon
-    let idx = this.current;
-    let foundColon = false;
-    let searchCount = 0;
-    const MAX_SEARCH = 10; // Limit lookahead
+    // Check for named flow rule (IDENTIFIER : ...)
+    if (this.check(RclToken.IDENTIFIER)) {
+      this.advance();
+      // Skip whitespace
+      while (this.check(RclToken.WS) && !this.isAtEnd()) {
+        this.advance();
+      }
+      const isNamedRule = this.check(RclToken.COLON);
+      this.current = currentPos; // Reset position
+      return isNamedRule;
+    }
     
-    // Skip identifier-like tokens and spaces (for space-separated identifiers)
-    while (idx < this.tokens.length && searchCount < MAX_SEARCH) {
-      searchCount++;
-      const token = this.tokens[idx];
+    this.current = currentPos; // Reset position
+    return false;
+  }
+
+  /**
+   * Check if current position is a flow transition (operand -> operand)
+   */
+  private isFlowTransition(): boolean {
+    const currentPos = this.current;
+    
+    try {
+      // Skip whitespace
+      while (this.check(RclToken.WS) && !this.isAtEnd()) {
+        this.advance();
+      }
       
-      if (token.tokenType === RclToken.COLON) {
-        foundColon = true;
-        idx++;
-        break;
-      } else if (token.tokenType === RclToken.WS) {
-        idx++;
-        continue;
-      } else if (this.isIdentifierLikeToken(token)) {
-        idx++;
-        continue;
-      } else {
-        break;
+      // Check for flow operand (atom, string, or identifier)
+      if (this.isFlowOperandStart()) {
+        // Skip the operand
+        this.skipFlowOperand();
+        
+        // Skip whitespace
+        while (this.check(RclToken.WS) && !this.isAtEnd()) {
+          this.advance();
+        }
+        
+        // Check for arrow
+        const hasArrow = this.check(RclToken.ARROW);
+        this.current = currentPos; // Reset position
+        return hasArrow;
+      }
+      
+      this.current = currentPos; // Reset position
+      return false;
+    } catch {
+      this.current = currentPos; // Reset position on error
+      return false;
+    }
+  }
+
+  /**
+   * Check if current position is the start of a flow operand
+   */
+  private isFlowOperandStart(): boolean {
+    return this.check(RclToken.ATOM) || 
+           this.check(RclToken.STRING) || 
+           this.check(RclToken.IDENTIFIER);
+  }
+
+  /**
+   * Skip a flow operand (for lookahead)
+   */
+  private skipFlowOperand(): void {
+    if (this.check(RclToken.ATOM) || this.check(RclToken.STRING)) {
+      this.advance();
+    } else if (this.check(RclToken.IDENTIFIER)) {
+      // Skip space-separated identifier
+      this.advance();
+      while (this.check(RclToken.WS) && !this.isAtEnd()) {
+        this.advance();
+        if (this.check(RclToken.IDENTIFIER)) {
+          this.advance();
+        } else {
+          break;
+        }
       }
     }
+  }
+
+  /**
+   * Check if current position is a when clause
+   */
+  private isWhenClause(): boolean {
+    // Skip whitespace
+    const currentPos = this.current;
+    while (this.check(RclToken.WS) && !this.isAtEnd()) {
+      this.advance();
+    }
     
-    if (!foundColon || searchCount >= MAX_SEARCH) {
+    const isWhen = this.check(RclToken.WHEN);
+    this.current = currentPos; // Reset position
+    return isWhen;
+  }
+
+  /**
+   * Check if current position is the start of a parameter
+   */
+  private isParameterStart(): boolean {
+    const currentToken = this.peek();
+    if (!currentToken) {
       return false;
     }
     
-    // Check if colon is followed by newline (possibly with whitespace)
-    while (idx < this.tokens.length && this.tokens[idx].tokenType === RclToken.WS) {
-      idx++;
-    }
-    
-    if (idx < this.tokens.length && this.tokens[idx].tokenType === RclToken.NL) {
+    // Basic parameter tokens
+    if (this.check(RclToken.ATTRIBUTE_KEY) || this.check(RclToken.IDENTIFIER)) {
       return true;
     }
     
-    return false;
+    // Allow certain keywords to be used as parameter names
+    // This handles cases like "with time: value" where "time" is a reserved keyword
+    return this.isKeywordValidAsParameterName(currentToken);
+  }
+  
+  /**
+   * Check if a keyword token can be used as a parameter name
+   */
+  private isKeywordValidAsParameterName(token: IToken): boolean {
+    if (!token || !token.tokenType) return false;
+    
+    const tokenName = token.tokenType.name;
+    
+    // Allow type keywords that are commonly used as parameter names
+    return tokenName === 'time' ||
+           tokenName === 'date' ||
+           tokenName === 'url' ||
+           tokenName === 'email' ||
+           tokenName === 'phone' ||
+           tokenName === 'text' ||
+           tokenName === 'message' ||
+           tokenName === 'action' ||
+           tokenName === 'file' ||
+           tokenName === 'duration' ||
+           tokenName === 'start' ||
+           tokenName === 'end';
   }
 
   private isMessageDefinition(): boolean {
@@ -732,7 +1052,7 @@ export class RclCustomParser {
     if (searchCount >= MAX_SEARCH) {
       return false;
     }
-    
+
     return foundColon;
   }
 
@@ -813,5 +1133,86 @@ export class RclCustomParser {
   private isEmptyToken(): boolean {
     const token = this.peek();
     return !!(token && token.image === '');
+  }
+
+  /**
+   * Parse embedded expression value: $js> code, $template> code, etc.
+   */
+  private parseEmbeddedExpression(): EmbeddedExpression {
+    const start = this.getPosition();
+    
+    if (!this.check(RclToken.SINGLE_LINE_EXPRESSION)) {
+      throw new Error(`Expected embedded expression, got ${this.peek()?.image}`);
+    }
+    
+    const token = this.advance();
+    const fullContent = token.image;
+    
+    // Extract language and content from patterns like "$js> code" or "$template> code"
+    const languageMatch = fullContent.match(/^\$((js|ts|template|rcl)>)/);
+    if (!languageMatch) {
+      // Handle ${...} style expressions
+      if (fullContent.startsWith('${') && fullContent.endsWith('}')) {
+        return {
+          type: 'EmbeddedExpression',
+          language: 'js', // Default to js for ${} expressions
+          content: fullContent.slice(2, -1), // Remove ${ and }
+          isMultiline: false,
+          location: { start, end: this.getPosition() }
+        };
+      }
+      throw new Error(`Invalid embedded expression format: ${fullContent}`);
+    }
+    
+    const language = languageMatch[2] as 'js' | 'ts' | 'template' | 'rcl';
+    // Extract content after the full matched pattern (e.g., after "$js>")
+    const content = fullContent.substring(languageMatch[0].length).trim();
+    
+    return {
+      type: 'EmbeddedExpression',
+      language,
+      content,
+      isMultiline: false,
+      location: { start, end: this.getPosition() }
+    };
+  }
+  
+  /**
+   * Parse embedded code block: $js>>> { code }
+   */
+  private parseEmbeddedCodeBlock(): EmbeddedCodeBlock {
+    const start = this.getPosition();
+    
+    if (!this.check(RclToken.MULTI_LINE_EXPRESSION)) {
+      throw new Error(`Expected multi-line expression, got ${this.peek()?.image}`);
+    }
+    
+    const token = this.advance();
+    const fullContent = token.image;
+    
+    // Extract language and content from patterns like "$js>>> { code }"
+    const languageMatch = fullContent.match(/^\$((js|ts|template|rcl)?)>>>/);
+    if (!languageMatch) {
+      throw new Error(`Invalid multi-line expression format: ${fullContent}`);
+    }
+    
+    const language = (languageMatch[2] || 'js') as 'js' | 'ts' | 'template' | 'rcl';
+    
+    // Extract content between { and }
+    const contentMatch = fullContent.match(/\{([^}]*)\}/s);
+    if (!contentMatch) {
+      throw new Error(`Invalid multi-line expression format - no braces found: ${fullContent}`);
+    }
+    
+    const rawContent = contentMatch[1];
+    // Split into lines and trim each line
+    const contentLines = rawContent.split(/\r?\n/).map(line => line.trim()).filter(line => line);
+    
+    return {
+      type: 'EmbeddedCodeBlock',
+      language,
+      content: contentLines,
+      location: { start, end: this.getPosition() }
+    };
   }
 } 
