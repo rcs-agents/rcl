@@ -149,9 +149,23 @@ const doubleQuotedString = { key: 'string-double', /* ... */ };
    // ❌ Generic scope (might conflict)
    scope: 'keyword.control'
    
-   // ✅ Language-specific scope
-   scope: scopes.keyword.control('mylang')
+   // ✅ Language-specific scope with scopesFor
+   const scopes = scopesFor({ suffix: 'mylang', allowScopeExtension: false });
+   scope: scopes.keyword.control
    ```
+
+### Scope Issues
+
+If your scopes aren't being highlighted correctly:
+
+```typescript
+// ❌ Typo in scope name
+scope: scopes.keyword.control
+
+// ✅ Use proper scope hierarchy
+const scopes = scopesFor({ suffix: 'mylang', allowScopeExtension: false });
+scope: scopes.keyword.control
+```
 
 ## Pattern Matching Issues
 

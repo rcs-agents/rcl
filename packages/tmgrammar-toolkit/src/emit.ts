@@ -11,18 +11,45 @@ import type { Grammar, Rule, EmitOptions, MatchRule, BeginEndRule, IncludeRule, 
 import { meta } from './types.js';
 
 let initialized = false;
-async function initialize() {
+
+/**
+ * Initializes the Oniguruma WASM engine for regex validation.
+ * This uses the same regex engine as VS Code for accurate pattern validation.
+ * 
+ * @internal
+ */
+async function initialize(): Promise<void> {
   if (!initialized) {
     const onigasmPath = require.resolve("onigasm");
     const wasmPath = resolve(dirname(onigasmPath), "onigasm.wasm");
     const wasm = await readFile(wasmPath);
-    await loadWASM(wasm.buffer as any);
+    await loadWASM(wasm.buffer as ArrayBuffer);
     initialized = true;
   }
 }
 
 /**
- * Emit the given grammar to JSON.
+ * Converts a grammar to JSON format suitable for TextMate editors.
+ * 
+ * Performs automatic repository management, regex validation using Oniguruma engine,
+ * and scope processing. The output JSON is formatted and ready for VS Code or other
+ * TextMate-compatible editors.
+ * 
+ * @param grammar - The grammar to convert
+ * @param options - Emission options for error reporting and validation control
+ * @param options.errorSourceFilePath - Source file path for better error messages
+ * @param options.validate - Whether to validate regex patterns (default: true)
+ * @param options.formatOutput - Whether to format the JSON output (default: true)
+ * @returns Promise resolving to formatted JSON string
+ * 
+ * @example
+ * ```typescript
+ * const grammarJson = await emitJSON(myGrammar, {
+ *   errorSourceFilePath: './my-grammar.ts',
+ *   validate: true
+ * });
+ * await writeFile('my-grammar.tmLanguage.json', grammarJson);
+ * ```
  */
 export async function emitJSON(grammar: Grammar, options: EmitOptions = {}): Promise<string> {
   await initialize();
@@ -32,7 +59,21 @@ export async function emitJSON(grammar: Grammar, options: EmitOptions = {}): Pro
 }
 
 /**
- * Emit the given grammar to PList XML
+ * Converts a grammar to Apple PList XML format.
+ * 
+ * Produces a .tmLanguage file compatible with TextMate, Sublime Text, and other
+ * editors that support the original PList format. Includes the same validation
+ * and processing as emitJSON.
+ * 
+ * @param grammar - The grammar to convert
+ * @param options - Emission options for error reporting and validation control
+ * @returns Promise resolving to XML PList string
+ * 
+ * @example
+ * ```typescript
+ * const grammarPlist = await emitPList(myGrammar);
+ * await writeFile('my-grammar.tmLanguage', grammarPlist);
+ * ```
  */
 export async function emitPList(grammar: Grammar, options: EmitOptions = {}): Promise<string> {
   await initialize();

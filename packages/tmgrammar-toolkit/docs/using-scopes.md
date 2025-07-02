@@ -1,115 +1,329 @@
-# Using TextMate Scopes with `tmgrammar-toolkit`
+# Using Scopes in TMGrammar Toolkit
 
-The `tmgrammar-toolkit` provides a convenient and type-safe way to work with standard TextMate scope names when creating your tmLanguage grammars. This guide explains how to use the exported `scopes` object.
+The TMGrammar Toolkit provides a powerful, type-safe scope system for creating TextMate grammars. This guide covers all the ways you can use scopes in your projects.
 
-## Importing Scopes
+## Quick Start
 
-First, import the `scopes` object from the `tmgrammar-toolkit` package (or the relevant file if you're working within the toolkit itself):
+The most common pattern is to create static scopes with a language suffix:
 
-~~~typescript
-import { scopes } from 'tmgrammar-toolkit'; // Or your relative path e.g., '../src/scopes';
-~~~
+```typescript
+import { scopesFor } from 'tmgrammar-toolkit';
 
-## Accessing Scope Segments
+// Create static scopes for your language (recommended)
+const myScopes = scopesFor({ 
+  suffix: 'mylang', 
+  allowScopeExtension: false 
+});
 
-The `scopes` object is structured hierarchically, mirroring the dot-separated nature of TextMate scopes. You can access specific scope segments by traversing the object:
-
-~~~typescript
-const keywordControl = scopes.keyword.control;
-const conditionalScope = scopes.keyword.control.conditional;
-const commentLine = scopes.comment.line;
-~~~
-
-## Getting the String Value
-
-Each scope segment object can be easily converted to its string representation.
-
-### 1. Using Template Literals (Recommended)
-
-The most straightforward way is to use the scope object directly in a template literal. The object's `Symbol.toPrimitive` method handles the conversion.
-
-~~~typescript
-const rule = {
-  name: `${scopes.keyword.control.conditional}.myLang`, // "keyword.control.conditional.myLang"
-  match: `if|else`
+// Use in your grammar rules
+const keywordRule = {
+  name: myScopes.keyword.control.conditional,  // "keyword.control.conditional.mylang"
+  match: /\b(if|else|for|while)\b/
 };
+```
 
-console.log(`The scope is: ${scopes.keyword.operator}`); // "The scope is: keyword.operator"
-~~~
+## Scope Patterns
 
-### 2. Explicit `toString()` Call
+### 1. Static Scopes (Recommended)
 
-You can also explicitly call the `toString()` method:
+Static scopes provide the best performance and are recommended for production grammars:
 
-~~~typescript
-const scopeString = scopes.entity.name.function.toString(); // "entity.name.function"
-console.log(scopeString);
-~~~
+```typescript
+const staticScopes = scopesFor({ 
+  suffix: 'typescript', 
+  allowScopeExtension: false 
+});
 
-### 3. String Coercion
+// These return string values directly
+console.log(staticScopes.keyword.control.conditional); // "keyword.control.conditional.typescript"
+console.log(staticScopes.string.quoted.double); // "string.quoted.double.typescript"
 
-JavaScript's string coercion will also work:
+// Perfect for template literals
+const rule = `${staticScopes.comment.line.double_slash}`; // "comment.line.double-slash.typescript"
 
-~~~typescript
-const fullScope = "" + scopes.storage.type; // "storage.type"
-console.log(String(scopes.invalid.illegal)); // "invalid.illegal"
-~~~
+// Not callable (optimized for performance)
+// staticScopes.keyword.control.conditional('extra'); // ❌ TypeError
+```
 
-## Appending Language Suffixes
+**Benefits:**
+- Best performance (no function call overhead)
+- Smaller bundle size
+- Easier for bundlers to optimize
+- Clear, predictable behavior
 
-A common requirement is to append a language-specific suffix to a scope (e.g., `.javascript`, `.python`). Each scope segment is a callable function that accepts a language suffix string:
+### 2. Callable Scopes
 
-~~~typescript
-const conditionalJs = scopes.keyword.control.conditional('javascript');
-// Result: "keyword.control.conditional.javascript"
+Callable scopes allow dynamic extension with additional suffixes:
 
-const keywordPython = scopes.keyword('python');
-// Result: "keyword.python"
+```typescript
+const callableScopes = scopesFor({ 
+  suffix: 'javascript', 
+  allowScopeExtension: true 
+});
 
-const commentBlockPhp = scopes.comment.block('php');
-// Result: "comment.block.php"
+// Base usage
+console.log(callableScopes.keyword.control.conditional); // "keyword.control.conditional.javascript"
 
-console.log(conditionalJs);
-~~~
+// Dynamic extension
+console.log(callableScopes.keyword.control.conditional('async')); // "keyword.control.conditional.javascript.async"
+console.log(callableScopes.string.quoted.double('template')); // "string.quoted.double.javascript.template"
+```
 
-This provides a clean and readable way to construct full language-specific scopes.
+**Use cases:**
+- Grammar extensions or plugins
+- Development and testing
+- When you need runtime flexibility
 
-## Editor Integration (IntelliSense and Documentation)
+### 3. On-Leafs Extension Mode
 
-Thanks to TypeScript and the JSDoc comments embedded in the `scopes` definition, you get excellent editor support:
+Only leaf nodes (terminal scopes) are callable, branch nodes are static:
 
-*   **Autocompletion**: As you type `scopes.`, your editor will suggest available scope segments.
-*   **Hover Documentation**: Hovering over any part of a scope path (e.g., `scopes.keyword` or `scopes.keyword.control`) will display its specific documentation, explaining its purpose and linking back to the `textmate-scopes.md` reference.
+```typescript
+const leafScopes = scopesFor({ 
+  suffix: 'python', 
+  allowScopeExtension: 'on-leafs' 
+});
 
-Example:
-~~~typescript
-// Hover over 'keyword' in scopes.keyword:
-// (JSDoc for KeywordScope appears)
-//
-// Root scope for `keyword`.
-// Defines scopes for reserved words and operators that have special meaning in a language.
-// Full path: `keyword`
-// From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#keyword)
-const myKeywordScope = scopes.keyword;
-~~~
+// Leaf nodes are callable
+console.log(leafScopes.keyword.control.conditional('comprehension')); // "keyword.control.conditional.python.comprehension"
 
-This significantly improves the developer experience when working with TextMate scopes, making it easier to find and use the correct ones.
+// Branch nodes are not callable
+console.log(leafScopes.keyword.control); // "keyword.control.python" (not callable)
+// leafScopes.keyword.control('extra'); // ❌ TypeError
+```
 
-## Example Usage in a Grammar Rule
+**Benefits:**
+- Balance between performance and flexibility
+- Prevents accidental extension of intermediate scopes
+- Clear distinction between terminal and intermediate scopes
 
-Here's how you might use it when defining a rule in a tmLanguage JSON file (conceptually, as you'd typically generate this JSON):
+## Custom Scope Definitions
 
-~~~json
-{
-  "name": "meta.function.myLang", // Constructed perhaps as `${scopes.meta.function('myLang')}`
-  "begin": "(function)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
-  "beginCaptures": {
-    "1": { "name": "storage.type.function.myLang" }, // `${scopes.storage.type.function('myLang')}`
-    "2": { "name": "entity.name.function.myLang" }  // `${scopes.entity.name.function('myLang')}`
+You can extend the base TextMate scopes with your own custom definitions:
+
+```typescript
+const customScopes = scopesFor({ 
+  suffix: 'rcl', 
+  allowScopeExtension: false 
+}, {
+  // Custom meta scopes for your language
+  meta: {
+    section: {
+      agent: null,
+      messages: null,
+      flows: null
+    },
+    embedded: {
+      expression: null,
+      code: null
+    }
   },
-  "end": "\\}",
-  // ...
-}
-~~~
+  // Custom source scopes
+  source: {
+    rcl: {
+      import: null,
+      section_header: null
+    }
+  }
+});
 
-By using the `scopes` object, you ensure consistency and reduce the chance of typos in your scope names. 
+// Use custom scopes
+console.log(customScopes.meta.section.agent); // "meta.section.agent.rcl"
+console.log(customScopes.source.rcl.import); // "source.rcl.import.rcl"
+
+// Base scopes are still available
+console.log(customScopes.keyword.control.conditional); // "keyword.control.conditional.rcl"
+```
+
+## Advanced Configuration
+
+### Prefix for Embedded Languages
+
+Use prefixes when creating scopes for embedded languages:
+
+```typescript
+const embeddedScopes = scopesFor({ 
+  prefix: 'source.html.embedded',
+  suffix: 'javascript',
+  allowScopeExtension: false 
+});
+
+console.log(embeddedScopes.keyword.control.conditional); 
+// "source.html.embedded.keyword.control.conditional.javascript"
+```
+
+### No Suffix (Base Scopes)
+
+Create scopes without language suffixes:
+
+```typescript
+const baseScopes = scopesFor({ 
+  allowScopeExtension: false 
+});
+
+console.log(baseScopes.keyword.control.conditional); // "keyword.control.conditional"
+```
+
+## Predefined Scopes
+
+The toolkit provides predefined scopes that are always callable:
+
+```typescript
+import { scopes } from 'tmgrammar-toolkit';
+
+// Global scopes (always callable)
+console.log(scopes.keyword.control.conditional); // "keyword.control.conditional"
+console.log(scopes.keyword.control.conditional('js')); // "keyword.control.conditional.js"
+
+// Snake_case to kebab-case conversion
+console.log(scopes.comment.line.double_slash); // "comment.line.double-slash"
+console.log(scopes.entity.name.class.forward_decl); // "entity.name.class.forward-decl"
+```
+
+## Type Safety Features
+
+The scope system provides full TypeScript support:
+
+### Compile-time Type Checking
+
+```typescript
+const myScopes = scopesFor({ suffix: 'lang', allowScopeExtension: false });
+
+// ✅ Valid scope paths
+myScopes.keyword.control.conditional;
+myScopes.string.quoted.double;
+myScopes.comment.line.double_slash;
+
+// ❌ Invalid scope paths (TypeScript errors)
+// myScopes.invalid.path.here;
+// myScopes.keyword.invalid.property;
+```
+
+### Autocomplete and IntelliSense
+
+Your editor will provide full autocomplete for all scope properties:
+
+- `myScopes.keyword.` → shows `control`, `operator`, `other`
+- `myScopes.keyword.control.` → shows `conditional`, `exception`, `flow`, etc.
+- `myScopes.string.quoted.` → shows `single`, `double`, `triple`
+
+### Hover Documentation
+
+Hover over any scope to see its full path and type information.
+
+## Best Practices
+
+### 1. Prefer Static Scopes
+
+Use static scopes unless you specifically need dynamic extension:
+
+```typescript
+// ✅ Recommended for production
+const scopes = scopesFor({ suffix: 'mylang', allowScopeExtension: false });
+
+// ⚠️ Only when needed
+const scopes = scopesFor({ suffix: 'mylang', allowScopeExtension: true });
+```
+
+### 2. Use Descriptive Suffixes
+
+Choose clear, standard language identifiers:
+
+```typescript
+// ✅ Good
+scopesFor({ suffix: 'typescript' })
+scopesFor({ suffix: 'python' })
+scopesFor({ suffix: 'rust' })
+
+// ❌ Avoid
+scopesFor({ suffix: 'ts' })
+scopesFor({ suffix: 'py' })
+scopesFor({ suffix: 'rs' })
+```
+
+### 3. Organize Custom Scopes Logically
+
+Group related custom scopes under appropriate categories:
+
+```typescript
+const scopes = scopesFor({ suffix: 'mylang' }, {
+  meta: {
+    // Language structure scopes
+    section: { header: null, body: null },
+    block: { begin: null, end: null }
+  },
+  entity: {
+    // Custom entity types
+    name: { 
+      custom_type: null,
+      special_identifier: null 
+    }
+  }
+});
+```
+
+### 4. Follow TextMate Naming Conventions
+
+Stick to established TextMate scope naming patterns:
+
+- `keyword.control.*` for control flow keywords
+- `string.quoted.*` for string literals
+- `comment.line.*` for line comments
+- `entity.name.*` for identifiers and names
+- `constant.numeric.*` for numeric literals
+
+See the [TextMate scope naming conventions](https://macromates.com/manual/en/language_grammars#naming_conventions) for complete guidelines.
+
+## Performance Considerations
+
+### Static vs Callable Scopes
+
+| Pattern | Performance | Flexibility | Use Case |
+|---------|-------------|-------------|----------|
+| Static (`false`) | ⭐⭐⭐⭐⭐ | ⭐⭐ | Production grammars |
+| On-leafs (`"on-leafs"`) | ⭐⭐⭐⭐ | ⭐⭐⭐ | Balanced approach |
+| Callable (`true`) | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Development/extensible |
+
+### Bundle Size Impact
+
+Static scopes result in smaller bundles because:
+- No function objects are created
+- Better tree-shaking opportunities
+- Simpler object structures
+
+## Migration Guide
+
+If you're updating from an older version:
+
+### Old Pattern
+```typescript
+// Old complex API
+const scopes = scopesFor('mylang');
+const customScopes = scopesFor({ suffix: 'mylang' }, { custom: { token: null } });
+```
+
+### New Pattern
+```typescript
+// New simplified API
+const scopes = scopesFor({ suffix: 'mylang', allowScopeExtension: false });
+const customScopes = scopesFor({ suffix: 'mylang', allowScopeExtension: false }, { 
+  custom: { token: null } 
+});
+```
+
+The new API is more explicit about extension behavior and provides better performance defaults.
+
+## Examples
+
+Check out these complete examples:
+
+- [Simple Example](../examples/simple-example.ts) - Basic static scopes usage
+- [Features Demo](../examples/scope-features-demo.ts) - Comprehensive feature showcase
+- [Bicep Language](../examples/tmgrammar-toolkit/bicep.ts) - Real-world language example
+- [TypeSpec Language](../examples/tmgrammar-toolkit/typespec.ts) - Another real-world example
+
+## Further Reading
+
+- [TMGrammar Toolkit API Reference](./api-reference.md)
+- [TextMate Language Grammars](https://macromates.com/manual/en/language_grammars)
+- [VSCode Syntax Highlighting Guide](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide) 

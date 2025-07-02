@@ -18,16 +18,39 @@ const createRequireFn = createRequire(__filename);
 const { Registry } = createRequireFn('vscode-textmate');
 
 /**
- * Programmatic tester for grammar validation
+ * Programmatic tester for validating TextMate grammar tokenization.
+ * 
+ * Provides methods to tokenize code and verify that tokens receive the expected
+ * scopes. Uses the same VS Code TextMate engine for accurate testing.
+ * 
+ * @example
+ * ```typescript
+ * const tester = new ProgrammaticTester({
+ *   grammarPath: './my-grammar.json',
+ *   scopeName: 'source.mylang'
+ * });
+ * 
+ * await tester.initialize();
+ * const tokens = await tester.tokenize('if (condition) {}');
+ * tester.expectTokenScope(tokens, 'if', 'keyword.control.mylang');
+ * ```
  */
 export class ProgrammaticTester {
   private grammar: IGrammar | null = null;
   private initialized = false;
 
+  /**
+   * Creates a new programmatic tester instance.
+   * 
+   * @param options - Configuration for grammar loading and testing
+   */
   constructor(private options: GrammarInitOptions) {}
 
   /**
-   * Initialize the grammar for testing (copied from scope.test.ts)
+   * Initializes the testing environment by loading the Oniguruma WASM engine
+   * and parsing the grammar file. Must be called before using other methods.
+   * 
+   * @throws {Error} If grammar file is not found or invalid
    */
   async initialize(): Promise<void> {
     if (this.initialized) return;

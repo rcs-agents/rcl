@@ -20,18 +20,63 @@ interface AbstractNamedSection {
 
 // ======== Section System ========
 interface Section extends AbstractNamedSection {
-    configProperties: ConfigProperty[];
-    defaultProperties: DefaultProperty[];
+    sectionType?: string;
+    name?: string;
+    attributes: Attribute[];
+    subSections: Section[];
+    flowRules: FlowRule[];
+    messages: MessageDefinition[];
 }
 
 interface Attribute {
     key: string;
-    value: SimpleValue;
+    value: Value;
+}
+
+interface MessageDefinition {
+    name: string;
+    attributes: Attribute[];
 }
 
 interface AgentAttribute {
     key: string;
     value: SimpleValue;
+}
+
+// ======== Value Types ========
+interface Value {
+    value?: string;
+}
+
+interface StringValue extends Value {
+    value: string;
+}
+
+interface NumberValue extends Value {
+    value: number;
+}
+
+interface BooleanValue extends Value {
+    value: boolean;
+}
+
+interface NullValue extends Value {
+}
+
+interface IdentifierValue extends Value {
+    value: string;
+    isSpaceSeparated?: boolean;
+}
+
+interface EmbeddedExpression extends Value {
+    language: string;
+    content: string;
+    isMultiline: boolean;
+}
+
+interface EmbeddedCodeBlock extends Value {
+    language: string;
+    content: string[];
 }
 
 // ======== Collection Types ========
@@ -320,8 +365,9 @@ interface Parameter {
 }
 
 interface ImportStatement {
-    source: string[];
+    importedNames: string[];
     alias?: string;
+    source?: string;
 }
 
 interface FlowContent {
@@ -338,16 +384,36 @@ interface EmbeddedCodeBlock {
 }
 
 interface FlowRule {
-    source: string;
-    destination?: @AbstractNamedSection;
-    destinationIsFlow?: boolean;
+    name: string;
+    attributes: Attribute[];
+    nestedRules: FlowRule[];
+    transitions: FlowTransition[];
+    whenClauses: WhenClause[];
+}
+
+interface FlowTransition {
+    source: FlowOperand;
+    destination: FlowOperand;
     withClause?: WithClause;
-    code?: EmbeddedCodeExpression | EmbeddedCodeBlock;
-    rules?: FlowRule[];
+}
+
+interface FlowOperand {
+    operandType: string; // 'atom' | 'string' | 'identifier'
+    value: string;
+}
+
+interface WhenClause {
+    condition: EmbeddedExpression;
+    transitions: FlowTransition[];
 }
 
 interface WithClause {
     parameters: Parameter[];
+}
+
+interface Parameter {
+    name: string;
+    defaultValue: Value;
 }
 
 interface FileAttribute {

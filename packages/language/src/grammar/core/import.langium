@@ -15,8 +15,11 @@ import "./primitives";
  *   import My Brand / Samples as Sample One
  *   import Shared / Common Flows / Support
  *
- * - Each PROPER_NOUN can include spaces (e.g., "My Brand").
- * - The alias after 'as' can also be a space-separated PROPER_NOUN.
+ * - Each IDENTIFIER can include spaces (e.g., "My Brand").
+ * - The alias after 'as' can also be a space-separated IDENTIFIER.
+ * - Optional 'from' clause for specifying source files.
  */
 ImportStatement returns ImportStatement:
-    'import' source+=PROPER_NOUN ( __? '/' __? source+=PROPER_NOUN)* ('as' alias=PROPER_NOUN)?;
+    IMPORT_KW importedNames+=IDENTIFIER ( __? '/' __? importedNames+=IDENTIFIER)* 
+    (AS_KW alias=IDENTIFIER)? 
+    (FROM_KW source=STRING)?;

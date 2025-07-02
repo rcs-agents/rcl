@@ -48,21 +48,55 @@ The beauty here is that you define rules using clean TypeScript objects, and our
 Instead of typing `"keyword.control.conditional"` everywhere and inevitably fat-fingering it, we built a type-safe scopes API:
 
 ```typescript
-import { scopes } from 'tmgrammar-toolkit';
+import { scopesFor } from 'tmgrammar-toolkit';
+
+// Create type-safe scopes for your language (recommended)
+const scopes = scopesFor({ suffix: 'mylang', allowScopeExtension: false });
 
 // This gives you autocomplete and catches typos at compile time
-const conditionalScope = scopes.keyword.control.conditional;
-const withLanguage = scopes.keyword.control.conditional('myLang');
+const conditionalScope = scopes.keyword.control.conditional;  // "keyword.control.conditional.mylang"
 ```
 
-### The Repository Problem
+### Automatic Repository Management 
 
-Here's something that took us way too long to figure out: TextMate grammars use a "repository" to organize patterns, but managing it manually is a nightmare. You end up with duplicate keys, circular references, and patterns that reference things that don't exist.
+**This is the killer feature**: TextMate grammars use a "repository" to organize patterns, but managing it manually is a nightmare. You end up with duplicate keys, circular references, and patterns that reference things that don't exist.
 
 Our emit system solves this by:
-- Automatically building the repository from your rule keys
-- Detecting duplicate keys and throwing clear errors
-- Converting your clean rule objects into the messy JSON format VS Code expects
+- **Automatically collecting rules** with a `key` property during emission
+- **Detecting duplicate keys** and throwing clear errors with helpful context
+- **Converting rule objects** into the messy JSON format VS Code expects
+- **Supporting explicit control** via the `repositoryItems` array when needed
+
+```typescript
+// Rules are automatically collected into the repository
+const keywordRule = { key: 'keywords', match: /\b(if|else)\b/, scope: 'keyword.control' };
+const stringRule = { key: 'strings', begin: /"/, end: /"/, scope: 'string.quoted.double' };
+
+// The emit system builds this repository automatically:
+// {
+//   "repository": {
+//     "keywords": { "match": "\\b(if|else)\\b", "name": "keyword.control" },
+//     "strings": { "begin": "\"", "end": "\"", "name": "string.quoted.double" }
+//   }
+// }
+```
+
+### The `meta` Symbol System
+
+The special `meta` symbol gets expanded to `meta.<rule_key>.<grammar_name>` during emission, providing structural scopes without boilerplate:
+
+```typescript
+import { meta } from 'tmgrammar-toolkit';
+
+const functionRule: BeginEndRule = {
+  key: 'function-declaration',
+  scope: meta,  // Expands to "meta.function-declaration.mylang"
+  begin: /function\s+(\w+)/,
+  // ...
+};
+```
+
+This creates consistent, meaningful meta scopes that help editors understand code structure.
 
 ## Module Deep Dive
 
@@ -165,7 +199,7 @@ const results = await validateRegexPatterns([
 ]);
 ```
 
-This uses the actual Oniguruma engine that VS Code uses, so you're testing against the real thing.
+**This uses the actual Oniguruma engine that VS Code uses**, so you're testing against the real thing. This catches regex issues that would only surface when your grammar is loaded in an editor, saving hours of debugging.
 
 #### Scope Validation (`/validation/scope.ts`)
 ```typescript
@@ -425,5 +459,50 @@ console.log(`Tokenized ${largeCodeSample.length} chars in ${time}ms`);
 This toolkit is designed to grow with your needs. We're constantly adding new terminals and helpers based on patterns we see across different grammars. 
 
 If you find yourself writing the same pattern multiple times, consider contributing it back to the terminals library. And if you run into edge cases our validation doesn't catch, let us know - we want this toolkit to save you from the same mistakes we made.
+
+## Bun Integration and CLI
+
+### Seamless TypeScript Development
+
+**The toolkit's CLI seamlessly integrates with Bun** to handle TypeScript files on-the-fly without requiring a separate build step. This is a major developer experience improvement:
+
+```bash
+# Works directly with TypeScript - no build step needed!
+bunx tmt emit my-grammar.ts -o output.json
+bunx tmt validate my-grammar.ts specificExport
+bunx tmt test 'tests/**/*.test' -g my-grammar.ts
+```
+
+### CLI Design Philosophy
+
+The CLI is designed around the principle that **grammar development should be as frictionless as possible**:
+
+- **Direct TypeScript Support**: Import and execute `.ts` files directly
+- **Named Export Support**: Validate or emit specific exports from files  
+- **Rich Error Messages**: Clear, actionable error messages with source locations
+- **Multiple Output Formats**: JSON, Plist, and YAML emission
+
+```bash
+# Emit specific named export
+tmt emit grammar.ts mySpecialGrammar --plist -o output.tmLanguage
+
+# Validate with helpful output
+tmt validate grammar.ts --verbose
+```
+
+### Why This Matters
+
+Traditional TextMate grammar development involves:
+1. Write TypeScript
+2. Build to JavaScript
+3. Generate grammar JSON
+4. Test in editor
+5. Debug issues
+6. Repeat
+
+With our toolkit:
+1. Write TypeScript
+2. Test directly: `tmt emit grammar.ts | code --stdin`
+3. Iterate
 
 The goal isn't just to make TextMate grammars easier to write - it's to make them easier to maintain, test, and understand. Because at the end of the day, code that other people (including future you) can actually work with is code that ships. 

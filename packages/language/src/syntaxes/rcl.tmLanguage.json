@@ -10,79 +10,46 @@
       "include": "#import-statement"
     },
     {
-      "include": "#section-keywords"
+      "include": "#agent-section"
     },
     {
-      "include": "#message-section-keywords"
+      "include": "#agent-config-section"
     },
     {
-      "include": "#reserved-section-names"
+      "include": "#agent-defaults-section"
     },
     {
-      "include": "#section"
+      "include": "#flow-section"
     },
     {
-      "include": "#sl-comment"
+      "include": "#messages-section"
+    },
+    {
+      "include": "#message-definition"
+    },
+    {
+      "include": "#message-shortcut"
+    },
+    {
+      "include": "#section-name"
+    },
+    {
+      "include": "#section-separator"
+    },
+    {
+      "include": "#hash-comment"
     }
   ],
   "repository": {
-    "atom-literal": {
-      "name": "constant.other.rcl.symbol",
-      "match": " "
-    },
-    "attribute-access": {
-      "name": "meta.path.rcl",
-      "begin": " ",
+    "agent-config-section": {
+      "begin": "\\bagentConfig\\b",
+      "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
+      "name": "meta.rcl.section",
       "beginCaptures": {
         "0": {
-          "name": "punctuation.accessor.rcl"
+          "name": "keyword.control.rcl.section"
         }
       },
-      "end": "(?=\\s|[,)\\]}])",
-      "patterns": [
-        {
-          "include": "#proper-noun"
-        },
-        {
-          "include": "#common-noun"
-        }
-      ]
-    },
-    "boolean-literal": {
-      "name": "constant.language.rcl",
-      "match": "( | )"
-    },
-    "common-noun": {
-      "name": "variable.other.rcl",
-      "match": " "
-    },
-    "embedded-code": {
-      "name": "markup.raw.block.rcl",
-      "begin": " ",
-      "beginCaptures": {
-        "1": {
-          "name": "punctuation.definition.keyword.rcl"
-        },
-        "2": {
-          "name": "entity.name.tag.rcl"
-        }
-      },
-      "end": " ",
-      "endCaptures": {
-        "1": {
-          "name": "punctuation.definition.keyword.rcl"
-        }
-      },
-      "patterns": [
-        {
-          "include": "source.js"
-        }
-      ]
-    },
-    "explicit-map": {
-      "name": "meta.braces.rcl",
-      "begin": " ",
-      "end": " ",
       "patterns": [
         {
           "include": "#string-literal"
@@ -100,13 +67,199 @@
           "include": "#atom-literal"
         },
         {
-          "include": "#proper-noun"
+          "include": "#attribute-key"
         },
         {
-          "include": "#common-noun"
+          "include": "#hash-comment"
+        }
+      ]
+    },
+    "agent-defaults-section": {
+      "begin": "\\bagentDefaults\\b",
+      "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
+      "name": "meta.rcl.section",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.control.rcl.section"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#string-literal"
         },
         {
-          "include": "#indented-list"
+          "include": "#number-literal"
+        },
+        {
+          "include": "#boolean-literal"
+        },
+        {
+          "include": "#null-literal"
+        },
+        {
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#attribute-key"
+        },
+        {
+          "include": "#hash-comment"
+        }
+      ]
+    },
+    "agent-section": {
+      "begin": "\\bagent\\b",
+      "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
+      "name": "meta.rcl.section",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.control.rcl.section"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#string-literal"
+        },
+        {
+          "include": "#number-literal"
+        },
+        {
+          "include": "#boolean-literal"
+        },
+        {
+          "include": "#null-literal"
+        },
+        {
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#attribute-key"
+        },
+        {
+          "include": "#hash-comment"
+        }
+      ]
+    },
+    "atom-literal": {
+      "match": ":([_a-zA-Z][\\w_]*|\"[^\"\\\\]*\")",
+      "name": "constant.other.rcl"
+    },
+    "attribute-access": {
+      "name": "meta.path.rcl",
+      "begin": "\\.",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.accessor.rcl"
+        }
+      },
+      "end": "(?=\\s|[,)\\]}])",
+      "patterns": [
+        {
+          "include": "#space-separated-identifier"
+        },
+        {
+          "include": "#attribute-key"
+        },
+        {
+          "include": "#section-type"
+        }
+      ]
+    },
+    "attribute-key": {
+      "match": "[a-z][a-zA-Z0-9_]*(?=\\s*:)",
+      "name": "undefined"
+    },
+    "boolean-literal": {
+      "match": "\\b(True|Yes|On|Enabled|Active|False|No|Off|Disabled|Inactive)\\b",
+      "name": "constant.language.rcl"
+    },
+    "comma": {
+      "name": "punctuation.separator.comma.rcl",
+      "match": ","
+    },
+    "duration-literal": {
+      "match": "(P((\\d+Y)|(\\d+M)|(\\d+W)|(\\d+D)|(T((\\d+H)|(\\d+M)|(\\d+(\\.\\d+)?S))+))+)|([0-9]+(\\.[0-9]+)?s)",
+      "name": "constant.numeric.duration.rcl"
+    },
+    "embedded-javascript-multi-line": {
+      "begin": "\\$((js|ts)?)>>>",
+      "end": "(?=^(?![ \\t]))",
+      "name": "meta.embedded.block.javascript.rcl",
+      "patterns": [
+        {
+          "match": ".*",
+          "name": "source.js"
+        }
+      ]
+    },
+    "embedded-javascript-single-line": {
+      "match": "\\$((js|ts)?>)\\s*[^\\r\\n]*",
+      "name": "meta.embedded.line.javascript.rcl"
+    },
+    "embedded-typescript-multi-line": {
+      "begin": "\\$((js|ts)?)>>>",
+      "end": "(?=^(?![ \\t]))",
+      "name": "meta.embedded.block.typescript.rcl",
+      "patterns": [
+        {
+          "match": ".*",
+          "name": "source.ts"
+        }
+      ]
+    },
+    "embedded-typescript-single-line": {
+      "match": "\\$((js|ts)?>)\\s*[^\\r\\n]*",
+      "name": "meta.embedded.line.typescript.rcl"
+    },
+    "explicit-map": {
+      "begin": "\\{",
+      "end": "\\}",
+      "name": "undefined",
+      "beginCaptures": {
+        "0": {}
+      },
+      "endCaptures": {
+        "0": {}
+      },
+      "patterns": [
+        {
+          "include": "#duration-literal"
+        },
+        {
+          "include": "#string-literal"
+        },
+        {
+          "include": "#number-literal"
+        },
+        {
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#true-literal"
+        },
+        {
+          "include": "#false-literal"
+        },
+        {
+          "include": "#null-literal"
+        },
+        {
+          "include": "#boolean-literal"
+        },
+        {
+          "include": "#space-separated-identifier"
+        },
+        {
+          "include": "#attribute-key"
+        },
+        {
+          "include": "#section-type"
+        },
+        {
+          "include": "#mapped-type"
+        },
+        {
+          "include": "#parentheses-list"
         },
         {
           "include": "#explicit-map"
@@ -115,28 +268,84 @@
           "include": "#inline-list"
         },
         {
-          "include": "#sl-comment"
+          "include": "#indented-list"
+        },
+        {
+          "include": "#indented-list-item"
+        },
+        {
+          "include": "#comma"
+        },
+        {
+          "include": "#hash-comment"
         }
       ]
     },
-    "flow-rule": {
-      "name": "meta.block.rcl",
-      "begin": " ",
+    "false-literal": {
+      "name": "constant.language.rcl",
+      "match": "\\b(False|No|Off|Disabled|Inactive)\\b"
+    },
+    "flow-arrow": {
+      "match": "->",
+      "name": "keyword.operator.rcl.arrow"
+    },
+    "flow-operand": {
+      "match": "(:([_a-zA-Z][\\w_]*|\"[^\"\\\\]*\")|\"[^\"]*\"|[A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)",
+      "name": "entity.name.rcl.flow-target"
+    },
+    "flow-rule-name": {
+      "match": "([A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)\\s*:",
+      "name": "entity.name.rcl.flow-rule"
+    },
+    "flow-section": {
+      "begin": "\\bflow\\b",
+      "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
+      "name": "meta.rcl.section",
       "beginCaptures": {
-        "1": {
-          "name": "entity.name.function.rcl"
-        },
-        "2": {
-          "name": "keyword.operator.logical.rcl"
+        "0": {
+          "name": "keyword.control.rcl.section"
         }
       },
-      "end": " ",
       "patterns": [
         {
-          "include": "#proper-noun"
+          "include": "#string-literal"
         },
         {
-          "include": "#common-noun"
+          "include": "#number-literal"
+        },
+        {
+          "include": "#boolean-literal"
+        },
+        {
+          "include": "#null-literal"
+        },
+        {
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#attribute-key"
+        },
+        {
+          "include": "#hash-comment"
+        }
+      ]
+    },
+    "flow-transition": {
+      "begin": "(?=\\s*(:([_a-zA-Z][\\w_]*|\"[^\"\\\\]*\")|\"[^\"]*\"|[A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)\\s*->)",
+      "end": "(?=^(?![ \\t]))",
+      "name": "meta.flow-transition.rcl",
+      "patterns": [
+        {
+          "include": "#flow-arrow"
+        },
+        {
+          "include": "#flow-operand"
+        },
+        {
+          "include": "#with-clause"
+        },
+        {
+          "include": "#when-clause"
         }
       ]
     },
@@ -161,7 +370,10 @@
           "include": "#multi-line-expression"
         },
         {
-          "include": "#type-conversion"
+          "include": "#type-tag-with-value"
+        },
+        {
+          "include": "#duration-literal"
         },
         {
           "include": "#string-literal"
@@ -170,13 +382,22 @@
           "include": "#number-literal"
         },
         {
-          "include": "#boolean-literal"
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#true-literal"
+        },
+        {
+          "include": "#false-literal"
         },
         {
           "include": "#null-literal"
         },
         {
-          "include": "#atom-literal"
+          "include": "#boolean-literal"
+        },
+        {
+          "include": "#duration-literal"
         },
         {
           "include": "#string-literal"
@@ -185,55 +406,65 @@
           "include": "#number-literal"
         },
         {
-          "include": "#boolean-literal"
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#true-literal"
+        },
+        {
+          "include": "#false-literal"
         },
         {
           "include": "#null-literal"
         },
         {
-          "include": "#atom-literal"
+          "include": "#boolean-literal"
         },
         {
-          "include": "#proper-noun"
+          "include": "#space-separated-identifier"
         },
         {
-          "include": "#common-noun"
+          "include": "#attribute-key"
         },
         {
-          "include": "#sl-comment"
+          "include": "#section-type"
         },
         {
-          "include": "#type-conversion"
+          "include": "#hash-comment"
+        },
+        {
+          "include": "#type-tag-with-value"
         }
       ]
     },
-    "import-alias": {
-      "name": "variable.other.readwrite.rcl",
-      "match": " "
+    "hash-comment": {
+      "match": "#[^\\r\\n]*",
+      "name": "comment.line.number-sign.rcl"
     },
     "import-statement": {
-      "name": "meta.block.rcl.import",
-      "begin": " ",
+      "begin": "\\bimport\\b",
+      "end": "$",
+      "name": "meta.import.rcl",
       "beginCaptures": {
-        "0": {
-          "name": "keyword.control.import.rcl"
-        }
+        "0": {}
       },
-      "end": "(?=\\n)",
       "patterns": [
+        {
+          "include": "#namespace-path"
+        },
         {
           "include": "#import-alias"
         },
         {
-          "include": "#string-literal"
+          "include": "#from-clause"
         }
       ]
     },
     "indented-list": {
-      "name": "meta.block.rcl",
-      "begin": " ",
-      "end": "(?=\\n)",
       "patterns": [
+        {
+          "include": "#duration-literal"
+        },
         {
           "include": "#string-literal"
         },
@@ -241,22 +472,34 @@
           "include": "#number-literal"
         },
         {
-          "include": "#boolean-literal"
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#true-literal"
+        },
+        {
+          "include": "#false-literal"
         },
         {
           "include": "#null-literal"
         },
         {
-          "include": "#atom-literal"
+          "include": "#boolean-literal"
         },
         {
-          "include": "#proper-noun"
+          "include": "#space-separated-identifier"
         },
         {
-          "include": "#common-noun"
+          "include": "#attribute-key"
         },
         {
-          "include": "#indented-list"
+          "include": "#section-type"
+        },
+        {
+          "include": "#mapped-type"
+        },
+        {
+          "include": "#parentheses-list"
         },
         {
           "include": "#explicit-map"
@@ -265,14 +508,167 @@
           "include": "#inline-list"
         },
         {
-          "include": "#sl-comment"
+          "include": "#indented-list"
+        },
+        {
+          "include": "#indented-list-item"
+        },
+        {
+          "include": "#comma"
+        },
+        {
+          "include": "#hash-comment"
         }
       ]
+    },
+    "indented-list-item": {
+      "match": "(-)\\s*(.+)",
+      "name": "meta.list.item.rcl"
     },
     "inline-list": {
-      "name": "meta.brackets.rcl",
-      "begin": " ",
-      "end": " ",
+      "begin": "\\[",
+      "end": "\\]",
+      "name": "meta.list.inline.rcl",
+      "beginCaptures": {
+        "0": {}
+      },
+      "endCaptures": {
+        "0": {}
+      },
+      "patterns": [
+        {
+          "include": "#duration-literal"
+        },
+        {
+          "include": "#string-literal"
+        },
+        {
+          "include": "#number-literal"
+        },
+        {
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#true-literal"
+        },
+        {
+          "include": "#false-literal"
+        },
+        {
+          "include": "#null-literal"
+        },
+        {
+          "include": "#boolean-literal"
+        },
+        {
+          "include": "#space-separated-identifier"
+        },
+        {
+          "include": "#attribute-key"
+        },
+        {
+          "include": "#section-type"
+        },
+        {
+          "include": "#mapped-type"
+        },
+        {
+          "include": "#parentheses-list"
+        },
+        {
+          "include": "#explicit-map"
+        },
+        {
+          "include": "#inline-list"
+        },
+        {
+          "include": "#indented-list"
+        },
+        {
+          "include": "#indented-list-item"
+        },
+        {
+          "include": "#comma"
+        },
+        {
+          "include": "#hash-comment"
+        }
+      ]
+    },
+    "mapped-type": {
+      "begin": "([A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)\\s+(list)\\s+(of)\\s*\\(",
+      "end": "\\)(\\s*:)",
+      "name": "meta.type.mapped.rcl",
+      "beginCaptures": {
+        "1": {},
+        "4": {},
+        "5": {}
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.rcl.type-end"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#map-content"
+        }
+      ]
+    },
+    "message-definition": {
+      "name": "meta.rcl.message.definition",
+      "begin": "([A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)\\s*(:)",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.rcl.message"
+        },
+        "3": {
+          "name": "undefined"
+        }
+      },
+      "end": "(?=^[A-Z])",
+      "patterns": [
+        {
+          "include": "#agent-message-keyword"
+        },
+        {
+          "include": "#content-message-keyword"
+        },
+        {
+          "include": "#suggestion-keyword"
+        },
+        {
+          "include": "#attribute-key"
+        },
+        {
+          "include": "#string-literal"
+        },
+        {
+          "include": "#embedded-code-line"
+        }
+      ]
+    },
+    "message-shortcut": {
+      "name": "meta.rcl.message.shortcut",
+      "match": "(\\b(?:text|richCard|carousel|rbmFile|file)\\b)\\s+(.+)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.rcl"
+        },
+        "2": {
+          "name": "string.unquoted.rcl"
+        }
+      }
+    },
+    "messages-section": {
+      "begin": "\\bmessages\\b",
+      "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
+      "name": "meta.rcl.section",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.control.rcl.section"
+        }
+      },
       "patterns": [
         {
           "include": "#string-literal"
@@ -290,38 +686,22 @@
           "include": "#atom-literal"
         },
         {
-          "include": "#proper-noun"
+          "include": "#attribute-key"
         },
         {
-          "include": "#common-noun"
-        },
-        {
-          "include": "#indented-list"
-        },
-        {
-          "include": "#explicit-map"
-        },
-        {
-          "include": "#inline-list"
-        },
-        {
-          "include": "#sl-comment"
+          "include": "#hash-comment"
         }
       ]
-    },
-    "message-section-keywords": {
-      "name": "storage.type.class.rcl",
-      "match": " "
     },
     "multi-line-expression": {
       "name": "meta.interpolation.rcl",
-      "begin": " ",
+      "begin": "\\$((js|ts)?)>>>",
       "beginCaptures": {
         "1": {
           "name": "punctuation.section.interpolation.begin.rcl"
         }
       },
-      "end": " ",
+      "end": "(?=^[ \\t]*(?:[^ \\t\\n\\r]|$))",
       "endCaptures": {
         "1": {
           "name": "punctuation.section.interpolation.end.rcl"
@@ -329,136 +709,128 @@
       },
       "patterns": [
         {
+          "include": "#duration-literal"
+        },
+        {
           "include": "#string-literal"
         },
         {
           "include": "#number-literal"
         },
         {
-          "include": "#boolean-literal"
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#true-literal"
+        },
+        {
+          "include": "#false-literal"
         },
         {
           "include": "#null-literal"
         },
         {
-          "include": "#atom-literal"
+          "include": "#boolean-literal"
         }
       ]
     },
-    "multi-line-string": {
-      "name": "string.quoted.rcl.multiline",
-      "begin": "( | | | )",
-      "end": " ",
-      "patterns": []
+    "multiline-string-clean": {
+      "begin": "\\|(?=\\s*(?:\\r?\\n|$))",
+      "end": "(?=^(?![ \\t]))",
+      "name": "string.unquoted.rcl",
+      "patterns": [
+        {
+          "match": ".*",
+          "name": "string.unquoted.rcl"
+        }
+      ]
+    },
+    "multiline-string-preserve": {
+      "begin": "\\+\\|(?=\\s*(?:\\r?\\n|$))",
+      "end": "(?=^(?![ \\t]))",
+      "name": "string.unquoted.rcl",
+      "patterns": [
+        {
+          "match": ".*",
+          "name": "string.unquoted.rcl"
+        }
+      ]
+    },
+    "multiline-string-preserve-all": {
+      "begin": "\\+\\|\\+(?=\\s*(?:\\r?\\n|$))",
+      "end": "(?=^(?![ \\t]))",
+      "name": "string.unquoted.rcl",
+      "patterns": [
+        {
+          "match": ".*",
+          "name": "string.unquoted.rcl"
+        }
+      ]
+    },
+    "multiline-string-trim": {
+      "begin": "\\|-(?=\\s*(?:\\r?\\n|$))",
+      "end": "(?=^(?![ \\t]))",
+      "name": "string.unquoted.rcl",
+      "patterns": [
+        {
+          "match": ".*",
+          "name": "string.unquoted.rcl"
+        }
+      ]
     },
     "null-literal": {
-      "name": "constant.language.rcl",
-      "match": "Null"
+      "match": "\\b(Null|None|Void|null)\\b",
+      "name": "constant.language.rcl"
     },
     "number-literal": {
-      "name": "constant.numeric.rcl",
-      "match": " "
+      "match": "[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?",
+      "name": "constant.numeric.rcl"
     },
     "operators": {
       "name": "keyword.operator.rcl",
-      "match": " "
+      "match": "(-|->|\\+|\\*|\\/|%|==|!=|<=|>=|<|>|and|or|not|is)"
     },
-    "proper-noun": {
-      "name": "entity.name.class.rcl",
-      "match": " "
-    },
-    "reserved-section-names": {
-      "name": "entity.name.class.rcl.predefined",
-      "match": " "
-    },
-    "section": {
-      "name": "meta.block.rcl",
-      "begin": " ",
+    "parentheses-list": {
+      "begin": "\\(",
+      "end": "\\)",
+      "name": "meta.list.parentheses.rcl",
       "beginCaptures": {
-        "1": {
-          "name": "storage.type.class.rcl"
-        },
-        "2": {
-          "name": "entity.name.class.rcl"
-        },
-        "3": {
-          "name": "entity.name.class.rcl.predefined"
-        }
+        "0": {}
       },
-      "end": " ",
+      "endCaptures": {
+        "0": {}
+      },
       "patterns": [
         {
-          "include": "#string-literal"
-        },
-        {
-          "include": "#number-literal"
-        },
-        {
-          "include": "#boolean-literal"
-        },
-        {
-          "include": "#null-literal"
-        },
-        {
-          "include": "#atom-literal"
-        },
-        {
-          "include": "#proper-noun"
-        },
-        {
-          "include": "#common-noun"
-        },
-        {
-          "include": "#indented-list"
-        },
-        {
-          "include": "#explicit-map"
-        },
-        {
-          "include": "#inline-list"
-        },
-        {
-          "include": "#multi-line-string"
-        },
-        {
-          "include": "#flow-rule"
-        },
-        {
-          "include": "#sl-comment"
-        },
-        {
-          "include": "#embedded-code"
-        },
-        {
-          "include": "#type-conversion"
-        },
-        {
-          "include": "#section-keywords"
-        },
-        {
-          "include": "#message-section-keywords"
-        },
-        {
-          "include": "#reserved-section-names"
-        },
-        {
-          "include": "#section"
+          "include": "#list-content"
         }
       ]
     },
-    "section-keywords": {
-      "name": "meta.block.rcl",
-      "match": " "
+    "quoted-string": {
+      "match": "\"(\\\\.|[^\"\\\\])*\"",
+      "name": "string.quoted.double.rcl"
+    },
+    "section-name": {
+      "name": "entity.name.section.rcl",
+      "match": "[A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*"
+    },
+    "section-separator": {
+      "name": "undefined",
+      "match": ":"
+    },
+    "section-type": {
+      "match": "[a-z][a-zA-Z0-9_]*\\b",
+      "name": "keyword.control.rcl.section"
     },
     "single-line-expression": {
       "name": "meta.interpolation.rcl",
-      "begin": " ",
+      "begin": "\\$((js|ts)?>)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.section.interpolation.begin.rcl"
         }
       },
-      "end": " ",
+      "end": "(?=\\r?\\n)",
       "endCaptures": {
         "1": {
           "name": "punctuation.section.interpolation.end.rcl"
@@ -466,68 +838,102 @@
       },
       "patterns": [
         {
+          "include": "#duration-literal"
+        },
+        {
           "include": "#string-literal"
         },
         {
           "include": "#number-literal"
         },
         {
-          "include": "#boolean-literal"
+          "include": "#atom-literal"
+        },
+        {
+          "include": "#true-literal"
+        },
+        {
+          "include": "#false-literal"
         },
         {
           "include": "#null-literal"
         },
         {
-          "include": "#atom-literal"
+          "include": "#boolean-literal"
         }
       ]
     },
-    "sl-comment": {
-      "name": "comment.line.double-slash.rcl",
-      "match": " "
+    "space-separated-identifier": {
+      "match": "[A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*",
+      "name": "entity.name.rcl.identifier"
     },
     "string-literal": {
-      "name": "string.quoted.double.rcl",
-      "match": " "
+      "match": "\"(\\\\.|[^\"\\\\])*\"",
+      "name": "string.quoted.double.rcl"
     },
-    "type-conversion": {
-      "name": "meta.type.rcl",
-      "begin": " ",
+    "true-literal": {
+      "name": "constant.language.rcl",
+      "match": "\\b(True|Yes|On|Enabled|Active)\\b"
+    },
+    "type-tag-with-value": {
+      "begin": "<",
+      "end": ">",
+      "name": "meta.type-tag.rcl",
       "beginCaptures": {
-        "1": {
-          "name": "punctuation.definition.generic.begin.rcl"
-        },
-        "2": {
-          "name": "storage.type.rcl"
+        "0": {
+          "name": "punctuation.definition.rcl.tag-begin"
         }
       },
-      "end": ">",
       "endCaptures": {
         "0": {
-          "name": "punctuation.definition.generic.end.rcl"
+          "name": "punctuation.definition.rcl.tag-end"
         }
       },
       "patterns": [
         {
-          "include": "#string-literal"
+          "include": "#type-name"
         },
         {
-          "include": "#number-literal"
+          "include": "#type-value"
         },
         {
-          "include": "#boolean-literal"
+          "include": "#type-modifier"
+        }
+      ]
+    },
+    "when-clause": {
+      "begin": "\\bwhen\\b",
+      "end": "(?=^(?![ \\t]))",
+      "name": "meta.when-clause.rcl",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.control.rcl.flow"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#flow-condition"
         },
         {
-          "include": "#null-literal"
+          "include": "#flow-transition"
+        }
+      ]
+    },
+    "with-clause": {
+      "begin": "\\bwith\\b",
+      "end": "(?=^(?![ \\t]))",
+      "name": "meta.with-clause.rcl",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.control.rcl.flow"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#flow-parameter"
         },
         {
-          "include": "#atom-literal"
-        },
-        {
-          "include": "#proper-noun"
-        },
-        {
-          "include": "#common-noun"
+          "include": "#attribute-key"
         }
       ]
     }

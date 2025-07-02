@@ -24,11 +24,10 @@ import "./specialized/flow-rules";
 import "./specialized/configuration";
 
 // ======== Entry Point ========
-// An RCL file consists of zero or more import statements and empty lines,
-// followed by a single top-level section.
+// An RCL file consists of zero or more import statements followed by zero or more sections.
 entry RclFile:
-    (imports+=ImportStatement | emptyLines+=EmptyLine)*
-    agentSection=Section;
+    (imports+=ImportStatement)*
+    (sections+=Section)*;
 
 // NOTE: ImportStatement is defined in ./core/import.langium
 

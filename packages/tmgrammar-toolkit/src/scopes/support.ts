@@ -1,5 +1,66 @@
 import { buildScopes } from './lib/internal.js';
-import type { Scope, ScopeTree } from './types.js';
+
+/**
+ * Raw support scope definitions used for building the scope tree
+ */
+export const SUPPORT_SCOPE_DEFINITION = {
+    /**
+     * Represents the `support.function` scope.
+     * Library functions (`console.log`, `NSLog`).
+     * Full path: `support.function`
+     * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
+     */
+    function: {
+      /**
+       * Represents the `support.function.builtin` scope.
+       * Built-in functions provided by the language.
+       * Full path: `support.function.builtin`
+       */
+      builtin: null,
+    },
+
+    /**
+     * Represents the `support.class` scope.
+     * Library classes.
+     * Full path: `support.class`
+     * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
+     */
+    class: null,
+
+    /**
+     * Represents the `support.type` scope.
+     * Library types.
+     * Full path: `support.type`
+     * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
+     */
+    type: null,
+
+    /**
+     * Represents the `support.constant` scope.
+     * Library constants.
+     * Full path: `support.constant`
+     * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
+     */
+    constant: null,
+
+    /**
+     * Represents the `support.variable` scope.
+     * Library variables.
+     * Full path: `support.variable`
+     * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
+     */
+    variable: null,
+
+    /**
+     * Represents the `support.module` scope.
+     * Library modules.
+     * Full path: `support.module`
+     * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
+     */
+    module: null,
+  };
+
+export const SUPPORT_SCOPE = buildScopes({ prefix: 'support' }, SUPPORT_SCOPE_DEFINITION);
 
 /**
  * Root scope for `support`.
@@ -15,70 +76,4 @@ import type { Scope, ScopeTree } from './types.js';
  * scopes.support.constant // "support.constant"
  * ```
  */
-export type SupportScope = ScopeTree<'support', {
-  /**
-   * Represents the `support.function` scope.
-   * Library functions (`console.log`, `NSLog`).
-   * Full path: `support.function`
-   * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
-   */
-  function: ScopeTree<'function', {
-    /**
-     * Represents the `support.function.builtin` scope.
-     * Built-in functions provided by the language.
-     * Full path: `support.function.builtin`
-     */
-    builtin: Scope<'builtin'>;
-  }>;
-
-  /**
-   * Represents the `support.class` scope.
-   * Library classes.
-   * Full path: `support.class`
-   * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
-   */
-  class: Scope<'class'>;
-
-  /**
-   * Represents the `support.type` scope.
-   * Library types.
-   * Full path: `support.type`
-   * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
-   */
-  type: Scope<'type'>;
-
-  /**
-   * Represents the `support.constant` scope.
-   * Library constants.
-   * Full path: `support.constant`
-   * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
-   */
-  constant: Scope<'constant'>;
-
-  /**
-   * Represents the `support.module` scope.
-   * Library modules.
-   * Full path: `support.module`
-   * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
-   */
-  module: Scope<'module'>;
-
-  /**
-   * Represents the `support.variable` scope.
-   * Library variables.
-   * Full path: `support.variable`
-   * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
-   */
-  variable: Scope<'variable'>;
-}>;
-
-export const SUPPORT_SCOPE: SupportScope = buildScopes<SupportScope>([
-  ['function', [
-    ['builtin', []]
-  ]],
-  ['class', []],
-  ['type', []],
-  ['constant', []],
-  ['variable', []],
-  ['module', []],
-], 'support'); 
+export type SupportScope = typeof SUPPORT_SCOPE; 

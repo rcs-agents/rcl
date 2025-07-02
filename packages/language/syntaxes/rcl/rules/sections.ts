@@ -1,38 +1,185 @@
-import type { BeginEndRule, MatchRule, Rule } from 'tmgrammar-toolkit';
-import { scopesFor } from 'tmgrammar-toolkit';
+import type { MatchRule, BeginEndRule, IncludeRule } from 'tmgrammar-toolkit';
 import { R } from '../regex.js';
+import { scopeGroups } from '../scopes.js';
 
-const scopes = scopesFor('rcl');
+// Define what can be inside sections to avoid circular dependency
+const sectionPatterns = [
+    { include: '#string-literal' },
+    { include: '#number-literal' },
+    { include: '#boolean-literal' },
+    { include: '#null-literal' },
+    { include: '#atom-literal' },
+    { include: '#attribute-key' },
+    { include: '#hash-comment' },
+];
 
-const sectionKeywords: MatchRule = {
-    key: 'section-keywords',
-    scope: scopes.meta.block,
-    match: R.SECTION_TYPE,
-};
-
-const messageSectionKeywords: MatchRule = {
-    key: 'message-section-keywords',
-    scope: scopes.storage.type.class,
-    match: R.MESSAGE_SECTION_TYPE,
-};
-
-const reservedSectionNames: MatchRule = {
-    key: 'reserved-section-names',
-    scope: scopes.entity.name.class('predefined'),
-    match: R.RESERVED_SECTION_NAMES,
-};
-
-export const section: BeginEndRule = {
-    key: 'section',
-    scope: scopes.meta.block,
-    begin: R.SECTION_BEGIN,
+/**
+ * Agent section
+ * Examples: agent BMW Customer Service Agent:
+ */
+export const agentSection: BeginEndRule = {
+    key: 'agent-section',
+    begin: R.AGENT_KW,
+    end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
+    scope: scopeGroups.meta.section,
     beginCaptures: {
-        '1': { scope: scopes.storage.type.class }, // sectionType
-        '2': { scope: scopes.entity.name.class }, // sectionName
-        '3': { scope: scopes.entity.name.class('predefined') }, // reservedName
+        '0': { scope: scopeGroups.keywords.section }
     },
-    end: R.SECTION_END,
-    patterns: [],
+    patterns: sectionPatterns
 };
 
-export const allSections: Rule[] = [sectionKeywords, messageSectionKeywords, reservedSectionNames, section];
+/**
+ * Agent config section
+ * Examples: agentConfig Config:
+ */
+export const agentConfigSection: BeginEndRule = {
+    key: 'agent-config-section',
+    begin: R.AGENT_CONFIG_KW,
+    end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
+    scope: scopeGroups.meta.section,
+    beginCaptures: {
+        '0': { scope: scopeGroups.keywords.section }
+    },
+    patterns: sectionPatterns
+};
+
+/**
+ * Agent defaults section
+ * Examples: agentDefaults Defaults:
+ */
+export const agentDefaultsSection: BeginEndRule = {
+    key: 'agent-defaults-section',
+    begin: R.AGENT_DEFAULTS_KW,
+    end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
+    scope: scopeGroups.meta.section,
+    beginCaptures: {
+        '0': { scope: scopeGroups.keywords.section }
+    },
+    patterns: sectionPatterns
+};
+
+/**
+ * Flow section
+ * Examples: flow Welcome Flow:, flows:
+ */
+export const flowSection: BeginEndRule = {
+    key: 'flow-section',
+    begin: R.FLOW_KW,
+    end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
+    scope: scopeGroups.meta.section,
+    beginCaptures: {
+        '0': { scope: scopeGroups.keywords.section }
+    },
+    patterns: sectionPatterns
+};
+
+/**
+ * Flows section
+ */
+export const flowsSection: BeginEndRule = {
+    key: 'flows-section',
+    begin: R.FLOWS_KW,
+    end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
+    scope: scopeGroups.meta.section,
+    beginCaptures: {
+        '0': { scope: scopeGroups.keywords.section }
+    },
+    patterns: sectionPatterns
+};
+
+/**
+ * Messages section
+ * Examples: messages Messages:
+ */
+export const messagesSection: BeginEndRule = {
+    key: 'messages-section',
+    begin: R.MESSAGES_KW,
+    end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
+    scope: scopeGroups.meta.section,
+    beginCaptures: {
+        '0': { scope: scopeGroups.keywords.section }
+    },
+    patterns: sectionPatterns
+};
+
+/**
+ * Message definition
+ * Examples: Welcome Message:, Support Response:
+ */
+export const messageDefinition: BeginEndRule = {
+    key: 'message-definition',
+    scope: scopeGroups.meta.messageDefinition,
+    begin: /([A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*)\s*(:)/,
+    beginCaptures: {
+        1: { scope: scopeGroups.identifiers.messageName }, // message name
+        3: { scope: scopeGroups.punctuation.colon }, // :
+    },
+    end: /(?=^[A-Z])/m,
+    patterns: [
+        { include: '#agent-message-keyword' },
+        { include: '#content-message-keyword' },
+        { include: '#suggestion-keyword' },
+        { include: '#attribute-key' },
+        { include: '#string-literal' },
+        { include: '#embedded-code-line' },
+    ],
+};
+
+/**
+ * Message shortcuts (text, richCard, etc.)
+ */
+export const messageShortcut: MatchRule = {
+    key: 'message-shortcut',
+    scope: scopeGroups.meta.messageShortcut,
+    match: /(\b(?:text|richCard|carousel|rbmFile|file)\b)\s+(.+)/,
+    captures: {
+        1: { scope: scopeGroups.keywords.message }, // shortcut type
+        2: { scope: scopeGroups.literals.string.unquoted }, // shortcut content
+    },
+};
+
+/**
+ * Section names (space-separated identifiers)
+ */
+export const sectionName: MatchRule = {
+    key: 'section-name',
+    scope: scopeGroups.identifiers.sectionName,
+    match: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*/,
+};
+
+/**
+ * Section separator (colon)
+ */
+export const sectionSeparator: MatchRule = {
+    key: 'section-separator',
+    scope: scopeGroups.punctuation.colon,
+    match: R.COLON,
+};
+
+/**
+ * Generic section (for patterns to be added dynamically)
+ */
+export const section: IncludeRule = {
+    key: 'section',
+    patterns: [
+        agentSection,
+        agentDefaultsSection,
+        agentConfigSection,
+        flowSection,
+        flowsSection,
+        messagesSection
+    ]
+};
+
+export const allSections = [
+    agentSection,
+    agentConfigSection,
+    agentDefaultsSection,
+    flowSection,
+    messagesSection,
+    messageDefinition,
+    messageShortcut,
+    sectionName,
+    sectionSeparator,
+    // Removed 'section' to prevent circular reference - individual sections are already included
+];

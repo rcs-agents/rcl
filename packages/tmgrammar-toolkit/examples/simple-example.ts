@@ -1,114 +1,87 @@
 /**
- * Simple example demonstrating the tmgrammar-toolkit core API
+ * Simple Language Grammar - TMGrammar Toolkit Example
+ * 
+ * This example demonstrates the core features of tmgrammar-toolkit:
+ * • Type-safe scopes with scopesFor
+ * • Pre-built terminal patterns
+ * • Regex helpers for readable patterns
+ * • Clean grammar creation
  */
 
-import {
-  createGrammar,
-  emitJSON,
-  scopesFor,
-  regex as R,
-  type MatchRule,
-  type BeginEndRule,
-  type IncludeRule,
-  type Grammar,
-  type Rule,
-  r,
-} from '#src';
-import { COMMENT, DOT } from '#src/terminals';
+import { createGrammar, scopesFor, regex, type Grammar } from '#src';
+import { COMMENT, NUM, ID } from '#src/terminals';
 
-const scopes = scopesFor('simple');
+// 1. Create type-safe scopes for your language
+const scopes = scopesFor(
+  { suffix: 'simple', allowScopeExtension: false },
+  { custom: { emphasis: null } }
+);
 
-// Example 1: Basic patterns using the core API
-const lineComment: MatchRule = {
+// 2. Define patterns using helpers and terminals
+
+// Keywords using regex helper
+const keywords = {
+  key: 'keywords',
+  scope: scopes.keyword.control,
+  match: regex.keywords(['if', 'else', 'while', 'for', 'function', 'return'])
+};
+
+// Line comments using terminal pattern
+const lineComment = {
   key: 'line-comment',
   scope: scopes.comment.line.double_slash,
-  match: r(COMMENT.SLASHES, /.*(?=$)/)
+  match: regex.concat(COMMENT.SLASHES, /.*$/)
 };
 
-const stringEscape: MatchRule = {
-  key: 'string-escape',
-  scope: scopes.constant.character.escape,
-  match: DOT
+// Numbers using terminal pattern
+const numbers = {
+  key: 'numbers',
+  scope: scopes.constant.numeric,
+  match: NUM.DEC  // Handles: 123, 123.45, 1.23e-4
 };
 
-const stringLiteral: BeginEndRule = {
-  key: 'string-literal',
+// Strings with escape sequences
+const strings = {
+  key: 'strings',
   scope: scopes.string.quoted.double,
-  begin: '"',
-  end: '"',
+  begin: /"/,
+  end: /"/,
   patterns: [
-    stringEscape
+    {
+      key: 'string-escape',
+      scope: scopes.constant.character.escape,
+      match: /\\./
+    }
   ]
 };
 
-const keywords: MatchRule = {
-  key: 'keywords',
-  scope: scopes.keyword.control,
-  match: R.keywords(['if', 'else', 'for', 'while', 'function'])
+// Identifiers using terminal pattern
+const identifiers = {
+  key: 'identifiers',
+  scope: scopes.variable.other.readwrite,
+  match: ID  // Standard [a-zA-Z_][a-zA-Z0-9_]* pattern
 };
 
-const numbers: MatchRule = {
-  key: 'numbers',
-  scope: scopes.constant.numeric.float,
-  match: /\b\d+(\.\d+)?\b/
+// Custom emphasis pattern
+const emphasis = {
+  key: 'emphasis',
+  scope: scopes.custom.emphasis,
+  match: /!+/ 
 };
 
-// Example 2: Grouping patterns
-const comments: IncludeRule = {
-  key: 'comments',
-  patterns: [lineComment]
-};
-
-const literals: IncludeRule = {
-  key: 'literals',
-  patterns: [stringLiteral, numbers]
-};
-
-const allSimpleRules: Rule[] = [
-  lineComment,
-  stringEscape,
-  stringLiteral,
-  keywords,
-  numbers,
-  comments,
-  literals
-];
-
-// Example 3: Complete grammar
-const simpleGrammar: Grammar = createGrammar(
+// 3. Create the complete grammar
+export const simpleGrammar: Grammar = createGrammar(
   'Simple Language',
   'source.simple',
-  ['.simple'],
+  ['simple'],
   [
-    comments,
-    literals,
-    keywords
-  ],
-  {
-    repositoryItems: allSimpleRules
-  }
+    lineComment,
+    keywords,
+    strings,
+    numbers,
+    emphasis,
+    identifiers
+  ]
 );
 
-// Example 4: Generate the grammar
-export async function generateSimpleGrammar(): Promise<string> {
-  return await emitJSON(simpleGrammar);
-}
-
-// Example usage
-if (import.meta.url === `file://${process.argv[1]}`) {
-  generateSimpleGrammar()
-    .then(json => {
-      console.log('Generated Simple Grammar:');
-      console.log(json);
-    })
-    .catch(console.error);
-}
-
-export {
-  simpleGrammar,
-  lineComment,
-  stringLiteral,
-  stringEscape,
-  keywords,
-  numbers
-}; 
+export default simpleGrammar; 

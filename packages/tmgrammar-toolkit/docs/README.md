@@ -97,11 +97,11 @@ Grammar Definition (TypeScript)
 - Best practices for editor compatibility
 - Scope hierarchy explanations
 
-**[Using Scopes](using-scopes.md)** *(5 min read)*
+**[Using Scopes](using-scopes.md)** *(10 min read)*
 - Type-safe scope API usage
+- Creating static and extensible scopes
 - Language-specific scope patterns
 - Editor integration tips
-- Common scope patterns
 
 ### Practical Guides
 
@@ -155,7 +155,7 @@ import { emitJSON, emitPlist, emitYAML } from 'tmgrammar-toolkit';
 const keywords = { 
   key: 'keywords',
   match: regex.keywords(['if', 'else', 'while']),
-  scope: scopes.keyword.control('mylang')
+  scope: scopes.keyword.control
 };
 
 // Strings with escapes
@@ -163,9 +163,9 @@ const strings = {
   key: 'string',
   begin: /"/,
   end: /"/,
-  scope: scopes.string.quoted.double('mylang'),
+  scope: scopes.string.quoted.double,
   patterns: [
-    { key: 'escape', match: /\\./, scope: scopes.constant.character.escape('mylang') }
+    { key: 'escape', match: /\\./, scope: scopes.constant.character.escape }
   ]
 };
 
@@ -173,7 +173,7 @@ const strings = {
 const numbers = {
   key: 'numbers',
   match: NUM.DEC,
-  scope: scopes.constant.numeric('mylang')
+  scope: scopes.constant.numeric
 };
 ```
 

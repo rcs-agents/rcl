@@ -8,9 +8,9 @@ import {
     allLiterals,
     allSections,
     allStrings,
-    embeddedCode,
+    allEmbedded,
     importStatement,
-    typeConversion,
+    typeTag,
 } from '../rules/index.js';
 
 function hasKey(rule: Rule): rule is Rule & { key: string } {
@@ -36,8 +36,8 @@ export const allRules: Rule[] = [
     ...allIdentifiers,
     ...allExpressions,
     ...allStrings,
-    embeddedCode,
-    typeConversion,
+    ...allEmbedded,
+    typeTag,
     ...allComments,
     ...allCollections,
     ...allSections,
@@ -60,8 +60,8 @@ const sectionContextRules: Rule[] = [
     ...allStrings,
     ...allFlows,
     ...allComments,
-    embeddedCode,
-    typeConversion,
+    ...allEmbedded,
+    typeTag,
     ...allSections, // for nested sections
 ];
 export const sectionContextIncludes: BasicIncludePattern[] = sectionContextRules.map(toInclude);
@@ -82,6 +82,6 @@ const expressionContextRules: Rule[] = [
     ...allLiterals,
     ...allIdentifiers,
     ...allComments,
-    typeConversion,
+    typeTag,
 ];
 export const expressionContextIncludes: BasicIncludePattern[] = expressionContextRules.map(toInclude); 

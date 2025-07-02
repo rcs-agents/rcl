@@ -116,19 +116,17 @@ Unified CLI that wraps all toolkit functionality:
 ## Module Directories
 
 ### `/scopes` - Type-Safe Scope Management
-Comprehensive scope definitions with full TypeScript support:
+A revolutionary, type-safe API for TextMate scopes that eliminates string-based errors and provides full autocompletion and validation within TypeScript.
 
 ```typescript
-import { scopes } from './scopes';
+import { scopesFor } from './scopes';
 
-scopes.keyword.control.conditional('mylang'); // "keyword.control.conditional.mylang"
+const jsScopes = scopesFor({ suffix: 'js', allowScopeExtension: false });
+
+// Produces "keyword.control.conditional.js" with full type safety
+const conditionalScope = jsScopes.keyword.control.conditional;
 ```
-
-**Features:**
-- All standard TextMate scopes with documentation
-- Multiple naming conventions (camelCase, snake_case, kebab-case)
-- Language-specific scope generation
-- Full TypeScript autocomplete and validation
+For more details, see the [full scope documentation](./docs/using-scopes.md).
 
 ### `/helpers` - Regex Construction Utilities
 Clean APIs for building complex regex patterns:

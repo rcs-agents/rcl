@@ -15,7 +15,11 @@ program
   .version('0.1.0');
 
 /**
- * Check if Bun is available on the system
+ * Checks if Bun runtime is available on the system.
+ * Bun provides seamless TypeScript execution without build steps.
+ * 
+ * @returns Promise resolving to true if Bun is available, false otherwise
+ * @internal
  */
 async function isBunAvailable(): Promise<boolean> {
   try {
@@ -27,7 +31,14 @@ async function isBunAvailable(): Promise<boolean> {
 }
 
 /**
- * Load grammar from TypeScript file using Bun
+ * Loads a grammar from a TypeScript file using Bun's runtime.
+ * Supports named exports, default exports, and 'grammar' exports.
+ * 
+ * @param filePath - Path to the TypeScript file containing the grammar
+ * @param exportName - Optional specific export name to use
+ * @returns Promise resolving to the loaded grammar
+ * @throws {Error} If the file cannot be loaded or no grammar export is found
+ * @internal
  */
 async function loadGrammarWithBun(filePath: string, exportName?: string): Promise<Grammar> {
   const escapedPath = filePath.replace(/'/g, "\\'");

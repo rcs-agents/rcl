@@ -155,13 +155,14 @@ const expressionRule: IncludeRule = {
 ### Accessing Scopes
 
 ```typescript
-import { scopes } from 'tmgrammar-toolkit';
+import { scopes, scopesFor } from 'tmgrammar-toolkit';
 
-// Basic scope access
-const keywordScope = scopes.keyword;              // "keyword"
-const controlScope = scopes.keyword.control;     // "keyword.control"
+// Recommended: Use scopesFor for language-specific grammars
+const langScopes = scopesFor({ suffix: 'mylang', allowScopeExtension: false });
+const keywordScope = langScopes.keyword;          // "keyword.mylang"
+const controlScope = langScopes.keyword.control;  // "keyword.control.mylang"
 
-// Language-specific scopes
+// Alternative: Global scopes (for dynamic or extensible grammars)
 const jsKeyword = scopes.keyword('javascript');   // "keyword.javascript"
 const pyControl = scopes.keyword.control('python'); // "keyword.control.python"
 ```
@@ -305,6 +306,20 @@ OP.LOGICAL                       // &&, ||, !
 OP.BITWISE                       // &, |, ^, ~, <<, >>
 ```
 
+### Character and Marker Patterns
+
+```typescript
+import { DOT, WB, EOL, BOL } from 'tmgrammar-toolkit/terminals';
+
+// From terminals/chars.ts
+DOT                              // /\./
+
+// From terminals/markers.ts  
+WB                               // /\b/ (word boundary)
+EOL                              // /$/ (end of line)
+BOL                              // /^/ (beginning of line)
+```
+
 ## Testing API
 
 ### Programmatic Testing
@@ -329,17 +344,19 @@ tester.expectTokenLength(tokens, 5);
 
 ### Declarative Testing
 
-```typescript
-import { runDeclarativeTests, runSnapshotTests } from 'tmgrammar-toolkit/testing';
+**Note:** The correct function names are `declarativeTest` and `snapshot`, not `runDeclarativeTests` and `runSnapshotTests`.
 
-// Run tests with scope assertions
-await runDeclarativeTests('./tests/**/*.test.mylang', {
+```typescript
+import { declarativeTest, snapshot } from 'tmgrammar-toolkit/testing';
+
+// Run tests with embedded scope assertions
+await declarativeTest('./tests/**/*.test.mylang', {
   grammar: './grammar.json',
   compact: true
 });
 
 // Snapshot testing
-await runSnapshotTests('./tests/**/*.mylang', {
+await snapshot('./tests/**/*.mylang', {
   grammar: './grammar.json',
   updateSnapshots: false
 });

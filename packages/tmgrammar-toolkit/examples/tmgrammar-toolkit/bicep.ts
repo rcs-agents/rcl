@@ -20,7 +20,32 @@ import {
 } from '#src';
 import { COMMENT } from '#src/terminals';
 
-const scopes = scopesFor('bicep');
+const scopes = scopesFor(
+  {
+    // will be appended to all scopes
+    suffix: 'bicep',
+    // prevent creating new scopes from the base scopes
+    // by calling the scope object as a function
+    allowScopeExtension: false
+  }, {
+  string: {
+    quoted: {
+      // The value here does not matter, it will be ignored
+      multi: true,
+    }
+  },
+  keyword: {
+    control: {
+      // The value here does not matter, it will be ignored
+      declaration: true,
+    }
+  },
+  variable: {
+    other: {
+      property: true,
+    }
+  }
+});
 
 // Expression rule (include all expression patterns)
 const expression: IncludeRule = {
@@ -111,7 +136,7 @@ const stringLiteral: BeginEndRule = {
 // String verbatim rule
 const stringVerbatim: BeginEndRule = {
   key: 'string-verbatim',
-  scope: scopes.string.quoted('multi'),
+  scope: scopes.string.quoted.multi,
   begin: /'''/,
   end: r(/'''/, notBefore(/'/)),
   patterns: []
@@ -120,7 +145,7 @@ const stringVerbatim: BeginEndRule = {
 // Keyword rule
 const keyword: MatchRule = {
   key: 'keyword',
-  scope: scopes.keyword.control('declaration'),
+  scope: scopes.keyword.control.declaration,
   match: regex.keywords([
     'metadata', 'targetScope', 'resource', 'module', 'param', 'var', 'output', 
     'for', 'in', 'if', 'existing', 'import', 'as', 'type', 'with', 'using', 
@@ -141,7 +166,7 @@ const identifier: MatchRule = {
 // Directive variable rule
 const directiveVariable: MatchRule = {
   key: 'directive-variable',
-  scope: scopes.keyword.control('declaration'),
+  scope: scopes.keyword.control.declaration,
   match: /\b[_a-zA-Z-0-9]+\b/
 };
 
@@ -160,7 +185,7 @@ const directive: BeginEndRule = {
 // Object property key rule
 const objectPropertyKey: MatchRule = {
   key: 'object-property-key',
-  scope: scopes.variable.other('property'),
+  scope: scopes.variable.other.property,
   match: r(
     /\b[_$[:alpha:]][_$[:alnum:]]*\b/,
     before(/(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*:/)

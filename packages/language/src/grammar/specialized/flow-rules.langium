@@ -9,15 +9,36 @@ import "../data-types/parameters";
 
 // ======== Parser Rules ========
 // NOTE: Interfaces are defined in ast-nodes.langium
-FlowContent returns FlowContent:
-    rules+=FlowRule+;
 
+// Flow rule can be a named rule or a direct transition
 FlowRule returns FlowRule:
-    source=(ATOM | PROPER_NOUN | STRING) '->' (
-      destinationIsFlow?='start' destination=[AbstractNamedSection:PROPER_NOUN] (withClause=WithClause)?
-      | code=(EmbeddedCodeExpression | EmbeddedCodeBlock)
-      | rules+=FlowRule
-    );
+    name=IDENTIFIER ':' NL?
+    INDENT?
+    (
+        attributes+=Attribute
+        | nestedRules+=FlowRule
+        | transitions+=FlowTransition
+        | whenClauses+=WhenClause
+    )*
+    DEDENT?;
+
+// Flow transition: source -> destination
+FlowTransition returns FlowTransition:
+    source=FlowOperand '->' destination=FlowOperand (withClause=WithClause)?;
+
+// Flow operand can be atom, string, or identifier
+FlowOperand returns FlowOperand:
+    ATOM | STRING | IDENTIFIER;
+
+// When clause for conditional flow rules
+WhenClause returns WhenClause:
+    WHEN_KW condition=EmbeddedExpression NL?
+    INDENT?
+    transitions+=FlowTransition*
+    DEDENT?;
 
 WithClause returns WithClause:
-    'with' parameters+=Parameter (',' parameters+=Parameter)*;
+    WITH_KW NL?
+    INDENT?
+    parameters+=Parameter*
+    DEDENT?;

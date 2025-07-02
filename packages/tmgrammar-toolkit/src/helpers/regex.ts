@@ -1,21 +1,21 @@
 /**
  * Regex helper utilities for building patterns
  */
-import { validateRegex } from '#src/validation';
 import type { RegexList as RegexValueList, RegexValue } from '../types.js';
 
 /**
- * Validates a regex source string using the project's validation logic.
- * Throws an error if the regex is invalid.
+ * Creates a RegExp from a pattern string with basic validation.
+ * Uses JavaScript's built-in RegExp constructor for immediate validation.
  * @param pattern - The regex source string to validate.
- * @returns The validated regex source string.
+ * @returns The validated RegExp object.
  * @throws {Error} If the regex is invalid.
  */
 const createOrThrow = (pattern: string): RegExp => {
-  if (!validateRegex(pattern)) {
-    throw new Error(`Failed to concatenate regex values: ${pattern}`);
+  try {
+    return new RegExp(pattern);
+  } catch (error) {
+    throw new Error(`Invalid regex pattern: ${pattern}. ${error instanceof Error ? error.message : String(error)}`);
   }
-  return new RegExp(pattern);
 };
 
 /**

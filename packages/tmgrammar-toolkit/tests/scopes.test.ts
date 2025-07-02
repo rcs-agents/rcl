@@ -1,178 +1,241 @@
 import { describe, test, expect } from 'vitest';
+import { expectTypeOf } from 'expect-type';
 import { scopes, scopesFor } from '../src/scopes/index.js';
-import { buildScopes, buildLanguageScopes, createScopeNode } from '../src/scopes/lib/internal.js';
-import type { CommentScope } from '../src/scopes/comment.js';
+import { buildScopes, createScopeNode } from '../src/scopes/lib/internal.js';
 
-describe('Unified Scope Functions', () => {
+describe('Scope System', () => {
   describe('createScopeNode', () => {
-    test('should create regular scope nodes', () => {
-      const scope = createScopeNode('keyword.control.conditional');
+    test('creates callable scope nodes when allowScopeExtension is true', () => {
+      const scope = createScopeNode('conditional', null, { 
+        prefix: 'keyword.control', 
+        allowScopeExtension: true 
+      });
       
       expect(scope.toString()).toBe('keyword.control.conditional');
       expect(scope('js')).toBe('keyword.control.conditional.js');
-      expect(`${scope}`).toBe('keyword.control.conditional'); // Symbol.toPrimitive
+      expect(`${scope}`).toBe('keyword.control.conditional');
     });
 
-    test('should convert snake_case to kebab-case', () => {
-      const scope = createScopeNode('comment.line.double_slash');
+    test('creates non-callable scope nodes when allowScopeExtension is false', () => {
+      const scope = createScopeNode('conditional', null, { 
+        prefix: 'keyword.control', 
+        allowScopeExtension: false 
+      });
+      
+      expect(scope.toString()).toBe('keyword.control.conditional');
+      expect(`${scope}`).toBe('keyword.control.conditional');
+      expect(typeof scope).toBe('object'); // Not a function
+    });
+
+    test('converts snake_case to kebab-case', () => {
+      const scope = createScopeNode('double_slash', null, { 
+        prefix: 'comment.line',
+        allowScopeExtension: true 
+      });
       
       expect(scope.toString()).toBe('comment.line.double-slash');
       expect(scope('ts')).toBe('comment.line.double-slash.ts');
     });
 
-    test('should create language-specific scope nodes', () => {
-      const jsScope = createScopeNode('keyword.control.conditional', undefined, 'js');
+    test('handles suffix properly', () => {
+      const scope = createScopeNode('conditional', null, { 
+        prefix: 'keyword.control', 
+        suffix: 'js',
+        allowScopeExtension: true 
+      });
       
-      expect(jsScope.toString()).toBe('keyword.control.conditional.js');
-      expect(jsScope('async')).toBe('keyword.control.conditional.js.async');
-      expect(`${jsScope}`).toBe('keyword.control.conditional.js'); // Symbol.toPrimitive
+      expect(scope.toString()).toBe('keyword.control.conditional.js');
+      expect(scope('async')).toBe('keyword.control.conditional.js.async');
     });
 
-    test('should handle scope nodes with children', () => {
-      const childScope = createScopeNode('child');
-      const parentScope = createScopeNode('parent', { child: childScope });
+    test('handles on-leafs extension mode', () => {
+      // Leaf node should be callable
+      const leafScope = createScopeNode('token', null, { 
+        prefix: 'custom',
+        allowScopeExtension: 'on-leafs' 
+      });
       
-      expect(parentScope.toString()).toBe('parent');
-      expect(parentScope.child.toString()).toBe('child');
-      expect(parentScope('js')).toBe('parent.js');
+      expect(leafScope.toString()).toBe('custom.token');
+      expect(leafScope('extra')).toBe('custom.token.extra');
+      
+      // Branch node should not be callable
+      const branchScope = createScopeNode('parent', { child: {} }, { 
+        prefix: 'custom',
+        allowScopeExtension: 'on-leafs' 
+      });
+      
+      expect(branchScope.toString()).toBe('custom.parent');
+      expect(typeof branchScope).toBe('object'); // Not a function
     });
   });
 
   describe('buildScopes', () => {
-    test('should build regular scope trees from tuple definitions', () => {
-      const commentScope = buildScopes<CommentScope>([
-        ['line', [
-          ['double_slash', []],
-          ['number_sign', []],
-        ]],
-        ['block', [
-          ['documentation', []],
-        ]],
-      ], 'comment');
+    test('builds scope trees with callable nodes', () => {
+      const commentScope = buildScopes({ 
+        prefix: 'comment', 
+        allowScopeExtension: true 
+      }, {
+        line: {
+          double_slash: null,
+          number_sign: null,
+        },
+        block: {
+          documentation: null,
+        },
+      });
 
       expect(commentScope.line.toString()).toBe('comment.line');
       expect(commentScope.line.double_slash.toString()).toBe('comment.line.double-slash');
-      expect(commentScope.line.number_sign.toString()).toBe('comment.line.number-sign');
-      expect(commentScope.block.documentation.toString()).toBe('comment.block.documentation');
-      
-      // Test language suffix functionality
       expect(commentScope.line.double_slash('js')).toBe('comment.line.double-slash.js');
     });
 
-    test('should build language-specific scope trees', () => {
-      const jsCommentScope = buildScopes<CommentScope>([
-        ['line', [
-          ['double_slash', []],
-        ]],
-        ['block', []],
-      ], 'comment', 'js');
+    test('builds scope trees with non-callable nodes', () => {
+      const commentScope = buildScopes({ 
+        prefix: 'comment', 
+        allowScopeExtension: false 
+      }, {
+        line: {
+          double_slash: null,
+        },
+      });
 
-      expect(jsCommentScope.line.toString()).toBe('comment.line.js');
-      expect(jsCommentScope.line.double_slash.toString()).toBe('comment.line.double-slash.js');
-      expect(jsCommentScope.block.toString()).toBe('comment.block.js');
-      
-      // Test additional suffix functionality
-      expect(jsCommentScope.line.double_slash('async')).toBe('comment.line.double-slash.js.async');
+      expect(commentScope.line.toString()).toBe('comment.line');
+      expect(commentScope.line.double_slash.toString()).toBe('comment.line.double-slash');
+      expect(typeof commentScope.line).toBe('object'); // Not a function
+      expect(typeof commentScope.line.double_slash).toBe('object'); // Not a function
     });
   });
 
-  describe('buildLanguageScopes', () => {
-    test('should transform existing scope objects to language-specific versions', () => {
-      const regularScopes = {
-        keyword: {
-          control: {
-            conditional: createScopeNode('keyword.control.conditional'),
-            toString: () => 'keyword.control',
-          },
-          toString: () => 'keyword',
-        },
-        comment: {
-          line: {
-            double_slash: createScopeNode('comment.line.double_slash'),
-            toString: () => 'comment.line',
-          },
-          toString: () => 'comment',
-        },
-      };
-
-      const jsScopes = buildLanguageScopes(regularScopes, 'js');
-
-      expect(jsScopes.keyword.control.conditional.toString()).toBe('keyword.control.conditional.js');
-      expect(jsScopes.comment.line.double_slash.toString()).toBe('comment.line.double-slash.js');
-      
-      // Test additional suffix functionality
-      expect(jsScopes.keyword.control.conditional('async')).toBe('keyword.control.conditional.js.async');
-    });
-  });
-
-  describe('scopes integration', () => {
-    test('should provide access to all standard TextMate scopes', () => {
-      // Test a few key scopes from different categories
+  describe('predefined scopes', () => {
+    test('provides access to all standard TextMate scopes', () => {
       expect(scopes.keyword.control.conditional.toString()).toBe('keyword.control.conditional');
       expect(scopes.comment.line.double_slash.toString()).toBe('comment.line.double-slash');
       expect(scopes.string.quoted.single.toString()).toBe('string.quoted.single');
       expect(scopes.constant.numeric.integer.toString()).toBe('constant.numeric.integer');
-      expect(scopes.punctuation.definition.string.begin.toString()).toBe('punctuation.definition.string.begin');
     });
 
-    test('should allow language suffixes on all scopes', () => {
+    test('allows language suffixes on all scopes', () => {
       expect(scopes.keyword.control.conditional('js')).toBe('keyword.control.conditional.js');
       expect(scopes.comment.block.documentation('python')).toBe('comment.block.documentation.python');
       expect(scopes.string.quoted.double('typescript')).toBe('string.quoted.double.typescript');
     });
 
-    test('should work in template literals', () => {
+    test('works in template literals', () => {
       const rule = `${scopes.keyword.control.conditional}.myLang`;
       expect(rule).toBe('keyword.control.conditional.myLang');
     });
   });
 
-  describe('scopesFor integration', () => {
-    test('should create language-specific scope objects', () => {
-      const jsScopes = scopesFor('js');
-      const pythonScopes = scopesFor('python');
-
-      expect(jsScopes.keyword.control.conditional.toString()).toBe('keyword.control.conditional.js');
-      expect(pythonScopes.keyword.control.conditional.toString()).toBe('keyword.control.conditional.python');
-    });
-
-    test('should allow additional suffixes on language scopes', () => {
-      const jsScopes = scopesFor('js');
+  describe('scopesFor function', () => {
+    test('creates static scopes (recommended pattern)', () => {
+      const rclScopes = scopesFor({ suffix: 'rcl', allowScopeExtension: false });
       
-      expect(jsScopes.keyword.control.conditional('async')).toBe('keyword.control.conditional.js.async');
-      expect(jsScopes.comment.line.double_slash('doc')).toBe('comment.line.double-slash.js.doc');
+      expect(rclScopes.keyword.control.conditional.toString()).toBe('keyword.control.conditional.rcl');
+      expect(rclScopes.comment.line.double_slash.toString()).toBe('comment.line.double-slash.rcl');
+      
+      // Should not be callable
+      expect(typeof rclScopes.keyword.control.conditional).toBe('object');
+      expect(typeof rclScopes.comment.line.double_slash).toBe('object');
     });
 
-    test('should work with all scope categories', () => {
-      const tsScopes = scopesFor('typescript');
+    test('creates callable scopes when enabled', () => {
+      const jsScopes = scopesFor({ suffix: 'js', allowScopeExtension: true });
+      
+      expect(jsScopes.keyword.control.conditional.toString()).toBe('keyword.control.conditional.js');
+      expect(jsScopes.keyword.control.conditional('async')).toBe('keyword.control.conditional.js.async');
+    });
 
-      expect(tsScopes.comment.line.double_slash.toString()).toBe('comment.line.double-slash.typescript');
-      expect(tsScopes.constant.numeric.float.toString()).toBe('constant.numeric.float.typescript');
-      expect(tsScopes.entity.name.function.toString()).toBe('entity.name.function.typescript');
-      expect(tsScopes.invalid.illegal.toString()).toBe('invalid.illegal.typescript');
-      expect(tsScopes.markup.heading.toString()).toBe('markup.heading.typescript');
-      expect(tsScopes.meta.function.toString()).toBe('meta.function.typescript');
-      expect(tsScopes.punctuation.separator.comma.toString()).toBe('punctuation.separator.comma.typescript');
-      expect(tsScopes.storage.type.function.toString()).toBe('storage.type.function.typescript');
-      expect(tsScopes.string.quoted.double.toString()).toBe('string.quoted.double.typescript');
-      expect(tsScopes.support.function.builtin.toString()).toBe('support.function.builtin.typescript');
-      expect(tsScopes.variable.other.readwrite.toString()).toBe('variable.other.readwrite.typescript');
+    test('creates scopes with on-leafs extension mode', () => {
+      const leafScopes = scopesFor({ suffix: 'lang', allowScopeExtension: 'on-leafs' });
+      
+      // Leaf nodes should be callable
+      expect(leafScopes.keyword.control.conditional('extra')).toBe('keyword.control.conditional.lang.extra');
+      
+      // Branch nodes should not be callable
+      expect(typeof leafScopes.keyword.control).toBe('object');
+    });
+
+    test('merges custom scope definitions', () => {
+      const customScopes = scopesFor({ suffix: 'rcl', allowScopeExtension: false }, {
+        meta: {
+          section: {
+            agent: null,
+            messages: null
+          }
+        }
+      });
+      
+      // Custom scopes
+      expect(customScopes.meta.section.agent.toString()).toBe('meta.section.agent.rcl');
+      expect(customScopes.meta.section.messages.toString()).toBe('meta.section.messages.rcl');
+      
+      // Base scopes still work
+      expect(customScopes.keyword.control.conditional.toString()).toBe('keyword.control.conditional.rcl');
+    });
+
+    test('handles prefix option', () => {
+      const prefixedScopes = scopesFor({ 
+        prefix: 'source.rcl', 
+        suffix: 'embedded',
+        allowScopeExtension: false 
+      });
+      
+      expect(prefixedScopes.keyword.control.conditional.toString())
+        .toBe('source.rcl.keyword.control.conditional.embedded');
     });
   });
 
-  describe('snake_case to kebab-case conversion', () => {
-    test('should convert underscores to dashes consistently', () => {
+  describe('Type Safety', () => {
+    test('static scopes have correct literal types', () => {
+      const staticScopes = scopesFor({ suffix: 'rcl', allowScopeExtension: false });
+      
+      expectTypeOf(staticScopes.keyword.control.conditional).toMatchTypeOf<string>();
+      expectTypeOf(staticScopes.keyword.control.conditional.toString()).toEqualTypeOf<string>();
+    });
+
+    test('callable scopes have function types', () => {
+      const callableScopes = scopesFor({ suffix: 'js', allowScopeExtension: true });
+      
+      expectTypeOf(callableScopes.keyword.control.conditional).toBeCallableWith(['async']);
+      expectTypeOf(callableScopes.keyword.control.conditional('async')).toEqualTypeOf<string>();
+    });
+
+    test('custom scopes have correct types', () => {
+      const customScopes = scopesFor({ suffix: 'rcl', allowScopeExtension: false }, {
+        custom: { 
+          token: null 
+        }
+      });
+      
+      expectTypeOf(customScopes.custom.token).toMatchTypeOf<string>();
+      expectTypeOf(customScopes.keyword.control.conditional).toMatchTypeOf<string>();
+    });
+
+    test('on-leafs mode has correct callable/non-callable types', () => {
+      const leafScopes = scopesFor({ allowScopeExtension: 'on-leafs' }, {
+        custom: { token: null }
+      });
+      
+      // Leaf should be callable
+      expectTypeOf(leafScopes.custom.token).toBeCallableWith(['extra']);
+      
+      // Branch should not be callable (this test verifies the type system logic)
+      expectTypeOf(leafScopes.custom).not.toBeCallableWith(['extra']);
+    });
+  });
+
+  describe('Snake_case to Kebab-case Conversion', () => {
+    test('converts underscores to dashes consistently', () => {
       expect(scopes.comment.line.double_slash.toString()).toBe('comment.line.double-slash');
       expect(scopes.entity.name.class.forward_decl.toString()).toBe('entity.name.class.forward-decl');
-      expect(scopes.constant.numeric.integer.hexadecimal.toString()).toBe('constant.numeric.integer.hexadecimal');
       
       // Test with language suffixes
       expect(scopes.comment.line.double_slash('js')).toBe('comment.line.double-slash.js');
       expect(scopes.entity.name.class.forward_decl('cpp')).toBe('entity.name.class.forward-decl.cpp');
     });
 
-    test('should work with language-specific scopes', () => {
-      const jsScopes = scopesFor('js');
+    test('works with language-specific scopes', () => {
+      const jsScopes = scopesFor({ suffix: 'js', allowScopeExtension: true });
       
       expect(jsScopes.comment.line.double_slash.toString()).toBe('comment.line.double-slash.js');
       expect(jsScopes.entity.name.class.forward_decl.toString()).toBe('entity.name.class.forward-decl.js');

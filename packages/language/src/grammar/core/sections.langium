@@ -10,46 +10,40 @@ import "../specialized/configuration";
 // ======== Data Type Rules ========
 // SectionType defines the valid keywords that can start a section block.
 SectionType returns string:
-  'agent'
-  | 'agentConfig'
-  | 'agentDefaults'
-  | 'flow'
-  | 'messages'
-  | ((
-      'authentication'
-      | 'transaction'
-      | 'promotion'
-      | 'servicerequest'
-      | 'acknowledge'
-    ) __ 'message');
+  AGENT_KW
+  | AGENT_CONFIG_KW
+  | AGENT_DEFAULTS_KW
+  | FLOW_KW
+  | FLOWS_KW
+  | MESSAGES_KW;
 
 // ======== Section Content Rules ========
 // Section is the main section rule that matches all section types.
-// It handles both explicit type declarations and implicit reserved names.
+// It handles both explicit type declarations and name declarations.
 Section returns Section:
-    (type=SectionType)? name=PROPER_NOUN
+    sectionType=SectionType (name=IDENTIFIER)? ':'
     NL?
-    INDENT
+    INDENT?
     (
         attributes+=Attribute 
-        | agentAttributes+=AgentAttribute
-        | configProperties+=ConfigProperty
-        | defaultProperties+=DefaultProperty
         | subSections+=Section
-        | flowContent+=FlowContent 
+        | flowRules+=FlowRule
+        | messages+=MessageDefinition
         | emptyLines+=EmptyLine
     )*
-    DEDENT;
+    DEDENT?;
 
 // ======== Attribute System ========
 // The attribute system provides key-value properties for sections
 
 // Attribute represents a general key-value pair for any section
 Attribute returns Attribute:
-    key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue;
+    key=ATTRIBUTE_KEY ':' (__? | WS)? value=Value;
 
-// Agent-specific attributes (for agent sections only)
-AgentAttribute returns AgentAttribute:
-    key=('displayName' | 'brandName') ':' __? value=SimpleValue
-    | key=COMMON_NOUN ':' __? value=SimpleValue;
+// Message definition in messages sections
+MessageDefinition returns MessageDefinition:
+    name=IDENTIFIER ':' NL?
+    INDENT?
+    attributes+=Attribute*
+    DEDENT?;
 

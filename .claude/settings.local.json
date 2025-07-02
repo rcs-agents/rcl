@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun run:*)",
+      "Bash(bun test:*)",
+      "Bash(grep:*)",
+      "Bash(bun:*)",
+      "Bash(exec /bin/sh -c \"cd /work/rcs/temp/custom-lexer/packages/tmgrammar-toolkit && bun test src/helpers/regex.test.ts\")",
+      "Bash(ls:*)",
+      "Bash(timeout:*)",
+      "Bash(chmod:*)",
+      "Bash(./run_ls.sh)",
+      "Bash(rm:*)"
+    ],
+    "deny": []
+  }
+}

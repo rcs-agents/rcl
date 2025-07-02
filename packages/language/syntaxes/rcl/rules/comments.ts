@@ -1,13 +1,17 @@
 import type { MatchRule } from 'tmgrammar-toolkit';
-import { scopesFor } from 'tmgrammar-toolkit';
 import { R } from '../regex.js';
+import { scopeGroups } from '../scopes.js';
 
-const scopes = scopesFor('rcl');
-
-export const singleLineComment: MatchRule = {
-	key: 'sl-comment',
-	scope: scopes.comment.line.double_slash,
-	match: R.SL_COMMENT,
+/**
+ * Hash-style comments (# comment)
+ */
+export const hashComment: MatchRule = {
+  key: 'hash-comment',
+  match: R.SL_COMMENT,
+  scope: scopeGroups.comments.line
 };
 
-export const allComments = [singleLineComment]; 
+/**
+ * All comment rules
+ */
+export const allComments = [hashComment]; 

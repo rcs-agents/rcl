@@ -102,7 +102,10 @@ export const myLangGrammar = createGrammar(
 Generate the grammar file:
 
 ```bash
-# Using CLI
+# Using CLI with Bun (works directly with TypeScript!)
+bunx tmt emit mylang-grammar.ts -o mylang.tmLanguage.json
+
+# Or with npm
 npx tmt emit mylang-grammar.ts -o mylang.tmLanguage.json
 
 # Or programmatically
@@ -197,7 +200,7 @@ tester.expectTokenScope(tokens, '/*', 'comment.block.mylang');
 
 ## 🛠️ CLI Commands
 
-The `tmt` command provides unified access to all toolkit functionality:
+The `tmt` command provides unified access to all toolkit functionality. **Works seamlessly with Bun for direct TypeScript execution without build steps!**
 
 ### Grammar Generation
 
@@ -258,28 +261,178 @@ OP.ARITHMETIC       // +, -, *, /, %
 OP.LOGICAL          // &&, ||, !
 ```
 
+## 🎯 Type-Safe Scope System
+
+The toolkit features a revolutionary scope management system that eliminates string-based errors and provides excellent developer experience:
+
+### Basic Scopes
+
+```typescript
+import { scopes } from 'tmgrammar-toolkit';
+
+// Type-safe scope access with full autocomplete
+scopes.keyword.control.conditional       // "keyword.control.conditional"
+scopes.string.quoted.double             // "string.quoted.double"
+scopes.entity.name.function             // "entity.name.function"
+
+// Automatic string conversion in templates
+const rule = `${scopes.comment.line.double_slash}`;  // "comment.line.double-slash"
+
+// Call with language suffix
+scopes.keyword.control.conditional('js'); // "keyword.control.conditional.js"
+```
+
+### Language-Specific Scopes
+
+```typescript
+import { scopesFor } from 'tmgrammar-toolkit';
+
+// Create language-bound scopes
+const jsScopes = scopesFor('js');
+jsScopes.keyword.control.conditional;     // "keyword.control.conditional.js"
+jsScopes.string.quoted.double;           // "string.quoted.double.js"
+
+// Still callable for additional suffixes
+jsScopes.keyword.control.conditional('async'); // "keyword.control.conditional.js.async"
+```
+
+### Extended Custom Scopes
+
+```typescript
+// Advanced: Custom scopes with extensions
+const rclScopes = scopesFor({ 
+  suffix: 'rcl', 
+  allowScopeExtension: true 
+}, {
+  meta: {
+    section: {
+      agent: {
+        definition: 'Agent definition blocks',
+        name: 'Agent name identifiers'
+      },
+      message: {
+        definition: 'Message definition blocks',
+        shortcut: 'Message shortcut syntax'
+      }
+    }
+  },
+  punctuation: {
+    definition: {
+      flow: {
+        arrow: 'Flow control arrows (->)'
+      }
+    }
+  }
+});
+
+// Use both predefined and custom scopes
+rclScopes.keyword.control.conditional;           // "keyword.control.conditional.rcl"
+rclScopes.meta.section.agent.definition;        // "meta.section.agent.definition.rcl"
+rclScopes.punctuation.definition.flow.arrow;    // "punctuation.definition.flow.arrow.rcl"
+```
+
+### Extension Modes
+
+Control how custom scopes are merged with three modes:
+
+```typescript
+// No extensions - only language suffix
+const basicScopes = scopesFor('lang');
+
+// Extensions everywhere
+const fullExtensions = scopesFor({ 
+  suffix: 'lang', 
+  allowScopeExtension: true 
+}, customScopes);
+
+// Extensions only on terminal/leaf scopes
+const leafExtensions = scopesFor({ 
+  suffix: 'lang', 
+  allowScopeExtension: "on-leafs" 
+}, customScopes);
+```
+
+### Multiple Naming Conventions
+
+Access scopes using your preferred style:
+
+```typescript
+// All equivalent - use your preferred convention:
+scopes.comment.line['double-slash']    // Kebab-case (TextMate standard)
+scopes.comment.line.doubleSlash        // camelCase
+scopes.comment.line.double_slash       // snake_case
+
+// All produce: "comment.line.double-slash"
+```
+
 ## 🎯 Real-World Examples
 
 The toolkit includes complete, production-ready grammar implementations:
 
 ### Simple Language Example
 ```typescript
+// Using language-specific scopes for consistency
+const simpleScopes = scopesFor('simple');
+
 const simpleGrammar = createGrammar('Simple', 'source.simple', ['simple'], [
-  { key: 'keywords', match: regex.keywords(['if', 'else']), scope: scopes.keyword.control('simple') },
-  { key: 'strings', begin: /"/, end: /"/, scope: scopes.string.quoted.double('simple') },
-  { key: 'numbers', match: NUM.DEC, scope: scopes.constant.numeric('simple') }
+  { key: 'keywords', match: regex.keywords(['if', 'else']), scope: simpleScopes.keyword.control },
+  { key: 'strings', begin: /"/, end: /"/, scope: simpleScopes.string.quoted.double },
+  { key: 'numbers', match: NUM.DEC, scope: simpleScopes.constant.numeric }
 ]);
 ```
 
-### Advanced: Azure Bicep Grammar
+### Advanced: RCL Language with Custom Scopes
 ```typescript
-// Complex resource definitions with parameter interpolation
-const bicepGrammar = createGrammar('Bicep', 'source.bicep', ['bicep'], [
-  resourceDefinitionRule,
-  parameterRule,
-  variableRule,
-  outputRule,
-  expressionRule
+// Custom domain-specific scopes for RCL language
+const rclScopes = scopesFor({ suffix: 'rcl', allowScopeExtension: true }, {
+  meta: {
+    section: {
+      agent: { definition: null, name: null },
+      message: { definition: null, shortcut: null },
+      flow: { rule: null, condition: null }
+    },
+    embedded: {
+      expression: { single: null, block: null }
+    }
+  },
+  punctuation: {
+    definition: {
+      flow: { arrow: null },
+      embedded: { marker: null }
+    }
+  }
+});
+
+const rclGrammar = createGrammar('RCL', 'source.rcl', ['rcl'], [
+  {
+    key: 'agent-section',
+    begin: /^(\s*)(agent)(\s*)(:)/,
+    beginCaptures: {
+      2: { name: rclScopes.keyword.declaration },
+      4: { name: rclScopes.punctuation.separator }
+    },
+    name: rclScopes.meta.section.agent.definition,
+    patterns: [
+      {
+        name: rclScopes.meta.section.agent.name,
+        match: /[A-Z][a-zA-Z0-9_\s-]*/
+      }
+    ]
+  },
+  {
+    key: 'flow-arrow',
+    name: rclScopes.punctuation.definition.flow.arrow,
+    match: /->/
+  },
+  {
+    key: 'embedded-js',
+    name: rclScopes.meta.embedded.expression.single,
+    begin: /\$js>/,
+    beginCaptures: {
+      0: { name: rclScopes.punctuation.definition.embedded.marker }
+    },
+    end: /$/
+  }
 ]);
 ```
 

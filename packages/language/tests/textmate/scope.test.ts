@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { KW } from '../src/constants.js'; // Import KW
+import { KW } from '../../src/constants.js'; // Import KW
 import { OnigScanner, OnigString, loadWASM } from 'onigasm';
 
 const require = createRequire(import.meta.url);
@@ -76,7 +76,7 @@ async function initializeGrammar(): Promise<Grammar> {
     await loadWASM(wasmBin.buffer as any);
 
     // Load our RCL grammar
-    const grammarPath = path.join(__dirname, '../src/syntaxes/rcl.tmLanguage.json');
+    const grammarPath = path.join(__dirname, '../../src/syntaxes/rcl.tmLanguage.json');
     if (!fs.existsSync(grammarPath)) {
       throw new Error(`Grammar file not found at ${grammarPath}`);
     }

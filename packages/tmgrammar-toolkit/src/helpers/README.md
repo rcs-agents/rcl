@@ -19,13 +19,13 @@ const pattern = regex.keywords('if', 'else', 'while', 'for') + regex.before('\\s
 
 ## Core Functions
 
-**All functions accept both strings and RegExp objects** (except `escape` which only accepts strings, and `concat` which returns RegExp objects). When you pass a RegExp, we extract its `.source` property automatically.
+**All functions return validated RegExp objects, not raw strings.** They accept both strings and RegExp objects as input (except `escape` which only accepts strings). When you pass a RegExp, we extract its `.source` property automatically.
 
 ### Word Boundaries
 ```typescript
 // Wrap any text with word boundaries
-bounded('function')   // "\\bfunction\\b"
-bounded(/function/)   // "\\bfunction\\b"
+bounded('function')   // /\bfunction\b/
+bounded(/function/)   // /\bfunction\b/
 ```
 Perfect for keywords that shouldn't match inside other words.
 
@@ -100,6 +100,9 @@ group(/\w+/)          // "(?:\\w+)"
 // Concatenate multiple RegExp/string values into a single RegExp
 concat(/start/, '-', /middle/, '-', /end/)  // RegExp: /(start-middle-end)/
 concat('begin', /\w+/, 'end')               // RegExp: /(begin\w+end)/
+
+// Short alias for concat
+r(/start/, '-', /middle/, '-', /end/)       // Same as concat()
 ```
 
 This is useful when you need to combine patterns and get a RegExp object back instead of a string pattern.

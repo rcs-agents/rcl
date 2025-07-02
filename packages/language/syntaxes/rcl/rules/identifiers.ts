@@ -1,19 +1,39 @@
 import type { MatchRule } from 'tmgrammar-toolkit';
-import { scopesFor } from 'tmgrammar-toolkit';
 import { R } from '../regex.js';
+import { scopeGroups } from '../scopes.js';
 
-const scopes = scopesFor('rcl');
-
-export const properNoun: MatchRule = {
-	key: 'proper-noun',
-	scope: scopes.entity.name.class,
-	match: R.PROPER_NOUN,
+/**
+ * Space-separated identifiers (e.g., "BMW Customer Service", "My Brand")
+ */
+export const spaceSeparatedIdentifier: MatchRule = {
+  key: 'space-separated-identifier',
+  match: R.IDENTIFIER,
+  scope: scopeGroups.identifiers.spaceSepar
 };
 
-export const commonNoun: MatchRule = {
-	key: 'common-noun',
-	scope: scopes.variable.other,
-	match: R.COMMON_NOUN,
+/**
+ * Attribute keys (lowercase identifiers followed by colon)
+ */
+export const attributeKey: MatchRule = {
+  key: 'attribute-key',
+  match: R.ATTRIBUTE_KEY,
+  scope: scopeGroups.identifiers.attributeKey
 };
 
-export const allIdentifiers = [properNoun, commonNoun]; 
+/**
+ * Section type identifiers (lowercase start)
+ */
+export const sectionType: MatchRule = {
+  key: 'section-type',
+  match: R.SECTION_TYPE,
+  scope: scopeGroups.keywords.section
+};
+
+/**
+ * All identifier rules
+ */
+export const allIdentifiers = [
+	spaceSeparatedIdentifier,
+	attributeKey,
+	sectionType
+]; 

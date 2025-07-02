@@ -1,5 +1,26 @@
 import { buildScopes } from './lib/internal.js';
-import type { Scope, ScopeTree } from './types.js';
+
+/**
+ * Raw invalid scope definitions used for building the scope tree
+ */
+export const INVALID_SCOPE_DEFINITION = {
+    /**
+     * Represents the `invalid.illegal` scope.
+     * Syntax errors, illegal characters.
+     * Full path: `invalid.illegal`
+     * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#invalid)
+     */
+    illegal: null,
+    /**
+     * Represents the `invalid.deprecated` scope.
+     * Deprecated features (use very rarely).
+     * Full path: `invalid.deprecated`
+     * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#invalid)
+     */
+    deprecated: null,
+  };
+
+export const INVALID_SCOPE = buildScopes({ prefix: 'invalid' }, INVALID_SCOPE_DEFINITION);
 
 /**
  * Root scope for `invalid`.
@@ -13,24 +34,4 @@ import type { Scope, ScopeTree } from './types.js';
  * scopes.invalid.deprecated("js") // "invalid.deprecated.js"
  * ```
  */
-export type InvalidScope = ScopeTree<'invalid', {
-  /**
-   * Represents the `invalid.illegal` scope.
-   * Syntax errors, illegal characters.
-   * Full path: `invalid.illegal`
-   * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#invalid)
-   */
-  illegal: Scope<'illegal'>;
-  /**
-   * Represents the `invalid.deprecated` scope.
-   * Deprecated features (use very rarely).
-   * Full path: `invalid.deprecated`
-   * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#invalid)
-   */
-  deprecated: Scope<'deprecated'>;
-}>;
-
-export const INVALID_SCOPE: InvalidScope = buildScopes<InvalidScope>([
-  ['illegal', []],
-  ['deprecated', []],
-], 'invalid'); 
+export type InvalidScope = typeof INVALID_SCOPE; 

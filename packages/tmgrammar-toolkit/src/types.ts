@@ -3,7 +3,7 @@
  * Direct mapping to tmlanguage schema with strong type safety
  */
 
-import type { Scope } from './scopes/types.js';
+import type { CallableScope } from './scopes/types.js';
 
 export const schema =
   "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json";
@@ -17,7 +17,7 @@ export const meta: unique symbol = Symbol("meta");
 /**
  * Valid scope value - can be a string, result from scopes API, or meta symbol
  */
-export type ScopeValue = string | Scope<string, string> | typeof meta;
+export type ScopeValue = string | CallableScope | typeof meta;
 
 
 /**
