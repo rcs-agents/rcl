@@ -919,4 +919,24 @@ Semantic validation occurs after successful parsing and involves validating the 
 
 These validations are handled by separate language services and validators, not by the syntactic parser defined in this EBNF specification.
 
-This formal specification, in conjunction with the semantic rules and processing logic defined elsewhere in the RCL language design, provides a comprehensive definition of Rich Communication Language syntax. 
+This formal specification, in conjunction with the semantic rules and processing logic defined elsewhere in the RCL language design, provides a comprehensive definition of Rich Communication Language syntax.
+
+## Import Statements (Phase 6 Enhancements)
+
+RCL import statements now support multi-level namespace paths and space-separated aliases:
+
+Examples:
+- `import My Brand / Samples as Sample One`
+- `import Shared / Common Flows / Support`
+
+**Import Resolution Rules:**
+- Namespace segments and aliases can contain spaces (e.g., `My Brand`, `Sample One`).
+- Import resolution is case-insensitive.
+- If two or more possible resolutions exist, an error is thrown.
+- The import path is resolved relative to the project root (the closest folder up the hierarchy containing either an `rclconfig.yml` or a `config/rcl.yml` file; if none, the current file's folder is used).
+- For a path like `Shared / Common Flows / Retail / Catalog`, the resolver checks:
+  1. `shared/common flows/retail.rcl`, `shared/common-flows/retail.rcl`, `shared/common_flows/retail.rcl`
+  2. If not found, looks for a flow `Catalog` of the `Retail` agent in:
+     - `shared/common flows.rcl`, `shared/common-flows.rcl`, `shared/common_flows.rcl`
+
+See the parser README for technical details on import resolution. 

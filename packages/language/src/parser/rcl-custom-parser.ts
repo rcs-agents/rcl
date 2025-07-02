@@ -22,6 +22,7 @@ import type {
   EmbeddedExpression,
   EmbeddedCodeBlock
 } from './rcl-simple-ast.js';
+import { resolveImportPath, findProjectRoot } from '../utils/filesystem.js';
 
 // Import tokens from lexer
 const RclToken = RclCustomLexer;
@@ -116,6 +117,19 @@ export class RclCustomParser {
     return this.createRclFile(imports, sections);
   }
 
+  /**
+   * Parses an import statement, supporting multi-level namespace paths and space-separated aliases.
+   *
+   * Example supported syntax:
+   *   import My Brand / Samples as Sample One
+   *   import Shared / Common Flows / Support
+   *
+   * - Each namespace segment (e.g., "My Brand") is parsed as a space-separated identifier and added to `importedNames`.
+   * - The optional alias (after `as`) is parsed as a space-separated identifier.
+   * - The optional source (after `from`) is parsed as a quoted string (reserved for future use).
+   *
+   * Returns an ImportStatement AST node with the parsed path and alias.
+   */
   private parseImportStatement(): ImportStatement {
     const start = this.getPosition();
     this.consume(RclToken.IMPORT_KW);
@@ -1184,4 +1198,11 @@ export class RclCustomParser {
       location: { start, end: this.getPosition() }
     };
   }
+
+  /**
+   * Static access to import resolution utilities
+   * @deprecated Use the functions directly from '../utils/filesystem.js' instead
+   */
+  static resolveImportPath = resolveImportPath;
+  static findProjectRoot = findProjectRoot;
 } 

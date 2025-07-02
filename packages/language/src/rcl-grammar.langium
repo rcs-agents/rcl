@@ -13,7 +13,7 @@
  * 
  * Any direct edits to this file WILL BE LOST on the next build!
  * 
- * Generated at: 2025-07-01T22:53:40.301Z
+ * Generated at: 2025-07-02T00:43:49.095Z
  * ========================================================================
  */
 
@@ -399,6 +399,16 @@ MultiLineString returns MultiLineString:
     marker=(MULTILINE_STR_CLEAN | MULTILINE_STR_TRIM | MULTILINE_STR_PRESERVE | MULTILINE_STR_PRESERVE_ALL)
     has_block_content='true';
 
+/**
+ * ImportStatement supports multi-level namespace paths and space-separated aliases.
+ *
+ * Example:
+ *   import My Brand / Samples as Sample One
+ *   import Shared / Common Flows / Support
+ *
+ * - Each PROPER_NOUN can include spaces (e.g., "My Brand").
+ * - The alias after 'as' can also be a space-separated PROPER_NOUN.
+ */
 ImportStatement returns ImportStatement:
     'import' source+=PROPER_NOUN ( __? '/' __? source+=PROPER_NOUN)* ('as' alias=PROPER_NOUN)?;
 

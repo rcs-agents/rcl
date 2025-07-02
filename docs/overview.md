@@ -198,3 +198,23 @@ Each section type has specific validation rules ensuring RCS specification compl
 - **RCS Constraints**: Built-in validators for suggestion limits (11 max), text lengths, required fields
 - **Semantic Rules**: Each section type has specific validation (Config properties, Message limits, Flow completeness)
 
+## Import Statements (Phase 6 Enhancements)
+
+RCL now supports advanced import statements with multi-level namespace paths and space-separated aliases:
+
+Examples:
+- `import My Brand / Samples as Sample One`
+- `import Shared / Common Flows / Support`
+
+**Rules:**
+- Namespace segments and aliases can contain spaces (e.g., `My Brand`, `Sample One`).
+- Import resolution is case-insensitive.
+- If two or more possible resolutions exist, an error is thrown.
+- The import path is resolved relative to the project root (the closest folder up the hierarchy containing either an `rclconfig.yml` or a `config/rcl.yml` file; if none, the current file's folder is used).
+- For a path like `Shared / Common Flows / Retail / Catalog`, the resolver checks:
+  1. `shared/common flows/retail.rcl`, `shared/common-flows/retail.rcl`, `shared/common_flows/retail.rcl`
+  2. If not found, looks for a flow `Catalog` of the `Retail` agent in:
+     - `shared/common flows.rcl`, `shared/common-flows.rcl`, `shared/common_flows.rcl`
+
+See the parser README for technical details on import resolution.
+

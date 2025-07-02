@@ -148,4 +148,116 @@ To integrate with Langium:
 4. **Update grammar rules** to use the new token names
 5. **Test thoroughly** with existing RCL files
 
-The custom lexer is designed to be a drop-in replacement that produces the correct tokens for the existing Langium parser, fixing the tokenization issues without requiring major grammar changes. 
+The custom lexer is designed to be a drop-in replacement that produces the correct tokens for the existing Langium parser, fixing the tokenization issues without requiring major grammar changes.
+
+## Import Resolution Logic (Phase 6)
+
+The custom parser supports advanced import statements with multi-level namespace paths and space-separated aliases. Import resolution is performed by the static method `RclCustomParser.resolveImportPath`.
+
+### Import Resolution Rules
+- **Case-insensitive**: Import paths are matched case-insensitively.
+- **Ambiguity**: If two or more possible resolutions exist, an error is thrown.
+- **Project-rooted**: The import path is resolved relative to the project root, defined as the closest folder up the hierarchy containing either an `rclconfig.yml` or a `config/rcl.yml` file; if none, the current file's folder is used.
+
+### Examples
+- `import Shared / Common Flows / Retail` resolves to:
+  - `shared/common flows/retail.rcl` (exact match)
+  - `shared/common-flows/retail.rcl` (dash variant)
+  - `shared/common_flows/retail.rcl` (underscore variant)
+
+- `import Shared / Common Flows / Retail / Catalog` resolves to:
+  - Section `Catalog` in `shared/common flows/retail.rcl`
+  - Section `Catalog` in `shared/common-flows/retail.rcl`
+  - Section `Catalog` in `shared/common_flows/retail.rcl`
+
+## Web Compatibility
+
+The RCL parser is designed to work in both Node.js and web environments. The filesystem utilities have been moved to a dedicated `utils/filesystem.js` module for better separation of concerns.
+
+### Node.js Environment (Automatic Detection)
+
+In Node.js, the filesystem utilities automatically detect and use the real filesystem APIs:
+
+```typescript
+import { RclCustomParser } from './rcl-custom-parser.js';
+import { resolveImportPath } from '../utils/filesystem.js';
+
+const parser = new RclCustomParser();
+const result = parser.parse(rclSource);
+
+// Import resolution works automatically with real filesystem
+const resolved = resolveImportPath(['Utils'], { 
+  currentFilePath: '/project/src/main.rcl' 
+});
+```
+
+### Web Environment (Custom Filesystem)
+
+In web environments (browser, web workers), filesystem operations use a web-compatible mock:
+
+```typescript
+import { RclCustomParser } from './rcl-custom-parser.js';
+import { resolveImportPath, webFileSystemMock } from '../utils/filesystem.js';
+
+const parser = new RclCustomParser();
+const result = parser.parse(rclSource); // Basic parsing works without filesystem
+
+// For import resolution, use the built-in web mock or provide custom implementation
+const webFileSystem = {
+  existsSync: (path: string) => {
+    // Your logic to check if files exist (e.g., from a virtual filesystem)
+    return virtualFileSystem.has(path);
+  },
+  join: (...paths: string[]) => paths.join('/').replace(/\/+/g, '/'),
+  dirname: (path: string) => path.split('/').slice(0, -1).join('/') || '/',
+  resolve: (path: string) => path.startsWith('/') ? path : '/' + path
+};
+
+const resolved = resolveImportPath(['Utils'], {
+  currentFilePath: '/project/src/main.rcl',
+  fileSystem: webFileSystem
+});
+
+// Or use the built-in web mock for testing
+const resolvedWithMock = resolveImportPath(['Utils'], {
+  currentFilePath: '/project/src/main.rcl',
+  fileSystem: webFileSystemMock
+});
+```
+
+### Custom Filesystem Interface
+
+The filesystem utilities provide a clean interface that you can implement for specialized environments:
+
+```typescript
+import { type FileSystemInterface, resolveImportPath } from '../utils/filesystem.js';
+
+// Example: Virtual filesystem for testing
+const testFileSystem: FileSystemInterface = {
+  existsSync: (path: string) => testFiles.includes(path),
+  join: (...paths: string[]) => paths.join('/'),
+  dirname: (path: string) => path.split('/').slice(0, -1).join('/'),
+  resolve: (path: string) => path
+};
+
+// Use with import resolution
+const resolved = resolveImportPath(['MyModule'], {
+  currentFilePath: '/test/main.rcl',
+  fileSystem: testFileSystem
+});
+```
+
+### Backward Compatibility
+
+For backward compatibility, the parser still provides static access to the utilities:
+
+```typescript
+import { RclCustomParser } from './rcl-custom-parser.js';
+
+// Still works, but deprecated - prefer importing from utils/filesystem.js
+const resolved = RclCustomParser.resolveImportPath(['Utils'], {
+  currentFilePath: '/project/src/main.rcl'
+});
+```
+
+This design ensures the parser works seamlessly across different JavaScript environments while maintaining full functionality where filesystem access is available. 

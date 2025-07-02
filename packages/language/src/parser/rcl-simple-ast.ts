@@ -31,12 +31,36 @@ export interface RclFile extends BaseAstNode {
 }
 
 /**
- * Import statement: import name as alias from "source"
+ * Represents an import statement in RCL, supporting multi-level namespace paths and space-separated aliases.
+ *
+ * Example usages:
+ *   import My Brand / Samples as Sample One
+ *   import Shared / Common Flows / Support
+ *
+ * - The `importedNames` array contains each namespace segment as a string, preserving spaces.
+ * - The `alias` property, if present, is a space-separated alias for the import.
+ * - The `source` property, if present, is the quoted string source (for future extensibility).
+ *
+ * This interface is used by both the custom parser and for bridging to Langium AST.
  */
 export interface ImportStatement extends BaseAstNode {
+  /**
+   * The type discriminator for AST nodes.
+   * Always 'ImportStatement' for import statements.
+   */
   type: 'ImportStatement';
+  /**
+   * The namespace path segments, each as a space-separated string.
+   * For example, ["My Brand", "Samples"] for `import My Brand / Samples`.
+   */
   importedNames: string[];
+  /**
+   * Optional alias for the import, as a space-separated string (e.g., "Sample One").
+   */
   alias?: string;
+  /**
+   * Optional quoted string source (not commonly used in RCL, reserved for future use).
+   */
   source?: string;
 }
 
