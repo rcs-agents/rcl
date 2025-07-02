@@ -78,7 +78,7 @@ export class RclCustomParser {
     const sections: Section[] = [];
     
     // Parse imports at the top
-    while (this.check(RclToken.IMPORT)) {
+    while (this.check(RclToken.IMPORT_KW)) {
       try {
         const importStmt = this.parseImportStatement();
         imports.push(importStmt);
@@ -118,7 +118,7 @@ export class RclCustomParser {
 
   private parseImportStatement(): ImportStatement {
     const start = this.getPosition();
-    this.consume(RclToken.IMPORT);
+    this.consume(RclToken.IMPORT_KW);
     
     // Skip whitespace before import name
     while (this.check(RclToken.WS)) {
@@ -149,7 +149,7 @@ export class RclCustomParser {
       } else {
         break; // No more namespace parts
       }
-    } while (!this.isAtEnd() && !this.check(RclToken.AS) && !this.check(RclToken.FROM));
+    } while (!this.isAtEnd() && !this.check(RclToken.AS_KW) && !this.check(RclToken.FROM_KW));
     
     // Handle 'as' alias (with space-separated identifiers)
     let alias: string | undefined;
@@ -157,7 +157,7 @@ export class RclCustomParser {
     while (this.check(RclToken.WS)) {
       this.advance();
     }
-    if (this.match(RclToken.AS)) {
+    if (this.match(RclToken.AS_KW)) {
       // Skip whitespace before alias identifier
       while (this.check(RclToken.WS)) {
         this.advance();
@@ -172,7 +172,7 @@ export class RclCustomParser {
     while (this.check(RclToken.WS)) {
       this.advance();
     }
-    if (this.match(RclToken.FROM)) {
+    if (this.match(RclToken.FROM_KW)) {
       // Skip whitespace before source string
       while (this.check(RclToken.WS)) {
         this.advance();
@@ -197,135 +197,121 @@ export class RclCustomParser {
 
   private parseSection(): Section {
     const start = this.getPosition();
-    
-    // Parse section type and name
+    // Infer section type from keyword
     let sectionType: string | undefined;
-    let name: string;
-
-    // Check for section type keywords
     if (this.match(RclToken.AGENT_KW)) {
       sectionType = 'agent';
-    } else if (this.match(RclToken.FLOWS)) {
-      sectionType = 'flows';  
-    } else if (this.match(RclToken.MESSAGES)) {
+    } else if (this.match(RclToken.FLOW_KW)) {
+      sectionType = 'flow';
+    } else if (this.match(RclToken.FLOWS_KW)) {
+      sectionType = 'flows';
+    } else if (this.match(RclToken.MESSAGES_KW)) {
       sectionType = 'messages';
-    } else if (this.match(RclToken.AGENT_CONFIG)) {
+    } else if (this.match(RclToken.AGENT_CONFIG_KW)) {
       sectionType = 'agentConfig';
-    } else if (this.match(RclToken.AGENT_DEFAULTS)) {
+    } else if (this.match(RclToken.AGENT_DEFAULTS_KW)) {
       sectionType = 'agentDefaults';
     }
-
     // Skip whitespace before section name or colon
     while (this.check(RclToken.WS)) {
       this.advance();
     }
-
     // Parse section name if present (some sections like 'flows:' have no name)
+    let name: string;
     if (this.check(RclToken.COLON)) {
-      // No name provided, colon comes directly after keyword
       name = '';
     } else {
-      // Parse section name (space-separated identifiers)
       name = this.parseSpaceSeparatedIdentifier();
     }
-
     this.consume(RclToken.COLON);
     this.consumeNewlineOrEnd();
-
-    // Parse section body
     const attributes: Attribute[] = [];
     const subSections: Section[] = [];
     const flowRules: FlowRule[] = [];
-    const messages: MessageDefinition[] = [];
-
+    const messageDefinitions: MessageDefinition[] = [];
     if (this.match(RclToken.INDENT)) {
       let loopCount = 0;
-      const MAX_LOOPS = 1000; // Safety limit
-      
+      const MAX_LOOPS = 1000;
       while (!this.check(RclToken.DEDENT) && !this.isAtEnd()) {
         loopCount++;
         if (loopCount > MAX_LOOPS) {
           this.errors.push(`Infinite loop detected in section parsing at token ${this.current}`);
           break;
         }
-        
-        const currentToken = this.current;
-        
         try {
           if (this.isNextSectionStart()) {
             const subSection = this.parseSection();
             subSections.push(subSection);
-          } else if (sectionType === 'flows' && this.isFlowRule()) {
+          } else if (this.isFlowRule()) {
             const flowRule = this.parseFlowRule();
             flowRules.push(flowRule);
-          } else if (sectionType === 'messages' && this.isMessageDefinition()) {
-            const message = this.parseMessageDefinition();
-            messages.push(message);
+          } else if (sectionType === 'flow' && this.isFlowTransition()) {
+            // Handle direct transitions in flow sections
+            if (flowRules.length === 0) {
+              // Create an implicit flow rule for direct transitions using the section name
+              const implicitFlowRule: FlowRule = {
+                type: 'FlowRule',
+                name: name, // Use the section name as the flow rule name
+                attributes: [],
+                nestedRules: [],
+                transitions: [],
+                whenClauses: [],
+                location: { start: this.getPosition(), end: this.getPosition() }
+              };
+              flowRules.push(implicitFlowRule);
+            }
+            const transition = this.parseFlowTransition();
+            flowRules[0].transitions.push(transition);
+          } else if (this.isMessageDefinition(sectionType)) {
+            const msgDef = this.parseMessageDefinition();
+            messageDefinitions.push(msgDef);
           } else if (this.isAttribute()) {
             const attr = this.parseAttribute();
             attributes.push(attr);
           } else {
-            // Skip whitespace tokens and empty tokens - they're valid between sections
-            if (this.check(RclToken.WS) || this.check(RclToken.NL) || this.isEmptyToken()) {
-              this.advance();
-            } else {
-              // Generate error for unexpected content in section body
-              const unexpectedToken = this.peek();
-              if (unexpectedToken) {
-                this.errors.push(`Unexpected token '${unexpectedToken.image}' at line ${unexpectedToken.startLine}, column ${unexpectedToken.startColumn}`);
-              }
-              this.advance();
-            }
-          }
-          
-          if (this.current === currentToken) {
-            this.advance(); // Force progress to avoid infinite loop
+            this.advance();
           }
         } catch (error) {
           this.errors.push(`Section content parsing error: ${error}`);
           this.synchronize();
         }
       }
-      
       if (this.check(RclToken.DEDENT)) {
-        this.advance(); // consume DEDENT
+        this.advance();
       }
     }
-
     const end = this.getPosition();
-
-    return {
-      type: 'Section',
+    const sectionObj = {
+      type: 'Section' as const,
       sectionType,
       name,
       attributes,
       subSections,
       flowRules,
-      messages,
+      messages: messageDefinitions,
       location: { start, end }
     };
+    return sectionObj;
   }
 
   private parseAttribute(): Attribute {
     const start = this.getPosition();
-    const key = this.advance().image;
+    const keyToken = this.advance();
     this.consume(RclToken.COLON);
-    
     // Skip optional whitespace
     if (this.check(RclToken.WS)) {
       this.advance();
     }
-    
     const value = this.parseValue();
     this.consumeNewlineOrEnd();
     const end = this.getPosition();
-
-    return {
-      type: 'Attribute',
-      key,
+    const attr = {
+      type: 'Attribute' as const,
+      key: keyToken.image,
       value,
       location: { start, end }
     };
+    return attr;
   }
 
   private parseFlowRule(): FlowRule {
@@ -431,7 +417,7 @@ export class RclCustomParser {
       this.advance();
     }
     
-    if (this.check(RclToken.WITH)) {
+    if (this.check(RclToken.WITH_KW)) {
       withClause = this.parseWithClause();
     }
     
@@ -489,36 +475,32 @@ export class RclCustomParser {
   }
 
   /**
-   * Parse a with clause: with param: value, param2: value2
+   * Parse a with clause as an indented block:
+   * with
+   *   param1: value1
+   *   param2: value2
    */
   private parseWithClause(): WithClause {
     const start = this.getPosition();
     
-    this.consume(RclToken.WITH);
-    
-    // Skip whitespace after 'with'
-    while (this.check(RclToken.WS)) {
-      this.advance();
-    }
+    this.consume(RclToken.WITH_KW);
+    this.consumeNewlineOrEnd();
     
     const parameters: Parameter[] = [];
     
-    // Parse first parameter
-    if (this.isParameterStart()) {
-      parameters.push(this.parseParameter());
-    }
-    
-    // Parse additional parameters separated by commas
-    while (this.check(RclToken.COMMA)) {
-      this.advance(); // consume comma
-      
-      // Skip whitespace after comma
-      while (this.check(RclToken.WS)) {
-        this.advance();
+    // Parse indented parameter block
+    if (this.match(RclToken.INDENT)) {
+      while (!this.check(RclToken.DEDENT) && !this.isAtEnd()) {
+        if (this.isParameterStart()) {
+          parameters.push(this.parseParameter());
+          this.consumeNewlineOrEnd();
+        } else {
+          this.advance();
+        }
       }
       
-      if (this.isParameterStart()) {
-        parameters.push(this.parseParameter());
+      if (this.check(RclToken.DEDENT)) {
+        this.advance();
       }
     }
     
@@ -537,7 +519,7 @@ export class RclCustomParser {
   private parseWhenClause(): WhenClause {
     const start = this.getPosition();
     
-    this.consume(RclToken.WHEN);
+    this.consume(RclToken.WHEN_KW);
     
     // Skip whitespace after 'when'
     while (this.check(RclToken.WS)) {
@@ -548,7 +530,7 @@ export class RclCustomParser {
     // TODO: Implement proper condition parsing
     const condition: EmbeddedExpression = {
       type: 'EmbeddedExpression',
-      language: 'rcl',
+      language: 'js',
       content: 'placeholder condition',
       isMultiline: false,
       location: { start: this.getPosition(), end: this.getPosition() }
@@ -675,11 +657,11 @@ export class RclCustomParser {
     const start = this.getPosition();
     
     // Handle embedded expressions first (before other tokens)
-    if (this.check(RclToken.SINGLE_LINE_EXPRESSION)) {
+    if (this.check(RclToken.EMBEDDED_CODE)) {
       return this.parseEmbeddedExpression();
     }
     
-    if (this.check(RclToken.MULTI_LINE_EXPRESSION)) {
+    if (this.check(RclToken.MULTI_LINE_EXPRESSION_START)) {
       return this.parseEmbeddedCodeBlock();
     }
     
@@ -706,7 +688,7 @@ export class RclCustomParser {
       } as NumberValue;
     }
     
-    if (this.check(RclToken.TRUE) || this.check(RclToken.YES) || this.check(RclToken.ON) || this.check(RclToken.ENABLED) || this.check(RclToken.ACTIVE)) {
+    if (this.check(RclToken.TRUE_KW) || this.check(RclToken.YES_KW) || this.check(RclToken.ON_KW) || this.check(RclToken.ENABLED_KW) || this.check(RclToken.ACTIVE_KW)) {
       this.advance();
       const end = this.getPosition();
       return {
@@ -716,7 +698,7 @@ export class RclCustomParser {
       } as BooleanValue;
     }
     
-    if (this.check(RclToken.FALSE) || this.check(RclToken.NO) || this.check(RclToken.OFF) || this.check(RclToken.DISABLED) || this.check(RclToken.INACTIVE)) {
+    if (this.check(RclToken.FALSE_KW) || this.check(RclToken.NO_KW) || this.check(RclToken.OFF_KW) || this.check(RclToken.DISABLED_KW) || this.check(RclToken.INACTIVE_KW)) {
       this.advance();
       const end = this.getPosition();
       return {
@@ -726,7 +708,7 @@ export class RclCustomParser {
       } as BooleanValue;
     }
     
-    if (this.check(RclToken.NULL) || this.check(RclToken.NULL_LOWER) || this.check(RclToken.NONE) || this.check(RclToken.NONE_LOWER) || this.check(RclToken.VOID) || this.check(RclToken.VOID_LOWER)) {
+    if (this.check(RclToken.NULL_KW) || this.check(RclToken.NULL_LOWERCASE_KW) || this.check(RclToken.NONE_KW) || this.check(RclToken.VOID_KW)) {
       this.advance();
       const end = this.getPosition();
       return {
@@ -736,7 +718,7 @@ export class RclCustomParser {
     }
     
     // Identifier or space-separated identifier
-    if (this.check(RclToken.IDENTIFIER) || this.isIdentifierLikeToken(this.peek())) {
+    if (this.check(RclToken.IDENTIFIER) || (this.peek() && this.isIdentifierLikeToken(this.peek()!))) {
       const identifier = this.parseSpaceSeparatedIdentifier();
       const end = this.getPosition();
       return {
@@ -811,13 +793,13 @@ export class RclCustomParser {
 
   private isIdentifierLikeToken(token: IToken): boolean {
     if (!token || !token.tokenType) return false;
-    
     const tokenName = token.tokenType.name;
-    
     return tokenName === 'IDENTIFIER' ||
+           tokenName === 'ATTRIBUTE_KEY' ||
+           tokenName === 'SECTION_TYPE' ||
            tokenName === 'Config' ||
            tokenName === 'DEFAULTS' ||
-           tokenName === 'MESSAGES_RESERVED' ||
+           tokenName === 'Messages' ||
            tokenName === 'AGENT_MESSAGE' ||
            tokenName === 'MESSAGE' ||
            tokenName === 'CONTENT_MESSAGE' ||
@@ -830,9 +812,8 @@ export class RclCustomParser {
            tokenName === 'DIAL' ||
            tokenName === 'OPEN_URL' ||
            tokenName === 'SHARE_LOCATION' ||
-           tokenName === 'start' ||  // lowercase as defined in token
-           tokenName === 'end' ||   // lowercase as defined in token
-           // Add more valid token types that could be part of identifiers
+           tokenName === 'start' ||
+           tokenName === 'end' ||
            tokenName === 'AGENT_KW' ||
            tokenName === 'FLOWS' ||
            tokenName === 'MESSAGES' ||
@@ -852,11 +833,12 @@ export class RclCustomParser {
   }
 
   private isNextSectionStart(): boolean {
-    return this.check(RclToken.AGENT_KW) || 
-           this.check(RclToken.FLOWS) || 
-           this.check(RclToken.MESSAGES) ||
-           this.check(RclToken.AGENT_CONFIG) ||
-           this.check(RclToken.AGENT_DEFAULTS);
+    return       this.check(RclToken.AGENT_KW) ||
+      this.check(RclToken.FLOW_KW) ||
+      this.check(RclToken.FLOWS_KW) ||
+      this.check(RclToken.MESSAGES_KW) ||
+           this.check(RclToken.AGENT_CONFIG_KW) ||
+           this.check(RclToken.AGENT_DEFAULTS_KW);
   }
 
   private isFlowRule(): boolean {
@@ -963,7 +945,7 @@ export class RclCustomParser {
       this.advance();
     }
     
-    const isWhen = this.check(RclToken.WHEN);
+    const isWhen = this.check(RclToken.WHEN_KW);
     this.current = currentPos; // Reset position
     return isWhen;
   }
@@ -1010,50 +992,46 @@ export class RclCustomParser {
            tokenName === 'end';
   }
 
-  private isMessageDefinition(): boolean {
-    // Similar to isAttribute but for message definitions in messages section
+  private isMessageDefinition(sectionType?: string): boolean {
+    // Message definitions should only be recognized in messages sections
     const currentToken = this.peek();
+    if (!currentToken) return false;
+    
+    // Only consider this a message definition if:
+    // 1. We have an identifier-like token followed by a colon 
+    // 2. AND we're in a messages section context
+    if (sectionType !== 'messages') {
+      return false;
+    }
+    
     return !!(currentToken && this.isIdentifierLikeToken(currentToken) && 
            this.tokens[this.current + 1]?.tokenType === RclToken.COLON);
   }
 
   private isAttribute(): boolean {
-    // An attribute starts with an identifier-like token followed by a colon
+    // An attribute starts with an identifier-like token (IDENTIFIER or ATTRIBUTE_KEY) followed by a colon
     const currentToken = this.peek();
-    if (!currentToken || !this.isIdentifierLikeToken(currentToken)) {
+    if (!currentToken) return false;
+    const tokenName = currentToken.tokenType.name;
+    if (tokenName !== 'IDENTIFIER' && tokenName !== 'ATTRIBUTE_KEY') {
       return false;
     }
-    
-    // Look ahead for colon
+    // Look ahead for colon, skipping only whitespace
     let idx = this.current + 1;
-    let foundColon = false;
-    let searchCount = 0;
-    const MAX_SEARCH = 10; // Limit lookahead
-    
-    // Skip spaces and identifier-like tokens (for space-separated keys)
-    while (idx < this.tokens.length && searchCount < MAX_SEARCH) {
-      searchCount++;
+    const lookaheadTokens: string[] = [];
+    while (idx < this.tokens.length) {
       const token = this.tokens[idx];
-      
+      lookaheadTokens.push(`${token.tokenType.name}:${JSON.stringify(token.image)}`);
       if (token.tokenType === RclToken.COLON) {
-        foundColon = true;
-        break;
+        return true;
       } else if (token.tokenType === RclToken.WS) {
-        idx++;
-        continue;
-      } else if (this.isIdentifierLikeToken(token)) {
         idx++;
         continue;
       } else {
         break;
       }
     }
-    
-    if (searchCount >= MAX_SEARCH) {
-      return false;
-    }
-
-    return foundColon;
+    return false;
   }
 
   private match(...types: any[]): boolean {
@@ -1119,10 +1097,11 @@ export class RclCustomParser {
 
       switch (this.peek()?.tokenType) {
         case RclToken.AGENT_KW:
-        case RclToken.FLOWS:
-        case RclToken.MESSAGES:
-        case RclToken.AGENT_CONFIG:
-        case RclToken.AGENT_DEFAULTS:
+        case RclToken.FLOW_KW:
+        case RclToken.FLOWS_KW:
+        case RclToken.MESSAGES_KW:
+        case RclToken.AGENT_CONFIG_KW:
+        case RclToken.AGENT_DEFAULTS_KW:
           return;
       }
 
@@ -1136,67 +1115,57 @@ export class RclCustomParser {
   }
 
   /**
-   * Parse embedded expression value: $js> code, $template> code, etc.
+   * Parse embedded expression value: $js> code, $ts> code
    */
   private parseEmbeddedExpression(): EmbeddedExpression {
     const start = this.getPosition();
-    
-    if (!this.check(RclToken.SINGLE_LINE_EXPRESSION)) {
+    if (!this.check(RclToken.EMBEDDED_CODE)) {
       throw new Error(`Expected embedded expression, got ${this.peek()?.image}`);
     }
-    
     const token = this.advance();
     const fullContent = token.image;
-    
-    // Extract language and content from patterns like "$js> code" or "$template> code"
-    const languageMatch = fullContent.match(/^\$((js|ts|template|rcl)>)/);
+    // Extract language and content from patterns like "$js> code", "$ts> code", or "$> code"
+    const languageMatch = fullContent.match(/^\$((js|ts)?>)/);
     if (!languageMatch) {
-      // Handle ${...} style expressions
-      if (fullContent.startsWith('${') && fullContent.endsWith('}')) {
-        return {
-          type: 'EmbeddedExpression',
-          language: 'js', // Default to js for ${} expressions
-          content: fullContent.slice(2, -1), // Remove ${ and }
-          isMultiline: false,
-          location: { start, end: this.getPosition() }
-        };
-      }
-      throw new Error(`Invalid embedded expression format: ${fullContent}`);
+      throw new Error(`Unknown embedded expression format: ${fullContent}`);
     }
-    
-    const language = languageMatch[2] as 'js' | 'ts' | 'template' | 'rcl';
-    // Extract content after the full matched pattern (e.g., after "$js>")
-    const content = fullContent.substring(languageMatch[0].length).trim();
-    
+    // Handle the language extraction: if it's just ">", default to "js"
+    let language: 'js' | 'ts';
+    if (languageMatch[1] === '>') {
+      language = 'js'; // Default language for $> syntax
+    } else {
+      language = languageMatch[1].slice(0, -1) as 'js' | 'ts'; // Remove the '>' and use 'js' or 'ts'
+    }
+    const content = fullContent.slice(languageMatch[0].length).trim();
     return {
       type: 'EmbeddedExpression',
       language,
       content,
       isMultiline: false,
-      location: { start, end: this.getPosition() }
+      location: { start, end: start }
     };
   }
   
   /**
-   * Parse embedded code block: $js>>> { code }
+   * Parse embedded code block: $js>>> { code }, $ts>>> { code }
    */
   private parseEmbeddedCodeBlock(): EmbeddedCodeBlock {
     const start = this.getPosition();
     
-    if (!this.check(RclToken.MULTI_LINE_EXPRESSION)) {
+    if (!this.check(RclToken.MULTI_LINE_EXPRESSION_START)) {
       throw new Error(`Expected multi-line expression, got ${this.peek()?.image}`);
     }
     
     const token = this.advance();
     const fullContent = token.image;
     
-    // Extract language and content from patterns like "$js>>> { code }"
-    const languageMatch = fullContent.match(/^\$((js|ts|template|rcl)?)>>>/);
+    // Extract language and content from patterns like "$js>>> { code }", "$ts>>> { code }", or "$>>> { code }"
+    const languageMatch = fullContent.match(/^\$((js|ts)?)>>>/);
     if (!languageMatch) {
       throw new Error(`Invalid multi-line expression format: ${fullContent}`);
     }
     
-    const language = (languageMatch[2] || 'js') as 'js' | 'ts' | 'template' | 'rcl';
+    const language = (languageMatch[2] || 'js') as 'js' | 'ts';
     
     // Extract content between { and }
     const contentMatch = fullContent.match(/\{([^}]*)\}/s);

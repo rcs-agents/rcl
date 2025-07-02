@@ -43,7 +43,7 @@ describe('RclCustomParser', () => {
     });
 
     it('should parse import statements', () => {
-      const input = `import utils as u from "shared/utils"
+      const input = `import Shared/Utils as Utils
 agent Simple Agent:
     name: "Simple"`;
 
@@ -54,20 +54,17 @@ agent Simple Agent:
       
       const importStmt = result.ast!.imports[0];
       expect(importStmt.type).toBe('ImportStatement');
-      expect(importStmt.importedNames).toContain('utils');
-      expect(importStmt.alias).toBe('u');
-      expect(importStmt.source).toBe('shared/utils');
+      expect(importStmt.importedNames).toEqual(['Shared', 'Utils']);
     });
 
     it('should parse multiple sections', () => {
       const input = `agent BMW Customer Service:
     description: "Customer support"
     
-flows:
-    Welcome Flow:
-        start: welcome_message
+flow Welcome Flow:
+    :start -> Welcome Message
     
-messages:
+messages Messages:
     welcome_message:
         text: "Welcome to BMW"`;
 
@@ -77,16 +74,16 @@ messages:
       expect(result.ast?.sections).toHaveLength(3);
       
       const agentSection = result.ast!.sections.find(s => s.sectionType === 'agent');
-      const flowsSection = result.ast!.sections.find(s => s.sectionType === 'flows');
+      const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
       const messagesSection = result.ast!.sections.find(s => s.sectionType === 'messages');
       
       expect(agentSection).toBeDefined();
-      expect(flowsSection).toBeDefined();
+      expect(flowSection).toBeDefined();
       expect(messagesSection).toBeDefined();
       
       expect(agentSection?.name).toBe('BMW Customer Service');
-      expect(flowsSection?.name).toBe('');
-      expect(messagesSection?.name).toBe('');
+      expect(flowSection?.name).toBe('Welcome Flow');
+      expect(messagesSection?.name).toBe('Messages');
     });
 
     it('should parse boolean and numeric values', () => {
@@ -151,8 +148,7 @@ messages:
     it('should continue parsing after recoverable errors', () => {
       const input = `agent First Agent:
     valid: "attribute"
-    
-    invalid syntax here
+    $invalidexpression>>>!!!@#$
     
 agent Second Agent:
     another: "valid attribute"`;
@@ -167,27 +163,32 @@ agent Second Agent:
   describe('Indentation Handling', () => {
     it('should handle nested sections with proper indentation', () => {
       const input = `agent Main Agent:
-    description: "Main agent"
-    flows:
-        Welcome Flow:
-            start: welcome
-    messages:
-        welcome:
-            text: "Hello"`;
+    displayName: "Main agent"
+    
+agentConfig Config:
+    description: "Agent configuration"
+    
+flow Welcome Flow:
+    :start -> welcome
+    
+messages Messages:
+    welcome:
+        text: "Hello"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
-      expect(result.ast?.sections).toHaveLength(1);
+      expect(result.ast?.sections).toHaveLength(4);
       
-      const mainSection = result.ast!.sections[0];
-      expect(mainSection.subSections).toHaveLength(2);
+      const agentSection = result.ast!.sections.find(s => s.sectionType === 'agent');
+      const configSection = result.ast!.sections.find(s => s.sectionType === 'agentConfig');
+      const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
+      const messagesSection = result.ast!.sections.find(s => s.sectionType === 'messages');
       
-      const flowsSubSection = mainSection.subSections.find(s => s.sectionType === 'flows');
-      const messagesSubSection = mainSection.subSections.find(s => s.sectionType === 'messages');
-      
-      expect(flowsSubSection).toBeDefined();
-      expect(messagesSubSection).toBeDefined();
+      expect(agentSection).toBeDefined();
+      expect(configSection).toBeDefined();
+      expect(flowSection).toBeDefined();
+      expect(messagesSection).toBeDefined();
     });
   });
 
@@ -196,21 +197,20 @@ agent Second Agent:
       const input = `agent Test Agent:
     description: "Test agent"
     
-flows:
-    Default Flow:
-        :start -> Welcome
-        Welcome -> Main Menu`;
+flow Default Flow:
+    :start -> Welcome
+    Welcome -> Main Menu`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       expect(result.ast).toBeDefined();
       
-      const flowsSection = result.ast!.sections.find(s => s.sectionType === 'flows');
-      expect(flowsSection).toBeDefined();
-      expect(flowsSection!.flowRules).toHaveLength(1);
+      const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
+      expect(flowSection).toBeDefined();
+      expect(flowSection!.flowRules).toHaveLength(1);
       
-      const defaultFlow = flowsSection!.flowRules[0];
+      const defaultFlow = flowSection!.flowRules[0];
       expect(defaultFlow.name).toBe('Default Flow');
       expect(defaultFlow.transitions).toHaveLength(2);
       
@@ -234,17 +234,16 @@ flows:
       const input = `agent Test Agent:
     description: "Test agent"
     
-flows:
-    Support Flow:
-        :start -> "Welcome Message"
-        "Technical Issue" -> "Tech Support"`;
+flow Support Flow:
+    :start -> "Welcome Message"
+    "Technical Issue" -> "Tech Support"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
-      const flowsSection = result.ast!.sections.find(s => s.sectionType === 'flows');
-      const supportFlow = flowsSection!.flowRules[0];
+      const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
+      const supportFlow = flowSection!.flowRules[0];
       expect(supportFlow.transitions).toHaveLength(2);
       
       // Check transition with string destination
@@ -264,16 +263,17 @@ flows:
       const input = `agent Test Agent:
     description: "Test agent"
     
-flows:
-    Booking Flow:
-        :start -> Book Appointment with service: premium, time: "10:00"`;
+flow Booking Flow:
+    :start -> Book Appointment with
+        service: premium
+        time: "10:00"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
-      const flowsSection = result.ast!.sections.find(s => s.sectionType === 'flows');
-      const bookingFlow = flowsSection!.flowRules[0];
+      const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
+      const bookingFlow = flowSection!.flowRules[0];
       expect(bookingFlow.transitions).toHaveLength(1);
       
       const transition = bookingFlow.transitions[0];
@@ -295,55 +295,54 @@ flows:
       const input = `agent Test Agent:
     description: "Test agent"
     
-flows:
-    Default Flow:
-        :start -> Welcome
-        Welcome -> Main Menu
+flow Default Flow:
+    :start -> Welcome
+    Welcome -> Main Menu
         
-    Legacy Flow:
-        start: welcome_message
-        timeout: 30`;
+flow Legacy Flow:
+    :start -> Welcome Message
+    timeout: 30`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
-      const flowsSection = result.ast!.sections.find(s => s.sectionType === 'flows');
-      expect(flowsSection!.flowRules).toHaveLength(2);
+      const flowSections = result.ast!.sections.filter(s => s.sectionType === 'flow');
+      expect(flowSections).toHaveLength(2);
       
       // Check modern flow with transitions
-      const defaultFlow = flowsSection!.flowRules[0];
+      const defaultFlow = flowSections[0];
       expect(defaultFlow.name).toBe('Default Flow');
-      expect(defaultFlow.transitions).toHaveLength(2);
+      expect(defaultFlow.flowRules).toHaveLength(1);
+      expect(defaultFlow.flowRules[0].transitions).toHaveLength(2);
       expect(defaultFlow.attributes).toHaveLength(0);
       
       // Check legacy flow with attributes
-      const legacyFlow = flowsSection!.flowRules[1];
+      const legacyFlow = flowSections[1];
       expect(legacyFlow.name).toBe('Legacy Flow');
-      expect(legacyFlow.transitions).toHaveLength(0);
-      expect(legacyFlow.attributes).toHaveLength(2);
+      expect(legacyFlow.flowRules[0].transitions).toHaveLength(1);
+      expect(legacyFlow.attributes).toHaveLength(1);
     });
 
     it('should handle complex real-world flow example', () => {
       const input = `agent BMW Support Agent:
     displayName: "BMW Support"
     
-flows:
-    Default Flow:
-        :start -> WelcomeMessage
-        :WelcomeMessage -> MainMenu
-        :MainMenu -> TechIssueSelectedMessage
-        :MainMenu -> BillingInquirySelectedMessage
-        :MainMenu -> ConfirmAgentTransferMessage
-        :TechIssueSelectedMessage -> TechSupportFollowUpMessage
-        :ConfirmAgentTransferMessage -> AgentTransferInProgressMessage`;
+flow Default Flow:
+    :start -> WelcomeMessage
+    :WelcomeMessage -> MainMenu
+    :MainMenu -> TechIssueSelectedMessage
+    :MainMenu -> BillingInquirySelectedMessage
+    :MainMenu -> ConfirmAgentTransferMessage
+    :TechIssueSelectedMessage -> TechSupportFollowUpMessage
+    :ConfirmAgentTransferMessage -> AgentTransferInProgressMessage`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
-      const flowsSection = result.ast!.sections.find(s => s.sectionType === 'flows');
-      const defaultFlow = flowsSection!.flowRules[0];
+      const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
+      const defaultFlow = flowSection!.flowRules[0];
       
       expect(defaultFlow.name).toBe('Default Flow');
       expect(defaultFlow.transitions).toHaveLength(7);

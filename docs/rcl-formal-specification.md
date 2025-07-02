@@ -26,7 +26,7 @@ _Note on AST Mapping:_ While this EBNF does not explicitly use `property_name: R
 These are the fundamental building blocks (tokens) of the RCL, recognized by the lexer.
 
 _Note on Identifier Types:_
-- `IDENTIFIER` (Title/Proper Noun): Starts with an uppercase letter, used for section names, object types, function-like constructs, and references. Follows the pattern `/[A-Z][a-z]*([ ]+[A-Z][a-z]*)*/` allowing spaces between words where each word starts with uppercase.
+- `IDENTIFIER` (Title/Proper Noun): Starts with an uppercase letter, used for section names, object types, function-like constructs, and references. Follows the pattern `/[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9]))*/` - allows spaces between words where each word starts with uppercase letter or number, and hyphens and underscores within words
 - `ATTRIBUTE_KEY` (Common Noun): Starts with a lowercase letter, used for keys in key-value pairs (properties/attributes).
 - `SECTION_TYPE` (Common Noun): Starts with a lowercase letter, used for section type keywords like `agent`, `flow`, etc.
 
@@ -48,19 +48,19 @@ _Note on Whitespace within Rules:_ The `WS` hidden terminal allows for optional 
 
 ### 2.3 Common Terminals
 ```ebnf
-IDENTIFIER ::= /[A-Z]([A-Za-z0-9-]|(\s(?=[A-Z0-9])))*/  // Title/Proper Noun names (TitleCase with spaces and hyphens). Each word starts with uppercase letter or number.
+IDENTIFIER ::= /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*/  // Title/Proper Noun names (TitleCase with spaces and hyphens). Each word starts with uppercase letter or number.
 ATTRIBUTE_KEY ::= /[a-z][a-zA-Z0-9_]*/              // Used for common noun attribute/property keys (lowercase start, letters, numbers, underscore).
 SECTION_TYPE ::= /[a-z][a-zA-Z0-9]*/               // Used for section type keywords (lowercase start).
 ATOM ::= /:([_a-zA-Z][\w_]*|"[^"\\]*")/ // e.g., :symbol or :"quoted symbol". Enum values are lowercase (e.g., :transactional, :promotional).
 STRING ::= /"(\\.|[^"\\])*"/           // Double-quoted strings with standard escape sequences. Single quotes are reserved for 's accessor operator.
-NUMBER ::= /[0-9]{1,3}(,[0-9]{3})*(\.[0-9]+)?([eE][-+]?[0-9]+)?|[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?/ // Integer or floating-point numbers with optional comma separators.
-ISO_DURATION_LITERAL ::= /(P(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(\d+H)?(\d+M)?(\d+(\.\d+)?S)?)?)|([0-9]+(\.[0-9]+)?s)/ // ISO 8601 duration or simple seconds (e.g., "3.5s").
+NUMBER ::= /[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?/ // Integer or floating-point numbers.
+ISO_DURATION_LITERAL ::= /(P((\d+Y)|(\d+M)|(\d+W)|(\d+D)|(T((\d+H)|(\d+M)|(\d+(\.\d+)?S))+))+)|([0-9]+(\.[0-9]+)?s)/ // ISO 8601 duration or simple seconds (e.g., "3.5s"). At least one component required.
 ```
 
 ### 2.4 Embedded Code Terminals
 The content within embedded code blocks is treated as raw text by the RCL parser and stored as literal strings.
 ```ebnf
-SINGLE_LINE_EXPRESSION ::= /\$((js|ts)?>)\s*[^\r\n]*/     // e.g., $js> console.log('hello'), $ts> 1+1, $> someValue. Optional lang tag: js or ts.
+EMBEDDED_CODE ::= /\$((js|ts)?>)\s*[^\r\n]*/               // e.g., $js> console.log('hello'), $ts> 1+1, $> someValue. Optional lang tag: js or ts. Goes to end of line.
 MULTI_LINE_EXPRESSION_START ::= /\$((js|ts)?)>>>/          // e.g., $ts>>>, $js>>>, $>>>. Optional lang tag: js or ts.
 MULTI_LINE_EXPRESSION_CONTENT ::= /[^]*/                 // Raw content of a multi-line block, terminated by a DEDENT.
 ```
@@ -176,7 +176,7 @@ Ref ::= IDENTIFIER // This IDENTIFIER references another named entity (AbstractN
 ### 3.1 Embedded Code Rules
 
 ```ebnf
-SingleLineEmbeddedCode ::= SINGLE_LINE_EXPRESSION
+SingleLineEmbeddedCode ::= EMBEDDED_CODE
 
 MultiLineEmbeddedCodeBlock ::=
     MULTI_LINE_EXPRESSION_START
@@ -289,7 +289,10 @@ FlowOperandOrExpression ::=
     | ('start' IDENTIFIER) // Reference to another flow (e.g., "start Support Flow").
 
 WithClause ::=
-    'with' Parameter (',' Parameter)*
+    'with'
+    INDENT
+    (ATTRIBUTE_KEY ':' Value)+ // One or more parameter assignments as indented key-value pairs
+    DEDENT
 ```
 
 ### 3.6 Agent Configuration Rules
@@ -569,7 +572,7 @@ Identifiers are Title-case names used for sections, flows, messages, and other n
 -   **Subsequent Characters**: Can be uppercase letters (A-Z), lowercase letters (a-z), numbers (0-9), or hyphens (-).
 -   **Spaces**: Allowed between words, where each word starts with an uppercase letter or number.
 -   **Hyphens**: Allowed within identifiers but must be part of a continuous sequence of non-space characters.
--   **Pattern**: `/[A-Z]([A-Za-z0-9-]|(\s(?=[A-Z0-9]))*/` - allows spaces between words where each word starts with uppercase letter or number, and hyphens within words
+-   **Pattern**: `/[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9]))*/` - allows spaces between words where each word starts with uppercase letter or number, and hyphens within words
 -   **Examples**: `Welcome Message`, `User Profile`, `Contact Support Flow`, `Agent Name`, `Calculate-Total-Amount`, `Order-ID-123`
 -   **Restrictions**: System reserved names (Config, Defaults, Messages) cannot be used as titles except in their designated contexts
 -   **Case Sensitivity**: Identifiers are case-sensitive

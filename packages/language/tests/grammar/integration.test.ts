@@ -150,20 +150,22 @@ messages:
 
     it('should handle space-separated identifiers correctly', () => {
       const input = `agent Premium Customer Support Agent:
-    department: Customer Relations Team
-    specialization: BMW Premium Services
+    displayName: "Premium Customer Support Agent"
+    department: "Customer Relations Team"
+    specialization: "BMW Premium Services"
 
-flows:
-    BMW Contact Support Flow:
-        description: Handle premium customer inquiries
+flow BMW Contact Support Flow:
+    description: "Handle premium customer inquiries"
+    :start -> Welcome
         
-    Product Information Request Flow:
-        description: Provide detailed product information
+flow Product Information Request Flow:
+    description: "Provide detailed product information"
+    :start -> Product Info
 
-messages:
-    Premium Welcome Message:
+messages Messages:
+    premium_welcome_message:
         text: "Welcome to BMW Premium Support"
-        category: Premium Customer Service`;
+        category: "Premium Customer Service"`;
 
       const parser = new RclCustomParser();
       const result = parser.parse(input);
@@ -182,41 +184,42 @@ messages:
       const agentSection = ast.sections.find(s => s.sectionType === 'agent');
       expect(agentSection?.name).toBe('Premium Customer Support Agent');
       
-      // Check space-separated attribute values
+      // Check string attribute values (now using strings instead of space-separated identifiers)
       const deptAttr = agentSection?.attributes.find(a => a.key === 'department');
-      expect(deptAttr?.value.type).toBe('IdentifierValue');
+      expect(deptAttr?.value.type).toBe('StringValue');
       expect((deptAttr?.value as any).value).toBe('Customer Relations Team');
-      expect((deptAttr?.value as any).isSpaceSeparated).toBe(true);
       
       // Check flow names
-      const flowRules = AstUtils.getFlowRules(ast);
-      const flowNames = flowRules.map(f => f.name);
+      const flowSections = ast.sections.filter(s => s.sectionType === 'flow');
+      const flowNames = flowSections.map(f => f.name);
       expect(flowNames).toContain('BMW Contact Support Flow');
       expect(flowNames).toContain('Product Information Request Flow');
       
       // Check message names
-      const messages = AstUtils.getMessages(ast);
-      const messageNames = messages.map(m => m.name);
-      expect(messageNames).toContain('Premium Welcome Message');
+      const messagesSection = ast.sections.find(s => s.sectionType === 'messages');
+      expect(messagesSection).toBeDefined();
+      expect(messagesSection!.messages).toHaveLength(1);
+      expect(messagesSection!.messages[0].name).toBe('premium_welcome_message');
     });
 
     it('should handle mixed value types', () => {
       const input = `agent Configuration Agent:
+    displayName: "Config Agent"
     name: "Config Agent"
     port: 8080
     timeout: 30.5
     enabled: True
     disabled: False
     nullable_field: null
-    environment: production
+    environment: Production Environment
     max_connections: 100
 
-flows:
-    Health Check Flow:
-        interval: 60
-        enabled: True
+flow Health Check Flow:
+    interval: 60
+    enabled: True
+    :start -> Health Check
 
-messages:
+messages Messages:
     status_message:
         text: "System status: operational"
         priority: 1
@@ -266,7 +269,7 @@ messages:
       // Test identifier value
       const envAttr = agentSection.attributes.find(a => a.key === 'environment');
       expect(envAttr?.value.type).toBe('IdentifierValue');
-      expect((envAttr?.value as any).value).toBe('production');
+      expect((envAttr?.value as any).value).toBe('Production Environment');
     });
   });
 
@@ -300,19 +303,19 @@ agent Another Good Agent:
       const sections = [];
       for (let i = 0; i < 10; i++) {
         sections.push(`agent Test Agent ${i}:
+    displayName: "Test Agent ${i}"
     name: "Test Agent ${i}"
     version: "1.${i}"
     enabled: True`);
       }
       
       for (let i = 0; i < 5; i++) {
-        sections.push(`flows:
-    Flow ${i}:
-        start: message_${i}`);
+        sections.push(`flow Flow ${i}:
+    :start -> message_${i}`);
       }
       
       for (let i = 0; i < 15; i++) {
-        sections.push(`messages:
+        sections.push(`messages Messages${i}:
     message_${i}:
         text: "Message ${i} content"
         priority: ${i}`);

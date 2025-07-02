@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- use Bun instead of Node
+- use `bun test` instead of `vitest`

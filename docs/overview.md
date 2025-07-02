@@ -43,7 +43,7 @@ The main building blocks are:
 - `symbols` are special values that start with a `:` and are used to represent something (they atoms in Elixir). For example, "the starting point of a flow" is represented by the `:start` symbol. When the value of a property in the RCS specification must be _one of_ a list of options (we call this an "enumeration"), each option becomes a symbol.
   For example: the value of the agent's [`agentUseCase`](https://developers.google.com/business-communications/rcs-business-messaging/reference/business-communications/rest/v1/brands.agents#agentusecase) can be "TRANSACTIONAL", "PROMOTIONAL", "OTP", "MULTI_USE", or "AGENT_USE_CASE_UNSPECIFIED", these are mapped to the lowercase symbols `:transactional`, `:promotional`, `:otp`, `:multi_use`, or `:unspecified` (all enumeration values that end with "_UNSPECIFIED" are mapped to the `:unspecified`)
 - Properties always have valid non-qualified identifier names which are followed by a `:` when their value is being defined
-- A `title` is a special kind of identifier used for section names. It follows the pattern `/[A-Z][a-z]*([ ]+[A-Z][a-z]*)*/` - each word starts with an uppercase letter, separated by spaces
+- A `title` is a special kind of identifier used for section names. It follows the pattern `/[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9]))*/` - each word starts with an uppercase letter or number, separated by spaces, allowing hyphens and underscores within words
   - **Examples**: `Welcome Message`, `User Profile`, `Contact Support Flow`
   - **Usage**: Flow names, message names, and user-defined sections (`flow Welcome Flow`, `agentMessage Booking Confirmation`)
   - **Restrictions**: System reserved names (Config, Defaults, Messages) cannot be used as titles
@@ -54,7 +54,7 @@ The main building blocks are:
 RCL supports embedding executable JavaScript or TypeScript code within data structures through embedded code syntax. **Important**: Embedded code is stored as literal strings in the AST and is not parsed by the RCL parser. Code execution happens at runtime by appropriate engines.
 
 ### Single-line Embedded Code
-Start with `$[language]>` where language can be `js`, `ts`, or omitted (defaults to JavaScript):
+Start with `$[language]>` where language can be `js`, `ts`, or omitted (defaults to JavaScript). **Important**: Single-line embedded code extends to the end of the line and cannot be used in inline parameter lists.
 - `$js>` - Explicit JavaScript embedded code
 - `$ts>` - TypeScript embedded code  
 - `$>` - Uses default language from `Defaults.expressions.language` (defaults to JavaScript)
@@ -149,9 +149,11 @@ RCL flows define conversation paths with states, transitions, and parameters.
 - **State References**: States can be literal values or computed embedded code (`$js> determine_next_step(context.user.type, context.message)`)
 
 ### Parameter Passing
-Flow parameters are passed between states using the `with` clause:
+Flow parameters are passed between states using the `with` clause as an indented block:
 ```rcl
--> Book Appointment with service: context.selected_service, time: context.preferred_time
+-> Book Appointment with
+    service: context.selected_service
+    time: $js> context.preferred_time
 ```
 Parameters become available in the next state's context.
 

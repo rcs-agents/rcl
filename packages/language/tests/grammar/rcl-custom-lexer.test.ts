@@ -69,7 +69,7 @@ function testEmbeddedExpressions() {
   console.log('Input:', input);
   console.log('Expression tokens:');
   result.tokens.forEach((token, i) => {
-    if (token.tokenType.name === 'SINGLE_LINE_EXPRESSION') {
+          if (token.tokenType.name === 'EMBEDDED_CODE') {
       console.log(`  ${i}: ${token.tokenType.name} = "${token.image}"`);
     }
   });
@@ -325,7 +325,7 @@ describe('RclCustomLexer', () => {
     });
 
     it('should tokenize strings and numbers', () => {
-      const input = '"hello world" 42 3.14 someIdentifier';
+      const input = '"hello world" 42 3.14 SomeIdentifier';
       const result = lexer.tokenize(input);
       
       expect(result.errors).toHaveLength(0);
@@ -341,7 +341,7 @@ describe('RclCustomLexer', () => {
       expect(tokens[2].image).toBe('3.14');
       
       expect(tokens[3].tokenType).toBe(RclToken.IDENTIFIER);
-      expect(tokens[3].image).toBe('someIdentifier');
+      expect(tokens[3].image).toBe('SomeIdentifier');
     });
   });
 
@@ -425,24 +425,12 @@ agent Test: # Another comment
 
   describe('Expressions', () => {
     it('should tokenize single-line expressions', () => {
-      const input = 'value: ${user.name + " test"}';
+      const input = 'value: $js> user.name + " test"';
       const result = lexer.tokenize(input);
       
       expect(result.errors).toHaveLength(0);
-      const expression = result.tokens.find(t => t.tokenType === RclToken.SINGLE_LINE_EXPRESSION);
+      const expression = result.tokens.find(t => t.tokenType === RclToken.EMBEDDED_CODE);
       expect(expression).toBeDefined();
-    });
-
-    it('should handle multi-line expression markers', () => {
-      const input = `value: \${{
-  some expression
-  multiple lines
-}}`;
-      const result = lexer.tokenize(input);
-      
-      expect(result.errors).toHaveLength(0);
-      const startMarker = result.tokens.find(t => t.tokenType === RclToken.MULTI_LINE_EXPRESSION);
-      expect(startMarker).toBeDefined();
     });
   });
 

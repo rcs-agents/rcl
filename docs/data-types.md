@@ -137,12 +137,26 @@ eventDetails:
 RCL supports embedding JavaScript or TypeScript code within data structures. **Important**: Embedded code is stored as literal strings in the AST and is not parsed by the RCL parser. Code execution happens at runtime by appropriate engines.
 
 #### Single-line Embedded Code
-Start with `$[language]>` where language can be `js`, `ts`, or omitted (defaults to JavaScript):
+Start with `$[language]>` where language can be `js`, `ts`, or omitted (defaults to JavaScript). **Important**: Single-line embedded code extends to the end of the line and cannot be used in the middle of inline parameter lists.
 
 ```rcl
 dynamicValue: $js> context.user.name.toUpperCase()
 calculation: $ts> (price * 0.08).toFixed(2)
 defaultLang: $> "Hello " + context.user.firstName
+```
+
+**Valid usage in flow parameters** (using block syntax):
+```rcl
+-> Book Appointment with
+    userId: $js> context.user.id
+    timestamp: $js> Date.now()
+    service: "premium"
+```
+
+**Invalid usage** (cannot use in inline lists):
+```rcl
+// This is INVALID - single-line embedded code cannot be used inline
+parameters: (userId: $js> context.user.id, service: "premium")
 ```
 
 #### Multi-line Embedded Code Blocks

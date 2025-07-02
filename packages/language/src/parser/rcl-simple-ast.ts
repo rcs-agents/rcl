@@ -138,22 +138,22 @@ export interface MessageDefinition extends BaseAstNode {
 }
 
 /**
- * Embedded expression (single line): $js> code, $template> code, $rcl> code
+ * Embedded expression (single line): $js> code, $ts> code
  */
 export interface EmbeddedExpression extends BaseAstNode {
   type: 'EmbeddedExpression';
-  language: 'js' | 'ts' | 'template' | 'rcl';
+  language: 'js' | 'ts';
   content: string;
   isMultiline: boolean;
   location?: SourceLocation;
 }
 
 /**
- * Embedded code block (multi-line): $js> { ... }
+ * Embedded code block (multi-line): $js> { ... }, $ts> { ... }
  */
 export interface EmbeddedCodeBlock extends BaseAstNode {
   type: 'EmbeddedCodeBlock';
-  language: 'js' | 'ts' | 'template' | 'rcl';
+  language: 'js' | 'ts';
   content: string[]; // Array of lines
   location?: SourceLocation;
 }
