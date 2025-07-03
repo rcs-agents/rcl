@@ -1,0 +1,1822 @@
+bun test v1.2.18 (0d4089ea)
+
+tests/error-handling/parser-errors.test.ts:
+(pass) RCL Parser Error Handling Tests > Lexer Error Recovery > handles invalid characters gracefully [2.33ms]
+42 |       if (lexResult.errors.length > 0) {
+43 |         const stringError = lexResult.errors.find(e =>
+44 |           e.message.toLowerCase().includes('string') ||
+45 |           e.message.toLowerCase().includes('unterminated')
+46 |         );
+47 |         expect(stringError).toBeDefined();
+                                 ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/error-handling/parser-errors.test.ts:47:29)
+(fail) RCL Parser Error Handling Tests > Lexer Error Recovery > recovers from unterminated strings [1.56ms]
+(pass) RCL Parser Error Handling Tests > Lexer Error Recovery > handles mixed indentation errors [0.30ms]
+(pass) RCL Parser Error Handling Tests > Lexer Error Recovery > handles unicode and special characters [0.93ms]
+(pass) RCL Parser Error Handling Tests > Parser Error Recovery > recovers from missing colons [0.59ms]
+(pass) RCL Parser Error Handling Tests > Parser Error Recovery > recovers from incomplete section definitions [0.73ms]
+143 |     name: "Test"`;
+144 | 
+145 |       const result = parser.parse(input);
+146 | 
+147 |       // Should have some parse errors
+148 |       expect(result.errors.length).toBeGreaterThan(0);
+                                         ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/error-handling/parser-errors.test.ts:148:36)
+(fail) RCL Parser Error Handling Tests > Parser Error Recovery > recovers from malformed import statements [2.28ms]
+(pass) RCL Parser Error Handling Tests > Parser Error Recovery > recovers from malformed flow rules [0.59ms]
+(pass) RCL Parser Error Handling Tests > Parser Error Recovery > recovers from nested section errors [0.44ms]
+237 |         :start -> message1`;
+238 | 
+239 |       const result = parser.parse(input);
+240 | 
+241 |       // Should report errors about missing names
+242 |       expect(result.errors.length).toBeGreaterThan(0);
+                                         ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/error-handling/parser-errors.test.ts:242:36)
+(fail) RCL Parser Error Handling Tests > Specific Error Cases > handles missing section names [0.13ms]
+(pass) RCL Parser Error Handling Tests > Specific Error Cases > handles invalid property assignments [0.16ms]
+(pass) RCL Parser Error Handling Tests > Specific Error Cases > handles unclosed brackets and parentheses [0.16ms]
+(pass) RCL Parser Error Handling Tests > Specific Error Cases > handles extremely malformed input [0.25ms]
+(pass) RCL Parser Error Handling Tests > Error Position and Context > reports accurate error positions [0.08ms]
+(pass) RCL Parser Error Handling Tests > Error Position and Context > provides helpful error messages [0.17ms]
+(pass) RCL Parser Error Handling Tests > Error Position and Context > reports multiple errors without stopping [0.24ms]
+(pass) RCL Parser Error Handling Tests > Edge Cases and Boundary Conditions > handles empty file gracefully [0.03ms]
+(pass) RCL Parser Error Handling Tests > Edge Cases and Boundary Conditions > handles whitespace-only file [0.03ms]
+(pass) RCL Parser Error Handling Tests > Edge Cases and Boundary Conditions > handles very large input [19.63ms]
+Deep nesting errors: [
+  undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+  undefined, undefined, undefined, undefined, undefined, undefined, undefined
+]
+(pass) RCL Parser Error Handling Tests > Edge Cases and Boundary Conditions > handles deeply nested structures [2.73ms]
+
+tests/grammar/import-enhancements.test.ts:
+(pass) RCL Import Statement Enhancements > Basic Import Statements (Already Working) > should parse simple import statements [0.33ms]
+(pass) RCL Import Statement Enhancements > Basic Import Statements (Already Working) > should parse import statements with aliases [0.06ms]
+(pass) RCL Import Statement Enhancements > Namespace Imports with Spaces > should parse namespace imports with spaces in names [0.11ms]
+(pass) RCL Import Statement Enhancements > Namespace Imports with Spaces > should parse multi-level namespace paths [0.15ms]
+(pass) RCL Import Statement Enhancements > Namespace Imports with Spaces > should parse complex namespace with spaces and alias [0.06ms]
+(pass) RCL Import Statement Enhancements > Edge Cases and Error Handling > should handle namespace paths without alias [0.03ms]
+(pass) RCL Import Statement Enhancements > Edge Cases and Error Handling > should handle single namespace with spaces [0.02ms]
+(pass) RCL Import Statement Enhancements > Edge Cases and Error Handling > should handle imports without source [0.05ms]
+(pass) RCL Import Statement Enhancements > Mixed Import Statements > should parse multiple different import types [0.02ms]
+(pass) Import Resolution Logic > should resolve a simple file import (case-insensitive) [6.94ms]
+(pass) Import Resolution Logic > should resolve a multi-level namespace to a file [0.88ms]
+(pass) Import Resolution Logic > should resolve a section in a parent file [1.19ms]
+(pass) Import Resolution Logic > should throw on ambiguity (multiple files) [1.25ms]
+(pass) Import Resolution Logic > should throw if not found [0.37ms]
+(pass) Import Resolution Logic > should use project root detection [0.43ms]
+(pass) Import Resolution Logic > should work in web environment with filesystem mock [0.39ms]
+(pass) Import Resolution Logic > should fallback gracefully when files dont exist in web environment [0.03ms]
+
+tests/grammar/rcl-custom-lexer.test.ts:
+RCL Custom Lexer Test Suite
+============================
+
+=== Testing Basic Tokenization ===
+Input: agent Test Agent
+  displayName: "My Test Agent"
+  brandName: "Test Brand"
+Tokens:
+  0: agent = "agent" (1:1-1:6)
+  1: WS = " " (1:6-1:7)
+  2: IDENTIFIER = "Test Agent" (1:7-1:17)
+  3: NL = "
+" (1:17-2:1)
+  4: INDENT = "" (2:1-2:1)
+  5: ATTRIBUTE_KEY = "displayName" (2:3-2:14)
+  6: COLON = ":" (2:14-2:15)
+  7: WS = " " (2:15-2:16)
+  8: STRING = ""My Test Agent"" (2:16-2:31)
+  9: NL = "
+" (2:31-3:1)
+  10: ATTRIBUTE_KEY = "brandName" (3:3-3:12)
+  11: COLON = ":" (3:12-3:13)
+  12: WS = " " (3:13-3:14)
+  13: STRING = ""Test Brand"" (3:14-3:26)
+  14: DEDENT = "" (3:26-3:26)
+
+=== Testing Indentation ===
+Input: agent Test Agent
+  displayName: "Test"
+  flow Welcome Flow
+    :start -> "Hello"
+    "Hello" -> :end
+Tokens (focusing on INDENT/DEDENT):
+  0: agent = "agent"
+  2: IDENTIFIER = "Test Agent"
+  4: INDENT = ""
+  8: STRING = ""Test""
+  10: flow = "flow"
+  12: IDENTIFIER = "Welcome Flow"
+  14: INDENT = ""
+  15: ATOM = ":start"
+  19: STRING = ""Hello""
+  21: STRING = ""Hello""
+  25: ATOM = ":end"
+  26: DEDENT = ""
+  27: DEDENT = ""
+
+=== Testing Embedded Expressions ===
+Input: agent Test Agent
+  displayName: $js> "Hello " + context.user.name
+  description: $ts> calculateDescription(context)
+Expression tokens:
+  8: EMBEDDED_CODE = "$js> "Hello " + context.user.name"
+  13: EMBEDDED_CODE = "$ts> calculateDescription(context)"
+
+=== Testing Type Tags ===
+Input: contact:
+  email: <email user@example.com>
+  phone: <phone +1234567890>
+  website: <url https://example.com>
+Type-related tokens:
+  4: email = "email"
+  7: LT = "<"
+  8: email = "email"
+  15: GT = ">"
+  17: phone = "phone"
+  20: LT = "<"
+  21: phone = "phone"
+  24: GT = ">"
+  29: LT = "<"
+  30: url = "url"
+  39: GT = ">"
+
+=== Testing Keywords ===
+Input: config:
+  enabled: True
+  debug: False
+  cache: Null
+  timeout: None
+Keyword tokens:
+  0: ATTRIBUTE_KEY = "config"
+  4: ATTRIBUTE_KEY = "enabled"
+  7: True = "True"
+  9: ATTRIBUTE_KEY = "debug"
+  12: False = "False"
+  14: ATTRIBUTE_KEY = "cache"
+  17: Null = "Null"
+  19: ATTRIBUTE_KEY = "timeout"
+  22: None = "None"
+
+=== Testing Message Shortcuts ===
+Input: messages Messages
+  text "Welcome to our service!"
+  richCard "Product Info"
+    description: "Our latest product"
+  reply "Get Started"
+  dial "Call Support" <phone +1234567890>
+Shortcut-related tokens:
+  5: text = "text"
+  7: STRING = ""Welcome to our service!""
+  9: richCard = "richCard"
+  11: STRING = ""Product Info""
+  17: STRING = ""Our latest product""
+  20: reply = "reply"
+  22: STRING = ""Get Started""
+  24: dial = "dial"
+  26: STRING = ""Call Support""
+  29: phone = "phone"
+
+=== Testing Space-Separated Identifiers ===
+Input: agent BMW Customer Service
+  flow Contact Support Flow
+  agentMessage Welcome Message
+    text "Hello from BMW Customer Service"
+Identifier tokens:
+  2: IDENTIFIER = "BMW Customer Service"
+  7: IDENTIFIER = "Contact Support Flow"
+  11: IDENTIFIER = "Welcome Message"
+
+=== Testing Error Handling ===
+Input: agent Test Agent
+  displayName: "Unclosed string
+  invalidChar: @#$%
+Errors:
+  0: Unexpected character '"' at line 2, column 16 at line 2, column 16
+
+Test suite completed!
+(pass) RclCustomLexer > Basic Tokenization > should tokenize keywords correctly
+(pass) RclCustomLexer > Basic Tokenization > should tokenize boolean literals [0.04ms]
+(pass) RclCustomLexer > Basic Tokenization > should tokenize null literals [0.02ms]
+(pass) RclCustomLexer > Basic Tokenization > should tokenize type names [0.03ms]
+(pass) RclCustomLexer > Basic Tokenization > should tokenize punctuation [0.23ms]
+(pass) RclCustomLexer > Basic Tokenization > should tokenize strings and numbers [0.02ms]
+(pass) RclCustomLexer > Indentation Handling > should handle basic indentation [0.09ms]
+(pass) RclCustomLexer > Indentation Handling > should handle multiple indent levels [0.18ms]
+Mixed tabs/spaces debug:
+Errors:
+(pass) RclCustomLexer > Indentation Handling > should handle mixed spaces and tabs gracefully [0.10ms]
+(pass) RclCustomLexer > Comments > should tokenize single-line comments [0.03ms]
+(pass) RclCustomLexer > Comments > should handle comments with special characters [0.02ms]
+(pass) RclCustomLexer > Expressions > should tokenize single-line expressions [0.02ms]
+(pass) RclCustomLexer > Multi-line Strings > should tokenize multi-line string markers [0.02ms]
+(pass) RclCustomLexer > Comprehensive RCL Structure > should tokenize a complete minimal RCL file [0.21ms]
+(pass) RclCustomLexer > Comprehensive RCL Structure > should tokenize space-separated identifiers correctly [0.03ms]
+(pass) RclCustomLexer > Error Handling > should handle invalid characters gracefully [0.04ms]
+(pass) RclCustomLexer > Error Handling > should handle empty input [0.01ms]
+(pass) RclCustomLexer > Error Handling > should handle only whitespace [0.02ms]
+(pass) RclCustomLexer > Type Tags > should tokenize type tags with values [0.08ms]
+(pass) RclCustomLexer > ISO Duration Literals > should tokenize ISO duration literals [0.05ms]
+(pass) RclCustomLexer > Arrow Operators > should tokenize arrow operators [0.02ms]
+(pass) RclCustomLexer > Action Keywords > should tokenize action-related keywords [0.02ms]
+(pass) RclCustomLexer > Message Keywords > should tokenize message-related keywords [0.02ms]
+(pass) RclCustomLexer > Flow Control Keywords > should tokenize flow control keywords [0.02ms]
+
+tests/grammar/comprehensive-parser.test.ts:
+45 |         :start -> welcome
+46 |         welcome -> :end`;
+47 | 
+48 |       const result = parser.parse(input);
+49 | 
+50 |       expect(result.errors).toHaveLength(0);
+                                 ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 12
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:50:29)
+(fail) Comprehensive RCL Parser Tests > Agent Section Parsing > parses complex agent with all subsections [0.85ms]
+102 |     validAtom: :CUSTOM_VALUE
+103 |     nullValue: null`;
+104 | 
+105 |       const result = parser.parse(input);
+106 | 
+107 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 2
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:107:29)
+(fail) Comprehensive RCL Parser Tests > Agent Section Parsing > parses agent with validation attributes [0.31ms]
+136 | agent Test Agent:
+137 |     name: "Test"`;
+138 | 
+139 |       const result = parser.parse(input);
+140 | 
+141 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 4
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:141:29)
+(fail) Comprehensive RCL Parser Tests > Import Statement Parsing > parses various import patterns [0.06ms]
+173 | agent Test:
+174 |     name: "Test"`;
+175 | 
+176 |       const result = parser.parse(input);
+177 | 
+178 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 8
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:178:29)
+(fail) Comprehensive RCL Parser Tests > Import Statement Parsing > handles import edge cases [0.10ms]
+215 |       expect(result.ast).toBeDefined();
+216 | 
+217 |       const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
+218 |       expect(flowSection).toBeDefined();
+219 |       expect(flowSection!.name).toBe('Main Flow');
+220 |       expect(flowSection!.flowRules).toHaveLength(9);
+                                           ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 9
+Received length: 1
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:220:38)
+(fail) Comprehensive RCL Parser Tests > Flow Section Parsing > parses complex flow rules [0.37ms]
+251 |     "Quoted Message Name" -> Special Message With Spaces
+252 |     Special Message With Spaces -> :end`;
+253 | 
+254 |       const result = parser.parse(input);
+255 | 
+256 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:256:29)
+(fail) Comprehensive RCL Parser Tests > Flow Section Parsing > parses flow with attributes and complex targets [0.19ms]
+307 |         additionalData: null
+308 |         timestamp: "2024-01-01T00:00:00Z"`;
+309 | 
+310 |       const result = parser.parse(input);
+311 | 
+312 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 2
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:312:29)
+(fail) Comprehensive RCL Parser Tests > Message Section Parsing > parses complex message definitions [0.28ms]
+389 |             encryption: True
+390 |             validateInput: True`;
+391 | 
+392 |       const result = parser.parse(input);
+393 | 
+394 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 53
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:394:29)
+(fail) Comprehensive RCL Parser Tests > Nested Structure Parsing > parses deeply nested sections [1.01ms]
+(pass) Comprehensive RCL Parser Tests > Edge Cases and Error Recovery > handles mixed indentation gracefully [0.13ms]
+(pass) Comprehensive RCL Parser Tests > Edge Cases and Error Recovery > recovers from syntax errors [0.13ms]
+(pass) Comprehensive RCL Parser Tests > Edge Cases and Error Recovery > handles empty sections [0.12ms]
+(pass) Comprehensive RCL Parser Tests > Edge Cases and Error Recovery > handles unicode and special characters [0.56ms]
+512 |       expect(sectionNames).toContain('Test Flow');
+513 |       expect(sectionNames).toContain('Test Messages');
+514 | 
+515 |       const flowRules = AstUtils.getFlowRules(ast);
+516 |       expect(flowRules).toHaveLength(1);
+517 |       expect(flowRules[0].from).toBe(':start');
+                                      ^
+error: expect(received).toBe(expected)
+
+Expected: ":start"
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:517:33)
+(fail) Comprehensive RCL Parser Tests > AST Utility Functions > AST utilities work correctly [0.73ms]
+541 |     identifierValue: some_identifier
+542 |     spacedIdentifier: Spaced Identifier Value`;
+543 | 
+544 |       const result = parser.parse(input);
+545 | 
+546 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 2
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/grammar/comprehensive-parser.test.ts:546:29)
+(fail) Comprehensive RCL Parser Tests > Value Type Validation > correctly identifies all value types [0.13ms]
+
+tests/grammar/rcl-custom-parser.test.ts:
+(pass) RclCustomParser > Basic Parsing > should parse an empty file
+(pass) RclCustomParser > Basic Parsing > should parse a minimal agent section [0.10ms]
+(pass) RclCustomParser > Basic Parsing > should parse import statements [0.02ms]
+(pass) RclCustomParser > Basic Parsing > should parse multiple sections [0.19ms]
+(pass) RclCustomParser > Basic Parsing > should parse boolean and numeric values [0.17ms]
+(pass) RclCustomParser > Basic Parsing > should handle space-separated identifiers [0.14ms]
+(pass) RclCustomParser > Error Handling > should handle syntax errors gracefully [0.09ms]
+(pass) RclCustomParser > Error Handling > should continue parsing after recoverable errors [0.16ms]
+(pass) RclCustomParser > Indentation Handling > should handle nested sections with proper indentation [0.24ms]
+(pass) RclCustomParser > Enhanced Flow Rules with Arrow Operators > should parse simple flow transitions with arrows [0.07ms]
+(pass) RclCustomParser > Enhanced Flow Rules with Arrow Operators > should parse flow transitions with string operands [0.16ms]
+(pass) RclCustomParser > Enhanced Flow Rules with Arrow Operators > should parse flow transitions with with clauses [0.29ms]
+(pass) RclCustomParser > Enhanced Flow Rules with Arrow Operators > should parse mixed flow rules (legacy named flows and new transitions) [0.22ms]
+(pass) RclCustomParser > Enhanced Flow Rules with Arrow Operators > should handle complex real-world flow example [0.28ms]
+
+tests/grammar/embedded-code.test.ts:
+(pass) RCL Embedded Code Storage > Single-line Embedded Expressions > should parse $js> single-line expressions
+(pass) RCL Embedded Code Storage > Single-line Embedded Expressions > should parse $ts> single-line expressions [0.52ms]
+(pass) RCL Embedded Code Storage > Single-line Embedded Expressions > should parse $> style expressions as JavaScript (default language) [0.03ms]
+(pass) RCL Embedded Code Storage > Multi-line Embedded Code Blocks > should parse $js> multi-line code blocks [0.02ms]
+(pass) RCL Embedded Code Storage > Multi-line Embedded Code Blocks > should handle multi-line blocks without explicit language (defaults to js) [0.02ms]
+(pass) RCL Embedded Code Storage > Embedded Code in Flow Rules > should parse embedded expressions in flow rule parameters [0.21ms]
+(pass) RCL Embedded Code Storage > Mixed Embedded Code and Regular Values > should handle sections with both embedded code and regular values [0.23ms]
+(pass) RCL Embedded Code Storage > Error Handling > should handle malformed embedded expressions gracefully [0.15ms]
+
+tests/grammar/integration.test.ts:
+(pass) RCL Lexer + Parser Integration > Complete Pipeline > should parse minimal.rcl example successfully [1.13ms]
+(pass) RCL Lexer + Parser Integration > Complete Pipeline > should handle imports and complex structure [0.54ms]
+(pass) RCL Lexer + Parser Integration > Complete Pipeline > should handle space-separated identifiers correctly [0.44ms]
+(pass) RCL Lexer + Parser Integration > Complete Pipeline > should handle mixed value types [0.52ms]
+(pass) RCL Lexer + Parser Integration > Error Recovery > should handle partial parsing with errors [0.10ms]
+(pass) RCL Lexer + Parser Integration > Performance > should handle reasonably large files efficiently [2.60ms]
+Skipping example.rcl test - file not found
+(pass) RCL Lexer + Parser Integration > Real Example Files > should parse example.rcl if it exists [1.23ms]
+Skipping minimal.rcl test - file not found
+(pass) RCL Lexer + Parser Integration > Real Example Files > should parse minimal.rcl if it exists [0.04ms]
+
+tests/lexer/critical-fixes.test.ts:
+
+# Unhandled error between tests
+-------------------------------
+ 9 | import { RclLexer } from '../../src/parser/lexer/index.js';
+10 | 
+11 | describe('Critical Lexer Fixes', () => {
+12 |   let lexer: RclLexer;
+13 | 
+14 |   beforeEach(() => {
+       ^
+ReferenceError: beforeEach is not defined
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lexer/critical-fixes.test.ts:14:3)
+      at /work/rcs/temp/custom-lexer/packages/language/tests/lexer/critical-fixes.test.ts:11:1
+      at loadAndEvaluateModule (2:1)
+-------------------------------
+
+
+# Unhandled error between tests
+-------------------------------
+222 | });
+223 | 
+224 | describe('Error Handling Improvements', () => {
+225 |   let lexer: RclLexer;
+226 | 
+227 |   beforeEach(() => {
+        ^
+ReferenceError: beforeEach is not defined
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lexer/critical-fixes.test.ts:227:3)
+      at /work/rcs/temp/custom-lexer/packages/language/tests/lexer/critical-fixes.test.ts:224:1
+      at loadAndEvaluateModule (2:1)
+-------------------------------
+
+
+tests/integration/discrepancy-validation.test.ts:
+
+# Unhandled error between tests
+-------------------------------
+11 | 
+12 | describe('Discrepancy Validation', () => {
+13 |   let parser: RclParser;
+14 |   let lexer: RclLexer;
+15 | 
+16 |   beforeEach(() => {
+       ^
+ReferenceError: beforeEach is not defined
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/integration/discrepancy-validation.test.ts:16:3)
+      at /work/rcs/temp/custom-lexer/packages/language/tests/integration/discrepancy-validation.test.ts:12:1
+      at loadAndEvaluateModule (2:1)
+-------------------------------
+
+
+tests/integration/formal-spec-examples.test.ts:
+
+# Unhandled error between tests
+-------------------------------
+11 | 
+12 | describe('Formal Specification Examples', () => {
+13 |   let parser: RclParser;
+14 |   let lexer: RclLexer;
+15 | 
+16 |   beforeEach(() => {
+       ^
+ReferenceError: beforeEach is not defined
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/integration/formal-spec-examples.test.ts:16:3)
+      at /work/rcs/temp/custom-lexer/packages/language/tests/integration/formal-spec-examples.test.ts:12:1
+      at loadAndEvaluateModule (2:1)
+-------------------------------
+
+
+tests/textmate/scope.test.ts:
+Testing: Sequential token map for example.rcl - when all text segments are concatenated, they should reproduce the original file exactly
+Coverage: Covers imports, agent declaration, config, defaults, flow start, and beginning of Messages section including message and agentMessage keywords
+Checking if mapped tokens appear in sequence at file start...
+Mapped segment length: 420, File length: 6926
+❌ Missing expected token: "import" with scope "keyword.control.import.rcl"
+   No tokens found with text: "import"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "My Brand" with scope "entity.name.namespace.rcl"
+   Found 2 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, entity.name.section.rcl
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "/" with scope "punctuation.separator.namespace.rcl"
+   No tokens found with text: "/"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Samples.one" with scope "entity.name.module.rcl"
+   No tokens found with text: "Samples.one"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "as" with scope "keyword.control.import.as.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition, undefined
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Sample One" with scope "entity.name.alias.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+❌ Missing expected token: "
+" with scope "text.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "import" with scope "keyword.control.import.rcl"
+   No tokens found with text: "import"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "My Brand" with scope "entity.name.namespace.rcl"
+   Found 2 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, entity.name.section.rcl
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "/" with scope "punctuation.separator.namespace.rcl"
+   No tokens found with text: "/"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Samples.two" with scope "entity.name.module.rcl"
+   No tokens found with text: "Samples.two"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "as" with scope "keyword.control.import.as.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition, undefined
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Sample Two" with scope "entity.name.alias.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+❌ Missing expected token: "
+
+" with scope "text.rcl"
+   No tokens found with text: "
+
+"
+❌ Missing expected token: "agent" with scope "keyword.control.section.agent.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.section, keyword.control.rcl.section
+❌ Missing expected token: " " with scope "meta.section.agent.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "My Brand" with scope "entity.name.section.agent.rcl"
+   Found 2 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, entity.name.section.rcl
+❌ Missing expected token: "
+" with scope "meta.section.agent.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "  " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "  "
+❌ Missing expected token: "brandName" with scope "variable.other.property.rcl"
+   No tokens found with text: "brandName"
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Sample Brand" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Sample Brand"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+" with scope "meta.section.agent.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "  " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "  "
+❌ Missing expected token: "displayName" with scope "variable.other.property.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition, undefined
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Sample Agent" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Sample Agent"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+
+" with scope "meta.section.agent.rcl"
+   No tokens found with text: "
+
+"
+❌ Missing expected token: "  " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "  "
+❌ Missing expected token: "Config" with scope "keyword.control.section.config.rcl"
+   No tokens found with text: "Config"
+❌ Missing expected token: "
+" with scope "meta.subsection.config.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "    " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "    "
+❌ Missing expected token: "message" with scope "keyword.control.section.message.rcl"
+   No tokens found with text: "message"
+❌ Missing expected token: " " with scope "meta.message.declaration.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Welcome" with scope "entity.name.section.message.rcl"
+   No tokens found with text: "Welcome"
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "      " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "      "
+❌ Missing expected token: "text" with scope "variable.other.property.rcl"
+   Found 20 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Hello! This is a transactional message with various suggestions. How can I help you today?" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Hello! This is a transactional message with various suggestions. How can I help you today?"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "      " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "      "
+❌ Missing expected token: "suggestions" with scope "variable.other.property.rcl"
+   No tokens found with text: "suggestions"
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "        " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "        "
+❌ Missing expected token: "reply" with scope "keyword.control.action.property.rcl"
+   Found 7 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Tell me more" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Tell me more"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "        " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "        "
+❌ Missing expected token: "dialAction" with scope "keyword.control.action.property.rcl"
+   Found 3 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+     - source.rcl, meta.rcl.message.definition, undefined
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Call Us" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Call Us"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: ", " with scope "meta.value.single-line.rcl"
+   Found 19 tokens with that text but different scopes:
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+     - source.rcl, meta.rcl.message.definition
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "+1234567890" with scope "string.quoted.double.rcl"
+   No tokens found with text: "+1234567890"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "    " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "    "
+❌ Missing expected token: "agentMessage" with scope "keyword.control.section.agentmessage.rcl"
+   No tokens found with text: "agentMessage"
+❌ Missing expected token: " " with scope "meta.agentmessage.declaration.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Welcome Full" with scope "entity.name.section.agentmessage.rcl"
+   No tokens found with text: "Welcome Full"
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+✅ Scope validation: 0/88 tokens correctly scoped (0%)
+242 | 
+243 |       console.log(`✅ Scope validation: ${passedTokens}/${totalTokens} tokens correctly scoped (${Math.round(passedTokens/totalTokens*100)}%)`);
+244 | 
+245 |       // We expect high success rate for our mapped tokens since they represent the key elements we've fixed
+246 |       const successRate = passedTokens / totalTokens;
+247 |       expect(successRate).toBeGreaterThanOrEqual(0.85); // 85% threshold for partial mapping
+                                ^
+error: expect(received).toBeGreaterThanOrEqual(expected)
+
+Expected: >= 0.85
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:247:27)
+(fail) RCL TextMate Grammar Scope Tests > Example File Scope Validation > example.rcl file matches expected scopes for mapped tokens [13.59ms]
+
+Testing: message Welcome
+  Token: "message " -> source.rcl
+  Token: "Welcome" -> source.rcl, entity.name.section.rcl
+  Token "message" not found!
+  Expected "Welcome" to have "entity.name.section.message.rcl": FAIL
+    Actual scopes: source.rcl, entity.name.section.rcl
+
+Testing: agentMessage Welcome Full
+  Token: "agent" -> source.rcl
+  Token: "Message Welcome Full" -> source.rcl, entity.name.section.rcl
+  Token "agentMessage" not found!
+  Token "Welcome Full" not found!
+
+Testing:     reply: "Tell me more"
+  Token: "    reply" -> source.rcl
+  Token: ":" -> source.rcl, undefined
+  Token: " "" -> source.rcl
+  Token: "Tell" -> source.rcl, entity.name.section.rcl
+  Token: " me more"" -> source.rcl
+  Token "reply" not found!
+  Token ""Tell me more"" not found!
+
+Testing:     dialAction: "Call Us", "+1234567890"
+  Token: "    dial" -> source.rcl
+  Token: "Action" -> source.rcl, meta.rcl.message.definition, entity.name.rcl.message
+  Token: ":" -> source.rcl, meta.rcl.message.definition
+  Token: ""Call Us"" -> source.rcl, meta.rcl.message.definition, string.quoted.double.rcl
+  Token: ", " -> source.rcl, meta.rcl.message.definition
+  Token: ""+1234567890"" -> source.rcl, meta.rcl.message.definition, string.quoted.double.rcl
+  Token "dialAction" not found!
+  Expected ""Call Us"" to have "string.quoted.double.rcl": PASS
+(pass) RCL TextMate Grammar Scope Tests > Example File Scope Validation > critical scope issues debugging [0.44ms]
+312 | 
+313 |       const agentKeyword = tokens.find(t => t.text === KW.Agent);
+314 |       const agentName = tokens.find(t => t.text === 'Test Agent');
+315 | 
+316 |       expect(agentKeyword).toBeDefined();
+317 |       expect(agentName).toBeDefined();
+                              ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:317:25)
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > agent declaration scopes correctly [0.08ms]
+340 |       const enabledProp = tokens.find(t => t.text === 'enabled');
+341 |       const trueValue = tokens.find(t => t.text === KW.True);
+342 | 
+343 |       // Test agent section
+344 |       if (agentKeyword) {
+345 |         expect(hasExpectedScope(agentKeyword, 'keyword.control.section.agent.rcl')).toBe(true);
+                                                                                          ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:345:85)
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > agent with config section scopes correctly [0.16ms]
+377 | 
+378 |       const configTokens = tokenizeCode(configCode);
+379 |       const configKeyword = configTokens.find(t => t.text === KW.Config);
+380 |       expect(configKeyword).toBeDefined();
+381 |       if (configKeyword) {
+382 |         expect(hasExpectedScope(configKeyword, 'keyword.control.section.config.rcl')).toBe(true);
+                                                                                            ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:382:87)
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > properly separated subsections scope correctly [0.13ms]
+432 |       const separator = tokens.find(t => t.text === '/');
+433 |       const module = tokens.find(t => t.text === 'Samples.one');
+434 |       const asKeyword = tokens.find(t => t.text === KW.As);
+435 |       const alias = tokens.find(t => t.text === 'Sample One');
+436 | 
+437 |       expect(importKeyword).toBeDefined();
+                                  ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:437:29)
+(fail) RCL TextMate Grammar Scope Tests > Import Statement Scoping > import statement scopes correctly [0.08ms]
+(pass) RCL TextMate Grammar Scope Tests > Data Type Scoping > primitive values scope correctly within config [0.11ms]
+510 |       const startAtom = tokens.find(t => t.text === KW.Start);
+511 |       const arrow = tokens.find(t => t.text === KW.Arrow);
+512 |       const target = tokens.find(t => t.text === 'Welcome');
+513 | 
+514 |       if (flowKeyword) {
+515 |         expect(hasExpectedScope(flowKeyword, 'keyword.control.section.flow.rcl')).toBe(true);
+                                                                                        ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:515:83)
+(fail) RCL TextMate Grammar Scope Tests > Flow Section Scoping > flow declarations and rules scope correctly [0.60ms]
+(pass) RCL TextMate Grammar Scope Tests > Context Limitation > properties only appear in proper contexts [0.20ms]
+(pass) RCL TextMate Grammar Scope Tests > Context Limitation > flow rules only appear in flow contexts [0.05ms]
+582 |     enabled: ${KW.True}`;
+583 | 
+584 |       const tokens = tokenizeCode(code);
+585 | 
+586 |       // Test import
+587 |       expect(tokens.some(t => t.text === KW.Import && hasExpectedScope(t, 'keyword.control.import.rcl'))).toBe(true);
+                                                                                                                ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:587:107)
+(fail) RCL TextMate Grammar Scope Tests > Basic Import and Agent Pattern > import + simple agent scopes correctly [0.21ms]
+Import tokens: [
+  {
+    text: "import ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " / ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Samples",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ".one as ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Sample One",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "import ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " / ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Samples",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ".two as ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Sample Two",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }
+]
+605 | 
+606 |       const tokens = tokenizeCode(importCode);
+607 |       console.log('Import tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+608 | 
+609 |       // Test first import
+610 |       expect(tokens.some(t => t.text === KW.Import && hasExpectedScope(t, 'keyword.control.import.rcl'))).toBe(true);
+                                                                                                                ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:610:107)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > import statements with spaces parse correctly [0.83ms]
+Agent tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ],
+  }, {
+    text: " My Brand",
+    scopes: [ "source.rcl", "meta.rcl.section" ],
+  }, {
+    text: "  brand",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Name",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "entity.name.rcl.message" ],
+  },
+  {
+    text: ":",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: "\"Sample Brand\"",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "string.quoted.double.rcl" ],
+  },
+  {
+    text: "displayName",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "undefined" ],
+  }, {
+    text: ": ",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: "\"Sample Agent\"",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "string.quoted.double.rcl" ],
+  }
+]
+621 |   displayName: "Sample Agent"`;
+622 | 
+623 |       const tokens = tokenizeCode(agentCode);
+624 |       console.log('Agent tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+625 | 
+626 |       expect(tokens.some(t => t.text === KW.Agent && hasExpectedScope(t, 'keyword.control.section.agent.rcl'))).toBe(true);
+                                                                                                                      ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:626:113)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > agent section with spaces in name parses correctly [0.20ms]
+Atom tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ],
+  }, {
+    text: " Test",
+    scopes: [ "source.rcl", "meta.rcl.section" ],
+  }, {
+    text: "Config",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "    agent",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "UseCase",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "entity.name.rcl.message" ],
+  },
+  {
+    text: ":",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: " :TRANSACTIONAL",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: "hostingRegion",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "undefined" ],
+  }, {
+    text: ": :NORTH_AMERICA",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }
+]
+636 |     hostingRegion: :NORTH_AMERICA`;
+637 | 
+638 |       const tokens = tokenizeCode(atomCode);
+639 |       console.log('Atom tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+640 | 
+641 |       expect(tokens.some(t => t.text === ':TRANSACTIONAL' && hasExpectedScope(t, 'constant.other.atom.rcl'))).toBe(true);
+                                                                                                                    ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:641:111)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > atom values parse correctly [0.15ms]
+Embedded tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ],
+  }, {
+    text: " Test",
+    scopes: [ "source.rcl", "meta.rcl.section" ],
+  }, {
+    text: "Defaults",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "    postback",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Data",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "entity.name.rcl.message" ],
+  },
+  {
+    text: ":",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: " $js> format @selectedOption.text ",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: "as",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "undefined" ],
+  }, {
+    text: " :dash_case",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }
+]
+648 |     postbackData: $js> format @selectedOption.text as :dash_case`;
+649 | 
+650 |       const tokens = tokenizeCode(embeddedCode);
+651 |       console.log('Embedded tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+652 | 
+653 |       expect(tokens.some(t => t.text === KW.JsPrefix && hasExpectedScope(t, 'keyword.control.embedded.marker.js.rcl'))).toBe(true);
+                                                                                                                              ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:653:121)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > embedded expressions parse correctly [0.11ms]
+Flow tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ],
+  }, {
+    text: " Test",
+    scopes: [ "source.rcl", "meta.rcl.section" ],
+  }, {
+    text: "flow",
+    scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ],
+  }, {
+    text: " Default",
+    scopes: [ "source.rcl", "meta.rcl.section" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "start -> ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Welcome",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "error -> ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Error Message",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }
+]
+660 |     :error -> Error Message`;
+661 | 
+662 |       const tokens = tokenizeCode(flowCode);
+663 |       console.log('Flow tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+664 | 
+665 |       expect(tokens.some(t => t.text === KW.Flow && hasExpectedScope(t, 'keyword.control.section.flow.rcl'))).toBe(true);
+                                                                                                                    ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:665:111)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > flow rules with atoms parse correctly [0.17ms]
+AgentMessage tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ],
+  }, {
+    text: " Test",
+    scopes: [ "source.rcl", "meta.rcl.section" ],
+  }, {
+    text: "Messages",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "    agent",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Message Welcome Full",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "      message",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "TrafficType",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "entity.name.rcl.message" ],
+  },
+  {
+    text: ":",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: " :TRANSACTION",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }
+]
+676 |       messageTrafficType: :TRANSACTION`;
+677 | 
+678 |       const tokens = tokenizeCode(agentMessageCode);
+679 |       console.log('AgentMessage tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+680 | 
+681 |       expect(tokens.some(t => t.text === KW.AgentMessage && hasExpectedScope(t, 'keyword.control.section.agentmessage.rcl'))).toBe(true);
+                                                                                                                                    ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:681:127)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > agentMessage keyword recognition [0.13ms]
+Action tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ],
+  }, {
+    text: " Test",
+    scopes: [ "source.rcl", "meta.rcl.section" ],
+  }, {
+    text: "Messages",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "    message ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Welcome",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "      suggestions",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "        reply",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: " \"",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Tell",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " me more\"",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "        dial",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Action",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "entity.name.rcl.message" ],
+  },
+  {
+    text: ":",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: "\"Call Us\"",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "string.quoted.double.rcl" ],
+  },
+  {
+    text: ", ",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: "\"+1234567890\"",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "string.quoted.double.rcl" ],
+  },
+  {
+    text: "shareLocation",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "undefined" ],
+  }, {
+    text: ": ",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: "\"Share Location\"",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "string.quoted.double.rcl" ],
+  }
+]
+693 |         shareLocation: "Share Location"`;
+694 | 
+695 |       const tokens = tokenizeCode(actionCode);
+696 |       console.log('Action tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+697 | 
+698 |       expect(tokens.some(t => t.text === KW.Message && hasExpectedScope(t, 'keyword.control.section.message.rcl'))).toBe(true);
+                                                                                                                          ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/textmate/scope.test.ts:698:117)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > action keywords parse correctly [0.20ms]
+Example file tokens (first 20): [
+  {
+    text: "import ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " / ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Samples",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ".one as ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Sample One",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "import ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " / ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Samples",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ".two as ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Sample Two",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ],
+  }, {
+    text: " My Brand",
+    scopes: [ "source.rcl", "meta.rcl.section" ],
+  }, {
+    text: "  brand",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Name",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "entity.name.rcl.message" ],
+  },
+  {
+    text: ":",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }, {
+    text: "\"Sample Brand\"",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "string.quoted.double.rcl" ],
+  },
+  {
+    text: "displayName",
+    scopes: [ "source.rcl", "meta.rcl.message.definition", "undefined" ],
+  }, {
+    text: ": ",
+    scopes: [ "source.rcl", "meta.rcl.message.definition" ],
+  }
+]
+Import keywords found: 2
+Agent keywords found: 1
+First import keyword scopes: [ "source.rcl" ]
+First agent keyword scopes: [ "source.rcl", "meta.rcl.section", "keyword.control.rcl.section" ]
+(pass) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > complete example file sections [3.10ms]
+
+tests/lsp/hover.test.ts:
+Initialized section type registry with 11 section types
+Initialized section type registry with 11 section types
+(pass) RCL Hover Provider Tests > Keyword Hover Information > provides hover info for agent keyword [54.54ms]
+(pass) RCL Hover Provider Tests > Keyword Hover Information > provides hover info for flow keyword [0.96ms]
+(pass) RCL Hover Provider Tests > Keyword Hover Information > provides hover info for import keyword [0.70ms]
+(pass) RCL Hover Provider Tests > Property Hover Information > provides hover info for agent properties [0.71ms]
+(pass) RCL Hover Provider Tests > Property Hover Information > provides hover info for config properties [0.72ms]
+(pass) RCL Hover Provider Tests > Property Hover Information > provides hover info for message properties [0.60ms]
+(pass) RCL Hover Provider Tests > Value Hover Information > provides hover info for boolean values [0.79ms]
+(pass) RCL Hover Provider Tests > Value Hover Information > provides hover info for atom values [0.51ms]
+(pass) RCL Hover Provider Tests > Value Hover Information > provides hover info for string values [0.49ms]
+(pass) RCL Hover Provider Tests > Reference Hover Information > provides hover info for flow rule references [0.83ms]
+(pass) RCL Hover Provider Tests > Reference Hover Information > provides hover info for import references [1.13ms]
+(pass) RCL Hover Provider Tests > Section Hover Information > provides hover info for section names [1.29ms]
+(pass) RCL Hover Provider Tests > Section Hover Information > provides hover info for message names [1.58ms]
+(pass) RCL Hover Provider Tests > Context-Aware Hover > provides different hover info based on context [4.97ms]
+332 |         textDocument: { uri: document.uri.toString() },
+333 |         position: Position.create(2, 10) // Inside invalid syntax
+334 |       } as HoverParams);
+335 | 
+336 |       // Should handle gracefully without crashing
+337 |       expect(invalidHover).toBeDefined();
+                                 ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/hover.test.ts:337:28)
+(fail) RCL Hover Provider Tests > Error Handling in Hover > handles hover on invalid syntax gracefully [1.56ms]
+346 |         textDocument: { uri: document.uri.toString() },
+347 |         position: Position.create(2, 18) // Inside 'nonexistent_message'
+348 |       } as HoverParams);
+349 | 
+350 |       // Should handle missing references gracefully
+351 |       expect(missingRefHover).toBeDefined();
+                                    ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/hover.test.ts:351:31)
+(fail) RCL Hover Provider Tests > Error Handling in Hover > handles hover on missing references [0.68ms]
+366 |         textDocument: { uri: document.uri.toString() },
+367 |         position: Position.create(1, 20) // Near end
+368 |       } as HoverParams);
+369 | 
+370 |       // Should handle boundary conditions
+371 |       expect(startHover).toBeDefined();
+                               ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/hover.test.ts:371:26)
+(fail) RCL Hover Provider Tests > Error Handling in Hover > handles hover at file boundaries [0.92ms]
+(pass) RCL Hover Provider Tests > Hover Content Quality > provides structured hover content [0.64ms]
+(pass) RCL Hover Provider Tests > Hover Content Quality > provides markdown-formatted hover content [0.50ms]
+
+tests/lsp/completion.test.ts:
+Initialized section type registry with 11 section types
+Initialized section type registry with 11 section types
+32 |       expect(completions?.items).toBeDefined();
+33 | 
+34 |       const items = completions!.items;
+35 |       const agentCompletion = items.find(item => item.label === 'agent');
+36 |       expect(agentCompletion).toBeDefined();
+37 |       expect(agentCompletion?.insertText).toContain('agent');
+                                               ^
+error: Received value must be an array type, or both received and expected values must be strings.
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:37:43)
+(fail) RCL Completion Provider Tests > Section Keywords Completion > suggests agent keywords at file level [34.08ms]
+(pass) RCL Completion Provider Tests > Section Keywords Completion > suggests import keywords at file start [1.01ms]
+64 |         position: Position.create(2, 5)
+65 |       } as CompletionParams);
+66 | 
+67 |       if (completions?.items) {
+68 |         const configCompletion = completions.items.find(item => item.label === 'config');
+69 |         expect(configCompletion).toBeDefined();
+                                      ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:69:34)
+(fail) RCL Completion Provider Tests > Section Keywords Completion > suggests subsection keywords within agent [1.27ms]
+82 |         position: Position.create(2, 5)
+83 |       } as CompletionParams);
+84 | 
+85 |       if (completions?.items) {
+86 |         const flowCompletion = completions.items.find(item => item.label === 'flow');
+87 |         expect(flowCompletion).toBeDefined();
+                                    ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:87:32)
+(fail) RCL Completion Provider Tests > Section Keywords Completion > suggests flow keywords within agent [0.56ms]
+101 |         position: Position.create(1, 5)
+102 |       } as CompletionParams);
+103 | 
+104 |       if (completions?.items) {
+105 |         const nameCompletion = completions.items.find(item => item.label === 'name');
+106 |         expect(nameCompletion).toBeDefined();
+                                     ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:106:32)
+(fail) RCL Completion Provider Tests > Property Completion > suggests common agent properties [0.49ms]
+123 |       if (completions?.items) {
+124 |         const webhookCompletion = completions.items.find(item =>
+125 |           item.label.includes('webhook') || item.label.includes('url')
+126 |         );
+127 |         // Should suggest config-specific properties
+128 |         expect(completions.items.length).toBeGreaterThan(0);
+                                               ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:128:42)
+(fail) RCL Completion Provider Tests > Property Completion > suggests config properties within config section [1.03ms]
+143 |         position: Position.create(4, 13)
+144 |       } as CompletionParams);
+145 | 
+146 |       if (completions?.items) {
+147 |         const textCompletion = completions.items.find(item => item.label === 'text');
+148 |         expect(textCompletion).toBeDefined();
+                                     ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:148:32)
+(fail) RCL Completion Provider Tests > Property Completion > suggests message properties within messages [0.71ms]
+162 |         position: Position.create(1, 14)
+163 |       } as CompletionParams);
+164 | 
+165 |       if (completions?.items) {
+166 |         const trueCompletion = completions.items.find(item => item.label === 'True');
+167 |         expect(trueCompletion).toBeDefined();
+                                     ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:167:32)
+(fail) RCL Completion Provider Tests > Value Completion > suggests boolean values [0.61ms]
+179 |         position: Position.create(1, 15)
+180 |       } as CompletionParams);
+181 | 
+182 |       if (completions?.items) {
+183 |         // Should suggest common atom values
+184 |         expect(completions.items.some(item => item.label.startsWith(':'))).toBe(true);
+                                                                                 ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:184:76)
+(fail) RCL Completion Provider Tests > Value Completion > suggests atom values [0.95ms]
+199 |         position: Position.create(2, 19)
+200 |       } as CompletionParams);
+201 | 
+202 |       if (completions?.items) {
+203 |         // Should suggest message names and flow targets
+204 |         expect(completions.items.length).toBeGreaterThan(0);
+                                               ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:204:42)
+(fail) RCL Completion Provider Tests > Flow Completion > suggests flow rule targets [0.59ms]
+218 |       } as CompletionParams);
+219 | 
+220 |       if (completions?.items) {
+221 |         const startAtom = completions.items.find(item => item.label === ':start');
+222 |         const endAtom = completions.items.find(item => item.label === ':end');
+223 |         expect(startAtom || endAtom).toBeDefined();
+                                           ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:223:38)
+(fail) RCL Completion Provider Tests > Flow Completion > suggests flow atoms [0.91ms]
+236 |         position: Position.create(0, 8)
+237 |       } as CompletionParams);
+238 | 
+239 |       if (completions?.items) {
+240 |         // Should suggest common namespaces
+241 |         expect(completions.items.length).toBeGreaterThan(0);
+                                               ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:241:42)
+(fail) RCL Completion Provider Tests > Import Completion > suggests namespace completion [0.56ms]
+(pass) RCL Completion Provider Tests > Import Completion > suggests alias keyword completion [0.65ms]
+273 |         position: Position.create(2, 11)
+274 |       } as CompletionParams);
+275 | 
+276 |       if (configCompletions?.items) {
+277 |         // Should suggest config-specific properties
+278 |         expect(configCompletions.items.length).toBeGreaterThan(0);
+                                                     ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:278:48)
+(fail) RCL Completion Provider Tests > Context-Aware Completion > completion is context-aware for different sections [0.61ms]
+297 |       if (completions?.items) {
+298 |         // Should suggest values, not properties
+299 |         const booleanValues = completions.items.filter(item =>
+300 |           item.label === 'True' || item.label === 'False'
+301 |         );
+302 |         expect(booleanValues.length).toBeGreaterThan(0);
+                                           ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:302:38)
+(fail) RCL Completion Provider Tests > Context-Aware Completion > completion works after colons [0.64ms]
+320 |       } as CompletionParams);
+321 | 
+322 |       // Should still provide completions despite syntax errors above
+323 |       expect(completions).toBeDefined();
+324 |       if (completions?.items) {
+325 |         expect(completions.items.length).toBeGreaterThan(0);
+                                               ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received: 0
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/lsp/completion.test.ts:325:42)
+(fail) RCL Completion Provider Tests > Error Recovery in Completion > provides completion even with syntax errors [0.64ms]
+(pass) RCL Completion Provider Tests > Error Recovery in Completion > handles incomplete statements gracefully [0.61ms]
+(pass) RCL Completion Provider Tests > Snippet Completion > provides agent snippet completion [0.28ms]
+(pass) RCL Completion Provider Tests > Snippet Completion > provides flow snippet completion [0.36ms]
+(pass) RCL Completion Provider Tests > Snippet Completion > provides message snippet completion [0.33ms]
+
+tests/lsp/linking.test.ts:
+Initialized section type registry with 11 section types
+(pass) Linking tests (rcl-test grammar) > linking of agent definition (rcl-test) [36.38ms]
+
+tests/parser/specification-compliance.test.ts:
+
+# Unhandled error between tests
+-------------------------------
+ 9 | import { RclParser } from '../../src/parser/parser/index.js';
+10 | 
+11 | describe('Formal Specification Compliance', () => {
+12 |   let parser: RclParser;
+13 | 
+14 |   beforeEach(() => {
+       ^
+ReferenceError: beforeEach is not defined
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/parser/specification-compliance.test.ts:14:3)
+      at /work/rcs/temp/custom-lexer/packages/language/tests/parser/specification-compliance.test.ts:11:1
+      at loadAndEvaluateModule (2:1)
+-------------------------------
+
+
+tests/performance/language-performance.test.ts:
+Initialized section type registry with 11 section types
+ 99 | 
+100 |       // Should parse large file efficiently (less than 2 seconds for 50 agents)
+101 |       expect(parsingTime).toBeLessThan(2000);
+102 | 
+103 |       // Should successfully parse the content
+104 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 900
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/performance/language-performance.test.ts:104:29)
+(fail) RCL Language Performance Tests > Parser Performance > parses large RCL files efficiently [64.17ms]
+Parsed deeply nested structure in 0.75ms
+(pass) RCL Language Performance Tests > Parser Performance > handles deeply nested structures efficiently [0.96ms]
+193 |       // Should handle many flow rules efficiently
+194 |       expect(parsingTime).toBeLessThan(1000);
+195 | 
+196 |       expect(result.ast).toBeDefined();
+197 |       const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
+198 |       expect(flowSection).toBeDefined();
+                                ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/performance/language-performance.test.ts:198:27)
+(fail) RCL Language Performance Tests > Parser Performance > processes many flow rules efficiently [2.89ms]
+Tokenized 68669 characters (19999 tokens) in 78.96ms
+(pass) RCL Language Performance Tests > Lexer Performance > tokenizes large files efficiently [78.68ms]
+Tokenized complex patterns in 0.59ms
+(pass) RCL Language Performance Tests > Lexer Performance > handles complex token patterns efficiently [0.60ms]
+Initialized section type registry with 11 section types
+Created RCL services in 0.16ms
+(pass) RCL Language Performance Tests > LSP Performance > provides completion quickly for large files [0.71ms]
+Memory increase: 0.00MB for 10 large ASTs
+(pass) RCL Language Performance Tests > Memory Usage > maintains reasonable memory usage for large ASTs [42.57ms]
+Processed malformed input with 2100 errors in 16.19ms
+(pass) RCL Language Performance Tests > Stress Tests > handles malformed input without performance degradation [16.31ms]
+Parsed extremely long lines in 0.90ms
+(pass) RCL Language Performance Tests > Stress Tests > handles extremely long lines efficiently [0.80ms]
+1000 rapid parses completed in 59.23ms (avg: 0.059ms per parse)
+(pass) RCL Language Performance Tests > Stress Tests > handles rapid successive parsing calls [59.82ms]
+Scaling analysis: 10 sections: 0.81ms, 50 sections: 3.93ms, 100 sections: 7.76ms, 200 sections: 15.77ms
+Average time/size ratio: 0.99
+(pass) RCL Language Performance Tests > Scaling Characteristics > parsing time scales linearly with file size [27.09ms]
+
+tests/validation/semantic-validation.test.ts:
+Initialized section type registry with 11 section types
+24 |     description: "Test agent without required name"`);
+25 | 
+26 |       const validationErrors = (document.diagnostics || []).filter(d => d.severity === 1); // Error severity
+27 | 
+28 |       // Should warn or error about missing required properties like 'name'
+29 |       expect(document.parseResult.parserErrors).toHaveLength(0); // No parser errors
+                                                     ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/validation/semantic-validation.test.ts:29:49)
+(fail) RCL Semantic Validation Tests > Agent Definition Validation > validates required agent properties [18.75ms]
+(pass) RCL Semantic Validation Tests > Agent Definition Validation > validates agent property types [0.25ms]
+(pass) RCL Semantic Validation Tests > Agent Definition Validation > validates duplicate agent definitions [0.12ms]
+(pass) RCL Semantic Validation Tests > Flow Validation > validates flow rule references [0.08ms]
+(pass) RCL Semantic Validation Tests > Flow Validation > validates circular flow dependencies [0.43ms]
+(pass) RCL Semantic Validation Tests > Flow Validation > validates unreachable flow states [0.84ms]
+(pass) RCL Semantic Validation Tests > Message Validation > validates required message properties [0.40ms]
+(pass) RCL Semantic Validation Tests > Message Validation > validates message property constraints [0.16ms]
+(pass) RCL Semantic Validation Tests > Message Validation > validates duplicate message names [0.28ms]
+(pass) RCL Semantic Validation Tests > Import Validation > validates import references [0.40ms]
+269 |     selfRef: Self.property`);
+270 | 
+271 |       const validationErrors = (document.diagnostics || []).filter(d => d.severity === 1);
+272 | 
+273 |       // Basic import structure should be valid
+274 |       expect(document.parseResult.parserErrors).toHaveLength(0);
+                                                      ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/validation/semantic-validation.test.ts:274:49)
+(fail) RCL Semantic Validation Tests > Import Validation > validates circular import dependencies [0.31ms]
+(pass) RCL Semantic Validation Tests > Import Validation > validates import alias conflicts [0.42ms]
+(pass) RCL Semantic Validation Tests > Configuration Validation > validates config property types [0.05ms]
+330 | 
+331 |       const validationErrors = (document.diagnostics || []).filter(d => d.severity === 1);
+332 | 
+333 |       // Might warn about missing essential config properties
+334 |       // This depends on the specific validation rules implemented
+335 |       expect(document.parseResult.parserErrors).toHaveLength(0);
+                                                      ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/validation/semantic-validation.test.ts:335:49)
+(fail) RCL Semantic Validation Tests > Configuration Validation > validates required config properties [0.31ms]
+(pass) RCL Semantic Validation Tests > Cross-Section Validation > validates consistency between sections [0.18ms]
+379 |             config: privateConfig`);
+380 | 
+381 |       const validationErrors = (document.diagnostics || []).filter(d => d.severity === 1);
+382 | 
+383 |       // Should validate scope and access rules
+384 |       expect(document.parseResult.parserErrors).toHaveLength(0);
+                                                      ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/validation/semantic-validation.test.ts:384:49)
+(fail) RCL Semantic Validation Tests > Cross-Section Validation > validates scope and visibility rules [0.01ms]
+(pass) RCL Semantic Validation Tests > Type System Validation > validates atom value formats [0.26ms]
+(pass) RCL Semantic Validation Tests > Type System Validation > validates number ranges and formats [0.19ms]
+437 |     specialChars: "Special chars: @#$%^&*()"`);
+438 | 
+439 |       const validationErrors = (document.diagnostics || []).filter(d => d.severity === 1);
+440 | 
+441 |       // String validation should generally pass for well-formed strings
+442 |       expect(document.parseResult.parserErrors).toHaveLength(0);
+                                                      ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/validation/semantic-validation.test.ts:442:49)
+(fail) RCL Semantic Validation Tests > Type System Validation > validates string content and encoding [0.11ms]
+506 | 
+507 |       const validationErrors = (document.diagnostics || []).filter(d => d.severity === 1);
+508 |       const validationWarnings = (document.diagnostics || []).filter(d => d.severity === 2);
+509 | 
+510 |       // A well-formed complete agent should have minimal errors
+511 |       expect(document.parseResult.parserErrors).toHaveLength(0);
+                                                      ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+
+      at <anonymous> (/work/rcs/temp/custom-lexer/packages/language/tests/validation/semantic-validation.test.ts:511:49)
+(fail) RCL Semantic Validation Tests > Complex Validation Scenarios > validates complete agent with all sections [0.74ms]
+
+52 tests failed:
+(fail) RCL Parser Error Handling Tests > Lexer Error Recovery > recovers from unterminated strings [1.56ms]
+(fail) RCL Parser Error Handling Tests > Parser Error Recovery > recovers from malformed import statements [2.28ms]
+(fail) RCL Parser Error Handling Tests > Specific Error Cases > handles missing section names [0.13ms]
+(fail) Comprehensive RCL Parser Tests > Agent Section Parsing > parses complex agent with all subsections [0.85ms]
+(fail) Comprehensive RCL Parser Tests > Agent Section Parsing > parses agent with validation attributes [0.31ms]
+(fail) Comprehensive RCL Parser Tests > Import Statement Parsing > parses various import patterns [0.06ms]
+(fail) Comprehensive RCL Parser Tests > Import Statement Parsing > handles import edge cases [0.10ms]
+(fail) Comprehensive RCL Parser Tests > Flow Section Parsing > parses complex flow rules [0.37ms]
+(fail) Comprehensive RCL Parser Tests > Flow Section Parsing > parses flow with attributes and complex targets [0.19ms]
+(fail) Comprehensive RCL Parser Tests > Message Section Parsing > parses complex message definitions [0.28ms]
+(fail) Comprehensive RCL Parser Tests > Nested Structure Parsing > parses deeply nested sections [1.01ms]
+(fail) Comprehensive RCL Parser Tests > AST Utility Functions > AST utilities work correctly [0.73ms]
+(fail) Comprehensive RCL Parser Tests > Value Type Validation > correctly identifies all value types [0.13ms]
+(fail) RCL TextMate Grammar Scope Tests > Example File Scope Validation > example.rcl file matches expected scopes for mapped tokens [13.59ms]
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > agent declaration scopes correctly [0.08ms]
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > agent with config section scopes correctly [0.16ms]
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > properly separated subsections scope correctly [0.13ms]
+(fail) RCL TextMate Grammar Scope Tests > Import Statement Scoping > import statement scopes correctly [0.08ms]
+(fail) RCL TextMate Grammar Scope Tests > Flow Section Scoping > flow declarations and rules scope correctly [0.60ms]
+(fail) RCL TextMate Grammar Scope Tests > Basic Import and Agent Pattern > import + simple agent scopes correctly [0.21ms]
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > import statements with spaces parse correctly [0.83ms]
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > agent section with spaces in name parses correctly [0.20ms]
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > atom values parse correctly [0.15ms]
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > embedded expressions parse correctly [0.11ms]
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > flow rules with atoms parse correctly [0.17ms]
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > agentMessage keyword recognition [0.13ms]
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > action keywords parse correctly [0.20ms]
+(fail) RCL Hover Provider Tests > Error Handling in Hover > handles hover on invalid syntax gracefully [1.56ms]
+(fail) RCL Hover Provider Tests > Error Handling in Hover > handles hover on missing references [0.68ms]
+(fail) RCL Hover Provider Tests > Error Handling in Hover > handles hover at file boundaries [0.92ms]
+(fail) RCL Completion Provider Tests > Section Keywords Completion > suggests agent keywords at file level [34.08ms]
+(fail) RCL Completion Provider Tests > Section Keywords Completion > suggests subsection keywords within agent [1.27ms]
+(fail) RCL Completion Provider Tests > Section Keywords Completion > suggests flow keywords within agent [0.56ms]
+(fail) RCL Completion Provider Tests > Property Completion > suggests common agent properties [0.49ms]
+(fail) RCL Completion Provider Tests > Property Completion > suggests config properties within config section [1.03ms]
+(fail) RCL Completion Provider Tests > Property Completion > suggests message properties within messages [0.71ms]
+(fail) RCL Completion Provider Tests > Value Completion > suggests boolean values [0.61ms]
+(fail) RCL Completion Provider Tests > Value Completion > suggests atom values [0.95ms]
+(fail) RCL Completion Provider Tests > Flow Completion > suggests flow rule targets [0.59ms]
+(fail) RCL Completion Provider Tests > Flow Completion > suggests flow atoms [0.91ms]
+(fail) RCL Completion Provider Tests > Import Completion > suggests namespace completion [0.56ms]
+(fail) RCL Completion Provider Tests > Context-Aware Completion > completion is context-aware for different sections [0.61ms]
+(fail) RCL Completion Provider Tests > Context-Aware Completion > completion works after colons [0.64ms]
+(fail) RCL Completion Provider Tests > Error Recovery in Completion > provides completion even with syntax errors [0.64ms]
+(fail) RCL Language Performance Tests > Parser Performance > parses large RCL files efficiently [64.17ms]
+(fail) RCL Language Performance Tests > Parser Performance > processes many flow rules efficiently [2.89ms]
+(fail) RCL Semantic Validation Tests > Agent Definition Validation > validates required agent properties [18.75ms]
+(fail) RCL Semantic Validation Tests > Import Validation > validates circular import dependencies [0.31ms]
+(fail) RCL Semantic Validation Tests > Configuration Validation > validates required config properties [0.31ms]
+(fail) RCL Semantic Validation Tests > Cross-Section Validation > validates scope and visibility rules [0.01ms]
+(fail) RCL Semantic Validation Tests > Type System Validation > validates string content and encoding [0.11ms]
+(fail) RCL Semantic Validation Tests > Complex Validation Scenarios > validates complete agent with all sections [0.74ms]
+
+ 143 pass
+ 52 fail
+ 5 errors
+ 554 expect() calls
+Ran 195 tests across 17 files. [930.00ms]

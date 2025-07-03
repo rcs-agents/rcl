@@ -497,7 +497,13 @@ export class RclCustomLexer {
     regex.lastIndex = this.offset;
     const match = regex.exec(this.text);
 
-    if (!match) return false;
+    if (!match) {
+      // Special handling for unterminated strings
+      if (tokenType === RclCustomLexer.STRING && this.text[this.offset] === '"') {
+        return this.handleUnterminatedString();
+      }
+      return false;
+    }
 
     // Handle mode transitions
     this.handleModeTransition(tokenType, match[0]);
@@ -518,6 +524,28 @@ export class RclCustomLexer {
       this.startMultiLineBlock('string');
     }
 
+    return true;
+  }
+
+  private handleUnterminatedString(): boolean {
+    const startOffset = this.offset;
+    let endOffset = this.offset + 1; // Skip opening quote
+    
+    // Find end of line or file
+    while (endOffset < this.text.length && 
+           this.text[endOffset] !== '\n' && 
+           this.text[endOffset] !== '\r') {
+      endOffset++;
+    }
+    
+    const content = this.text.slice(this.offset, endOffset);
+    this.addError(`Unterminated string literal: ${content}`);
+    
+    // Create a token for the partial string to help with recovery
+    const token = this.createToken(RclCustomLexer.STRING, content + '"', this.offset);
+    this.tokens.push(token);
+    
+    this.advance(endOffset - this.offset);
     return true;
   }
 

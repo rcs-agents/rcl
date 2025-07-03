@@ -56,6 +56,8 @@ export const scopes = scopesFor({
       message: null,
       section: null,
       identifier: null,
+      alias: null,
+      module: null,
       flow: {
         rule: null,
         target: null,
@@ -63,6 +65,9 @@ export const scopes = scopesFor({
       type: {
         tag: null,
       },
+    },
+    other: {
+      attribute_name: null,
     },
   },
   
@@ -151,6 +156,8 @@ export const scopeGroups = {
     flowRuleName: scopes.entity.name.flow.rule,
     flowTarget: scopes.entity.name.flow.target,
     typeTagName: scopes.entity.name.type.tag,
+    alias: scopes.entity.name.alias,
+    module: scopes.entity.name.module,
   },
   
   // Meta scopes for structure

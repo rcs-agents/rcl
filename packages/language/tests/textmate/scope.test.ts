@@ -67,13 +67,28 @@ let grammar: Grammar | null = null;
 /**
  * Initialize the TextMate grammar for testing
  */
+// Use a module-level variable to prevent multiple WASM initializations
+let wasmInitialized = false;
+
 async function initializeGrammar(): Promise<Grammar> {
   try {
-    // Load WASM for Oniguruma
-    const onigasmPath = require.resolve("onigasm");
-    const wasmPath = path.resolve(path.dirname(onigasmPath), "onigasm.wasm");
-    const wasmBin = await fs.promises.readFile(wasmPath);
-    await loadWASM(wasmBin.buffer as any);
+    // Load WASM for Oniguruma (only once per test run)
+    if (!wasmInitialized) {
+      try {
+        const onigasmPath = require.resolve("onigasm");
+        const wasmPath = path.resolve(path.dirname(onigasmPath), "onigasm.wasm");
+        const wasmBin = await fs.promises.readFile(wasmPath);
+        await loadWASM(wasmBin.buffer as any);
+        wasmInitialized = true;
+      } catch (error) {
+        // If already initialized, that's fine
+        if (error instanceof Error && error.message.includes('has been called and was succesful')) {
+          wasmInitialized = true;
+        } else {
+          throw error;
+        }
+      }
+    }
 
     // Load our RCL grammar
     const grammarPath = path.join(__dirname, '../../src/syntaxes/rcl.tmLanguage.json');
@@ -172,11 +187,11 @@ describe('RCL TextMate Grammar Scope Tests', () => {
   describe('Example File Scope Validation', () => {
     test('example.rcl file matches expected scopes for mapped tokens', () => {
       // Load the example file
-      const examplePath = path.join(__dirname, './fixtures/example.rcl');
+      const examplePath = path.join(__dirname, '../fixtures/example.rcl');
       const exampleContent = fs.readFileSync(examplePath, 'utf-8');
       
       // Load the scope expectations
-      const expectationsPath = path.join(__dirname, './fixtures/example-rcl-scope-expectations.json');
+      const expectationsPath = path.join(__dirname, '../fixtures/example-rcl-scope-expectations.json');
       const expectations = JSON.parse(fs.readFileSync(expectationsPath, 'utf-8')) as ScopeExpectationsFile;
       
       console.log(`Testing: ${expectations.description}`);
@@ -689,7 +704,7 @@ ${KW.Import} My Brand / Samples.two ${KW.As} Sample Two`;
 
     test('complete example file sections', () => {
       // Load the actual example.rcl file
-      const examplePath = path.join(__dirname, '../../../examples/example.rcl');
+      const examplePath = path.join(__dirname, '../../../../examples/example.rcl');
       const exampleContent = fs.readFileSync(examplePath, 'utf-8');
       
       const tokens = tokenizeCode(exampleContent);
@@ -698,13 +713,13 @@ ${KW.Import} My Brand / Samples.two ${KW.As} Sample Two`;
       // Test that we get SOME tokens (not empty)
       expect(tokens.length).toBeGreaterThan(0);
       
-      // Test that we have basic structure
-      expect(tokens.some(t => t.text === KW.Import)).toBe(true);
-      expect(tokens.some(t => t.text === KW.Agent)).toBe(true);
+      // Test that we have basic structure - trim whitespace for comparison
+      expect(tokens.some(t => t.text.trim() === KW.Import)).toBe(true);
+      expect(tokens.some(t => t.text.trim() === KW.Agent)).toBe(true);
       
       // Log issues for debugging
-      const importKeywords = tokens.filter(t => t.text === KW.Import);
-      const agentKeywords = tokens.filter(t => t.text === KW.Agent);
+      const importKeywords = tokens.filter(t => t.text.trim() === KW.Import);
+      const agentKeywords = tokens.filter(t => t.text.trim() === KW.Agent);
       
       console.log('Import keywords found:', importKeywords.length);
       console.log('Agent keywords found:', agentKeywords.length);

@@ -34,25 +34,52 @@ const RclToken = RclCustomLexer;
  * The structure follows a flat approach where sections can contain
  * attributes, sub-sections, flow rules, and message definitions.
  */
+interface ParseError {
+  message: string;
+  range?: {
+    start: { line: number; character: number };
+    end: { line: number; character: number };
+  };
+}
+
 export class RclCustomParser {
   private lexer: RclCustomLexer;
   private tokens: IToken[] = [];
   private current = 0;
-  private errors: string[] = [];
+  private errors: ParseError[] = [];
+  private line = 1;
+  private column = 1;
 
   constructor() {
     this.lexer = new RclCustomLexer();
   }
 
+  private addParseError(message: string): void {
+    const token = this.peek();
+    this.errors.push({
+      message,
+      range: token ? {
+        start: { line: (token.startLine || this.line) - 1, character: (token.startColumn || this.column) - 1 },
+        end: { line: (token.endLine || token.startLine || this.line) - 1, character: (token.endColumn || token.startColumn || this.column) - 1 }
+      } : undefined
+    });
+  }
+
   /**
    * Parse RCL source code into an AST
    */
-  parse(input: string): { ast: RclFile | null; errors: string[] } {
+  parse(input: string): { ast: RclFile | null; errors: ParseError[] } {
     try {
       const lexResult = this.lexer.tokenize(input);
       this.tokens = lexResult.tokens;
       this.current = 0;
-      this.errors = [...lexResult.errors.map(e => e.message)];
+      this.errors = [...lexResult.errors.map(e => ({
+        message: e.message,
+        range: {
+          start: { line: e.line - 1, character: e.column - 1 },
+          end: { line: e.line - 1, character: e.column + e.length - 1 }
+        }
+      }))];
 
       if (this.tokens.length === 0) {
         return {
@@ -69,7 +96,7 @@ export class RclCustomParser {
       }
       return { ast, errors: this.errors };
     } catch (error) {
-      this.errors.push(`Parser error: ${error instanceof Error ? error.message : String(error)}`);
+      this.addParseError(`Parser error: ${error instanceof Error ? error.message : String(error)}`);
       return { ast: null, errors: this.errors };
     }
   }
@@ -84,7 +111,7 @@ export class RclCustomParser {
         const importStmt = this.parseImportStatement();
         imports.push(importStmt);
       } catch (error) {
-        this.errors.push(`Import parsing error: ${error}`);
+        this.addParseError(`Import parsing error: ${error}`);
         this.synchronize();
       }
     }
@@ -141,8 +168,22 @@ export class RclCustomParser {
     
     const importedNames: string[] = [];
     
+    // According to formal spec: ImportPath ::= IDENTIFIER ('/' IDENTIFIER)*
     // Parse namespace-style import names separated by '/'
     // e.g., "My Brand / Samples" or "Shared / Common Flows / Support"
+    
+    // First identifier is required
+    if (!this.check(RclToken.IDENTIFIER)) {
+      this.addParseError(`Expected identifier after 'import'`);
+      return {
+        type: 'ImportStatement',
+        importedNames: [],
+        alias: undefined,
+        source: undefined,
+        location: { start, end: this.getPosition() }
+      };
+    }
+    
     do {
       // Parse space-separated identifier for each namespace part
       const namespacePart = this.parseSpaceSeparatedIdentifier();
@@ -160,10 +201,21 @@ export class RclCustomParser {
         while (this.check(RclToken.WS)) {
           this.advance();
         }
+        
+        // Slash must be followed by another identifier
+        if (!this.check(RclToken.IDENTIFIER)) {
+          this.addParseError(`Expected identifier after '/' in import path`);
+          break;
+        }
       } else {
         break; // No more namespace parts
       }
     } while (!this.isAtEnd() && !this.check(RclToken.AS_KW) && !this.check(RclToken.FROM_KW));
+    
+    // Validate import structure - must have at least one identifier
+    if (importedNames.length === 0) {
+      this.addParseError(`Invalid import statement: no identifiers found`);
+    }
     
     // Handle 'as' alias (with space-separated identifiers)
     let alias: string | undefined;
@@ -234,6 +286,10 @@ export class RclCustomParser {
     let name: string;
     if (this.check(RclToken.COLON)) {
       name = '';
+      // According to formal spec, agent sections require names
+      if (sectionType === 'agent') {
+        this.addParseError(`Agent section requires a name`);
+      }
     } else {
       name = this.parseSpaceSeparatedIdentifier();
     }
@@ -249,7 +305,7 @@ export class RclCustomParser {
       while (!this.check(RclToken.DEDENT) && !this.isAtEnd()) {
         loopCount++;
         if (loopCount > MAX_LOOPS) {
-          this.errors.push(`Infinite loop detected in section parsing at token ${this.current}`);
+          this.addParseError(`Infinite loop detected in section parsing at token ${this.current}`);
           break;
         }
         try {
@@ -286,7 +342,7 @@ export class RclCustomParser {
             this.advance();
           }
         } catch (error) {
-          this.errors.push(`Section content parsing error: ${error}`);
+          this.addParseError(`Section content parsing error: ${error}`);
           this.synchronize();
         }
       }
@@ -1064,7 +1120,15 @@ export class RclCustomParser {
   }
 
   private advance(): IToken {
-    if (!this.isAtEnd()) this.current++;
+    if (!this.isAtEnd()) {
+      this.current++;
+      // Update line and column from current token position
+      const token = this.previous();
+      if (token && token.startLine !== undefined && token.startColumn !== undefined) {
+        this.line = token.startLine;
+        this.column = token.startColumn;
+      }
+    }
     return this.previous();
   }
 

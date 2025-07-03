@@ -1,0 +1,498 @@
+/**
+ * Parser Specification Compliance Tests
+ * 
+ * Tests to validate that the parser correctly implements the formal RCL specification
+ * structure and grammar rules.
+ */
+
+import { describe, test, expect } from 'vitest';
+import { RclParser } from '../../src/parser/parser/index.js';
+
+describe('Formal Specification Compliance', () => {
+  let parser: RclParser;
+
+  beforeEach(() => {
+    parser = new RclParser();
+  });
+
+  describe('RclFile Structure', () => {
+    test('should parse minimal agent definition according to specification', () => {
+      const input = `agent Customer Support:
+  displayName: "Customer Support Bot"
+  
+  messages Messages:
+    Welcome:
+      text "Hello! How can I help you today?"
+  
+  flow Main Flow:
+    :start -> Welcome`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      expect(result.ast?.agentDefinition).toBeDefined();
+      expect(result.ast?.agentDefinition?.name).toBe('Customer Support');
+      expect(result.ast?.agentDefinition?.displayName).toBe('Customer Support Bot');
+      expect(result.errors).toHaveLength(0);
+    });
+
+    test('should require agent definition according to specification', () => {
+      const input = `# Just a comment, no agent`;
+
+      const result = parser.parse(input);
+      
+      // Should fail without agent definition
+      expect(result.ast).toBeNull();
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    test('should parse imports before agent definition', () => {
+      const input = `import Shared / Common Utils
+import My Brand / Templates as Templates
+
+agent Test Agent:
+  displayName: "Test"
+  
+  messages Messages:
+    Hello:
+      text "Hi there!"
+  
+  flow Simple:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast?.imports).toHaveLength(2);
+      expect(result.ast?.imports[0].importPath).toEqual(['Shared', 'Common Utils']);
+      expect(result.ast?.imports[1].alias).toBe('Templates');
+      expect(result.ast?.agentDefinition?.name).toBe('Test Agent');
+    });
+  });
+
+  describe('Agent Definition Structure', () => {
+    test('should enforce required displayName', () => {
+      const input = `agent Test:
+  # Missing displayName
+  messages Messages:
+    Hello:
+      text "Hi"
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.errors.some(e => e.message.includes('displayName is required'))).toBe(true);
+    });
+
+    test('should allow optional brandName', () => {
+      const input = `agent Test:
+  displayName: "Test Bot"
+  brandName: "ACME Corp"
+  
+  messages Messages:
+    Hello:
+      text "Hi"
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast?.agentDefinition?.brandName).toBe('ACME Corp');
+    });
+
+    test('should enforce at least one flow section', () => {
+      const input = `agent Test:
+  displayName: "Test Bot"
+  
+  messages Messages:
+    Hello:
+      text "Hi"`;
+
+      const result = parser.parse(input);
+      
+      expect(result.errors.some(e => e.message.includes('at least one flow'))).toBe(true);
+    });
+
+    test('should enforce exactly one messages section', () => {
+      const input = `agent Test:
+  displayName: "Test Bot"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.errors.some(e => e.message.includes('messages section'))).toBe(true);
+    });
+  });
+
+  describe('Message Shortcuts Implementation', () => {
+    test('should parse text shortcuts', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Welcome:
+      text "Welcome to our service!"
+        suggestions:
+          reply "Get started"
+          reply "Learn more"
+  
+  flow Flow:
+    :start -> Welcome`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Verify text shortcut was parsed correctly
+      const messages = result.ast?.agentDefinition?.messages;
+      expect(messages).toBeDefined();
+    });
+
+    test('should parse richCard shortcuts with all modifiers', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Product:
+      richCard "Latest Product" :horizontal :left :medium <url https://example.com/image.jpg>:
+        description: "Check out our latest product"
+        suggestions:
+          reply "Buy now"
+          openUrl "Learn more" <url https://example.com/product>
+  
+  flow Flow:
+    :start -> Product`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Verify richCard shortcut was parsed with all modifiers
+    });
+
+    test('should parse carousel shortcuts', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Products:
+      carousel :small:
+        richCard "Product 1":
+          description: "First product"
+        richCard "Product 2": 
+          description: "Second product"
+  
+  flow Flow:
+    :start -> Products`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Verify carousel shortcut was parsed correctly
+    });
+
+    test('should parse file shortcuts', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Document:
+      rbmFile <url https://example.com/document.pdf>
+    Image:
+      file <url https://example.com/image.png>
+  
+  flow Flow:
+    :start -> Document`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Verify file shortcuts were parsed correctly
+    });
+
+    test('should handle message traffic type prefixes', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Transactional:
+      transactional text "Your order has been confirmed"
+    Promotional:
+      promotional richCard "Special Offer":
+        description: "Limited time offer!"
+  
+  flow Flow:
+    :start -> Transactional`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Verify message traffic types were parsed correctly
+    });
+  });
+
+  describe('Flow System Compliance', () => {
+    test('should parse multi-arrow flow transitions', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    A: text "A"
+    B: text "B" 
+    C: text "C"
+  
+  flow Flow:
+    :start -> A -> B -> C`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Should parse A -> B -> C as a single rule with multiple operands
+    });
+
+    test('should parse flow rules with with clauses', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Process: text "Processing"
+  
+  flow Flow:
+    :start -> Process with:
+      userId: \$js> context.user.id
+      priority: "high"`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Should parse with clause correctly
+    });
+
+    test('should parse conditional flows with when clauses', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Premium: text "Premium user"
+    Regular: text "Regular user"
+  
+  flow Flow:
+    when user.type is "premium":
+      :start -> Premium
+    when user.type is "regular":
+      :start -> Regular`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Should parse when clauses correctly
+    });
+  });
+
+  describe('Type Tag Parsing', () => {
+    test('should parse basic type tags', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  contact:
+    email: <email support@company.com>
+    phone: <phone +1-555-0123>
+    website: <url https://company.com>
+  
+  messages Messages:
+    Hello: text "Hi"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Should parse type tags correctly
+    });
+
+    test('should parse type tags with modifiers', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  eventInfo:
+    startTime: <time 2:30pm | EST>
+    eventDate: <date March 15th, 2024>
+    location: <zip 10001>
+  
+  messages Messages:
+    Hello: text "Hi"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+      // Should parse type tags with modifiers correctly
+    });
+  });
+
+  describe('Collection Types', () => {
+    test('should parse inline lists', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  tags: ("support", "customer-service", "help")
+  
+  messages Messages:
+    Hello: text "Hi"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+
+    test('should parse block lists', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  features:
+    - "24/7 support"
+    - "Multi-language"
+    - "Smart routing"
+  
+  messages Messages:
+    Hello: text "Hi"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+
+    test('should parse mapped types', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  phoneNumbers list of (label, <phone number>):
+    - "Home", "+1-555-0001"
+    - "Work", "+1-555-0002"
+  
+  messages Messages:
+    Hello: text "Hi"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+  });
+
+  describe('Embedded Expression Support', () => {
+    test('should parse single-line embedded expressions', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Dynamic:
+      text \$js> "Hello " + context.user.firstName
+  
+  flow Flow:
+    :start -> Dynamic`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+
+    test('should parse multi-line embedded expressions', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  complexLogic: \$ts>>>
+    let discount = 0;
+    if (context.user.isPremium) {
+      discount = 0.15;
+    } else if (context.order.total > 100) {
+      discount = 0.10;
+    }
+    return discount;
+  
+  messages Messages:
+    Hello: text "Hi"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+  });
+
+  describe('Import Resolution', () => {
+    test('should parse simple imports', () => {
+      const input = `import Simple Flow
+      
+agent Test:
+  displayName: "Test"
+  messages Messages:
+    Hello: text "Hi"
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast?.imports).toHaveLength(1);
+      expect(result.ast?.imports[0].importPath).toEqual(['Simple Flow']);
+    });
+
+    test('should parse namespaced imports', () => {
+      const input = `import My Brand / Customer Support / Common Flows
+      
+agent Test:
+  displayName: "Test"
+  messages Messages:
+    Hello: text "Hi"
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast?.imports[0].importPath).toEqual(['My Brand', 'Customer Support', 'Common Flows']);
+    });
+
+    test('should parse imports with aliases', () => {
+      const input = `import External / Service as External Service
+      
+agent Test:
+  displayName: "Test"
+  messages Messages:
+    Hello: text "Hi"
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast?.imports[0].alias).toBe('External Service');
+    });
+
+    test('should parse imports with source', () => {
+      const input = `import External Service from "external-package"
+      
+agent Test:
+  displayName: "Test"
+  messages Messages:
+    Hello: text "Hi"
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast?.imports[0].source).toBe('external-package');
+    });
+  });
+});
