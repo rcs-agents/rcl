@@ -19,11 +19,12 @@ const sectionPatterns = [
  */
 export const agentSection: BeginEndRule = {
     key: 'agent-section',
-    begin: R.AGENT_KW,
+    begin: new RegExp(`(${R.AGENT_KW.source})\\s+(${R.PROPER_NOUN.source})`),
     end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
     scope: scopeGroups.meta.section,
     beginCaptures: {
-        '0': { scope: scopeGroups.keywords.section }
+        '1': { scope: scopeGroups.keywords.section },
+        '2': { scope: scopeGroups.identifiers.sectionName }
     },
     patterns: sectionPatterns
 };

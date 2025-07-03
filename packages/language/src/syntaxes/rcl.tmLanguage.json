@@ -44,10 +44,10 @@
     "agent-config-section": {
       "begin": "\\bagentConfig\\b",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "meta.rcl.section",
+      "name": "undefined",
       "beginCaptures": {
         "0": {
-          "name": "keyword.control.rcl.section"
+          "name": "undefined"
         }
       },
       "patterns": [
@@ -77,10 +77,10 @@
     "agent-defaults-section": {
       "begin": "\\bagentDefaults\\b",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "meta.rcl.section",
+      "name": "undefined",
       "beginCaptures": {
         "0": {
-          "name": "keyword.control.rcl.section"
+          "name": "undefined"
         }
       },
       "patterns": [
@@ -108,12 +108,15 @@
       ]
     },
     "agent-section": {
-      "begin": "\\bagent\\b",
+      "begin": "(\\bagent\\b)\\s+([A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "meta.rcl.section",
+      "name": "undefined",
       "beginCaptures": {
-        "0": {
-          "name": "keyword.control.rcl.section"
+        "1": {
+          "name": "undefined"
+        },
+        "2": {
+          "name": "entity.name.section.rcl"
         }
       },
       "patterns": [
@@ -167,7 +170,7 @@
     },
     "attribute-key": {
       "match": "[a-z][a-zA-Z0-9_]*(?=\\s*:)",
-      "name": "undefined"
+      "name": "entity.other.attribute-name.rcl"
     },
     "boolean-literal": {
       "match": "\\b(True|Yes|On|Enabled|Active|False|No|Off|Disabled|Inactive)\\b",
@@ -179,7 +182,7 @@
     },
     "duration-literal": {
       "match": "(P((\\d+Y)|(\\d+M)|(\\d+W)|(\\d+D)|(T((\\d+H)|(\\d+M)|(\\d+(\\.\\d+)?S))+))+)|([0-9]+(\\.[0-9]+)?s)",
-      "name": "constant.numeric.duration.rcl"
+      "name": "undefined"
     },
     "embedded-javascript-multi-line": {
       "begin": "\\$((js|ts)?)>>>",
@@ -287,23 +290,23 @@
     },
     "flow-arrow": {
       "match": "->",
-      "name": "keyword.operator.rcl.arrow"
+      "name": "undefined"
     },
     "flow-operand": {
       "match": "(:([_a-zA-Z][\\w_]*|\"[^\"\\\\]*\")|\"[^\"]*\"|[A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)",
-      "name": "entity.name.rcl.flow-target"
+      "name": "undefined"
     },
     "flow-rule-name": {
       "match": "([A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)\\s*:",
-      "name": "entity.name.rcl.flow-rule"
+      "name": "undefined"
     },
     "flow-section": {
       "begin": "\\bflow\\b",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "meta.rcl.section",
+      "name": "undefined",
       "beginCaptures": {
         "0": {
-          "name": "keyword.control.rcl.section"
+          "name": "undefined"
         }
       },
       "patterns": [
@@ -333,7 +336,7 @@
     "flow-transition": {
       "begin": "(?=\\s*(:([_a-zA-Z][\\w_]*|\"[^\"\\\\]*\")|\"[^\"]*\"|[A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)\\s*->)",
       "end": "(?=^(?![ \\t]))",
-      "name": "meta.flow-transition.rcl",
+      "name": "undefined",
       "patterns": [
         {
           "include": "#flow-arrow"
@@ -616,11 +619,11 @@
       ]
     },
     "message-definition": {
-      "name": "meta.rcl.message.definition",
+      "name": "undefined",
       "begin": "([A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)\\s*(:)",
       "beginCaptures": {
         "1": {
-          "name": "entity.name.rcl.message"
+          "name": "undefined"
         },
         "3": {
           "name": "undefined"
@@ -649,11 +652,11 @@
       ]
     },
     "message-shortcut": {
-      "name": "meta.rcl.message.shortcut",
+      "name": "undefined",
       "match": "(\\b(?:text|richCard|carousel|rbmFile|file)\\b)\\s+(.+)",
       "captures": {
         "1": {
-          "name": "keyword.control.rcl"
+          "name": "undefined"
         },
         "2": {
           "name": "string.unquoted.rcl"
@@ -663,10 +666,10 @@
     "messages-section": {
       "begin": "\\bmessages\\b",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "meta.rcl.section",
+      "name": "undefined",
       "beginCaptures": {
         "0": {
-          "name": "keyword.control.rcl.section"
+          "name": "undefined"
         }
       },
       "patterns": [
@@ -694,7 +697,7 @@
       ]
     },
     "multi-line-expression": {
-      "name": "meta.interpolation.rcl",
+      "name": "undefined",
       "begin": "\\$((js|ts)?)>>>",
       "beginCaptures": {
         "1": {
@@ -787,7 +790,7 @@
       "name": "constant.numeric.rcl"
     },
     "operators": {
-      "name": "keyword.operator.rcl",
+      "name": "keyword.operator.logical.rcl",
       "match": "(-|->|\\+|\\*|\\/|%|==|!=|<=|>=|<|>|and|or|not|is)"
     },
     "parentheses-list": {
@@ -820,10 +823,10 @@
     },
     "section-type": {
       "match": "[a-z][a-zA-Z0-9_]*\\b",
-      "name": "keyword.control.rcl.section"
+      "name": "undefined"
     },
     "single-line-expression": {
-      "name": "meta.interpolation.rcl",
+      "name": "undefined",
       "begin": "\\$((js|ts)?>)",
       "beginCaptures": {
         "1": {
@@ -865,7 +868,7 @@
     },
     "space-separated-identifier": {
       "match": "[A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*",
-      "name": "entity.name.rcl.identifier"
+      "name": "undefined"
     },
     "string-literal": {
       "match": "\"(\\\\.|[^\"\\\\])*\"",
@@ -904,10 +907,10 @@
     "when-clause": {
       "begin": "\\bwhen\\b",
       "end": "(?=^(?![ \\t]))",
-      "name": "meta.when-clause.rcl",
+      "name": "undefined",
       "beginCaptures": {
         "0": {
-          "name": "keyword.control.rcl.flow"
+          "name": {}
         }
       },
       "patterns": [
@@ -922,10 +925,10 @@
     "with-clause": {
       "begin": "\\bwith\\b",
       "end": "(?=^(?![ \\t]))",
-      "name": "meta.with-clause.rcl",
+      "name": "undefined",
       "beginCaptures": {
         "0": {
-          "name": "keyword.control.rcl.flow"
+          "name": {}
         }
       },
       "patterns": [

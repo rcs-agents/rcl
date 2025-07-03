@@ -9,48 +9,26 @@
 
 import { scopesFor } from 'tmgrammar-toolkit';
 
-// Create static scopes with RCL suffix and no extension allowed
-export const scopes = scopesFor({ 
-  suffix: 'rcl', 
-  allowScopeExtension: false 
-}, {
-  // Custom meta scopes for RCL language structures
+// Define the custom shape of RCL scopes
+const rclScopeShapes = {
   meta: {
-    section: {
-      agent: null,
-      agentConfig: null,
-      agentDefaults: null,
-      flow: null,
-      flows: null,
-      messages: null,
-    },
-    message: {
-      definition: null,
-      shortcut: null,
-    },
-    flow: {
-      transition: null,
-      rule: null,
-    },
-    when: {
-      clause: null,
-    },
-    with: {
-      clause: null,
-    },
-    interpolation: {
-      single: null,
-      multi: null,
-    },
-    import: {
-      statement: null,
-    },
-    type: {
-      tag: null,
-    },
+    section_agent: null,
+    section_agentConfig: null,
+    section_agentDefaults: null,
+    section_flow: null,
+    section_flows: null,
+    section_messages: null,
+    message_definition: null,
+    message_shortcut: null,
+    flow_transition: null,
+    flow_rule: null,
+    when_clause: null,
+    with_clause: null,
+    interpolation_single: null,
+    interpolation_multi: null,
+    import_statement: null,
+    type_tag: null,
   },
-  
-  // Custom entity scopes for RCL identifiers and names
   entity: {
     name: {
       message: null,
@@ -58,20 +36,14 @@ export const scopes = scopesFor({
       identifier: null,
       alias: null,
       module: null,
-      flow: {
-        rule: null,
-        target: null,
-      },
-      type: {
-        tag: null,
-      },
+      flow_rule: null,
+      flow_target: null,
+      type_tag: null,
     },
     other: {
       attribute_name: null,
     },
   },
-  
-  // Custom keyword scopes for RCL-specific concepts
   keyword: {
     control: {
       section: null,
@@ -84,15 +56,11 @@ export const scopes = scopesFor({
       arrow: null,
     },
   },
-  
-  // Custom constant scopes for RCL literals
   constant: {
     numeric: {
       duration: null,
     },
   },
-  
-  // Custom punctuation scopes
   punctuation: {
     separator: {
       colon: null,
@@ -105,7 +73,14 @@ export const scopes = scopesFor({
       },
     },
   },
-});
+};
+
+
+// Create static scopes with RCL suffix and no extension allowed
+export const scopes = scopesFor({ 
+  suffix: 'rcl', 
+  allowScopeExtension: false 
+}, rclScopeShapes);
 
 // Export commonly used scope groups for convenience
 export const scopeGroups = {
@@ -153,25 +128,25 @@ export const scopeGroups = {
     attributeKey: scopes.entity.other.attribute_name,
     sectionName: scopes.entity.name.section,
     messageName: scopes.entity.name.message,
-    flowRuleName: scopes.entity.name.flow.rule,
-    flowTarget: scopes.entity.name.flow.target,
-    typeTagName: scopes.entity.name.type.tag,
+    flowRuleName: scopes.entity.name.flow_rule,
+    flowTarget: scopes.entity.name.flow_target,
+    typeTagName: scopes.entity.name.type_tag,
     alias: scopes.entity.name.alias,
     module: scopes.entity.name.module,
   },
   
   // Meta scopes for structure
   meta: {
-    section: scopes.meta.section.agent, // Base section, others use specific variants
-    messageDefinition: scopes.meta.message.definition,
-    messageShortcut: scopes.meta.message.shortcut,
-    flowTransition: scopes.meta.flow.transition,
-    flowRule: scopes.meta.flow.rule,
-    whenClause: scopes.meta.when.clause,
-    withClause: scopes.meta.with.clause,
-    interpolation: scopes.meta.interpolation.single, // Base interpolation
-    importStatement: scopes.meta.import.statement,
-    typeTag: scopes.meta.type.tag,
+    section: scopes.meta.section, // Base section
+    messageDefinition: scopes.meta.message_definition,
+    messageShortcut: scopes.meta.message_shortcut,
+    flowTransition: scopes.meta.flow_transition,
+    flowRule: scopes.meta.flow_rule,
+    whenClause: scopes.meta.when_clause,
+    withClause: scopes.meta.with_clause,
+    interpolation: scopes.meta.interpolation_single, // Base interpolation
+    importStatement: scopes.meta.import_statement,
+    typeTag: scopes.meta.type_tag,
     path: scopes.meta.path,
     group: scopes.meta.group,
   },
