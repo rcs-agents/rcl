@@ -13,7 +13,7 @@
  * 
  * Any direct edits to this file WILL BE LOST on the next build!
  * 
- * Generated at: 2025-07-02T02:28:12.352Z
+ * Generated at: 2025-07-03T23:56:08.970Z
  * ========================================================================
  */
 
@@ -31,18 +31,62 @@ interface AbstractNamedSection {
 }
 
 interface Section extends AbstractNamedSection {
-    configProperties: ConfigProperty[];
-    defaultProperties: DefaultProperty[];
+    sectionType?: string;
+    name?: string;
+    attributes: Attribute[];
+    subSections: Section[];
+    flowRules: FlowRule[];
+    messages: MessageDefinition[];
 }
 
 interface Attribute {
     key: string;
-    value: SimpleValue;
+    value: Value;
+}
+
+interface MessageDefinition {
+    name: string;
+    attributes: Attribute[];
 }
 
 interface AgentAttribute {
     key: string;
     value: SimpleValue;
+}
+
+interface Value {
+    value?: string;
+}
+
+interface StringValue extends Value {
+    value: string;
+}
+
+interface NumberValue extends Value {
+    value: number;
+}
+
+interface BooleanValue extends Value {
+    value: boolean;
+}
+
+interface NullValue extends Value {
+}
+
+interface IdentifierValue extends Value {
+    value: string;
+    isSpaceSeparated?: boolean;
+}
+
+interface EmbeddedExpression extends Value {
+    language: string;
+    content: string;
+    isMultiline: boolean;
+}
+
+interface EmbeddedCodeBlock extends Value {
+    language: string;
+    content: string[];
 }
 
 interface SimpleValue {
@@ -323,8 +367,9 @@ interface Parameter {
 }
 
 interface ImportStatement {
-    source: string[];
+    importedNames: string[];
     alias?: string;
+    source?: string;
 }
 
 interface FlowContent {
@@ -340,16 +385,36 @@ interface EmbeddedCodeBlock {
 }
 
 interface FlowRule {
-    source: string;
-    destination?: @AbstractNamedSection;
-    destinationIsFlow?: boolean;
+    name: string;
+    attributes: Attribute[];
+    nestedRules: FlowRule[];
+    transitions: FlowTransition[];
+    whenClauses: WhenClause[];
+}
+
+interface FlowTransition {
+    source: FlowOperand;
+    destination: FlowOperand;
     withClause?: WithClause;
-    code?: EmbeddedCodeExpression | EmbeddedCodeBlock;
-    rules?: FlowRule[];
+}
+
+interface FlowOperand {
+    operandType: string; // 'atom' | 'string' | 'identifier'
+    value: string;
+}
+
+interface WhenClause {
+    condition: EmbeddedExpression;
+    transitions: FlowTransition[];
 }
 
 interface WithClause {
     parameters: Parameter[];
+}
+
+interface Parameter {
+    name: string;
+    defaultValue: Value;
 }
 
 interface FileAttribute {
@@ -377,11 +442,42 @@ terminal DEDENT: 'synthetic:dedent';
 
 terminal TRUE_KW: /\b(True|On|Yes|Active|Enabled)\b/;
 terminal FALSE_KW: /\b(False|Off|No|Inactive|Disabled)\b/;
-terminal NULL_KW: /\b(Null|None|Void)\b/;
+terminal NULL_KW: /\b(Null|None|Void|null)\b/;
 
-terminal PROPER_NOUN: /[A-Z0-9][a-zA-Z0-9-]*(?:\s+[A-Z0-9][a-zA-Z0-9-]*)*/;
+terminal IDENTIFIER: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*\b/;
 
-terminal COMMON_NOUN: /(?!import\b|as\b|agent\b|agentConfig\b|agentDefaults\b|flow\b|messages\b|authentication\b|transaction\b|promotion\b|servicerequest\b|acknowledge\b|message\b|or\b|and\b|is\b|not\b|date\b|datetime\b|time\b|email\b|phone\b|msisdn\b|url\b|zipcode\b|zip\b|True\b|On\b|Yes\b|Active\b|Enabled\b|False\b|Off\b|No\b|Inactive\b|Disabled\b|Null\b|None\b|Void\b|list\b|of\b|with\b|start\b|text\b|reply\b|dial\b|openUrl\b|shareLocation\b|viewLocation\b|saveEvent\b|richCard\b|carousel\b|rbmFile\b|file\b|displayName\b|brandName\b|Config\b|Defaults\b|Messages\b|agentMessage\b|contentMessage\b|composeTextMessage\b|composeRecordingMessage\b|cardContent\b|contentInfo\b|media\b|standaloneCard\b|carouselCard\b|cardSuggestion\b|title\b|description\b|thumbnail\b|height\b|orientation\b|suggestion\b|suggestedReply\b|suggestedAction\b|action\b|createCalendarEvent\b|replyShortcut\b|suggestionShortcut\b|messageShortcut\b|filename\b|thumbnailUrl\b|fileUrl\b|logoUri\b|heroUri\b|color\b|agentUseCase\b|hostingRegion\b|phoneNumberEntry\b|emailEntry\b|websiteEntry\b|privacy\b|termsConditions\b|billingConfig\b|billingCategory\b|number\b|address\b|url\b|label\b|fallback_message\b|messageTrafficType\b|ttl\b|postbackData\b|expressions\b|language\b)[a-z][a-zA-Z0-9_]*/;
+terminal PROPER_NOUN: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*\b/;
+
+terminal COMMON_NOUN: /[a-z][a-zA-Z0-9_]*\b/;
+
+terminal ATTRIBUTE_KEY: /[a-z][a-zA-Z0-9_]*(?=\s*:)/;
+
+terminal SECTION_TYPE: /[a-z][a-zA-Z0-9_]*\b/;
+
+terminal AGENT_KW: 'agent';
+terminal AGENT_CONFIG_KW: 'agentConfig';
+terminal AGENT_DEFAULTS_KW: 'agentDefaults';
+terminal FLOW_KW: 'flow';
+terminal FLOWS_KW: 'flows';
+terminal MESSAGES_KW: 'messages';
+
+terminal START_KW: 'start';
+terminal WITH_KW: 'with';
+terminal WHEN_KW: 'when';
+terminal IF_KW: 'if';
+terminal THEN_KW: 'then';
+terminal ELSE_KW: 'else';
+terminal UNLESS_KW: 'unless';
+terminal AND_KW: 'and';
+terminal OR_KW: 'or';
+terminal NOT_KW: 'not';
+terminal IS_KW: 'is';
+terminal DO_KW: 'do';
+terminal END_KW: 'end';
+
+terminal IMPORT_KW: 'import';
+terminal AS_KW: 'as';
+terminal FROM_KW: 'from';
 
 BooleanLiteral returns string: TRUE_KW | FALSE_KW;
 
@@ -390,14 +486,45 @@ NullLiteral returns string:
 
 EmptyLine returns string: __* NL;
 
-terminal MULTILINE_STR_CLEAN: /\|(?=\s*#|\s*[\r\n])/;            // |
-terminal MULTILINE_STR_TRIM: /\|-(?=\s*#|\s*[\r\n])/;            // |-
-terminal MULTILINE_STR_PRESERVE: /\+\|(?=\s*#|\s*[\r\n])/;       // +|
-terminal MULTILINE_STR_PRESERVE_ALL: /\+\|\+(?=\s*#|\s*[\r\n])/; // +|+
+terminal MULTILINE_STR_CLEAN: /\|(?=\s*(?:\r?\n|$))/;            // |
+terminal MULTILINE_STR_TRIM: /\|-(?=\s*(?:\r?\n|$))/;            // |-
+terminal MULTILINE_STR_PRESERVE: /\+\|(?=\s*(?:\r?\n|$))/;       // +|
+terminal MULTILINE_STR_PRESERVE_ALL: /\+\|\+(?=\s*(?:\r?\n|$))/; // +|+
+
+terminal EMBEDDED_CODE: /\$((js|ts)?>)\s*[^\r\n]*/;
+terminal MULTI_LINE_EXPRESSION_START: /\$((js|ts)?)>>>/;
+terminal CODE_LINE: /[^\r\n]*/;
 
 MultiLineString returns MultiLineString:
     marker=(MULTILINE_STR_CLEAN | MULTILINE_STR_TRIM | MULTILINE_STR_PRESERVE | MULTILINE_STR_PRESERVE_ALL)
     has_block_content='true';
+
+Value returns Value:
+    StringValue | NumberValue | BooleanValue | NullValue | IdentifierValue | EmbeddedExpression | EmbeddedCodeBlock;
+
+StringValue returns StringValue:
+    value=STRING;
+
+NumberValue returns NumberValue:
+    value=NUMBER;
+
+BooleanValue returns BooleanValue:
+    value=(TRUE_KW | FALSE_KW);
+
+NullValue returns NullValue:
+    NULL_KW;
+
+IdentifierValue returns IdentifierValue:
+    value=IDENTIFIER;
+
+EmbeddedExpression returns EmbeddedExpression:
+    EMBEDDED_CODE;
+
+EmbeddedCodeBlock returns EmbeddedCodeBlock:
+    MULTI_LINE_EXPRESSION_START
+    INDENT
+    content+=(CODE_LINE | EmptyLine)*
+    DEDENT;
 
 /**
  * ImportStatement supports multi-level namespace paths and space-separated aliases.
@@ -406,11 +533,14 @@ MultiLineString returns MultiLineString:
  *   import My Brand / Samples as Sample One
  *   import Shared / Common Flows / Support
  *
- * - Each PROPER_NOUN can include spaces (e.g., "My Brand").
- * - The alias after 'as' can also be a space-separated PROPER_NOUN.
+ * - Each IDENTIFIER can include spaces (e.g., "My Brand").
+ * - The alias after 'as' can also be a space-separated IDENTIFIER.
+ * - Optional 'from' clause for specifying source files.
  */
 ImportStatement returns ImportStatement:
-    'import' source+=PROPER_NOUN ( __? '/' __? source+=PROPER_NOUN)* ('as' alias=PROPER_NOUN)?;
+    IMPORT_KW importedNames+=IDENTIFIER ( __? '/' __? importedNames+=IDENTIFIER)* 
+    (AS_KW alias=IDENTIFIER)? 
+    (FROM_KW source=STRING)?;
 
 terminal TYPE_TAG_NAME: /(date|datetime|dt|time|t|email|phone|msisdn|url|zipcode|zip|duration|ttl)/;
 terminal ISO_DURATION_LITERAL: /P(\d+[YMWD])*T?(\d+[HMS])*|(\d+(\.\d+)?s)/;
@@ -481,20 +611,40 @@ ObjectPair returns ObjectPair:
     key=SimpleValue ':' (__? | WS | NL)? value=SimpleValue;
 
 Parameter returns Parameter:
-    name=COMMON_NOUN ':' type=COMMON_NOUN value=SimpleValue; 
-
-FlowContent returns FlowContent:
-    rules+=FlowRule+;
+    name=(ATTRIBUTE_KEY | IDENTIFIER) ':' defaultValue=Value; 
 
 FlowRule returns FlowRule:
-    source=(ATOM | PROPER_NOUN | STRING) '->' (
-      destinationIsFlow?='start' destination=[AbstractNamedSection:PROPER_NOUN] (withClause=WithClause)?
-      | code=(EmbeddedCodeExpression | EmbeddedCodeBlock)
-      | rules+=FlowRule
+    (
+        (name=IDENTIFIER ':' NL?
+        INDENT?
+        (
+            attributes+=Attribute
+            | nestedRules+=FlowRule
+            | transitions+=FlowTransition
+            | whenClauses+=WhenClause
+        )*
+        DEDENT?)
+        |
+        transitions+=FlowTransition
     );
 
+FlowTransition returns FlowTransition:
+    source=FlowOperand '->' destination=FlowOperand (withClause=WithClause)?;
+
+FlowOperand returns FlowOperand:
+    ATOM | STRING | IDENTIFIER;
+
+WhenClause returns WhenClause:
+    WHEN_KW condition=EmbeddedExpression NL?
+    INDENT?
+    transitions+=FlowTransition*
+    DEDENT?;
+
 WithClause returns WithClause:
-    'with' parameters+=Parameter (',' parameters+=Parameter)*;
+    WITH_KW NL?
+    INDENT?
+    parameters+=Parameter*
+    DEDENT?;
 
 ConfigProperty returns ConfigProperty:
     DescriptionProperty
@@ -603,42 +753,36 @@ DefaultPropertyAttribute returns DefaultPropertyAttribute:
     {DefaultPropertyAttribute} key='language' ':' __ value=SimpleValue; 
 
 SectionType returns string:
-  'agent'
-  | 'agentConfig'
-  | 'agentDefaults'
-  | 'flow'
-  | 'messages'
-  | ((
-      'authentication'
-      | 'transaction'
-      | 'promotion'
-      | 'servicerequest'
-      | 'acknowledge'
-    ) __ 'message');
+  AGENT_KW
+  | AGENT_CONFIG_KW
+  | AGENT_DEFAULTS_KW
+  | FLOW_KW
+  | FLOWS_KW
+  | MESSAGES_KW;
 
 Section returns Section:
-    (type=SectionType)? name=PROPER_NOUN
+    sectionType=SectionType (name=IDENTIFIER)? ':'
     NL?
-    INDENT
+    INDENT?
     (
         attributes+=Attribute 
-        | agentAttributes+=AgentAttribute
-        | configProperties+=ConfigProperty
-        | defaultProperties+=DefaultProperty
         | subSections+=Section
-        | flowContent+=FlowContent 
+        | flowRules+=FlowRule
+        | messages+=MessageDefinition
         | emptyLines+=EmptyLine
     )*
-    DEDENT;
+    DEDENT?;
 
 Attribute returns Attribute:
-    key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue;
+    key=ATTRIBUTE_KEY ':' (__? | WS)? value=Value;
 
-AgentAttribute returns AgentAttribute:
-    key=('displayName' | 'brandName') ':' __? value=SimpleValue
-    | key=COMMON_NOUN ':' __? value=SimpleValue;
+MessageDefinition returns MessageDefinition:
+    name=IDENTIFIER ':' NL?
+    INDENT?
+    attributes+=Attribute*
+    DEDENT?;
 
 entry RclFile:
-    (imports+=ImportStatement | emptyLines+=EmptyLine)*
-    agentSection=Section;
+    (imports+=ImportStatement)*
+    (sections+=Section)*;
 

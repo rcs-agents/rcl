@@ -134,9 +134,9 @@ describe('RCL Parser Error Handling Tests', () => {
     });
 
     test('recovers from malformed import statements', () => {
-      const input = `import Invalid
-import Shared/Utils as Utils
-import Another Invalid Statement
+      const input = `import 
+import Shared/Utils as 
+import / Invalid / Path
 import Working/Module as Working
 
 agent Test Agent:

@@ -9,26 +9,48 @@
 
 import { scopesFor } from 'tmgrammar-toolkit';
 
-// Define the custom shape of RCL scopes
-const rclScopeShapes = {
+// Create static scopes with RCL suffix and no extension allowed
+export const scopes = scopesFor({ 
+  suffix: 'rcl', 
+  allowScopeExtension: false 
+}, {
+  // Custom meta scopes for RCL language structures
   meta: {
-    section_agent: null,
-    section_agentConfig: null,
-    section_agentDefaults: null,
-    section_flow: null,
-    section_flows: null,
-    section_messages: null,
-    message_definition: null,
-    message_shortcut: null,
-    flow_transition: null,
-    flow_rule: null,
-    when_clause: null,
-    with_clause: null,
-    interpolation_single: null,
-    interpolation_multi: null,
-    import_statement: null,
-    type_tag: null,
+    section: {
+      agent: null,
+      agentConfig: null,
+      agentDefaults: null,
+      flow: null,
+      flows: null,
+      messages: null,
+    },
+    message: {
+      definition: null,
+      shortcut: null,
+    },
+    flow: {
+      transition: null,
+      rule: null,
+    },
+    when: {
+      clause: null,
+    },
+    with: {
+      clause: null,
+    },
+    interpolation: {
+      single: null,
+      multi: null,
+    },
+    import: {
+      statement: null,
+    },
+    type: {
+      tag: null,
+    },
   },
+  
+  // Custom entity scopes for RCL identifiers and names
   entity: {
     name: {
       message: null,
@@ -36,14 +58,20 @@ const rclScopeShapes = {
       identifier: null,
       alias: null,
       module: null,
-      flow_rule: null,
-      flow_target: null,
-      type_tag: null,
+      flow: {
+        rule: null,
+        target: null,
+      },
+      type: {
+        tag: null,
+      },
     },
     other: {
       attribute_name: null,
     },
   },
+  
+  // Custom keyword scopes for RCL-specific concepts
   keyword: {
     control: {
       section: null,
@@ -56,11 +84,15 @@ const rclScopeShapes = {
       arrow: null,
     },
   },
+  
+  // Custom constant scopes for RCL literals
   constant: {
     numeric: {
       duration: null,
     },
   },
+  
+  // Custom punctuation scopes
   punctuation: {
     separator: {
       colon: null,
@@ -73,14 +105,7 @@ const rclScopeShapes = {
       },
     },
   },
-};
-
-
-// Create static scopes with RCL suffix and no extension allowed
-export const scopes = scopesFor({ 
-  suffix: 'rcl', 
-  allowScopeExtension: false 
-}, rclScopeShapes);
+});
 
 // Export commonly used scope groups for convenience
 export const scopeGroups = {
@@ -95,7 +120,6 @@ export const scopeGroups = {
     logical: scopes.keyword.operator.logical,
     comparison: scopes.keyword.operator.comparison,
     arrow: scopes.keyword.operator.arrow,
-    other: scopes.keyword.other,
   },
   
   // Storage and types
@@ -128,9 +152,9 @@ export const scopeGroups = {
     attributeKey: scopes.entity.other.attribute_name,
     sectionName: scopes.entity.name.section,
     messageName: scopes.entity.name.message,
-    flowRuleName: scopes.entity.name.flow_rule,
-    flowTarget: scopes.entity.name.flow_target,
-    typeTagName: scopes.entity.name.type_tag,
+    flowRuleName: scopes.entity.name.section, // Use section scope for flow rules
+    flowTarget: scopes.entity.name.section, // Use section scope for flow targets
+    typeTagName: scopes.entity.name.type.tag,
     alias: scopes.entity.name.alias,
     module: scopes.entity.name.module,
   },
@@ -138,24 +162,23 @@ export const scopeGroups = {
   // Meta scopes for structure
   meta: {
     section: scopes.meta.section, // Base section
-    messageDefinition: scopes.meta.message_definition,
-    messageShortcut: scopes.meta.message_shortcut,
-    flowTransition: scopes.meta.flow_transition,
-    flowRule: scopes.meta.flow_rule,
-    whenClause: scopes.meta.when_clause,
-    withClause: scopes.meta.with_clause,
-    interpolation: scopes.meta.interpolation_single, // Base interpolation
-    importStatement: scopes.meta.import_statement,
-    typeTag: scopes.meta.type_tag,
-    path: scopes.meta.path,
-    group: scopes.meta.group,
+    messageDefinition: scopes.meta.message,
+    messageShortcut: scopes.meta.message,
+    flowTransition: scopes.meta.flow,
+    flowRule: scopes.meta.flow,
+    whenClause: scopes.meta.when,
+    withClause: scopes.meta.with,
+    interpolation: scopes.meta.interpolation,
+    importStatement: scopes.meta.import,
+    typeTag: scopes.meta.type,
+
   },
   
   // Punctuation
   punctuation: {
     colon: scopes.punctuation.separator.colon,
     slash: scopes.punctuation.separator.slash,
-    accessor: scopes.punctuation.accessor,
+
     interpolationBegin: scopes.punctuation.section.interpolation.begin,
     interpolationEnd: scopes.punctuation.section.interpolation.end,
   },

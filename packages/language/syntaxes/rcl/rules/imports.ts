@@ -1,8 +1,5 @@
-import { scopesFor } from 'tmgrammar-toolkit';
 import type { MatchRule, BeginEndRule } from 'tmgrammar-toolkit';
 import { R } from '../regex.js';
-
-const scopes = scopesFor('rcl');
 
 /**
  * Complete import statement
@@ -13,7 +10,7 @@ export const importStatement: BeginEndRule = {
   end: /$/,
   scope: 'meta.import.rcl',
   beginCaptures: {
-    '0': { name: scopes.keyword.control.import }
+    '0': { scope: 'keyword.control.import.rcl' }
   },
   patterns: [
     { include: '#namespace-path' },
@@ -40,7 +37,7 @@ export const importAlias: BeginEndRule = {
   end: /(?=from|$)/,
   scope: 'meta.import-alias.rcl',
   beginCaptures: {
-    '0': { name: scopes.keyword.control.import }
+    '0': { scope: 'keyword.control.import.as.rcl' }
   },
   patterns: [
     { include: '#alias-name' }
@@ -56,7 +53,7 @@ export const fromClause: BeginEndRule = {
   end: /$/,
   scope: 'meta.import-from.rcl',
   beginCaptures: {
-    '0': { name: scopes.keyword.control.import }
+    '0': { scope: 'keyword.control.import.from.rcl' }
   },
   patterns: [
     { include: '#import-path' }
@@ -69,7 +66,7 @@ export const fromClause: BeginEndRule = {
 export const importPath: MatchRule = {
   key: 'import-path',
   match: R.STRING,
-  scope: scopes.string.quoted.double
+  scope: 'string.quoted.double.rcl'
 };
 
 /**
