@@ -80,30 +80,22 @@ messages:
     });
 
     it('should handle imports and complex structure', () => {
-      const input = `import utils from "shared/common"
-import validators as v from "validation/core"
+      const input = `import Shared / Common Utils as Utils
+import Validation / Core Validators as Validators
 
 agent Multi Function Agent:
-    name: "Multi Function Agent"
-    version: "1.0"
-    utils: utils
-    validator: v
+  displayName: "Multi Function Agent"
+  brandName: "Test Brand"
 
-flows:
-    Registration Flow:
-        start: validate_input
-    
-    Onboarding Flow:  
-        start: welcome_new_user
+flow Registration Flow:
+  :start -> validate_input
 
-messages:
-    validate_input:
-        text: "Please provide your information"
-        validation: required
-        
-    welcome_new_user:
-        text: "Welcome to our service!"
-        type: "greeting"`;
+flow Onboarding Flow:
+  :start -> welcome_new_user
+
+messages Messages:
+  validate_input: text "Please provide your information"
+  welcome_new_user: text "Welcome to our service!"`;
 
       const parser = new RclCustomParser();
       const result = parser.parse(input);

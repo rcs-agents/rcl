@@ -17,10 +17,10 @@ import "./data-types/type-tag";
 // Import specialized grammar rules
 import "./core/embedded-code";
 import "./specialized/flow-rules";
-// import "./specialized/messages";
-// import "./specialized/rich-cards";
-// import "./specialized/suggestions";
-// import "./specialized/shortcuts";
+import "./specialized/messages";
+import "./specialized/rich-cards";
+import "./specialized/suggestions";
+import "./specialized/shortcuts";
 import "./specialized/configuration";
 
 // ======== Entry Point ========

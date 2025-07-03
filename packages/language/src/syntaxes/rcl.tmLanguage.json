@@ -121,6 +121,18 @@
       },
       "patterns": [
         {
+          "include": "#agent-config-section"
+        },
+        {
+          "include": "#agent-defaults-section"
+        },
+        {
+          "include": "#flow-section"
+        },
+        {
+          "include": "#messages-section"
+        },
+        {
           "include": "#string-literal"
         },
         {
@@ -148,11 +160,11 @@
       "name": "constant.other.rcl"
     },
     "attribute-access": {
-      "name": "meta.path.rcl",
+      "name": "undefined",
       "begin": "\\.",
       "beginCaptures": {
         "0": {
-          "name": "punctuation.accessor.rcl"
+          "name": "undefined"
         }
       },
       "end": "(?=\\s|[,)\\]}])",
@@ -294,11 +306,11 @@
     },
     "flow-operand": {
       "match": "(:([_a-zA-Z][\\w_]*|\"[^\"\\\\]*\")|\"[^\"]*\"|[A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)",
-      "name": "undefined"
+      "name": "entity.name.section.rcl"
     },
     "flow-rule-name": {
       "match": "([A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)\\s*:",
-      "name": "undefined"
+      "name": "entity.name.section.rcl"
     },
     "flow-section": {
       "begin": "\\bflow\\b",
@@ -310,6 +322,9 @@
         }
       },
       "patterns": [
+        {
+          "include": "#flow-rule"
+        },
         {
           "include": "#string-literal"
         },
@@ -353,7 +368,7 @@
       ]
     },
     "grouped-expression": {
-      "name": "meta.group.rcl",
+      "name": "undefined",
       "begin": "\\(",
       "end": "\\)",
       "patterns": [
@@ -449,7 +464,9 @@
       "end": "$",
       "name": "meta.import.rcl",
       "beginCaptures": {
-        "0": {}
+        "0": {
+          "name": "keyword.control.import.rcl"
+        }
       },
       "patterns": [
         {
@@ -674,6 +691,12 @@
       },
       "patterns": [
         {
+          "include": "#message-definition"
+        },
+        {
+          "include": "#message-shortcut"
+        },
+        {
           "include": "#string-literal"
         },
         {
@@ -697,7 +720,7 @@
       ]
     },
     "multi-line-expression": {
-      "name": "undefined",
+      "name": "meta.interpolation.rcl",
       "begin": "\\$((js|ts)?)>>>",
       "beginCaptures": {
         "1": {
@@ -826,7 +849,7 @@
       "name": "undefined"
     },
     "single-line-expression": {
-      "name": "undefined",
+      "name": "meta.interpolation.rcl",
       "begin": "\\$((js|ts)?>)",
       "beginCaptures": {
         "1": {

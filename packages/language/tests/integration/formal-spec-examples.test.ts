@@ -5,7 +5,7 @@
  * 100% compliance with the documented grammar and syntax.
  */
 
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { RclParser } from '../../src/parser/parser/index.js';
 import { RclLexer } from '../../src/parser/lexer/index.js';
 

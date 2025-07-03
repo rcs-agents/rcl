@@ -86,7 +86,8 @@ terminal MULTILINE_STR_PRESERVE_ALL: /\+\|\+(?=\s*(?:\r?\n|$))/; // +|+
 
 // ======== Embedded Expressions ========
 terminal EMBEDDED_CODE: /\$((js|ts)?>)\s*[^\r\n]*/;
-terminal MULTI_LINE_EXPRESSION_START: /\$((js|ts)?)>>>\s*\{[\s\S]*?\}/;
+terminal MULTI_LINE_EXPRESSION_START: /\$((js|ts)?)>>>/;
+terminal CODE_LINE: /[^\r\n]*/;
 
 // ======== Parser Rules ========
 // A multi-line string with various whitespace handling modes.
@@ -118,4 +119,7 @@ EmbeddedExpression returns EmbeddedExpression:
     EMBEDDED_CODE;
 
 EmbeddedCodeBlock returns EmbeddedCodeBlock:
-    MULTI_LINE_EXPRESSION_START;
+    MULTI_LINE_EXPRESSION_START
+    INDENT
+    content+=(CODE_LINE | EmptyLine)*
+    DEDENT;

@@ -5,7 +5,7 @@
  * have been properly fixed to match the formal specification.
  */
 
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { RclLexer } from '../../src/parser/lexer/index.js';
 
 describe('Critical Lexer Fixes', () => {

@@ -3,7 +3,7 @@ import { R } from '../regex.js';
 import { scopeGroups } from '../scopes.js';
 
 // Define what can be inside sections to avoid circular dependency
-const sectionPatterns = [
+const baseSectionContentPatterns = [
     { include: '#string-literal' },
     { include: '#number-literal' },
     { include: '#boolean-literal' },
@@ -11,6 +11,14 @@ const sectionPatterns = [
     { include: '#atom-literal' },
     { include: '#attribute-key' },
     { include: '#hash-comment' },
+];
+
+const agentSectionContentPatterns = [
+    { include: '#agent-config-section' },
+    { include: '#agent-defaults-section' },
+    { include: '#flow-section' },
+    { include: '#messages-section' },
+    ...baseSectionContentPatterns
 ];
 
 /**
@@ -26,7 +34,7 @@ export const agentSection: BeginEndRule = {
         '1': { scope: scopeGroups.keywords.section },
         '2': { scope: scopeGroups.identifiers.sectionName }
     },
-    patterns: sectionPatterns
+    patterns: agentSectionContentPatterns
 };
 
 /**
@@ -37,11 +45,11 @@ export const agentConfigSection: BeginEndRule = {
     key: 'agent-config-section',
     begin: R.AGENT_CONFIG_KW,
     end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
-    scope: scopeGroups.meta.section,
+    scope: scopeGroups.meta.section_agentConfig,
     beginCaptures: {
         '0': { scope: scopeGroups.keywords.section }
     },
-    patterns: sectionPatterns
+    patterns: baseSectionContentPatterns
 };
 
 /**
@@ -52,11 +60,11 @@ export const agentDefaultsSection: BeginEndRule = {
     key: 'agent-defaults-section',
     begin: R.AGENT_DEFAULTS_KW,
     end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
-    scope: scopeGroups.meta.section,
+    scope: scopeGroups.meta.section_agentDefaults,
     beginCaptures: {
         '0': { scope: scopeGroups.keywords.section }
     },
-    patterns: sectionPatterns
+    patterns: baseSectionContentPatterns
 };
 
 /**
@@ -67,11 +75,14 @@ export const flowSection: BeginEndRule = {
     key: 'flow-section',
     begin: R.FLOW_KW,
     end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
-    scope: scopeGroups.meta.section,
+    scope: scopeGroups.meta.section_flow,
     beginCaptures: {
         '0': { scope: scopeGroups.keywords.section }
     },
-    patterns: sectionPatterns
+    patterns: [
+        { include: '#flow-rule' },
+        ...baseSectionContentPatterns
+    ]
 };
 
 /**
@@ -85,7 +96,7 @@ export const flowsSection: BeginEndRule = {
     beginCaptures: {
         '0': { scope: scopeGroups.keywords.section }
     },
-    patterns: sectionPatterns
+    patterns: baseSectionContentPatterns
 };
 
 /**
@@ -96,11 +107,15 @@ export const messagesSection: BeginEndRule = {
     key: 'messages-section',
     begin: R.MESSAGES_KW,
     end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
-    scope: scopeGroups.meta.section,
+    scope: scopeGroups.meta.section_messages,
     beginCaptures: {
         '0': { scope: scopeGroups.keywords.section }
     },
-    patterns: sectionPatterns
+    patterns: [
+        { include: '#message-definition' },
+        { include: '#message-shortcut' },
+        ...baseSectionContentPatterns
+    ]
 };
 
 /**
@@ -123,7 +138,7 @@ export const messageDefinition: BeginEndRule = {
         { include: '#attribute-key' },
         { include: '#string-literal' },
         { include: '#embedded-code-line' },
-    ],
+    ]
 };
 
 /**
@@ -155,6 +170,20 @@ export const sectionSeparator: MatchRule = {
     key: 'section-separator',
     scope: scopeGroups.punctuation.colon,
     match: R.COLON,
+};
+
+/**
+ * Fallback for any other section name not explicitly defined
+ */
+export const genericSection: BeginEndRule = {
+    key: 'generic-section',
+    begin: R.PROPER_NOUN,
+    end: /(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\b)|(?=\Z)/,
+    scope: scopeGroups.meta.section,
+    beginCaptures: {
+        '0': { scope: scopeGroups.keywords.section }
+    },
+    patterns: baseSectionContentPatterns
 };
 
 /**
