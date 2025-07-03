@@ -5,7 +5,7 @@
  * structure and grammar rules.
  */
 
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { RclParser } from '../../src/parser/parser/index.js';
 
 describe('Formal Specification Compliance', () => {
