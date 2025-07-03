@@ -15,7 +15,7 @@ import {
   capture,
   group,
   concat
-} from './regex.js';
+} from '../src/helpers/regex.js';
 
 describe('regex helpers', () => {
   describe('bounded', () => {
@@ -71,6 +71,22 @@ describe('regex helpers', () => {
       expect(keywords(['if', 'else']).source).toBe('\\b(if|else)\\b');
       expect(keywords([/if/, /else/]).source).toBe('\\b(if|else)\\b');
     });
+
+    test('escaped string pattern', () => {
+      const pattern = concat(notAfter(/\\/), /"/, notBefore(/"/));
+      
+      expect(pattern.source).toBe('((?<!\\\\)"(?!"))');
+    });
+
+    test('keyword at statement boundary', () => {
+      const pattern = concat(
+        after(/(^|[\s{};])/),
+        keywords(['if', 'while']),
+        before(/\s*(\(|{)/)
+      );
+      
+      expect(pattern.source).toBe('((?<=(^|[\\s{};]))\\b(if|while)\\b(?=\\s*(\\(|{)))');
+    });
   });
 
   describe('escape', () => {
@@ -91,17 +107,17 @@ describe('regex helpers', () => {
     test('optional adds ? quantifier', () => {
       expect(optional('s').source).toBe('s?');
       expect(optional(/s/).source).toBe('s?');
-      expect(optional(/[a-z]/).source).toBe('[a-z]?');
+      expect(optional(/[a-z]/).source).toBe('(?:[a-z])?');
     });
 
     test('zeroOrMore adds * quantifier', () => {
-      expect(zeroOrMore('\\w').source).toBe('\\w*');
-      expect(zeroOrMore(/\w/).source).toBe('\\w*');
+      expect(zeroOrMore('\\w').source).toBe('(?:\\w)*');
+      expect(zeroOrMore(/\w/).source).toBe('(?:\\w)*');
     });
 
     test('oneOrMore adds + quantifier', () => {
-      expect(oneOrMore('\\d').source).toBe('\\d+');
-      expect(oneOrMore(/\d/).source).toBe('\\d+');
+      expect(oneOrMore('\\d').source).toBe('(?:\\d)+');
+      expect(oneOrMore(/\d/).source).toBe('(?:\\d)+');
     });
   });
 
@@ -138,7 +154,7 @@ describe('regex helpers', () => {
         before(/\s*\(/)
       );
       
-      expect(pattern.source).toBe('(\\b(function)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\())');
+      expect(pattern.source).toBe('(\\b(function)\\b(?:\\s)+([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\())');
     });
 
     test('escaped string pattern', () => {
@@ -154,7 +170,7 @@ describe('regex helpers', () => {
         before(/\s*(\(|{)/)
       );
       
-      expect(pattern.source).toBe('((?<=(^|[\\s{};]))\\b(if|while)\\b(?=\\s*(\\(|{))))');
+      expect(pattern.source).toBe('((?<=(^|[\\s{};]))\\b(if|while)\\b(?=\\s*(\\(|{)))');
     });
   });
 }); 

@@ -153,43 +153,65 @@ function processNode(
 
   const outputNode: any = {};
   for (const originalKey in node) {
+    if (!Object.prototype.hasOwnProperty.call(node, originalKey)) {
+      continue;
+    }
     const value = node[originalKey];
     let processedValue = value;
 
-    switch (originalKey) {
-      case "key": // Drop 'key' from the output of individual rule definitions
-        if (!isRepositoryItemContext) { // Keep key if it's part of a structure not meant for repo (e.g. captures)
+    try {
+      switch (originalKey) {
+        case "key":
+          if (!isRepositoryItemContext) {
             outputNode[originalKey] = value;
+          }
+          break;
+        case "repositoryItems":
+          break;
+        case "scope": {
+          const ruleKeyForMeta = node.key || 'unknown';
+          outputNode.name = value === meta
+            ? `meta.${ruleKeyForMeta}.${grammarName}`
+            : String(value);
+          break;
         }
-        break;
-      case "repositoryItems": // Always drop 'repositoryItems' from the main grammar output
-        break;
-      case "scope": {
-        const ruleKeyForMeta = node.key || 'unknown'; 
-        outputNode.name = value === meta
-          ? `meta.${ruleKeyForMeta}.${grammarName}`
-          : String(value);
-        break;
+        case "begin":
+        case "end":
+        case "match":
+        case "while":
+        case "firstLineMatch":
+        case "foldingStartMarker":
+        case "foldingStopMarker":
+          if (value instanceof RegExp) {
+            processedValue = value.source;
+          }
+          validateRegexp(processedValue, node, originalKey, options);
+          outputNode[originalKey] = processedValue;
+          break;
+        case "captures":
+        case "beginCaptures":
+        case "endCaptures":
+        case "whileCaptures":
+          // Special handling for capture groups
+          outputNode[originalKey] = processNode(value, options, grammarName, currentRepository, true);
+          break;
+        case "patterns":
+          outputNode[originalKey] = processPatterns(value, options, grammarName, currentRepository);
+          break;
+        default:
+          outputNode[originalKey] = processNode(value, options, grammarName, currentRepository, false);
+          break;
       }
-      case "begin":
-      case "end":
-      case "match":
-      case "while":
-      case "firstLineMatch":
-      case "foldingStartMarker":
-      case "foldingStopMarker":
-        if (value instanceof RegExp) {
-          processedValue = value.source;
-        }
-        validateRegexp(processedValue, node, originalKey, options);
-        outputNode[originalKey] = processedValue;
-        break;
-      case "patterns":
-        outputNode[originalKey] = processPatterns(value, options, grammarName, currentRepository);
-        break;
-      default:
-        outputNode[originalKey] = processNode(value, options, grammarName, currentRepository, false); // Children are not repo items context by default
-        break;
+    } catch (error) {
+      // Improve error context
+      const newError = new Error(
+        `Error processing property '${originalKey}' in rule with key '${node.key || "unknown"}': ${error.message}`
+      );
+      if (options.errorSourceFilePath) {
+        newError.message += ` (source: ${options.errorSourceFilePath})`;
+      }
+      newError.stack = error.stack;
+      throw newError;
     }
   }
   return outputNode;
@@ -227,55 +249,51 @@ function processPatterns(
       if (!currentRepository.has(keyedRule.key)) {
         // This rule was referenced but not pre-processed via repositoryItems
         // eslint-disable-next-line no-console
-        console.warn(
-          `Rule with key '${keyedRule.key}' was encountered in a 'patterns' array but not pre-processed via 'repositoryItems'. Processing it now for the repository.`
-        );
-        const entry: [Rule, any] = [keyedRule, undefined]; 
+        console.warn(`Discovered and processing new repository item on-the-fly: '${keyedRule.key}'. For best results, pre-declare all keyed rules in top-level 'repositoryItems'.`);
+        const entry: [Rule, any] = [keyedRule, undefined]; // Placeholder
         currentRepository.set(keyedRule.key, entry);
         entry[1] = processNode(keyedRule, options, grammarName, currentRepository, true);
       } else {
         const existingEntry = currentRepository.get(keyedRule.key);
         if (existingEntry && existingEntry[0] !== keyedRule) {
-          // Check if they are structurally equivalent (same content, different object instances)
-          const existingRule = existingEntry[0];
-          const rulesAreEquivalent = JSON.stringify(existingRule) === JSON.stringify(keyedRule);
-          
-          if (!rulesAreEquivalent) {
-            throw new Error(`Key collision: The key '${keyedRule.key}' is used for different rule objects. One in 'repositoryItems' (or processed earlier) and another encountered in a 'patterns' array.`);
-          }
-          // If they are structurally equivalent, we can safely ignore this - it's the same rule definition
+           // This is a sanity check. It should ideally be caught by the pre-processing loop.
+           throw new Error(`Duplicate key '${keyedRule.key}' detected with a different rule object.`);
         }
-        // If it's the same rule object or equivalent rule, we don't need to do anything - it's already in the repository
       }
-      
-      // Convert keyed rule to include reference
+
+      // Now that we know it's in the repo, add an include directive
       processedPatternsArray.push({ include: `#${keyedRule.key}` });
+
     } else {
-      // Rule without key - inline it directly
+      // It's a rule without a key, process it inline.
       processedPatternsArray.push(processNode(rule, options, grammarName, currentRepository, false));
     }
   }
   return processedPatternsArray;
 }
 
-// processRepository is no longer needed as finalRepositoryObject is built directly in processGrammar
-
+/**
+ * Validates a regular expression using the Oniguruma engine.
+ * Throws a detailed error if the pattern is invalid.
+ */
 function validateRegexp(regexp: string | undefined, node: any, prop: string, options: EmitOptions) {
-  if (regexp === undefined) return;
+  if (options.validate === false || typeof regexp !== 'string') {
+    return;
+  }
   try {
+    // eslint-disable-next-line no-new
     new OnigRegExp(regexp);
-  } catch (err: any) {
-    let processedError = err;
-    if (/^[0-9,]+$/.test(err.message)) {
-      const array = new Uint8Array(err.message.split(",").map((s: string) => Number(s)));
-      const buffer = Buffer.from(array);
-      processedError = new Error(buffer.toString("utf-8"));
+  } catch (error) {
+    const errorMessage =
+`Invalid regular expression in property '${prop}': /${regexp}/
+Rule: ${JSON.stringify(node, null, 2)}
+Error: ${error.message}`;
+
+    const newError = new Error(errorMessage);
+    if (options.errorSourceFilePath) {
+      newError.message += ` (source: ${options.errorSourceFilePath})`;
     }
-    const sourceFile = options.errorSourceFilePath ?? "unknown_file";
-    // eslint-disable-next-line no-console
-    console.error(`${sourceFile}(1,1): error TM0001: Bad regex: ${JSON.stringify({[prop]: regexp})}: ${processedError.message}`);
-    // eslint-disable-next-line no-console
-    console.error(node);
-    throw processedError;
+    newError.stack = error.stack;
+    throw newError;
   }
 } 

@@ -10,7 +10,8 @@
       "Bash(timeout:*)",
       "Bash(chmod:*)",
       "Bash(./run_ls.sh)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }

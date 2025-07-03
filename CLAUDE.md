@@ -164,3 +164,7 @@ When working on the VS Code extension:
 2. **Testing**: Use `bun run reinstall-extension` to package and install locally
 3. **Syntax**: Changes to TextMate grammar require rebuilding language package first
 4. **Language Server**: Extension connects to LSP server from language package
+
+## Development Notes
+
+- **AI Assistant Notes Folder**: There's a folder dedicated to AI Assistant notes located at `.cursor/notes` (from the repository root)

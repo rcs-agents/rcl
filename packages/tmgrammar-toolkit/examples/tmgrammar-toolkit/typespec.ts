@@ -30,6 +30,12 @@ const scopes = scopesFor(
       },
       tag: {
         tspdoc: null
+      },
+      operator: {
+        'type.annotation': null,
+        optional: null,
+        selector: null,
+        spread: null
       }
     },
     punctuation: {
@@ -62,14 +68,6 @@ const scopes = scopesFor(
         open: null
       },
       comma: null
-    },
-    keyword: {
-      operator: {
-        'type.annotation': null,
-        optional: null,
-        selector: null,
-        spread: null
-      }
     },
     variable: {
       name: null
@@ -134,9 +132,9 @@ const blockComment: BeginEndRule = {
 };
 
 const docCommentParam: MatchRule = {
-  key: "doc-comment-param",
+  key: "doc-comment-param-tag",
   scope: scopes.comment.block,
-  match: new RegExp(`(?x)((@)(?:param|template|prop))\\s+(${identifier})\\b`),
+  match: new RegExp(`((@)(?:param|template|prop))\\s+(${identifier})\\b`),
   captures: {
     "1": { scope: scopes.keyword.tag.tspdoc },
     "2": { scope: scopes.keyword.tag.tspdoc },
@@ -147,7 +145,7 @@ const docCommentParam: MatchRule = {
 const docCommentReturn: MatchRule = {
   key: "doc-comment-return-tag",
   scope: scopes.comment.block,
-  match: /(?x)((@)(?:returns))\b/,
+  match: /((@)(?:returns))\b/,
   captures: {
     "1": { scope: scopes.keyword.tag.tspdoc },
     "2": { scope: scopes.keyword.tag.tspdoc }
@@ -157,7 +155,7 @@ const docCommentReturn: MatchRule = {
 const docCommentUnknownTag: MatchRule = {
   key: "doc-comment-unknown-tag",
   scope: scopes.comment.block,
-  match: new RegExp(`(?x)((@)(?:${identifier}))\\b`),
+  match: new RegExp(`((@)(?:${identifier}))\\b`),
   captures: {
     "1": { scope: scopes.entity.name.tag },
     "2": { scope: scopes.entity.name.tag }
