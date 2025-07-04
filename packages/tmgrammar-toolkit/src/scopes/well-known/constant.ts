@@ -1,9 +1,18 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw constant scope definitions used for building the scope tree
+ * Root scope for `constant`.
+ * Fixed values including literals, language constants, and escape sequences.
+ * Distinguish between user-defined constants (`entity.name.constant`) and literal values.
+ * Full path: `constant`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#constant)
+ * 
+ * @example
+ * ```typescript
+ * scopes.constant.numeric.integer.decimal // "constant.numeric.integer.decimal"
+ * scopes.constant.character.escape("js") // "constant.character.escape.js"
+ * scopes.constant.language // "constant.language"
+ * ```
  */
-export const CONSTANT_SCOPE_DEFINITION = {
+export const CONSTANT_SCOPE = {
     /**
      * Represents the `constant.numeric` scope.
      * All numeric literals.
@@ -166,20 +175,4 @@ export const CONSTANT_SCOPE_DEFINITION = {
     },
   };
 
-export const CONSTANT_SCOPE = buildScopes({ prefix: 'constant' }, CONSTANT_SCOPE_DEFINITION);
-
-/**
- * Root scope for `constant`.
- * Fixed values including literals, language constants, and escape sequences.
- * Distinguish between user-defined constants (`entity.name.constant`) and literal values.
- * Full path: `constant`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#constant)
- * 
- * @example
- * ```typescript
- * scopes.constant.numeric.integer.decimal // "constant.numeric.integer.decimal"
- * scopes.constant.character.escape("js") // "constant.character.escape.js"
- * scopes.constant.language // "constant.language"
- * ```
- */
-export type ConstantScope = typeof CONSTANT_SCOPE; 
+export default CONSTANT_SCOPE;

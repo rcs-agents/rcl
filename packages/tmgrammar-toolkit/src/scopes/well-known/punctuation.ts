@@ -1,9 +1,17 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw punctuation scope definitions used for building the scope tree
+ * Root scope for `punctuation`.
+ * Structural and syntactic punctuation. Use specific subtypes for precise editor behavior.
+ * Full path: `punctuation`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#punctuation)
+ * 
+ * @example
+ * ```typescript
+ * scopes.punctuation.separator // "punctuation.separator"
+ * scopes.punctuation.definition.string.begin("js") // "punctuation.definition.string.begin.js"
+ * scopes.punctuation.section.block.begin // "punctuation.section.block.begin"
+ * ```
  */
-export const PUNCTUATION_SCOPE_DEFINITION = {
+export const PUNCTUATION_SCOPE = {
     /**
      * Represents the `punctuation.separator` scope.
      * Commas, colons.
@@ -84,9 +92,7 @@ export const PUNCTUATION_SCOPE_DEFINITION = {
       keyword: null,
       /**
        * Represents the `punctuation.definition.variable` scope.
-       * Variable symbols (`import { buildScopes } from './lib/internal.js';
-
-export const PUNCTUATION_SCOPE =  in PHP).
+       * Variable symbols (`$` in PHP).
        * Full path: `punctuation.definition.variable`
        * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#punctuation)
        */
@@ -300,20 +306,3 @@ export const PUNCTUATION_SCOPE =  in PHP).
       },
     },
   };
-
-export const PUNCTUATION_SCOPE = buildScopes({ prefix: 'punctuation' }, PUNCTUATION_SCOPE_DEFINITION);
-
-/**
- * Root scope for `punctuation`.
- * Structural and syntactic punctuation. Use specific subtypes for precise editor behavior.
- * Full path: `punctuation`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#punctuation)
- * 
- * @example
- * ```typescript
- * scopes.punctuation.separator // "punctuation.separator"
- * scopes.punctuation.definition.string.begin("js") // "punctuation.definition.string.begin.js"
- * scopes.punctuation.section.block.begin // "punctuation.section.block.begin"
- * ```
- */
-export type PunctuationScope = typeof PUNCTUATION_SCOPE; 

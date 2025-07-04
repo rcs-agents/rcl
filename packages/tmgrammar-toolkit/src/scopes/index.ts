@@ -1,42 +1,10 @@
-//@index(['./*.ts', '!types.ts'], (f, _) => `import { ${f.name.toUpperCase()}_SCOPE, ${f.name.toUpperCase()}_SCOPE_DEFINITION } from '${f.path}.js'`)
-import { COMMENT_SCOPE, COMMENT_SCOPE_DEFINITION } from './comment.js'
-import { CONSTANT_SCOPE, CONSTANT_SCOPE_DEFINITION } from './constant.js'
-import { ENTITY_SCOPE, ENTITY_SCOPE_DEFINITION } from './entity.js'
-import { INVALID_SCOPE, INVALID_SCOPE_DEFINITION } from './invalid.js'
-import { KEYWORD_SCOPE, KEYWORD_SCOPE_DEFINITION, KeywordScope } from './keyword.js'
-import { buildScopes, mergeDefinitions } from './lib/internal.js'
-import { MARKUP_SCOPE, MARKUP_SCOPE_DEFINITION } from './markup.js'
-import { META_SCOPE, META_SCOPE_DEFINITION } from './meta.js'
-import { PUNCTUATION_SCOPE, PUNCTUATION_SCOPE_DEFINITION } from './punctuation.js'
-import { STORAGE_SCOPE, STORAGE_SCOPE_DEFINITION } from './storage.js'
-import { STRING_SCOPE, STRING_SCOPE_DEFINITION } from './string.js'
-import { SUPPORT_SCOPE, SUPPORT_SCOPE_DEFINITION } from './support.js'
-import { VARIABLE_SCOPE, VARIABLE_SCOPE_DEFINITION } from './variable.js'
-//@endindex
-
 import type { Simplify } from 'type-fest';
+
+import { WELL_KNOWN_SCOPES } from './well-known/index.js';
+import { buildScopes, mergeDefinitions } from './lib/internal.js';
+
 import type { BuildScopeOptions, ScopeTree, MergeScopes } from './types.js';
 
-/**
- * Raw scope definitions for all standard TextMate scope categories.
- * Used for merging with custom scope definitions in scopesFor().
- */
-const BASE_SCOPE_DEFINITIONS = {
-  //@index(['./*.ts', '!types.ts'], (f, _) => `${_.camelCase(f.name)}: ${f.name.toUpperCase()}_SCOPE_DEFINITION,`)
-  comment: COMMENT_SCOPE_DEFINITION,
-  constant: CONSTANT_SCOPE_DEFINITION,
-  entity: ENTITY_SCOPE_DEFINITION,
-  invalid: INVALID_SCOPE_DEFINITION,
-  keyword: KEYWORD_SCOPE_DEFINITION,
-  markup: MARKUP_SCOPE_DEFINITION,
-  meta: META_SCOPE_DEFINITION,
-  punctuation: PUNCTUATION_SCOPE_DEFINITION,
-  storage: STORAGE_SCOPE_DEFINITION,
-  string: STRING_SCOPE_DEFINITION,
-  support: SUPPORT_SCOPE_DEFINITION,
-  variable: VARIABLE_SCOPE_DEFINITION,
-  //@endindex
-};
 
 /**
  * Predefined TextMate scopes for use in grammars.
@@ -82,7 +50,7 @@ const BASE_SCOPE_DEFINITIONS = {
  * scopes.punctuation.definition.string.begin // "punctuation.definition.string.begin"
  * ```
  */
-export const scopes = buildScopes({ allowScopeExtension: true }, BASE_SCOPE_DEFINITIONS);
+export const scopes = buildScopes({ allowScopeExtension: true }, WELL_KNOWN_SCOPES);
 
 export type TextMateScopes = typeof scopes;
 
@@ -134,15 +102,15 @@ export function scopesFor<
   customScopes?: TCustom
 ): Simplify<
   ScopeTree<
-    TCustom extends Record<string, any> ? MergeScopes<typeof BASE_SCOPE_DEFINITIONS, TCustom> : typeof BASE_SCOPE_DEFINITIONS,
+    TCustom extends Record<string, any> ? MergeScopes<typeof WELL_KNOWN_SCOPES, TCustom> : typeof WELL_KNOWN_SCOPES,
     TOptions['prefix'] extends string ? TOptions['prefix'] : '',
     TOptions['suffix'] extends string ? TOptions['suffix'] : '',
     TOptions['allowScopeExtension'] extends boolean | 'on-leafs' ? TOptions['allowScopeExtension'] : false
   >
 > {
   const definitions = customScopes 
-    ? mergeDefinitions(BASE_SCOPE_DEFINITIONS, customScopes)
-    : BASE_SCOPE_DEFINITIONS;
+    ? mergeDefinitions(WELL_KNOWN_SCOPES, customScopes)
+    : WELL_KNOWN_SCOPES;
     
   return buildScopes({
     prefix: '',

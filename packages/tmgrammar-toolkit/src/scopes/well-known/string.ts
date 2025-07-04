@@ -1,9 +1,17 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw string scope definitions used for building the scope tree
+ * Root scope for `string`.
+ * String literals and related constructs. Use `meta.string` for entire strings including punctuation.
+ * Full path: `string`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#string)
+ * 
+ * @example
+ * ```typescript
+ * scopes.string.quoted.single // "string.quoted.single"
+ * scopes.string.quoted.double("js") // "string.quoted.double.js"
+ * scopes.string.regexp // "string.regexp"
+ * ```
  */
-export const STRING_SCOPE_DEFINITION = {
+export const STRING_SCOPE = {
     /**
      * Represents the `string.quoted` scope.
      * Quoted strings with various quote styles.
@@ -57,20 +65,3 @@ export const STRING_SCOPE_DEFINITION = {
      */
     regexp: null,
   };
-
-export const STRING_SCOPE = buildScopes({ prefix: 'string' }, STRING_SCOPE_DEFINITION);
-
-/**
- * Root scope for `string`.
- * String literals and related constructs. Use `meta.string` for entire strings including punctuation.
- * Full path: `string`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#string)
- * 
- * @example
- * ```typescript
- * scopes.string.quoted.single // "string.quoted.single"
- * scopes.string.quoted.double("js") // "string.quoted.double.js"
- * scopes.string.regexp // "string.regexp"
- * ```
- */
-export type StringScope = typeof STRING_SCOPE; 

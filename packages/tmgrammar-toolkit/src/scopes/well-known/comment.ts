@@ -1,9 +1,14 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw comment scope definitions used for building the scope tree
+ * Comment scopes with full type safety and hierarchical structure.
+ * 
+ * @example
+ * ```typescript
+ * // Basic usage
+ * scopes.comment.line.double_slash // "comment.line.double-slash"
+ * scopes.comment.block.documentation("js") // "comment.block.documentation.js"
+ * ```
  */
-export const COMMENT_SCOPE_DEFINITION = {
+export const COMMENT_SCOPE = {
     /**
      * Represents the `comment.line` scope.
      * Line comment constructs.
@@ -44,16 +49,4 @@ export const COMMENT_SCOPE_DEFINITION = {
     },
   };
 
-/**
- * Comment scopes with full type safety and hierarchical structure.
- * 
- * @example
- * ```typescript
- * // Basic usage
- * scopes.comment.line.double_slash // "comment.line.double-slash"
- * scopes.comment.block.documentation("js") // "comment.block.documentation.js"
- * ```
- */
-export const COMMENT_SCOPE = buildScopes({ prefix: 'comment' }, COMMENT_SCOPE_DEFINITION);
-
-export type CommentScope = typeof COMMENT_SCOPE;
+export default COMMENT_SCOPE;

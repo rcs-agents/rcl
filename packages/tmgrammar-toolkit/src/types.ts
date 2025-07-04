@@ -3,7 +3,7 @@
  * Direct mapping to tmlanguage schema with strong type safety
  */
 
-import type { CallableScope } from './scopes/types.js';
+import type { Scope } from './scopes/types.js';
 
 export const schema =
   "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json";
@@ -17,7 +17,7 @@ export const meta: unique symbol = Symbol("meta");
 /**
  * Valid scope value - can be a string, result from scopes API, or meta symbol
  */
-export type ScopeValue = string | CallableScope | typeof meta;
+export type ScopeValue = string | Scope | typeof meta;
 
 
 /**
@@ -32,8 +32,7 @@ export interface RuleKey {
  * A type representing a regular expression, either as a string or a RegExp object.
  */
 export type RegexValue = string | RegExp;
-
-export type RegexList = (RegexValue | RegexValue[])[];
+export type RegexValueList = Array<RegexValue | RegexValue[]>;
 
 /**
  * Scope assignment for a rule - can be a string, our scopes API, or meta symbol

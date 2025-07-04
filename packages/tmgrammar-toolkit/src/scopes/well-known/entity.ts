@@ -1,9 +1,18 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw entity scope definitions used for building the scope tree
+ * Root scope for `entity`.
+ * Names of data structures, types, and uniquely-identifiable constructs.
+ * The entity scopes target the **names** only, not entire constructs (use `meta.*` for that).
+ * Full path: `entity`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#entity)
+ * 
+ * @example
+ * ```typescript
+ * scopes.entity.name.class // "entity.name.class"
+ * scopes.entity.name.function.constructor("js") // "entity.name.function.constructor.js"
+ * scopes.entity.other.inherited_class // "entity.other.inherited-class"
+ * ```
  */
-export const ENTITY_SCOPE_DEFINITION = {
+export const ENTITY_SCOPE = {
     /**
      * Represents the `entity.name` scope.
      * Names of various language constructs.
@@ -157,22 +166,4 @@ export const ENTITY_SCOPE_DEFINITION = {
     }
   };
 
-export const ENTITY_SCOPE = buildScopes({ prefix: 'entity' }, ENTITY_SCOPE_DEFINITION); 
-
-/**
- * Root scope for `entity`.
- * Names of data structures, types, and uniquely-identifiable constructs.
- * The entity scopes target the **names** only, not entire constructs (use `meta.*` for that).
- * Full path: `entity`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#entity)
- * 
- * @example
- * ```typescript
- * scopes.entity.name.class // "entity.name.class"
- * scopes.entity.name.function.constructor("js") // "entity.name.function.constructor.js"
- * scopes.entity.other.inherited_class // "entity.other.inherited-class"
- * ```
- */
-export type EntityScope = typeof ENTITY_SCOPE;
-
-declare const entity: EntityScope;
+export default ENTITY_SCOPE;

@@ -1,4 +1,4 @@
-import type { BuildScopeOptions, Scope, ExtensionMode } from '../types.js';
+import type { BuildScopeOptions, Scope } from '../types.js';
 
 /**
  * Creates a scope function that implements the Scope interface.

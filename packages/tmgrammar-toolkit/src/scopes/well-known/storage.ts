@@ -1,9 +1,17 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw storage scope definitions used for building the scope tree
+ * Root scope for `storage`.
+ * Keywords affecting how variables, functions, or data structures are stored or accessed.
+ * Full path: `storage`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#storage)
+ * 
+ * @example
+ * ```typescript
+ * scopes.storage.type.function // "storage.type.function"
+ * scopes.storage.modifier("js") // "storage.modifier.js"
+ * scopes.storage.type.class // "storage.type.class"
+ * ```
  */
-export const STORAGE_SCOPE_DEFINITION = {
+export const STORAGE_SCOPE = {
     /**
      * Represents the `storage.type` scope.
      * Type keywords (`int`, `bool`, `char`).
@@ -98,20 +106,3 @@ export const STORAGE_SCOPE_DEFINITION = {
      */
     modifier: null,
   };
-
-export const STORAGE_SCOPE = buildScopes({ prefix: 'storage' }, STORAGE_SCOPE_DEFINITION);
-
-/**
- * Root scope for `storage`.
- * Keywords affecting how variables, functions, or data structures are stored or accessed.
- * Full path: `storage`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#storage)
- * 
- * @example
- * ```typescript
- * scopes.storage.type.function // "storage.type.function"
- * scopes.storage.modifier("js") // "storage.modifier.js"
- * scopes.storage.type.class // "storage.type.class"
- * ```
- */
-export type StorageScope = typeof STORAGE_SCOPE; 

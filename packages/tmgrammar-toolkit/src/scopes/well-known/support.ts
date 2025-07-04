@@ -1,9 +1,18 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw support scope definitions used for building the scope tree
+ * Root scope for `support`.
+ * Elements provided by frameworks, libraries, and language runtimes (as opposed to user-defined elements).
+ * Many syntaxes also apply these to unrecognized user constructs, effectively scoping all user-defined elements.
+ * Full path: `support`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
+ * 
+ * @example
+ * ```typescript
+ * scopes.support.function // "support.function"
+ * scopes.support.class("js") // "support.class.js"
+ * scopes.support.constant // "support.constant"
+ * ```
  */
-export const SUPPORT_SCOPE_DEFINITION = {
+export const SUPPORT_SCOPE = {
     /**
      * Represents the `support.function` scope.
      * Library functions (`console.log`, `NSLog`).
@@ -59,21 +68,3 @@ export const SUPPORT_SCOPE_DEFINITION = {
      */
     module: null,
   };
-
-export const SUPPORT_SCOPE = buildScopes({ prefix: 'support' }, SUPPORT_SCOPE_DEFINITION);
-
-/**
- * Root scope for `support`.
- * Elements provided by frameworks, libraries, and language runtimes (as opposed to user-defined elements).
- * Many syntaxes also apply these to unrecognized user constructs, effectively scoping all user-defined elements.
- * Full path: `support`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#support)
- * 
- * @example
- * ```typescript
- * scopes.support.function // "support.function"
- * scopes.support.class("js") // "support.class.js"
- * scopes.support.constant // "support.constant"
- * ```
- */
-export type SupportScope = typeof SUPPORT_SCOPE; 

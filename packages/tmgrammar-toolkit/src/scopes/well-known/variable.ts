@@ -1,9 +1,18 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw variable scope definitions used for building the scope tree
+ * Root scope for `variable`.
+ * Variable names and identifiers representing mutable data.
+ * Apply `punctuation.definition.variable` to variable prefixes like `$` in PHP.
+ * Full path: `variable`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#variable)
+ * 
+ * @example
+ * ```typescript
+ * scopes.variable.other.readwrite // "variable.other.readwrite"
+ * scopes.variable.language("js") // "variable.language.js"
+ * scopes.variable.parameter // "variable.parameter"
+ * ```
  */
-export const VARIABLE_SCOPE_DEFINITION = {
+export const VARIABLE_SCOPE = {
     /**
      * Represents the `variable.other` scope.
      * Generic variables.
@@ -66,21 +75,3 @@ export const VARIABLE_SCOPE_DEFINITION = {
      */
     annotation: null,
   };
-
-export const VARIABLE_SCOPE = buildScopes({ prefix: 'variable' }, VARIABLE_SCOPE_DEFINITION);
-
-/**
- * Root scope for `variable`.
- * Variable names and identifiers representing mutable data.
- * Apply `punctuation.definition.variable` to variable prefixes like `$` in PHP.
- * Full path: `variable`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#variable)
- * 
- * @example
- * ```typescript
- * scopes.variable.other.readwrite // "variable.other.readwrite"
- * scopes.variable.language("js") // "variable.language.js"
- * scopes.variable.parameter // "variable.parameter"
- * ```
- */
-export type VariableScope = typeof VARIABLE_SCOPE; 

@@ -205,12 +205,12 @@ function processNode(
     } catch (error) {
       // Improve error context
       const newError = new Error(
-        `Error processing property '${originalKey}' in rule with key '${node.key || "unknown"}': ${error.message}`
+        `Error processing property '${originalKey}' in rule with key '${node.key || "unknown"}': ${(error as any).message}`
       );
       if (options.errorSourceFilePath) {
         newError.message += ` (source: ${options.errorSourceFilePath})`;
       }
-      newError.stack = error.stack;
+      newError.stack = (error as any).stack;
       throw newError;
     }
   }
@@ -276,8 +276,8 @@ function processPatterns(
  * Validates a regular expression using the Oniguruma engine.
  * Throws a detailed error if the pattern is invalid.
  */
-function validateRegexp(regexp: string | undefined, node: any, prop: string, options: EmitOptions) {
-  if (options.validate === false || typeof regexp !== 'string') {
+function validateRegexp(regexp: string, node: any, prop: string, options: EmitOptions) {
+  if (regexp !== 'string') {
     return;
   }
   try {
@@ -287,13 +287,13 @@ function validateRegexp(regexp: string | undefined, node: any, prop: string, opt
     const errorMessage =
 `Invalid regular expression in property '${prop}': /${regexp}/
 Rule: ${JSON.stringify(node, null, 2)}
-Error: ${error.message}`;
+Error: ${(error as any).message || String(error)}`;
 
     const newError = new Error(errorMessage);
     if (options.errorSourceFilePath) {
       newError.message += ` (source: ${options.errorSourceFilePath})`;
     }
-    newError.stack = error.stack;
+    newError.stack = (error as any).stack || [];
     throw newError;
   }
 } 

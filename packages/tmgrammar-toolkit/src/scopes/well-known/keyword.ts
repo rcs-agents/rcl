@@ -1,9 +1,18 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw keyword scope definitions used for building the scope tree
+ * Root scope for `keyword`.
+ * Defines scopes for reserved words and operators that have special meaning in a language.
+ * Full path: `keyword`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#keyword)
+ * 
+ * @example
+ * ```typescript
+ * scopes.keyword.control.conditional // "keyword.control.conditional"
+ * scopes.keyword.operator.assignment("js") // "keyword.operator.assignment.js"
+ * scopes.keyword.declaration.function // "keyword.declaration.function"
+ * scopes.keyword.other("python") // "keyword.other.python"
+ * ```
  */
-export const KEYWORD_SCOPE_DEFINITION = {
+export const KEYWORD_SCOPE = {
     /**
      * Represents the `keyword.control` scope.
      * Defines scopes for control flow keywords.
@@ -165,22 +174,3 @@ export const KEYWORD_SCOPE_DEFINITION = {
      */
     other: null,
   };
-
-export const KEYWORD_SCOPE = buildScopes({ prefix: 'keyword' }, KEYWORD_SCOPE_DEFINITION);
-
-
-/**
- * Root scope for `keyword`.
- * Defines scopes for reserved words and operators that have special meaning in a language.
- * Full path: `keyword`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#keyword)
- * 
- * @example
- * ```typescript
- * scopes.keyword.control.conditional // "keyword.control.conditional"
- * scopes.keyword.operator.assignment("js") // "keyword.operator.assignment.js"
- * scopes.keyword.declaration.function // "keyword.declaration.function"
- * scopes.keyword.other("python") // "keyword.other.python"
- * ```
- */
-export type KeywordScope = typeof KEYWORD_SCOPE;

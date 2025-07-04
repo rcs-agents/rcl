@@ -1,4 +1,4 @@
-//@index('./*', f => `export * from '${f.path}.js'`)
+//@index('./*.ts', f => `export * from '${f.path}.js'`)
 export * from './regex.js'
 //@endindex
 

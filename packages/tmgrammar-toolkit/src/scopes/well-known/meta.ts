@@ -1,10 +1,18 @@
-import { buildScopes } from './lib/internal.js';
-
-
 /**
- * Raw meta scope definitions used for building the scope tree
+ * Root scope for `meta`.
+ * Structural sections for larger code constructs. **Not intended for styling** - used by preferences and plugins for contextual behavior.
+ * **Critical:** Never stack meta scopes of the same type. For example, `meta.function.php meta.function.parameters.php` should never occur - alternate between different meta scopes.
+ * Full path: `meta`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#meta)
+ * 
+ * @example
+ * ```typescript
+ * scopes.meta.class // "meta.class"
+ * scopes.meta.function.parameters("js") // "meta.function.parameters.js"
+ * scopes.meta.annotation.identifier // "meta.annotation.identifier"
+ * ```
  */
-export const META_SCOPE_DEFINITION = {
+export const META_SCOPE = {
     /**
      * Represents the `meta.class` scope.
      * Complete class definitions.
@@ -211,21 +219,3 @@ export const META_SCOPE_DEFINITION = {
      */
     toc_list: null,
   };
-
-export const META_SCOPE = buildScopes({ prefix: 'meta' }, META_SCOPE_DEFINITION);
-
-/**
- * Root scope for `meta`.
- * Structural sections for larger code constructs. **Not intended for styling** - used by preferences and plugins for contextual behavior.
- * **Critical:** Never stack meta scopes of the same type. For example, `meta.function.php meta.function.parameters.php` should never occur - alternate between different meta scopes.
- * Full path: `meta`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#meta)
- * 
- * @example
- * ```typescript
- * scopes.meta.class // "meta.class"
- * scopes.meta.function.parameters("js") // "meta.function.parameters.js"
- * scopes.meta.annotation.identifier // "meta.annotation.identifier"
- * ```
- */
-export type MetaScope = typeof META_SCOPE; 

@@ -3,8 +3,7 @@
  * All functions return a new RegExp object.
  */
 
-export type RegexValue = string | RegExp;
-export type RegexValueList = Array<RegexValue | RegexValue[]>;
+import type { RegexValue, RegexValueList } from "#src/types";
 
 /**
  * Extract flags from a RegExp object.
@@ -45,7 +44,7 @@ const createOrThrow = (pattern: string, flags?: string): RegExp => {
   try {
     return new RegExp(pattern, flags);
   } catch (e) {
-    throw new Error(`Invalid regex pattern: /${pattern}/${flags || ''}\n${e.message}`);
+    throw new Error(`Invalid regex pattern: /${pattern}/${flags || ''}\n${(e as any).message || String(e)}`);
   }
 };
 
@@ -176,6 +175,7 @@ export const keywords = (...words: RegexValueList): RegExp => {
  * @param text - The string to escape.
  * @returns The escaped string.
  */
+// biome-ignore lint/suspicious/noShadowRestrictedNames: this is only a concern in old browsers
 export const escape = (text: string): string => {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };

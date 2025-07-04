@@ -1,9 +1,17 @@
-import { buildScopes } from './lib/internal.js';
-
 /**
- * Raw markup scope definitions used for building the scope tree
+ * Root scope for `markup`.
+ * Content markup in documentation and markup languages. Use for content formatting, not code syntax.
+ * Full path: `markup`
+ * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#markup)
+ * 
+ * @example
+ * ```typescript
+ * scopes.markup.heading // "markup.heading"
+ * scopes.markup.list.unnumbered("md") // "markup.list.unnumbered.md"
+ * scopes.markup.raw.block // "markup.raw.block"
+ * ```
  */
-export const MARKUP_SCOPE_DEFINITION = {
+export const MARKUP_SCOPE = {
     /**
      * Represents the `markup.heading` scope.
      * Section headings.
@@ -113,20 +121,3 @@ export const MARKUP_SCOPE_DEFINITION = {
      */
     other: null,
   };
-
-export const MARKUP_SCOPE = buildScopes({ prefix: 'markup' }, MARKUP_SCOPE_DEFINITION);
-
-/**
- * Root scope for `markup`.
- * Content markup in documentation and markup languages. Use for content formatting, not code syntax.
- * Full path: `markup`
- * From: [textmate-scopes.md](packages/tmgrammar-toolkit/docs/textmate-scopes.md#markup)
- * 
- * @example
- * ```typescript
- * scopes.markup.heading // "markup.heading"
- * scopes.markup.list.unnumbered("md") // "markup.list.unnumbered.md"
- * scopes.markup.raw.block // "markup.raw.block"
- * ```
- */
-export type MarkupScope = typeof MARKUP_SCOPE; 
