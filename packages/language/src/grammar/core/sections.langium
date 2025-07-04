@@ -7,6 +7,55 @@ import "../data-types/collections";
 import "../specialized/flow-rules";
 import "../specialized/configuration";
 
+// ======== Agent Definition Rule ========
+// AgentDefinition follows the formal specification:
+// AgentDefinition ::= 'agent' IDENTIFIER INDENT
+//   ('displayName' ':' STRING)
+//   ('brandName' ':' STRING)?
+//   (ConfigSection)?
+//   (DefaultsSection)?
+//   (FlowSection)+
+//   MessagesSection
+//   DEDENT
+AgentDefinition returns AgentDefinition:
+    'agent' name=IDENTIFIER ':'
+    NL? INDENT
+    'displayName' ':' displayName=STRING NL?
+    ('brandName' ':' brandName=STRING NL?)?
+    (config=ConfigSection)?
+    (defaults=DefaultsSection)?
+    (flows+=FlowSection)+
+    messages=MessagesSection
+    DEDENT;
+
+// Config section: 'agentConfig' 'Config' ':' ...
+ConfigSection returns ConfigSection:
+    'agentConfig' name=IDENTIFIER ':'
+    NL? INDENT
+    attributes+=Attribute*
+    DEDENT;
+
+// Defaults section: 'agentDefaults' 'Defaults' ':' ...
+DefaultsSection returns DefaultsSection:
+    'agentDefaults' name=IDENTIFIER ':'
+    NL? INDENT
+    attributes+=Attribute*
+    DEDENT;
+
+// Flow section: 'flow' IDENTIFIER ':' ...
+FlowSection returns FlowSection:
+    'flow' name=IDENTIFIER ':'
+    NL? INDENT
+    rules+=FlowRule*
+    DEDENT;
+
+// Messages section: 'messages' IDENTIFIER ':' ...
+MessagesSection returns MessagesSection:
+    'messages' name=IDENTIFIER ':'
+    NL? INDENT
+    messages+=MessageDefinition*
+    DEDENT;
+
 // ======== Data Type Rules ========
 // SectionType defines the valid keywords that can start a section block.
 SectionType returns string:

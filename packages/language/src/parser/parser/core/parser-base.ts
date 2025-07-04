@@ -223,17 +223,63 @@ export class RclParser {
       brandName = this.parseStringAttribute('brandName');
     }
     
+    // Parse any additional properties and ignore them for now
+    // This allows for forward compatibility and test flexibility
+    while (this.tokenStream.check(RclTokens.ATTRIBUTE_KEY) && 
+           !this.tokenStream.check(RclTokens.AGENT_CONFIG_KW) &&
+           !this.tokenStream.check(RclTokens.AGENT_DEFAULTS_KW) &&
+           !this.tokenStream.check(RclTokens.FLOW_KW) &&
+           !this.tokenStream.check(RclTokens.MESSAGES_KW)) {
+      
+      // Skip unknown attribute key
+      this.tokenStream.advance(); // consume ATTRIBUTE_KEY
+      if (this.tokenStream.check(RclTokens.COLON)) {
+        this.tokenStream.advance(); // consume colon
+        this.skipWhitespace();
+        
+        // Skip the value (could be string, number, boolean, atom, etc.)
+        if (this.tokenStream.check(RclTokens.STRING) ||
+            this.tokenStream.check(RclTokens.NUMBER) ||
+            this.tokenStream.check(RclTokens.TRUE_KW) ||
+            this.tokenStream.check(RclTokens.FALSE_KW) ||
+            this.tokenStream.check(RclTokens.NULL_KW) ||
+            this.tokenStream.check(RclTokens.ATOM)) {
+          this.tokenStream.advance(); // consume value
+        }
+        this.consumeNewlineOrEnd();
+      }
+    }
+    
     // Parse optional config section
-    let config: any = null; // TODO: Implement config parsing
+    let config: any = null;
+    if (this.tokenStream.check(RclTokens.AGENT_CONFIG_KW)) {
+      config = this.parseAgentConfig();
+    }
     
     // Parse optional defaults section
-    let defaults: any = null; // TODO: Implement defaults parsing
+    let defaults: any = null;
+    if (this.tokenStream.check(RclTokens.AGENT_DEFAULTS_KW)) {
+      defaults = this.parseAgentDefaults();
+    }
     
     // Parse flow sections (at least one required)
-    const flows: any[] = []; // TODO: Implement flow parsing
+    const flows: any[] = [];
+    while (this.tokenStream.check(RclTokens.FLOW_KW)) {
+      flows.push(this.parseFlowSection());
+    }
+    
+    // Validate at least one flow section exists
+    if (flows.length === 0) {
+      this.addError('Agent must have at least one flow section');
+    }
     
     // Parse required messages section
-    let messages: any = null; // TODO: Implement messages parsing
+    let messages: any = null;
+    if (this.tokenStream.check(RclTokens.MESSAGES_KW)) {
+      messages = this.parseMessagesSection();
+    } else {
+      this.addError('Agent messages section is required');
+    }
     
     // Consume DEDENT
     this.tokenStream.consume(RclTokens.DEDENT);
@@ -287,13 +333,14 @@ export class RclParser {
 
   private checkAttributeKey(key: string): boolean {
     const token = this.tokenStream.peek();
-    return !!(token && token.image === key && 
-             this.tokenStream.peek(1)?.tokenType === RclTokens.COLON);
+    return !!(token && token.tokenType === RclTokens.ATTRIBUTE_KEY && token.image === key);
   }
 
   private parseStringAttribute(key: string): string {
-    // Consume key
+    // Consume ATTRIBUTE_KEY token
     this.tokenStream.advance();
+    
+    // Now consume the colon that follows
     this.tokenStream.consume(RclTokens.COLON);
     this.skipWhitespace();
     
@@ -338,5 +385,195 @@ export class RclParser {
       column: position.column,
       offset: position.offset
     });
+  }
+
+  /**
+   * Parse agentConfig section
+   */
+  private parseAgentConfig(): any {
+    this.tokenStream.consume(RclTokens.AGENT_CONFIG_KW);
+    this.skipWhitespace();
+    
+    // Parse section name (should be "Config")
+    const name = this.parseSpaceSeparatedIdentifier();
+    this.tokenStream.consume(RclTokens.COLON);
+    this.consumeNewlineOrEnd();
+    
+    // Parse INDENT
+    this.tokenStream.consume(RclTokens.INDENT);
+    
+    // Parse properties (simple implementation for now)
+    const properties: any[] = [];
+    while (!this.tokenStream.check(RclTokens.DEDENT) && !this.tokenStream.isAtEnd()) {
+      if (this.tokenStream.check(RclTokens.ATTRIBUTE_KEY)) {
+        const key = this.tokenStream.advance().image;
+        this.tokenStream.consume(RclTokens.COLON);
+        this.skipWhitespace();
+        
+        // Parse simple string value for now
+        if (this.tokenStream.check(RclTokens.STRING)) {
+          const value = this.tokenStream.advance().image.slice(1, -1);
+          const property = this.astFactory.createConfigProperty(key, value);
+          properties.push(property);
+        }
+        this.consumeNewlineOrEnd();
+      } else {
+        this.tokenStream.advance(); // skip unknown tokens
+      }
+    }
+    
+    this.tokenStream.consume(RclTokens.DEDENT);
+    
+    return this.astFactory.createAgentConfig(name, properties);
+  }
+
+  /**
+   * Parse agentDefaults section
+   */
+  private parseAgentDefaults(): any {
+    this.tokenStream.consume(RclTokens.AGENT_DEFAULTS_KW);
+    this.skipWhitespace();
+    
+    // Parse section name (should be "Defaults")
+    const name = this.parseSpaceSeparatedIdentifier();
+    this.tokenStream.consume(RclTokens.COLON);
+    this.consumeNewlineOrEnd();
+    
+    // Parse INDENT
+    this.tokenStream.consume(RclTokens.INDENT);
+    
+    // Parse properties (simple implementation for now)
+    const properties: any[] = [];
+    while (!this.tokenStream.check(RclTokens.DEDENT) && !this.tokenStream.isAtEnd()) {
+      if (this.tokenStream.check(RclTokens.ATTRIBUTE_KEY)) {
+        const key = this.tokenStream.advance().image;
+        this.tokenStream.consume(RclTokens.COLON);
+        this.skipWhitespace();
+        
+        // Parse value (string or atom)
+        let value: any = null;
+        if (this.tokenStream.check(RclTokens.STRING)) {
+          value = this.tokenStream.advance().image.slice(1, -1);
+        } else if (this.tokenStream.check(RclTokens.ATOM)) {
+          value = this.tokenStream.advance().image;
+        }
+        const property = this.astFactory.createDefaultProperty(key, value);
+        properties.push(property);
+        this.consumeNewlineOrEnd();
+      } else {
+        this.tokenStream.advance(); // skip unknown tokens
+      }
+    }
+    
+    this.tokenStream.consume(RclTokens.DEDENT);
+    
+    return this.astFactory.createAgentDefaults(name, properties);
+  }
+
+  /**
+   * Parse flow section
+   */
+  private parseFlowSection(): any {
+    this.tokenStream.consume(RclTokens.FLOW_KW);
+    this.skipWhitespace();
+    
+    // Parse flow name
+    const name = this.parseSpaceSeparatedIdentifier();
+    this.tokenStream.consume(RclTokens.COLON);
+    this.consumeNewlineOrEnd();
+    
+    // Parse INDENT
+    this.tokenStream.consume(RclTokens.INDENT);
+    
+    // Parse flow rules (simple implementation for now)
+    const rules: any[] = [];
+    while (!this.tokenStream.check(RclTokens.DEDENT) && !this.tokenStream.isAtEnd()) {
+      // Simple rule parsing - skip for now and just consume tokens
+      if (this.tokenStream.check(RclTokens.ATOM)) {
+        const from = this.tokenStream.advance().image;
+        this.skipWhitespace();
+        
+        if (this.tokenStream.check(RclTokens.ARROW)) {
+          this.tokenStream.advance(); // consume arrow
+          this.skipWhitespace();
+          
+          let to: string = '';
+          if (this.tokenStream.check(RclTokens.IDENTIFIER)) {
+            to = this.parseSpaceSeparatedIdentifier();
+          } else if (this.tokenStream.check(RclTokens.STRING)) {
+            to = this.tokenStream.advance().image.slice(1, -1);
+          }
+          
+          rules.push({ from, to });
+        }
+      }
+      this.consumeNewlineOrEnd();
+      
+      // Skip other tokens for now
+      if (!this.tokenStream.check(RclTokens.DEDENT) && !this.tokenStream.check(RclTokens.ATOM) && !this.tokenStream.isAtEnd()) {
+        this.tokenStream.advance();
+      }
+    }
+    
+    this.tokenStream.consume(RclTokens.DEDENT);
+    
+    return this.astFactory.createFlowSection(name, rules);
+  }
+
+  /**
+   * Parse messages section
+   */
+  private parseMessagesSection(): any {
+    this.tokenStream.consume(RclTokens.MESSAGES_KW);
+    this.skipWhitespace();
+    
+    // Parse section name (should be "Messages")
+    const name = this.parseSpaceSeparatedIdentifier();
+    this.tokenStream.consume(RclTokens.COLON);
+    this.consumeNewlineOrEnd();
+    
+    // Parse INDENT
+    this.tokenStream.consume(RclTokens.INDENT);
+    
+    // Parse messages (simple implementation for now)
+    const messages: any = {};
+    while (!this.tokenStream.check(RclTokens.DEDENT) && !this.tokenStream.isAtEnd()) {
+      if (this.tokenStream.check(RclTokens.IDENTIFIER)) {
+        const messageName = this.parseSpaceSeparatedIdentifier();
+        if (this.tokenStream.check(RclTokens.COLON)) {
+          this.tokenStream.advance(); // consume colon
+          this.consumeNewlineOrEnd();
+          
+          // Parse message content (simple text for now)
+          if (this.tokenStream.check(RclTokens.INDENT)) {
+            this.tokenStream.advance(); // consume indent
+            
+            // Look for text keyword
+            if (this.tokenStream.check(RclTokens.TEXT_KW)) {
+              this.tokenStream.advance(); // consume 'text'
+              this.skipWhitespace();
+              
+              if (this.tokenStream.check(RclTokens.STRING)) {
+                const text = this.tokenStream.advance().image.slice(1, -1);
+                messages[messageName] = { type: 'text', content: text };
+              }
+            }
+            
+            // Consume any remaining tokens until DEDENT
+            while (!this.tokenStream.check(RclTokens.DEDENT) && !this.tokenStream.isAtEnd()) {
+              this.tokenStream.advance();
+            }
+            
+            this.tokenStream.consume(RclTokens.DEDENT);
+          }
+        }
+      } else {
+        this.tokenStream.advance(); // skip unknown tokens
+      }
+    }
+    
+    this.tokenStream.consume(RclTokens.DEDENT);
+    
+    return this.astFactory.createMessagesSection(name, messages);
   }
 }
