@@ -22,7 +22,7 @@ export interface ParameterList extends AstNode {
 export interface Parameter extends AstNode {
   type: 'Parameter';
   name: string;
-  type?: string;
+  parameterType?: string;
   defaultValue?: Value;
   isRequired?: boolean;
   location?: Location;

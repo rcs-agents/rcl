@@ -5,7 +5,5 @@
  */
 
 export { RclParser } from './core/parser-base.js';
+export { RclParser as default } from './core/parser-base.js';
 export type { ParseResult, ParseError } from './core/parser-base.js';
-
-// Re-export for backward compatibility
-export { RclParser as RclCustomParser };

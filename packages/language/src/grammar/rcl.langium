@@ -24,10 +24,11 @@ import "./specialized/shortcuts";
 import "./specialized/configuration";
 
 // ======== Entry Point ========
-// An RCL file consists of zero or more import statements followed by zero or more sections.
+// An RCL file consists of zero or more import statements followed by exactly one agent definition.
+// This follows the formal specification: RclFile ::= (ImportStatement)* AgentDefinition
 entry RclFile:
     (imports+=ImportStatement)*
-    (sections+=Section)*;
+    agentDefinition=AgentDefinition;
 
 // NOTE: ImportStatement is defined in ./core/import.langium
 

@@ -11,7 +11,18 @@
       "Bash(chmod:*)",
       "Bash(./run_ls.sh)",
       "Bash(rm:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(langium generate:*)",
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(for file in *.ts)",
+      "Bash(do if [[ $file != \"index.ts\" ]])",
+      "Bash(then echo \"=== $file ===\")",
+      "Bash(tail:*)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(cp:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

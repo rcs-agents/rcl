@@ -1,5 +1,5 @@
 import type { IToken } from 'chevrotain';
-import { RclCustomLexer } from './rcl-custom-lexer.js';
+import { RclLexer } from './lexer.js';
 import type {
   RclFile,
   Section,
@@ -25,7 +25,7 @@ import type {
 import { resolveImportPath, findProjectRoot } from '../utils/filesystem.js';
 
 // Import tokens from lexer
-const RclToken = RclCustomLexer;
+const RclToken = RclLexer;
 
 /**
  * Custom Recursive Descent Parser for RCL
@@ -42,8 +42,8 @@ interface ParseError {
   };
 }
 
-export class RclCustomParser {
-  private lexer: RclCustomLexer;
+export class RclParser {
+  private lexer: RclLexer;
   private tokens: IToken[] = [];
   private current = 0;
   private errors: ParseError[] = [];
@@ -51,7 +51,7 @@ export class RclCustomParser {
   private column = 1;
 
   constructor() {
-    this.lexer = new RclCustomLexer();
+    this.lexer = new RclLexer();
   }
 
   private addParseError(message: string): void {
@@ -76,8 +76,8 @@ export class RclCustomParser {
       this.errors = [...lexResult.errors.map(e => ({
         message: e.message,
         range: {
-          start: { line: e.line - 1, character: e.column - 1 },
-          end: { line: e.line - 1, character: e.column + e.length - 1 }
+          start: { line: (e.line || 1) - 1, character: (e.column || 1) - 1 },
+          end: { line: (e.line || 1) - 1, character: (e.column || 1) + (e.length || 0) - 1 }
         }
       }))];
 
@@ -130,13 +130,25 @@ export class RclCustomParser {
             // Generate error for unexpected content in section body
             const unexpectedToken = this.peek();
             if (unexpectedToken) {
-              this.errors.push(`Unexpected token '${unexpectedToken.image}' at line ${unexpectedToken.startLine}, column ${unexpectedToken.startColumn}`);
+              this.errors.push({
+                message: `Unexpected token '${unexpectedToken.image}' at line ${unexpectedToken.startLine}, column ${unexpectedToken.startColumn}`,
+                range: {
+                  start: { line: (unexpectedToken.startLine || 1) - 1, character: (unexpectedToken.startColumn || 1) - 1 },
+                  end: { line: (unexpectedToken.endLine || unexpectedToken.startLine || 1) - 1, character: (unexpectedToken.endColumn || unexpectedToken.startColumn || 1) - 1 }
+                }
+              });
             }
             this.advance();
           }
         }
       } catch (error) {
-        this.errors.push(`Section parsing error: ${error}`);
+        this.errors.push({
+          message: `Section parsing error: ${(error as any).message || String(error)}`,
+          range: {
+            start: { line: this.line, character: this.column },
+            end: { line: this.line, character: this.column }
+          }
+        });
         this.synchronize();
       }
     }
@@ -406,7 +418,13 @@ export class RclCustomParser {
       while (!this.check(RclToken.DEDENT) && !this.isAtEnd()) {
         loopCount++;
         if (loopCount > MAX_LOOPS) {
-          this.errors.push(`Infinite loop detected in flow rule parsing at token ${this.current}`);
+          this.errors.push({
+            message: `Infinite loop detected in flow rule parsing at token ${this.current}`,
+            range: {
+              start: { line: this.line, character: this.column },
+              end: { line: this.line, character: this.column }
+            }
+          });
           break;
         }
         
@@ -433,7 +451,13 @@ export class RclCustomParser {
             this.advance(); // Force progress to avoid infinite loop
           }
         } catch (error) {
-          this.errors.push(`Flow rule content parsing error: ${error}`);
+          this.errors.push({
+            message: `Flow rule content parsing error: ${(error as any).message || String(error)}`,
+            range: {
+              start: { line: this.line, character: this.column },
+              end: { line: this.line, character: this.column }
+            }
+          });
           this.synchronize();
         }
       }
@@ -703,7 +727,13 @@ export class RclCustomParser {
             this.advance();
           }
         } catch (error) {
-          this.errors.push(`Message attribute parsing error: ${error}`);
+          this.errors.push({
+            message: `Message attribute parsing error: ${(error as any).message || String(error)}`,
+            range: {
+              start: { line: this.line, character: this.column },
+              end: { line: this.line, character: this.column }
+            }
+          });
           this.synchronize();
         }
       }
@@ -749,7 +779,7 @@ export class RclCustomParser {
     if (this.check(RclToken.NUMBER)) {
       const token = this.advance();
       const rawValue = token.image;
-      const value = rawValue.includes('.') ? parseFloat(rawValue) : parseInt(rawValue);
+      const value = rawValue.includes('.') ? Number.parseFloat(rawValue) : Number.parseInt(rawValue);
       const end = this.getPosition();
       return {
         type: 'NumberValue',
@@ -788,7 +818,7 @@ export class RclCustomParser {
     }
     
     // Identifier or space-separated identifier
-    if (this.check(RclToken.IDENTIFIER) || (this.peek() && this.isIdentifierLikeToken(this.peek()!))) {
+    if (this.check(RclToken.IDENTIFIER) || (this.peek() && this.isIdentifierLikeToken(this.peek()))) {
       const identifier = this.parseSpaceSeparatedIdentifier();
       const end = this.getPosition();
       return {
@@ -1092,14 +1122,17 @@ export class RclCustomParser {
     while (idx < this.tokens.length) {
       const token = this.tokens[idx];
       lookaheadTokens.push(`${token.tokenType.name}:${JSON.stringify(token.image)}`);
+      
       if (token.tokenType === RclToken.COLON) {
         return true;
-      } else if (token.tokenType === RclToken.WS) {
+      }
+      
+      if (token.tokenType === RclToken.WS) {
         idx++;
         continue;
-      } else {
-        break;
       }
+
+      break;
     }
     return false;
   }
@@ -1136,7 +1169,7 @@ export class RclCustomParser {
     return this.current >= this.tokens.length;
   }
 
-  private peek(): IToken | undefined {
+  private peek(): IToken {
     return this.tokens[this.current];
   }
 

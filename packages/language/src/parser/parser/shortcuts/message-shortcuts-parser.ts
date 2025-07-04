@@ -27,7 +27,6 @@ export class MessageShortcutsParser {
     tokenStream: TokenStream,
     getPosition: () => { line: number; column: number; offset: number }
   ): MessageShortcut {
-    const start = getPosition();
     
     if (tokenStream.check(RclTokens.TEXT_KW)) {
       return this.parseTextShortcut(tokenStream, getPosition);
@@ -182,7 +181,7 @@ export class MessageShortcutsParser {
           }
           
           // Parse suggestions if present
-          const suggestions = this.parseOptionalSuggestions(tokenStream, getPosition);
+          this.parseOptionalSuggestions(tokenStream, getPosition);
           
           if (tokenStream.check(RclTokens.DEDENT)) {
             tokenStream.advance();

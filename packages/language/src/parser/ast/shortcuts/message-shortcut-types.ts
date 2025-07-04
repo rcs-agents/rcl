@@ -5,7 +5,6 @@
  */
 
 import type { AstNode, Location } from '../core/base-types.js';
-import type { Value } from '../values/literal-types.js';
 import type { Suggestion } from '../sections/message-types.js';
 
 export type MessageShortcut = 

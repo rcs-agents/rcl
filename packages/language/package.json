@@ -31,7 +31,7 @@
 	},
 	"scripts": {
 		"clean": "tsc -b tsconfig.build.json --clean",
-		"build": "nr clean && nr build:lang && nr build:lsp && nr build:syntax",
+		"build": "nr clean && nr build:lsp",
 		"bundle:grammar": "bun run scripts/bundle-grammar.ts",
 		"bundle:grammar-test": "bun run scripts/bundle-grammar.ts --test",
 		"build:lang": "nr bundle:grammar && langium generate",

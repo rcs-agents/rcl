@@ -55,7 +55,7 @@ agent Test Agent:
   
   messages Messages:
     Hello:
-      text: "Hi there!"
+      text "Hi there!"
   
   flow Simple:
     :start -> Hello`;
@@ -75,7 +75,7 @@ agent Test Agent:
   # Missing displayName
   messages Messages:
     Hello:
-      text: "Hi"
+      text "Hi"
   flow Flow:
     :start -> Hello`;
 
@@ -91,7 +91,7 @@ agent Test Agent:
   
   messages Messages:
     Hello:
-      text: "Hi"
+      text "Hi"
   flow Flow:
     :start -> Hello`;
 
@@ -106,7 +106,7 @@ agent Test Agent:
   
   messages Messages:
     Hello:
-      text: "Hi"`;
+      text "Hi"`;
 
       const result = parser.parse(input);
       
@@ -133,7 +133,7 @@ agent Test Agent:
   
   messages Messages:
     Welcome:
-      text: "Welcome to our service!"
+      text "Welcome to our service!"
         suggestions:
           reply "Get started"
           reply "Learn more"
@@ -155,7 +155,7 @@ agent Test Agent:
   
   messages Messages:
     Product:
-      richCard: "Latest Product" :horizontal :left :medium <url https://example.com/image.jpg>:
+      richCard "Latest Product" :horizontal :left :medium <url https://example.com/image.jpg>:
         description: "Check out our latest product"
         suggestions:
           reply "Buy now"
@@ -177,9 +177,9 @@ agent Test Agent:
   messages Messages:
     Products:
       carousel :small:
-        richCard: "Product 1":
+        richCard "Product 1":
           description: "First product"
-        richCard: "Product 2": 
+        richCard "Product 2": 
           description: "Second product"
   
   flow Flow:
@@ -197,9 +197,9 @@ agent Test Agent:
   
   messages Messages:
     Document:
-      rbmFile: <url https://example.com/document.pdf>
+      rbmFile <url https://example.com/document.pdf>
     Image:
-      file: <url https://example.com/image.png>
+      file <url https://example.com/image.png>
   
   flow Flow:
     :start -> Document`;
@@ -216,9 +216,9 @@ agent Test Agent:
   
   messages Messages:
     Transactional:
-      transactional text: "Your order has been confirmed"
+      transactional text "Your order has been confirmed"
     Promotional:
-      promotional richCard: "Special Offer":
+      promotional richCard "Special Offer":
         description: "Limited time offer!"
   
   flow Flow:
@@ -237,9 +237,9 @@ agent Test Agent:
   displayName: "Test"
   
   messages Messages:
-    A: text: "A"
-    B: text: "B" 
-    C: text: "C"
+    A: text "A"
+    B: text "B" 
+    C: text "C"
   
   flow Flow:
     :start -> A -> B -> C`;
@@ -255,7 +255,7 @@ agent Test Agent:
   displayName: "Test"
   
   messages Messages:
-    Process: text: "Processing"
+    Process: text "Processing"
   
   flow Flow:
     :start -> Process with:
@@ -273,8 +273,8 @@ agent Test Agent:
   displayName: "Test"
   
   messages Messages:
-    Premium: text: "Premium user"
-    Regular: text: "Regular user"
+    Premium: text "Premium user"
+    Regular: text "Regular user"
   
   flow Flow:
     when user.type is "premium":
@@ -300,7 +300,7 @@ agent Test Agent:
     website: <url https://company.com>
   
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   
   flow Flow:
     :start -> Hello`;
@@ -321,7 +321,7 @@ agent Test Agent:
     location: <zip 10001>
   
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   
   flow Flow:
     :start -> Hello`;
@@ -341,7 +341,7 @@ agent Test Agent:
   tags: ("support", "customer-service", "help")
   
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   
   flow Flow:
     :start -> Hello`;
@@ -361,7 +361,7 @@ agent Test Agent:
     - "Smart routing"
   
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   
   flow Flow:
     :start -> Hello`;
@@ -380,7 +380,7 @@ agent Test Agent:
     - "Work", "+1-555-0002"
   
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   
   flow Flow:
     :start -> Hello`;
@@ -422,7 +422,7 @@ agent Test Agent:
     return discount;
   
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   
   flow Flow:
     :start -> Hello`;
@@ -440,7 +440,7 @@ agent Test Agent:
 agent Test:
   displayName: "Test"
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   flow Flow:
     :start -> Hello`;
 
@@ -456,7 +456,7 @@ agent Test:
 agent Test:
   displayName: "Test"
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   flow Flow:
     :start -> Hello`;
 
@@ -471,7 +471,7 @@ agent Test:
 agent Test:
   displayName: "Test"
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   flow Flow:
     :start -> Hello`;
 
@@ -486,7 +486,7 @@ agent Test:
 agent Test:
   displayName: "Test"
   messages Messages:
-    Hello: text: "Hi"
+    Hello: text "Hi"
   flow Flow:
     :start -> Hello`;
 

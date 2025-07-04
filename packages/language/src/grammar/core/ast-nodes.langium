@@ -426,6 +426,39 @@ interface MultiLineString {
     has_block_content?: string;
 }
 
+// ======== Agent Definition Interfaces ========
+// These follow the formal specification structure
+
+interface AgentDefinition {
+    name: string;
+    displayName: string;
+    brandName?: string;
+    config?: ConfigSection;
+    defaults?: DefaultsSection;
+    flows: FlowSection[];
+    messages: MessagesSection;
+}
+
+interface ConfigSection {
+    name: string;
+    attributes: Attribute[];
+}
+
+interface DefaultsSection {
+    name: string;
+    attributes: Attribute[];
+}
+
+interface FlowSection {
+    name: string;
+    rules: FlowRule[];
+}
+
+interface MessagesSection {
+    name: string;
+    messages: MessageDefinition[];
+}
+
 // ======== Missing Interfaces for Grammar ========
 //
 // NOTE: TypeTag, SingleLineEmbeddedExpression, and MultiLineString

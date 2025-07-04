@@ -7,6 +7,9 @@
 import type { AstNode, Location } from '../core/base-types.js';
 import type { FlowOperand, WithClause, WhenClause } from '../flow-system/flow-control-types.js';
 
+// Re-export FlowTransition for external use
+export type { FlowTransition } from '../flow-system/flow-control-types.js';
+
 /**
  * Flow Section according to formal specification:
  * FlowSection ::= 'flow' IDENTIFIER ':' INDENT FlowRule* DEDENT
@@ -30,14 +33,4 @@ export interface FlowRule extends AstNode {
   location?: Location;
 }
 
-/**
- * Flow Transition (single arrow in a rule)
- * Used internally to represent A -> B transitions
- */
-export interface FlowTransition extends AstNode {
-  type: 'FlowTransition';
-  source: FlowOperand;
-  destination: FlowOperand;
-  withClause?: WithClause;
-  location?: Location;
-}
+// FlowTransition is imported from flow-control-types.js

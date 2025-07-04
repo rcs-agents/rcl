@@ -1,5 +1,6 @@
 import type { IToken, TokenType, ILexingError, IMultiModeLexerDefinition } from 'chevrotain';
 import { createToken, Lexer } from 'chevrotain';
+import * as T from './lexer/tokens/token-definitions.js';
 
 /**
  * Enhanced RCL Custom Lexer
@@ -16,7 +17,7 @@ import { createToken, Lexer } from 'chevrotain';
  * - Space-separated identifiers (Title Case)
  * - Comprehensive error handling and recovery
  */
-export class RclCustomLexer {
+export class RclLexer {
   private indentationStack: number[] = [0];
   private currentMode: string = 'default';
   private modeStack: string[] = [];
@@ -253,172 +254,12 @@ export class RclCustomLexer {
   });
 
   // All tokens in order (most specific first)
-  private static readonly allTokens = [
-    // Synthetic tokens
-    RclCustomLexer.INDENT,
-    RclCustomLexer.DEDENT,
-    
-    // Whitespace and comments
-    RclCustomLexer.WS,
-    RclCustomLexer.NL,
-    RclCustomLexer.SL_COMMENT,
-
-    // Import keywords
-    RclCustomLexer.IMPORT_KW,
-    RclCustomLexer.AS_KW,
-    RclCustomLexer.FROM_KW,
-
-    // Section keywords
-    RclCustomLexer.AGENT_DEFAULTS_KW,
-    RclCustomLexer.AGENT_CONFIG_KW,
-    RclCustomLexer.AGENT_KW,
-    RclCustomLexer.FLOWS_KW,
-    RclCustomLexer.FLOW_KW,
-    RclCustomLexer.MESSAGES_KW,
-
-    // Message keywords
-    RclCustomLexer.AGENT_MESSAGE_KW,
-    RclCustomLexer.CONTENT_MESSAGE_KW,
-    RclCustomLexer.SUGGESTION_KW,
-
-    // Message type keywords
-    RclCustomLexer.RICH_CARD_KW,
-    RclCustomLexer.CAROUSEL_KW,
-    RclCustomLexer.RBM_FILE_KW,
-    RclCustomLexer.TEXT_KW,
-    RclCustomLexer.FILE_KW,
-
-    // Action keywords (longer ones first)
-    RclCustomLexer.CREATE_CALENDAR_EVENT_ACTION_KW,
-    RclCustomLexer.SHARE_LOCATION_ACTION_KW,
-    RclCustomLexer.VIEW_LOCATION_ACTION_KW,
-    RclCustomLexer.OPEN_URL_ACTION_KW,
-    RclCustomLexer.DIAL_ACTION_KW,
-    RclCustomLexer.COMPOSE_ACTION_KW,
-    RclCustomLexer.SHARE_LOCATION_KW,
-    RclCustomLexer.VIEW_LOCATION_KW,
-    RclCustomLexer.SAVE_EVENT_KW,
-    RclCustomLexer.OPEN_URL_KW,
-    RclCustomLexer.ACTION_KW,
-    RclCustomLexer.REPLY_KW,
-    RclCustomLexer.DIAL_KW,
-
-    // Flow keywords
-    RclCustomLexer.START_KW,
-    RclCustomLexer.WITH_KW,
-    RclCustomLexer.WHEN_KW,
-    RclCustomLexer.UNLESS_KW,
-    RclCustomLexer.THEN_KW,
-    RclCustomLexer.ELSE_KW,
-    RclCustomLexer.AND_KW,
-    RclCustomLexer.OR_KW,
-    RclCustomLexer.NOT_KW,
-    RclCustomLexer.IF_KW,
-    RclCustomLexer.IS_KW,
-    RclCustomLexer.DO_KW,
-    RclCustomLexer.END_KW,
-
-    // Collection keywords
-    RclCustomLexer.LIST_KW,
-    RclCustomLexer.OF_KW,
-
-    // Message traffic type keywords
-    RclCustomLexer.TRANSACTIONAL_KW,
-    RclCustomLexer.PROMOTIONAL_KW,
-
-    // Boolean keywords
-    RclCustomLexer.ENABLED_KW,
-    RclCustomLexer.DISABLED_KW,
-    RclCustomLexer.INACTIVE_KW,
-    RclCustomLexer.ACTIVE_KW,
-    RclCustomLexer.TRUE_KW,
-    RclCustomLexer.FALSE_KW,
-    RclCustomLexer.YES_KW,
-    RclCustomLexer.NO_KW,
-    RclCustomLexer.ON_KW,
-    RclCustomLexer.OFF_KW,
-
-    // Null keywords
-    RclCustomLexer.NULL_KW,
-    RclCustomLexer.NULL_LOWERCASE_KW,
-    RclCustomLexer.NONE_KW,
-    RclCustomLexer.VOID_KW,
-
-    // Reserved names
-    RclCustomLexer.DEFAULTS_KW,
-    RclCustomLexer.CONFIG_KW,
-    RclCustomLexer.MESSAGES_RESERVED_KW,
-
-    // Type tag names
-    RclCustomLexer.DATETIME_TYPE,
-    RclCustomLexer.ZIPCODE_TYPE,
-    RclCustomLexer.DURATION_TYPE,
-    RclCustomLexer.EMAIL_TYPE,
-    RclCustomLexer.PHONE_TYPE,
-    RclCustomLexer.MSISDN_TYPE,
-    RclCustomLexer.URL_TYPE,
-    RclCustomLexer.TIME_TYPE,
-    RclCustomLexer.DATE_TYPE,
-    RclCustomLexer.ZIP_TYPE,
-    RclCustomLexer.TTL_TYPE,
-    RclCustomLexer.DT_TYPE,
-    RclCustomLexer.T_TYPE,
-
-    // Literals (specific patterns before general identifiers)
-    RclCustomLexer.ISO_DURATION_LITERAL,
-    RclCustomLexer.STRING,
-    RclCustomLexer.NUMBER,
-    RclCustomLexer.ATOM,
-
-    // Identifiers (after keywords and literals)
-    RclCustomLexer.IDENTIFIER,
-    RclCustomLexer.ATTRIBUTE_KEY,
-    RclCustomLexer.SECTION_TYPE,
-
-    // Embedded expressions
-    RclCustomLexer.MULTI_LINE_EXPRESSION_START,
-    RclCustomLexer.EMBEDDED_CODE,
-
-    // Multi-line string markers (specific before general PIPE token)
-    RclCustomLexer.MULTILINE_STR_PRESERVE_ALL,
-    RclCustomLexer.MULTILINE_STR_PRESERVE,
-    RclCustomLexer.MULTILINE_STR_TRIM,
-    RclCustomLexer.MULTILINE_STR_CLEAN,
-    RclCustomLexer.STRING_CONTENT,
-
-    // Type tag content
-    RclCustomLexer.TYPE_TAG_VALUE_CONTENT,
-    RclCustomLexer.TYPE_TAG_MODIFIER_CONTENT,
-
-    // Punctuation (longer patterns first)
-    RclCustomLexer.ARROW,
-    RclCustomLexer.APOSTROPHE_S,
-    RclCustomLexer.PIPE,
-    RclCustomLexer.COLON,
-    RclCustomLexer.COMMA,
-    RclCustomLexer.DOT,
-    RclCustomLexer.SLASH,
-    RclCustomLexer.HYPHEN,
-    RclCustomLexer.DOLLAR,
-    RclCustomLexer.PERCENT,
-    RclCustomLexer.AT,
-    RclCustomLexer.CARET,
-
-    // Brackets and braces
-    RclCustomLexer.LPAREN,
-    RclCustomLexer.RPAREN,
-    RclCustomLexer.LBRACE,
-    RclCustomLexer.RBRACE,
-    RclCustomLexer.LBRACKET,
-    RclCustomLexer.RBRACKET,
-    RclCustomLexer.LT,
-    RclCustomLexer.GT,
-  ];
+  private static readonly allTokens = T.allTokens;
 
   /**
    * Tokenize the input text and return tokens with errors
    */
-  tokenize(text: string): { tokens: IToken[]; errors: ILexingError[] } {
+  tokenize(text: string): { tokens: IToken[]; errors: ILexingError[]; hidden: IToken[] } {
     this.reset();
     this.text = text;
 
@@ -437,9 +278,14 @@ export class RclCustomLexer {
     // Add remaining dedents at end of file
     this.flushRemainingDedents();
 
+    // Separate hidden tokens from visible tokens
+    const hiddenTokens = this.tokens.filter(token => this.isHiddenToken(token.tokenType));
+    const visibleTokens = this.tokens.filter(token => !this.isHiddenToken(token.tokenType));
+
     return {
-      tokens: this.tokens,
-      errors: this.errors
+      tokens: visibleTokens,
+      errors: this.errors,
+      hidden: hiddenTokens
     };
   }
 
@@ -471,12 +317,12 @@ export class RclCustomLexer {
     }
 
     // Try to match each token type in order
-    for (const tokenType of RclCustomLexer.allTokens) {
-      if (tokenType === RclCustomLexer.INDENT || 
-          tokenType === RclCustomLexer.DEDENT ||
-          tokenType === RclCustomLexer.STRING_CONTENT ||
-          tokenType === RclCustomLexer.TYPE_TAG_VALUE_CONTENT ||
-          tokenType === RclCustomLexer.TYPE_TAG_MODIFIER_CONTENT) {
+    for (const tokenType of RclLexer.allTokens) {
+      if (tokenType === T.INDENT || 
+          tokenType === T.DEDENT ||
+          tokenType === T.STRING_CONTENT ||
+          tokenType === T.TYPE_TAG_VALUE_CONTENT ||
+          tokenType === T.TYPE_TAG_MODIFIER_CONTENT) {
         continue; // These are handled by special logic
       }
 
@@ -499,7 +345,7 @@ export class RclCustomLexer {
 
     if (!match) {
       // Special handling for unterminated strings
-      if (tokenType === RclCustomLexer.STRING && this.text[this.offset] === '"') {
+      if (tokenType === T.STRING && this.text[this.offset] === '"') {
         return this.handleUnterminatedString();
       }
       return false;
@@ -511,10 +357,8 @@ export class RclCustomLexer {
     // Create token
     const token = this.createToken(tokenType, match[0], this.offset);
     
-    // Skip hidden tokens but track position
-    if (!this.isHiddenToken(tokenType)) {
-      this.tokens.push(token);
-    }
+    // Collect all tokens (we'll separate hidden/visible at the end)
+    this.tokens.push(token);
 
     // Advance position
     this.advance(match[0].length);
@@ -528,7 +372,6 @@ export class RclCustomLexer {
   }
 
   private handleUnterminatedString(): boolean {
-    const startOffset = this.offset;
     let endOffset = this.offset + 1; // Skip opening quote
     
     // Find end of line or file
@@ -542,7 +385,7 @@ export class RclCustomLexer {
     this.addError(`Unterminated string literal: ${content}`);
     
     // Create a token for the partial string to help with recovery
-    const token = this.createToken(RclCustomLexer.STRING, content + '"', this.offset);
+    const token = this.createToken(T.STRING, content + '"', this.offset);
     this.tokens.push(token);
     
     this.advance(endOffset - this.offset);
@@ -589,7 +432,7 @@ export class RclCustomLexer {
     if (indentLevel > prevIndentLevel) {
       // Increased indentation - emit INDENT
       this.indentationStack.push(indentLevel);
-      const token = this.createToken(RclCustomLexer.INDENT, '', startOffset);
+      const token = this.createToken(T.INDENT, '', startOffset);
       this.tokens.push(token);
       this.column += indentLevel;
       return true;
@@ -599,7 +442,7 @@ export class RclCustomLexer {
       while (this.indentationStack.length > 1 && 
              this.indentationStack[this.indentationStack.length - 1] > indentLevel) {
         this.indentationStack.pop();
-        const token = this.createToken(RclCustomLexer.DEDENT, '', startOffset);
+        const token = this.createToken(T.DEDENT, '', startOffset);
         this.tokens.push(token);
         dedendsEmitted++;
       }
@@ -621,11 +464,11 @@ export class RclCustomLexer {
 
   private handleModeTransition(tokenType: TokenType, tokenImage: string): void {
     // Handle mode transitions for type tags
-    if (tokenType === RclCustomLexer.LT) {
+    if (tokenType === T.LT) {
       this.pushMode('type_tag');
-    } else if (tokenType === RclCustomLexer.GT && this.currentMode === 'type_tag') {
+    } else if (tokenType === T.GT && this.currentMode === 'type_tag') {
       this.popMode();
-    } else if (tokenType === RclCustomLexer.PIPE && this.currentMode === 'type_tag') {
+    } else if (tokenType === T.PIPE && this.currentMode === 'type_tag') {
       this.pushMode('type_tag_modifier');
     }
   }
@@ -665,8 +508,8 @@ export class RclCustomLexer {
     if (content) {
       // Create appropriate token for the content
       const tokenType = this.multiLineBlockType === 'expression' 
-        ? RclCustomLexer.MULTI_LINE_EXPRESSION_START
-        : RclCustomLexer.STRING_CONTENT;
+        ? T.MULTI_LINE_EXPRESSION_START
+        : T.STRING_CONTENT;
       
       const token = this.createToken(tokenType, content.text, content.startOffset);
       this.tokens.push(token);
@@ -753,10 +596,10 @@ export class RclCustomLexer {
   }
 
   private isMultiLineStringMarker(tokenType: TokenType): boolean {
-    return tokenType === RclCustomLexer.MULTILINE_STR_CLEAN ||
-           tokenType === RclCustomLexer.MULTILINE_STR_TRIM ||
-           tokenType === RclCustomLexer.MULTILINE_STR_PRESERVE ||
-           tokenType === RclCustomLexer.MULTILINE_STR_PRESERVE_ALL;
+    return tokenType === T.MULTILINE_STR_CLEAN ||
+           tokenType === T.MULTILINE_STR_TRIM ||
+           tokenType === T.MULTILINE_STR_PRESERVE ||
+           tokenType === T.MULTILINE_STR_PRESERVE_ALL;
   }
 
   private isHiddenToken(tokenType: TokenType): boolean {
@@ -844,7 +687,7 @@ export class RclCustomLexer {
   private flushRemainingDedents(): void {
     while (this.indentationStack.length > 1) {
       this.indentationStack.pop();
-      const token = this.createToken(RclCustomLexer.DEDENT, '', this.offset);
+      const token = this.createToken(T.DEDENT, '', this.offset);
       this.tokens.push(token);
     }
   }
@@ -863,32 +706,32 @@ export class RclCustomLexer {
    * Get all token types for integration with Langium
    */
   static getAllTokens(): TokenType[] {
-    return RclCustomLexer.allTokens;
+    return RclLexer.allTokens;
   }
 
   /**
    * Create a multi-mode lexer definition for Chevrotain integration
    */
   static createMultiModeLexerDefinition(): IMultiModeLexerDefinition {
-    const defaultModeTokens = RclCustomLexer.allTokens;
+    const defaultModeTokens = RclLexer.allTokens;
     
     // Type tag mode - prioritize type tag names over general identifiers
-    const typeTagModeTokens = [...RclCustomLexer.allTokens].sort((a, b) => {
+    const typeTagModeTokens = [...RclLexer.allTokens].sort((a, b) => {
       // Prioritize type tag names in type tag mode
       const aIsTypeTag = [
-        RclCustomLexer.EMAIL_TYPE, RclCustomLexer.PHONE_TYPE, RclCustomLexer.MSISDN_TYPE,
-        RclCustomLexer.URL_TYPE, RclCustomLexer.TIME_TYPE, RclCustomLexer.T_TYPE,
-        RclCustomLexer.DATETIME_TYPE, RclCustomLexer.DATE_TYPE, RclCustomLexer.DT_TYPE,
-        RclCustomLexer.ZIPCODE_TYPE, RclCustomLexer.ZIP_TYPE, RclCustomLexer.DURATION_TYPE,
-        RclCustomLexer.TTL_TYPE
+        T.EMAIL_TYPE, T.PHONE_TYPE, T.MSISDN_TYPE,
+        T.URL_TYPE, T.TIME_TYPE, T.T_TYPE,
+        T.DATETIME_TYPE, T.DATE_TYPE, T.DT_TYPE,
+        T.ZIPCODE_TYPE, T.ZIP_TYPE, T.DURATION_TYPE,
+        T.TTL_TYPE
       ].includes(a);
       
       const bIsTypeTag = [
-        RclCustomLexer.EMAIL_TYPE, RclCustomLexer.PHONE_TYPE, RclCustomLexer.MSISDN_TYPE,
-        RclCustomLexer.URL_TYPE, RclCustomLexer.TIME_TYPE, RclCustomLexer.T_TYPE,
-        RclCustomLexer.DATETIME_TYPE, RclCustomLexer.DATE_TYPE, RclCustomLexer.DT_TYPE,
-        RclCustomLexer.ZIPCODE_TYPE, RclCustomLexer.ZIP_TYPE, RclCustomLexer.DURATION_TYPE,
-        RclCustomLexer.TTL_TYPE
+        T.EMAIL_TYPE, T.PHONE_TYPE, T.MSISDN_TYPE,
+        T.URL_TYPE, T.TIME_TYPE, T.T_TYPE,
+        T.DATETIME_TYPE, T.DATE_TYPE, T.DT_TYPE,
+        T.ZIPCODE_TYPE, T.ZIP_TYPE, T.DURATION_TYPE,
+        T.TTL_TYPE
       ].includes(b);
       
       if (aIsTypeTag && !bIsTypeTag) return -1;
@@ -912,165 +755,165 @@ export class RclCustomLexer {
  */
 export const RclToken = {
   // Structure tokens
-  INDENT: RclCustomLexer.INDENT,
-  DEDENT: RclCustomLexer.DEDENT,
-  WS: RclCustomLexer.WS,
-  NL: RclCustomLexer.NL,
-  SL_COMMENT: RclCustomLexer.SL_COMMENT,
+  INDENT: T.INDENT,
+  DEDENT: T.DEDENT,
+  WS: T.WS,
+  NL: T.NL,
+  SL_COMMENT: T.SL_COMMENT,
 
   // Keywords - Import
-  IMPORT_KW: RclCustomLexer.IMPORT_KW,
-  AS_KW: RclCustomLexer.AS_KW,
-  FROM_KW: RclCustomLexer.FROM_KW,
+  IMPORT_KW: T.IMPORT_KW,
+  AS_KW: T.AS_KW,
+  FROM_KW: T.FROM_KW,
 
   // Keywords - Sections
-  AGENT_KW: RclCustomLexer.AGENT_KW,
-  AGENT_DEFAULTS_KW: RclCustomLexer.AGENT_DEFAULTS_KW,
-  AGENT_CONFIG_KW: RclCustomLexer.AGENT_CONFIG_KW,
-  FLOW_KW: RclCustomLexer.FLOW_KW,
-  FLOWS_KW: RclCustomLexer.FLOWS_KW,
-  MESSAGES_KW: RclCustomLexer.MESSAGES_KW,
+  AGENT_KW: T.AGENT_KW,
+  AGENT_DEFAULTS_KW: T.AGENT_DEFAULTS_KW,
+  AGENT_CONFIG_KW: T.AGENT_CONFIG_KW,
+  FLOW_KW: T.FLOW_KW,
+  FLOWS_KW: T.FLOWS_KW,
+  MESSAGES_KW: T.MESSAGES_KW,
 
   // Keywords - Messages
-  AGENT_MESSAGE_KW: RclCustomLexer.AGENT_MESSAGE_KW,
-  CONTENT_MESSAGE_KW: RclCustomLexer.CONTENT_MESSAGE_KW,
-  SUGGESTION_KW: RclCustomLexer.SUGGESTION_KW,
+  AGENT_MESSAGE_KW: T.AGENT_MESSAGE_KW,
+  CONTENT_MESSAGE_KW: T.CONTENT_MESSAGE_KW,
+  SUGGESTION_KW: T.SUGGESTION_KW,
 
   // Keywords - Shortcuts
-  TEXT_KW: RclCustomLexer.TEXT_KW,
-  RICH_CARD_KW: RclCustomLexer.RICH_CARD_KW,
-  CAROUSEL_KW: RclCustomLexer.CAROUSEL_KW,
-  RBM_FILE_KW: RclCustomLexer.RBM_FILE_KW,
-  FILE_KW: RclCustomLexer.FILE_KW,
+  TEXT_KW: T.TEXT_KW,
+  RICH_CARD_KW: T.RICH_CARD_KW,
+  CAROUSEL_KW: T.CAROUSEL_KW,
+  RBM_FILE_KW: T.RBM_FILE_KW,
+  FILE_KW: T.FILE_KW,
 
   // Keywords - Actions
-  REPLY_KW: RclCustomLexer.REPLY_KW,
-  ACTION_KW: RclCustomLexer.ACTION_KW,
-  DIAL_KW: RclCustomLexer.DIAL_KW,
-  DIAL_ACTION_KW: RclCustomLexer.DIAL_ACTION_KW,
-  OPEN_URL_KW: RclCustomLexer.OPEN_URL_KW,
-  OPEN_URL_ACTION_KW: RclCustomLexer.OPEN_URL_ACTION_KW,
-  SHARE_LOCATION_KW: RclCustomLexer.SHARE_LOCATION_KW,
-  SHARE_LOCATION_ACTION_KW: RclCustomLexer.SHARE_LOCATION_ACTION_KW,
-  VIEW_LOCATION_KW: RclCustomLexer.VIEW_LOCATION_KW,
-  VIEW_LOCATION_ACTION_KW: RclCustomLexer.VIEW_LOCATION_ACTION_KW,
-  SAVE_EVENT_KW: RclCustomLexer.SAVE_EVENT_KW,
-  CREATE_CALENDAR_EVENT_ACTION_KW: RclCustomLexer.CREATE_CALENDAR_EVENT_ACTION_KW,
-  COMPOSE_ACTION_KW: RclCustomLexer.COMPOSE_ACTION_KW,
+  REPLY_KW: T.REPLY_KW,
+  ACTION_KW: T.ACTION_KW,
+  DIAL_KW: T.DIAL_KW,
+  DIAL_ACTION_KW: T.DIAL_ACTION_KW,
+  OPEN_URL_KW: T.OPEN_URL_KW,
+  OPEN_URL_ACTION_KW: T.OPEN_URL_ACTION_KW,
+  SHARE_LOCATION_KW: T.SHARE_LOCATION_KW,
+  SHARE_LOCATION_ACTION_KW: T.SHARE_LOCATION_ACTION_KW,
+  VIEW_LOCATION_KW: T.VIEW_LOCATION_KW,
+  VIEW_LOCATION_ACTION_KW: T.VIEW_LOCATION_ACTION_KW,
+  SAVE_EVENT_KW: T.SAVE_EVENT_KW,
+  CREATE_CALENDAR_EVENT_ACTION_KW: T.CREATE_CALENDAR_EVENT_ACTION_KW,
+  COMPOSE_ACTION_KW: T.COMPOSE_ACTION_KW,
 
   // Keywords - Flow control
-  START_KW: RclCustomLexer.START_KW,
-  WITH_KW: RclCustomLexer.WITH_KW,
-  WHEN_KW: RclCustomLexer.WHEN_KW,
-  IF_KW: RclCustomLexer.IF_KW,
-  THEN_KW: RclCustomLexer.THEN_KW,
-  ELSE_KW: RclCustomLexer.ELSE_KW,
-  UNLESS_KW: RclCustomLexer.UNLESS_KW,
-  AND_KW: RclCustomLexer.AND_KW,
-  OR_KW: RclCustomLexer.OR_KW,
-  NOT_KW: RclCustomLexer.NOT_KW,
-  IS_KW: RclCustomLexer.IS_KW,
-  DO_KW: RclCustomLexer.DO_KW,
-  END_KW: RclCustomLexer.END_KW,
+  START_KW: T.START_KW,
+  WITH_KW: T.WITH_KW,
+  WHEN_KW: T.WHEN_KW,
+  IF_KW: T.IF_KW,
+  THEN_KW: T.THEN_KW,
+  ELSE_KW: T.ELSE_KW,
+  UNLESS_KW: T.UNLESS_KW,
+  AND_KW: T.AND_KW,
+  OR_KW: T.OR_KW,
+  NOT_KW: T.NOT_KW,
+  IS_KW: T.IS_KW,
+  DO_KW: T.DO_KW,
+  END_KW: T.END_KW,
 
   // Keywords - Collections
-  LIST_KW: RclCustomLexer.LIST_KW,
-  OF_KW: RclCustomLexer.OF_KW,
+  LIST_KW: T.LIST_KW,
+  OF_KW: T.OF_KW,
 
   // Keywords - Message types
-  TRANSACTIONAL_KW: RclCustomLexer.TRANSACTIONAL_KW,
-  PROMOTIONAL_KW: RclCustomLexer.PROMOTIONAL_KW,
+  TRANSACTIONAL_KW: T.TRANSACTIONAL_KW,
+  PROMOTIONAL_KW: T.PROMOTIONAL_KW,
 
   // Boolean literals
-  TRUE_KW: RclCustomLexer.TRUE_KW,
-  YES_KW: RclCustomLexer.YES_KW,
-  ON_KW: RclCustomLexer.ON_KW,
-  ENABLED_KW: RclCustomLexer.ENABLED_KW,
-  ACTIVE_KW: RclCustomLexer.ACTIVE_KW,
-  FALSE_KW: RclCustomLexer.FALSE_KW,
-  NO_KW: RclCustomLexer.NO_KW,
-  OFF_KW: RclCustomLexer.OFF_KW,
-  DISABLED_KW: RclCustomLexer.DISABLED_KW,
-  INACTIVE_KW: RclCustomLexer.INACTIVE_KW,
+  TRUE_KW: T.TRUE_KW,
+  YES_KW: T.YES_KW,
+  ON_KW: T.ON_KW,
+  ENABLED_KW: T.ENABLED_KW,
+  ACTIVE_KW: T.ACTIVE_KW,
+  FALSE_KW: T.FALSE_KW,
+  NO_KW: T.NO_KW,
+  OFF_KW: T.OFF_KW,
+  DISABLED_KW: T.DISABLED_KW,
+  INACTIVE_KW: T.INACTIVE_KW,
 
   // Null literals
-  NULL_KW: RclCustomLexer.NULL_KW,
-  NONE_KW: RclCustomLexer.NONE_KW,
-  VOID_KW: RclCustomLexer.VOID_KW,
+  NULL_KW: T.NULL_KW,
+  NONE_KW: T.NONE_KW,
+  VOID_KW: T.VOID_KW,
 
   // Special keywords
-  DEFAULTS_KW: RclCustomLexer.DEFAULTS_KW,
-  CONFIG_KW: RclCustomLexer.CONFIG_KW,
-  MESSAGES_RESERVED_KW: RclCustomLexer.MESSAGES_RESERVED_KW,
+  DEFAULTS_KW: T.DEFAULTS_KW,
+  CONFIG_KW: T.CONFIG_KW,
+  MESSAGES_RESERVED_KW: T.MESSAGES_RESERVED_KW,
 
   // Type names
-  EMAIL_TYPE: RclCustomLexer.EMAIL_TYPE,
-  PHONE_TYPE: RclCustomLexer.PHONE_TYPE,
-  MSISDN_TYPE: RclCustomLexer.MSISDN_TYPE,
-  URL_TYPE: RclCustomLexer.URL_TYPE,
-  TIME_TYPE: RclCustomLexer.TIME_TYPE,
-  T_TYPE: RclCustomLexer.T_TYPE,
-  DATETIME_TYPE: RclCustomLexer.DATETIME_TYPE,
-  DATE_TYPE: RclCustomLexer.DATE_TYPE,
-  DT_TYPE: RclCustomLexer.DT_TYPE,
-  ZIPCODE_TYPE: RclCustomLexer.ZIPCODE_TYPE,
-  ZIP_TYPE: RclCustomLexer.ZIP_TYPE,
-  DURATION_TYPE: RclCustomLexer.DURATION_TYPE,
-  TTL_TYPE: RclCustomLexer.TTL_TYPE,
+  EMAIL_TYPE: T.EMAIL_TYPE,
+  PHONE_TYPE: T.PHONE_TYPE,
+  MSISDN_TYPE: T.MSISDN_TYPE,
+  URL_TYPE: T.URL_TYPE,
+  TIME_TYPE: T.TIME_TYPE,
+  T_TYPE: T.T_TYPE,
+  DATETIME_TYPE: T.DATETIME_TYPE,
+  DATE_TYPE: T.DATE_TYPE,
+  DT_TYPE: T.DT_TYPE,
+  ZIPCODE_TYPE: T.ZIPCODE_TYPE,
+  ZIP_TYPE: T.ZIP_TYPE,
+  DURATION_TYPE: T.DURATION_TYPE,
+  TTL_TYPE: T.TTL_TYPE,
 
   // Identifiers and literals
-  IDENTIFIER: RclCustomLexer.IDENTIFIER,
-  ATTRIBUTE_KEY: RclCustomLexer.ATTRIBUTE_KEY,
-  SECTION_TYPE: RclCustomLexer.SECTION_TYPE,
-  STRING: RclCustomLexer.STRING,
-  NUMBER: RclCustomLexer.NUMBER,
-  ATOM: RclCustomLexer.ATOM,
+  IDENTIFIER: T.IDENTIFIER,
+  ATTRIBUTE_KEY: T.ATTRIBUTE_KEY,
+  SECTION_TYPE: T.SECTION_TYPE,
+  STRING: T.STRING,
+  NUMBER: T.NUMBER,
+  ATOM: T.ATOM,
 
   // Expressions
-  MULTI_LINE_EXPRESSION_START: RclCustomLexer.MULTI_LINE_EXPRESSION_START,
-  EMBEDDED_CODE: RclCustomLexer.EMBEDDED_CODE,
+  MULTI_LINE_EXPRESSION_START: T.MULTI_LINE_EXPRESSION_START,
+  EMBEDDED_CODE: T.EMBEDDED_CODE,
 
   // Multi-line strings
-  MULTILINE_STR_PRESERVE_ALL: RclCustomLexer.MULTILINE_STR_PRESERVE_ALL,
-  MULTILINE_STR_PRESERVE: RclCustomLexer.MULTILINE_STR_PRESERVE,
-  MULTILINE_STR_TRIM: RclCustomLexer.MULTILINE_STR_TRIM,
-  MULTILINE_STR_CLEAN: RclCustomLexer.MULTILINE_STR_CLEAN,
-  STRING_CONTENT: RclCustomLexer.STRING_CONTENT,
+  MULTILINE_STR_PRESERVE_ALL: T.MULTILINE_STR_PRESERVE_ALL,
+  MULTILINE_STR_PRESERVE: T.MULTILINE_STR_PRESERVE,
+  MULTILINE_STR_TRIM: T.MULTILINE_STR_TRIM,
+  MULTILINE_STR_CLEAN: T.MULTILINE_STR_CLEAN,
+  STRING_CONTENT: T.STRING_CONTENT,
 
   // Punctuation
-  ARROW: RclCustomLexer.ARROW,
-  APOSTROPHE_S: RclCustomLexer.APOSTROPHE_S,
-  PIPE: RclCustomLexer.PIPE,
-  COLON: RclCustomLexer.COLON,
-  COMMA: RclCustomLexer.COMMA,
-  DOT: RclCustomLexer.DOT,
-  SLASH: RclCustomLexer.SLASH,
-  HYPHEN: RclCustomLexer.HYPHEN,
-  DOLLAR: RclCustomLexer.DOLLAR,
-  PERCENT: RclCustomLexer.PERCENT,
-  AT: RclCustomLexer.AT,
-  CARET: RclCustomLexer.CARET,
+  ARROW: T.ARROW,
+  APOSTROPHE_S: T.APOSTROPHE_S,
+  PIPE: T.PIPE,
+  COLON: T.COLON,
+  COMMA: T.COMMA,
+  DOT: T.DOT,
+  SLASH: T.SLASH,
+  HYPHEN: T.HYPHEN,
+  DOLLAR: T.DOLLAR,
+  PERCENT: T.PERCENT,
+  AT: T.AT,
+  CARET: T.CARET,
 
   // Brackets and braces
-  LPAREN: RclCustomLexer.LPAREN,
-  RPAREN: RclCustomLexer.RPAREN,
-  LBRACE: RclCustomLexer.LBRACE,
-  RBRACE: RclCustomLexer.RBRACE,
-  LBRACKET: RclCustomLexer.LBRACKET,
-  RBRACKET: RclCustomLexer.RBRACKET,
-  LT: RclCustomLexer.LT,
-  GT: RclCustomLexer.GT,
+  LPAREN: T.LPAREN,
+  RPAREN: T.RPAREN,
+  LBRACE: T.LBRACE,
+  RBRACE: T.RBRACE,
+  LBRACKET: T.LBRACKET,
+  RBRACKET: T.RBRACKET,
+  LT: T.LT,
+  GT: T.GT,
 
   // Literals
-  ISO_DURATION_LITERAL: RclCustomLexer.ISO_DURATION_LITERAL,
-  TYPE_TAG_VALUE_CONTENT: RclCustomLexer.TYPE_TAG_VALUE_CONTENT,
-  TYPE_TAG_MODIFIER_CONTENT: RclCustomLexer.TYPE_TAG_MODIFIER_CONTENT,
+  ISO_DURATION_LITERAL: T.ISO_DURATION_LITERAL,
+  TYPE_TAG_VALUE_CONTENT: T.TYPE_TAG_VALUE_CONTENT,
+  TYPE_TAG_MODIFIER_CONTENT: T.TYPE_TAG_MODIFIER_CONTENT,
   
   // Convenience aliases
-  TYPE_TAG_NAME: RclCustomLexer.EMAIL_TYPE, // We'll use this for any type name
-  PROPER_NOUN: RclCustomLexer.IDENTIFIER, // We'll use identifier for proper nouns for now
-  EMBEDDED_CODE_START: RclCustomLexer.MULTI_LINE_EXPRESSION_START,
-  CODE_BLOCK_START: RclCustomLexer.MULTI_LINE_EXPRESSION_START,
-  CODE_LINE: RclCustomLexer.MULTI_LINE_EXPRESSION_START,
-  EQUALS: RclCustomLexer.COLON, // We'll use colon for equals for now
+  TYPE_TAG_NAME: T.EMAIL_TYPE, // We'll use this for any type name
+  PROPER_NOUN: T.IDENTIFIER, // We'll use identifier for proper nouns for now
+  EMBEDDED_CODE_START: T.MULTI_LINE_EXPRESSION_START,
+  CODE_BLOCK_START: T.MULTI_LINE_EXPRESSION_START,
+  CODE_LINE: T.MULTI_LINE_EXPRESSION_START,
+  EQUALS: T.COLON, // We'll use colon for equals for now
 } as const; 

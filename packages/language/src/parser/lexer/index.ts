@@ -5,8 +5,6 @@
  */
 
 export { RclLexer } from './core/lexer-base.js';
+export { RclLexer as default } from './core/lexer-base.js';
 export { RclTokens } from './tokens/token-definitions.js';
 export type { LexingResult, LexingError } from './core/lexer-base.js';
-
-// Re-export for backward compatibility
-export { RclLexer as RclCustomLexer };

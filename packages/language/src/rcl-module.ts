@@ -1,38 +1,30 @@
-import { type Module, inject, IndentationAwareLexer } from 'langium';
+import { type Module, inject } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
-import { RclLanguageGeneratedModule, RclTestLanguageGeneratedModule, RclGeneratedSharedModule } from './generated/module.js';
-import { RclValidator, registerValidationChecks } from './rcl-validator.js';
 import { RclCompletionProvider } from './rcl-completion-provider.js';
-import { RclCustomTokenBuilder } from './services/rcl-custom-token-builder.js';
 import { RclSemanticTokenProvider } from './lsp/rcl-semantic-token-provider.js';
 import { RclHoverProvider } from './lsp/rcl-hover-provider.js';
-import { RclReferenceProvider } from './lsp/rcl-reference-provider.js';
 import { RclDocumentSymbolProvider } from './lsp/rcl-document-symbol-provider.js';
 import { RclFoldingRangeProvider } from './lsp/rcl-folding-range-provider.js';
 import { RclDefinitionProvider } from './lsp/rcl-definition-provider.js';
 import { RclFormatter } from './lsp/rcl-formatter.js';
-import { SectionTypeRegistry } from './services/section-registry.js';
-// Custom parser import removed - not used in current Langium integration
+import { RclTokenBuilder } from './parser/lexer/token-builder.js';
+// Using custom lexer/parser instead of Langium grammar-based approach
 
 /**
  * Declaration of custom services - add your own service classes here.
  */
 export type RclAddedServices = {
-  validation: {
-    RclValidator: RclValidator
-  },
   lsp: {
     CompletionProvider: RclCompletionProvider,
     SemanticTokenProvider: RclSemanticTokenProvider,
     HoverProvider: RclHoverProvider,
-    ReferenceProvider: RclReferenceProvider,
     DefinitionProvider: RclDefinitionProvider,
     DocumentSymbolProvider: RclDocumentSymbolProvider,
     FoldingRangeProvider: RclFoldingRangeProvider,
     Formatter: RclFormatter
   },
-  meta: {
-    SectionTypeRegistry: SectionTypeRegistry
+  parser: {
+    TokenBuilder: () => RclTokenBuilder
   }
 }
 
@@ -52,26 +44,18 @@ export type RclTestServices = LangiumServices & RclAddedServices
  * declared custom services. The Langium defaults can be partially specified to override only
  * selected services, while the custom services must be fully specified.
  */
-export const RclModule: Module<RclServices, PartialLangiumServices & RclAddedServices> = {
-  parser: {
-    TokenBuilder: () => new RclCustomTokenBuilder(),
-    Lexer: (services) => new IndentationAwareLexer(services),
-  },
-  validation: {
-    RclValidator: (services) => new RclValidator(services)
-  },
+export const RclModule: Module<RclServices, PartialLangiumServices> = {
   lsp: {
-    CompletionProvider: (services) => new RclCompletionProvider(services),
-    SemanticTokenProvider: (services) => new RclSemanticTokenProvider(services),
-    HoverProvider: (services) => new RclHoverProvider(services),
-    ReferenceProvider: (services) => new RclReferenceProvider(services),
-    DefinitionProvider: (services) => new RclDefinitionProvider(services),
-    DocumentSymbolProvider: (services) => new RclDocumentSymbolProvider(services),
-    FoldingRangeProvider: (services) => new RclFoldingRangeProvider(services),
+    CompletionProvider: (services: RclServices) => new RclCompletionProvider(services),
+    SemanticTokenProvider: (services: RclServices) => new RclSemanticTokenProvider(services),
+    HoverProvider: (services: RclServices) => new RclHoverProvider(services),
+    DefinitionProvider: (services: RclServices) => new RclDefinitionProvider(services),
+    DocumentSymbolProvider: (services: RclServices) => new RclDocumentSymbolProvider(services),
+    FoldingRangeProvider: (services: RclServices) => new RclFoldingRangeProvider(services),
     Formatter: () => new RclFormatter()
   },
-  meta: {
-    SectionTypeRegistry: () => new SectionTypeRegistry()
+  parser: {    
+    TokenBuilder: (services: RclServices) => new RclTokenBuilder()
   }
 };
 
@@ -95,16 +79,13 @@ export function createRclServices(context: DefaultSharedModuleContext): {
   Rcl: RclServices
 } {
   const shared = inject(
-    createDefaultSharedModule(context),
-    RclGeneratedSharedModule
+    createDefaultSharedModule(context)
   );
   const Rcl = inject(
     createDefaultModule({ shared }),
-    RclLanguageGeneratedModule,
     RclModule
-  );
+  ) as RclServices;
   shared.ServiceRegistry.register(Rcl);
-  registerValidationChecks(Rcl);
   if (!context.connection) {
     // We don't run inside a language server
     // Therefore, initialize the configuration provider instantly
@@ -125,16 +106,15 @@ export function createRclTestServices(context: DefaultSharedModuleContext): {
   RclTest: RclTestServices
 } {
   const shared = inject(
-    createDefaultSharedModule(context),
-    RclGeneratedSharedModule
+    createDefaultSharedModule(context)
+    // Removed RclGeneratedSharedModule - using custom parser approach
   );
   const RclTest = inject(
     createDefaultModule({ shared }),
-    RclTestLanguageGeneratedModule,
+    // Removed RclTestLanguageGeneratedModule - using custom parser approach
     RclModule
-  );
+  ) as RclTestServices;
   shared.ServiceRegistry.register(RclTest);
-  registerValidationChecks(RclTest);
   if (!context.connection) {
     // We don't run inside a language server
     // Therefore, initialize the configuration provider instantly

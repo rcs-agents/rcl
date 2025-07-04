@@ -13,7 +13,7 @@
  * 
  * Any direct edits to this file WILL BE LOST on the next build!
  * 
- * Generated at: 2025-07-03T23:56:08.970Z
+ * Generated at: 2025-07-04T15:31:12.708Z
  * ========================================================================
  */
 
@@ -427,6 +427,36 @@ interface MultiLineString {
     has_block_content?: string;
 }
 
+interface AgentDefinition {
+    name: string;
+    displayName: string;
+    brandName?: string;
+    config?: ConfigSection;
+    defaults?: DefaultsSection;
+    flows: FlowSection[];
+    messages: MessagesSection;
+}
+
+interface ConfigSection {
+    name: string;
+    attributes: Attribute[];
+}
+
+interface DefaultsSection {
+    name: string;
+    attributes: Attribute[];
+}
+
+interface FlowSection {
+    name: string;
+    rules: FlowRule[];
+}
+
+interface MessagesSection {
+    name: string;
+    messages: MessageDefinition[];
+}
+
 hidden terminal SL_COMMENT: /#[^\r\n]*/;
 terminal WS: /[ \t]+/;
 
@@ -445,10 +475,6 @@ terminal FALSE_KW: /\b(False|Off|No|Inactive|Disabled)\b/;
 terminal NULL_KW: /\b(Null|None|Void|null)\b/;
 
 terminal IDENTIFIER: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*\b/;
-
-terminal PROPER_NOUN: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*\b/;
-
-terminal COMMON_NOUN: /[a-z][a-zA-Z0-9_]*\b/;
 
 terminal ATTRIBUTE_KEY: /[a-z][a-zA-Z0-9_]*(?=\s*:)/;
 
@@ -614,19 +640,15 @@ Parameter returns Parameter:
     name=(ATTRIBUTE_KEY | IDENTIFIER) ':' defaultValue=Value; 
 
 FlowRule returns FlowRule:
+    name=IDENTIFIER ':' NL?
+    INDENT?
     (
-        (name=IDENTIFIER ':' NL?
-        INDENT?
-        (
-            attributes+=Attribute
-            | nestedRules+=FlowRule
-            | transitions+=FlowTransition
-            | whenClauses+=WhenClause
-        )*
-        DEDENT?)
-        |
-        transitions+=FlowTransition
-    );
+        attributes+=Attribute
+        | nestedRules+=FlowRule
+        | transitions+=FlowTransition
+        | whenClauses+=WhenClause
+    )*
+    DEDENT?;
 
 FlowTransition returns FlowTransition:
     source=FlowOperand '->' destination=FlowOperand (withClause=WithClause)?;
@@ -752,6 +774,41 @@ ExpressionsProperty returns ExpressionsProperty:
 DefaultPropertyAttribute returns DefaultPropertyAttribute:
     {DefaultPropertyAttribute} key='language' ':' __ value=SimpleValue; 
 
+AgentDefinition returns AgentDefinition:
+    'agent' name=IDENTIFIER ':'
+    NL? INDENT
+    'displayName' ':' displayName=STRING NL?
+    ('brandName' ':' brandName=STRING NL?)?
+    (config=ConfigSection)?
+    (defaults=DefaultsSection)?
+    (flows+=FlowSection)+
+    messages=MessagesSection
+    DEDENT;
+
+ConfigSection returns ConfigSection:
+    'agentConfig' name=IDENTIFIER ':'
+    NL? INDENT
+    attributes+=Attribute*
+    DEDENT;
+
+DefaultsSection returns DefaultsSection:
+    'agentDefaults' name=IDENTIFIER ':'
+    NL? INDENT
+    attributes+=Attribute*
+    DEDENT;
+
+FlowSection returns FlowSection:
+    'flow' name=IDENTIFIER ':'
+    NL? INDENT
+    rules+=FlowRule*
+    DEDENT;
+
+MessagesSection returns MessagesSection:
+    'messages' name=IDENTIFIER ':'
+    NL? INDENT
+    messages+=MessageDefinition*
+    DEDENT;
+
 SectionType returns string:
   AGENT_KW
   | AGENT_CONFIG_KW
@@ -782,121 +839,214 @@ MessageDefinition returns MessageDefinition:
     attributes+=Attribute*
     DEDENT?;
 
-// ======== Agent Definition ========
-// Main agent structure following RCL specification
-AgentDefinition returns AgentDefinition:
-    AGENT_KW __ name=IDENTIFIER ':'
+AgentMessage returns AgentMessage:
+    'agentMessage' identifier=PROPER_NOUN?
+    NL?
     INDENT
-    'displayName' ':' __ displayName=STRING // Required
-    ('brandName' ':' __ brandName=STRING)? // Optional
-    (configSection=ConfigSection)?
-    (defaultsSection=DefaultsSection)?
-    (flowSections+=FlowSection)+ // At least one flow required
-    messagesSection=MessagesSection // Required
+    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
     DEDENT;
 
-ConfigSection returns ConfigSection:
-    AGENT_CONFIG_KW __ 'Config' ':'
+ContentMessage returns ContentMessage:
+    'contentMessage'
+    NL?
     INDENT
-    (properties+=ConfigProperty)*
+    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
     DEDENT;
 
-DefaultsSection returns DefaultsSection:
-    AGENT_DEFAULTS_KW __ 'Defaults' ':'
+ComposeTextMessage returns ComposeTextMessage:
+    'composeTextMessage'
+    NL?
     INDENT
-    (properties+=DefaultProperty)*
+    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
     DEDENT;
 
-FlowSection returns FlowSection:
-    FLOW_KW __ name=IDENTIFIER ':'
+ComposeRecordingMessage returns ComposeRecordingMessage:
+    'composeRecordingMessage'
+    NL?
     INDENT
-    (rules+=FlowRule)*
+    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
     DEDENT;
 
-MessagesSection returns MessagesSection:
-    MESSAGES_KW __ 'Messages' ':'
+CardContent returns CardContent:
+    'cardContent'
+    NL?
     INDENT
-    (messages+=MessageDefinition | shortcuts+=MessageShortcut)*
+    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
     DEDENT;
 
-// Message shortcuts
-MessageShortcut returns MessageShortcut:
-    TextShortcut | RichCardShortcut | CarouselShortcut | FileShortcut;
+ContentInfo returns ContentInfo:
+    'contentInfo'
+    NL?
+    INDENT
+    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+Media returns Media:
+    'media'
+    NL?
+    INDENT
+    (attributes+=MessageAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+MessageAttribute returns MessageAttribute:
+    key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue; 
+
+RichCard returns RichCard:
+    'richCard'
+    NL?
+    INDENT
+    (cardType=StandaloneCard | cardType=CarouselCard)
+    DEDENT;
+
+StandaloneCard returns StandaloneCard:
+    'standaloneCard'
+    NL?
+    INDENT
+    (attributes+=CardAttribute | suggestions+=CardSuggestion | emptyLines+=EmptyLine)*
+    DEDENT;
+
+CarouselCard returns CarouselCard:
+    'carouselCard'
+    NL?
+    INDENT
+    (cards+=StandaloneCard | attributes+=CardAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+CardSuggestion returns CardSuggestion:
+    'cardSuggestion'
+    NL?
+    INDENT
+    (attributes+=CardAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+CardAttribute returns CardAttribute:
+    key=('title' | 'description' | 'thumbnail' | 'height' | 'orientation') ':' (__? | WS | NL)? value=SimpleValue
+    | key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue; 
+
+Suggestion returns Suggestion:
+    'suggestion'
+    NL?
+    INDENT
+    (replyType=SuggestedReply | actionType=SuggestedAction)
+    DEDENT;
+
+SuggestedReply returns SuggestedReply:
+    'reply' __ 'suggestedReply'
+    NL?
+    INDENT
+    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+SuggestedAction returns SuggestedAction:
+    'action' __ 'suggestedAction'
+    NL?
+    INDENT
+    (attributes+=SuggestionAttribute | actions+=ActionType | emptyLines+=EmptyLine)*
+    DEDENT;
+
+DialAction returns DialAction:
+    'dial'
+    NL?
+    INDENT
+    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+OpenUrlAction returns OpenUrlAction:
+    'openUrl'
+    NL?
+    INDENT
+    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+ShareLocationAction returns ShareLocationAction:
+    'shareLocation'
+    NL?
+    INDENT
+    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+ViewLocationAction returns ViewLocationAction:
+    'viewLocation'
+    NL?
+    INDENT
+    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+SaveEventAction returns SaveEventAction:
+    'saveEvent'
+    NL?
+    INDENT
+    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+CreateCalendarEventAction returns CreateCalendarEventAction:
+    'createCalendarEvent'
+    NL?
+    INDENT
+    (attributes+=SuggestionAttribute | emptyLines+=EmptyLine)*
+    DEDENT;
+
+ActionType returns ActionType:
+    DialAction | OpenUrlAction | ShareLocationAction | ViewLocationAction | SaveEventAction | CreateCalendarEventAction;
+
+SuggestionAttribute returns SuggestionAttribute:
+    key=COMMON_NOUN ':' (__* | NL)? value=SimpleValue;
 
 TextShortcut returns TextShortcut:
     'text' __ value=SimpleValue;
 
 RichCardShortcut returns RichCardShortcut:
     'richCard' __ value=SimpleValue
-    (INDENT
-        (attributes+=ShortcutAttribute)*
-    DEDENT)?;
+    NL?
+    (
+        INDENT
+        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
+        DEDENT
+    )?;
 
-CarouselShortcut returns CarouselShortcut:
-    'carousel'
-    (INDENT
-        (attributes+=ShortcutAttribute)*
-    DEDENT)?;
+ReplyShortcut returns ReplyShortcut:
+    'replyShortcut' __ value=SimpleValue
+    NL?
+    (
+        INDENT
+        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
+        DEDENT
+    )?;
+
+SuggestionShortcut returns SuggestionShortcut:
+    'suggestionShortcut' __ value=SimpleValue
+    NL?
+    (
+        INDENT
+        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
+        DEDENT
+    )?;
+
+MessageShortcut returns MessageShortcut:
+    'messageShortcut' __ value=SimpleValue
+    NL?
+    (
+        INDENT
+        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
+        DEDENT
+    )?;
 
 FileShortcut returns FileShortcut:
-    'file' __ value=SimpleValue;
+    'file'
+    NL?
+    (
+        INDENT
+        (attributes+=ShortcutAttribute | emptyLines+=EmptyLine)*
+        DEDENT
+    )?;
+
+FileAttribute returns FileAttribute:
+    key=('filename' | 'thumbnailUrl' | 'fileUrl') ':' (__? | WS | NL)? value=SimpleValue
+    | key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue;
 
 ShortcutAttribute returns ShortcutAttribute:
-    key=ATTRIBUTE_KEY ':' __ value=SimpleValue;
-
-// Define the missing interfaces
-interface AgentDefinition {
-    name: string;
-    displayName: string;
-    brandName?: string;
-    configSection?: ConfigSection;
-    defaultsSection?: DefaultsSection;
-    flowSections: FlowSection[];
-    messagesSection: MessagesSection;
-}
-
-interface ConfigSection {
-    properties: ConfigProperty[];
-}
-
-interface DefaultsSection {
-    properties: DefaultProperty[];
-}
-
-interface FlowSection {
-    name: string;
-    rules: FlowRule[];
-}
-
-interface MessagesSection {
-    messages: MessageDefinition[];
-    shortcuts: MessageShortcut[];
-}
-
-interface MessageShortcut {
-}
-
-interface TextShortcut extends MessageShortcut {
-    value: SimpleValue;
-}
-
-interface RichCardShortcut extends MessageShortcut {
-    value: SimpleValue;
-    attributes: ShortcutAttribute[];
-}
-
-interface CarouselShortcut extends MessageShortcut {
-    attributes: ShortcutAttribute[];
-}
-
-interface FileShortcut extends MessageShortcut {
-    value: SimpleValue;
-}
-
-interface ShortcutAttribute {
-    key: string;
-    value: SimpleValue;
-}
+    key=('filename' | 'thumbnailUrl' | 'fileUrl') ':' (__? | WS | NL)? value=SimpleValue
+    | key=COMMON_NOUN ':' (__? | WS | NL)? value=SimpleValue; 
 
 entry RclFile:
     (imports+=ImportStatement)*

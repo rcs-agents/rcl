@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclCustomParser } from '../../src/parser/rcl-custom-parser.js';
+import { RclParser } from '../../src/parser/parser.ts';
 // Import removed as the types are not used in tests
 
-describe('RclCustomParser', () => {
-  let parser: RclCustomParser;
+describe('RclParser', () => {
+  let parser: RclParser;
 
   beforeEach(() => {
-    parser = new RclCustomParser();
+    parser = new RclParser();
   });
 
   describe('Basic Parsing', () => {

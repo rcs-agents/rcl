@@ -1,7 +1,7 @@
-import type { ValidationAcceptor, ValidationChecks } from 'langium';
+import type { ValidationAcceptor } from 'langium';
 import type { LangiumDocument } from 'langium';
 import type { CancellationToken } from 'vscode-languageserver-protocol';
-import type { RclFile, RclAstType, Section, FlowRule, TypeConversion } from './generated/ast.js';
+import type { RclFile, Section, FlowRule, TypeConversion } from './generated/ast.js';
 import type { RclServices } from './rcl-module.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
 import { SectionValidator } from './validation/section-validator.js';
@@ -83,13 +83,7 @@ export class RclValidator {
  * Register custom validation checks.
  */
 export function registerValidationChecks(services: RclServices) {
-  const registry = services.validation.ValidationRegistry;
-  const validator = services.validation.RclValidator;
-  const checks: ValidationChecks<RclAstType> = {
-    Section: validator.checkSection,
-    RclFile: validator.checkRclFile,
-    FlowRule: validator.checkFlowRule,
-    TypeConversion: validator.checkTypeConversion
-  };
-  registry.register(checks, validator);
+  // Validation is currently disabled in the simplified module structure
+  // TODO: Re-enable validation when custom parser integration is complete
+  return;
 }

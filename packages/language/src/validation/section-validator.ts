@@ -30,7 +30,7 @@ export class SectionValidator {
         if (!sectionType) {
             accept('error', 'Unable to determine section type', {
                 node: section,
-                property: 'type'
+                property: 'sectionType'
             });
             return;
         }
@@ -39,7 +39,7 @@ export class SectionValidator {
         if (!config) {
             accept('error', `Unknown section type: ${sectionType}`, {
                 node: section,
-                property: 'type'
+                property: 'sectionType'
             });
             return;
         }
@@ -64,7 +64,7 @@ export class SectionValidator {
      * Extract section type from section node
      */
     private getSectionType(section: Section): string | undefined {
-        return section.type;
+        return section.sectionType;
     }
     
     /**
@@ -115,7 +115,7 @@ export class SectionValidator {
             if (subSectionType && !allowedSubSections.includes(subSectionType)) {
                 accept('error', `Subsection type '${subSectionType}' is not allowed in ${config.name} section`, {
                     node: subSection,
-                    property: 'type'
+                    property: 'sectionType'
                 });
             }
         }

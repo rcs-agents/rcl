@@ -2,7 +2,10 @@ import { scopesFor } from 'tmgrammar-toolkit';
 import type { MatchRule, BeginEndRule, IncludeRule } from 'tmgrammar-toolkit';
 import { R } from '../regex.js';
 
-const scopes = scopesFor('rcl');
+const scopes = scopesFor({
+    suffix: 'rcl',
+    allowScopeExtension: false
+});
 
 /**
  * Indented list items with hyphens
@@ -40,10 +43,10 @@ export const parenthesesList: BeginEndRule = {
     end: /\)/,
     scope: 'meta.list.parentheses.rcl',
     beginCaptures: {
-        '0': { name: scopes.punctuation.section.parens.begin }
+        '0': { scope: scopes.punctuation.section.parens.begin }
     },
     endCaptures: {
-        '0': { name: scopes.punctuation.section.parens.end }
+        '0': { scope: scopes.punctuation.section.parens.end }
     },
     patterns: [
         { include: '#list-content' }
@@ -60,10 +63,10 @@ export const inlineList: BeginEndRule = {
     end: /\]/,
     scope: 'meta.list.inline.rcl',
     beginCaptures: {
-        '0': { name: scopes.punctuation.section.brackets.begin }
+        '0': { scope: scopes.punctuation.section.brackets.begin }
     },
     endCaptures: {
-        '0': { name: scopes.punctuation.section.brackets.end }
+        '0': { scope: scopes.punctuation.section.brackets.end }
     },
     patterns: [
         { include: '#list-content' }
@@ -80,10 +83,10 @@ export const explicitMap: BeginEndRule = {
     end: /\}/,
     scope: scopes.meta.mapping,
     beginCaptures: {
-        '0': { name: scopes.punctuation.section.braces.begin }
+        '0': { scope: scopes.punctuation.section.braces.begin }
     },
     endCaptures: {
-        '0': { name: scopes.punctuation.section.braces.end }
+        '0': { scope: scopes.punctuation.section.braces.end }
     },
     patterns: [
         { include: '#map-content' }
@@ -100,12 +103,12 @@ export const mappedType: BeginEndRule = {
     end: /\)(\s*:)/,
     scope: 'meta.type.mapped.rcl',
     beginCaptures: {
-        '1': { name: scopes.entity.name.type },
-        '4': { name: scopes.keyword.other },
-        '5': { name: scopes.keyword.other }
+        '1': { scope: scopes.entity.name.type },
+        '4': { scope: scopes.keyword.other },
+        '5': { scope: scopes.keyword.other }
     },
     endCaptures: {
-        '0': { name: scopes.punctuation.definition('type-end') }
+        '0': { scope: scopes.punctuation.definition('type-end') }
     },
     patterns: [
         { include: '#map-content' }

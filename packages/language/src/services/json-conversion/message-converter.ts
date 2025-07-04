@@ -16,7 +16,7 @@ export class MessageConverter {
    * Convert a message section to message dictionary
    */
   convert(messageSection: Section): Record<string, any> {
-    const sectionType = messageSection.type?.toLowerCase() || 'unknown';
+    const sectionType = messageSection.sectionType?.toLowerCase() || 'unknown';
     
     // Convert attributes to properties
     const messageProps = this.valueConverter.convertAttributes(messageSection.attributes);

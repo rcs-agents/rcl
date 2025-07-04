@@ -1,6 +1,6 @@
-import { RclCustomParser } from './lib/parser/rcl-custom-parser.js';
+import { RclParser } from './lib/parser/rcl-custom-parser.js';
 
-const parser = new RclCustomParser();
+const parser = new RclParser();
 
 // Test the actual failing import case
 const input = `import utils as u from "shared/utils"

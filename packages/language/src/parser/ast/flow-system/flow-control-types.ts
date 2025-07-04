@@ -6,6 +6,7 @@
 
 import type { AstNode, Location } from '../core/base-types.js';
 import type { EmbeddedExpression } from '../values/embedded-types.js';
+import type { Parameter } from './parameter-types.js';
 
 /**
  * Flow Operand according to specification
@@ -47,12 +48,4 @@ export interface FlowTransition extends AstNode {
   location?: Location;
 }
 
-/**
- * Parameter for with clauses
- */
-export interface Parameter extends AstNode {
-  type: 'Parameter';
-  name: string;
-  defaultValue: any; // TODO: Define specific value types
-  location?: Location;
-}
+// Parameter is imported from parameter-types.js

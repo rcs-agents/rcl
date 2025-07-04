@@ -9,6 +9,12 @@ import type {
   RclFile,
   AgentDefinition,
   ImportStatement,
+  AgentConfig,
+  AgentDefaults,
+  ConfigProperty,
+  DefaultProperty,
+  FlowSection,
+  MessagesSection,
   Location
 } from '../../ast/index.js';
 
@@ -50,10 +56,10 @@ export class AstFactory {
     name: string,
     displayName: string | null,
     brandName: string | null,
-    config: any,
-    defaults: any,
-    flows: any[],
-    messages: any,
+    config: AgentConfig | null,
+    defaults: AgentDefaults | null,
+    flows: FlowSection[],
+    messages: MessagesSection | null,
     location?: Location
   ): AgentDefinition {
     return {
@@ -69,5 +75,99 @@ export class AstFactory {
     };
   }
 
-  // TODO: Add more factory methods for other AST node types as they are implemented
+  /**
+   * Create AgentConfig node
+   */
+  createAgentConfig(
+    name: string,
+    properties: ConfigProperty[],
+    location?: Location
+  ): AgentConfig {
+    return {
+      type: 'AgentConfig',
+      name,
+      properties,
+      location
+    };
+  }
+
+  /**
+   * Create AgentDefaults node
+   */
+  createAgentDefaults(
+    name: string,
+    properties: DefaultProperty[],
+    location?: Location
+  ): AgentDefaults {
+    return {
+      type: 'AgentDefaults',
+      name,
+      properties,
+      location
+    };
+  }
+
+  /**
+   * Create ConfigProperty node
+   */
+  createConfigProperty(
+    key: string,
+    value: any,
+    location?: Location
+  ): ConfigProperty {
+    return {
+      type: 'ConfigProperty',
+      key,
+      value,
+      location
+    };
+  }
+
+  /**
+   * Create DefaultProperty node
+   */
+  createDefaultProperty(
+    key: string,
+    value: any,
+    location?: Location
+  ): DefaultProperty {
+    return {
+      type: 'DefaultProperty',
+      key,
+      value,
+      location
+    };
+  }
+
+  /**
+   * Create FlowSection node (simplified for now)
+   */
+  createFlowSection(
+    name: string,
+    rules: any[],
+    location?: Location
+  ): FlowSection {
+    return {
+      type: 'FlowSection',
+      name,
+      rules,
+      location
+    } as FlowSection;
+  }
+
+  /**
+   * Create MessagesSection node (simplified for now)
+   */
+  createMessagesSection(
+    name: string,
+    messages: any,
+    location?: Location
+  ): MessagesSection {
+    return {
+      type: 'MessagesSection',
+      name,
+      messages,
+      location
+    } as MessagesSection;
+  }
 }

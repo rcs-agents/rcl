@@ -100,7 +100,7 @@ export class ModeManager {
   /**
    * Start a special mode for multi-line content processing
    */
-  startSpecialMode(modeType: 'string' | 'expression', text: string, offset: number): void {
+  startSpecialMode(modeType: 'string' | 'expression' | 'type_tag', text: string, offset: number): void {
     this.inSpecialMode = true;
     this.specialModeType = modeType;
     
@@ -131,9 +131,9 @@ export class ModeManager {
     tokens: IToken[],
     positionTracker: PositionTracker,
     errorHandler: ErrorHandler
-  ): boolean {
+  ): { processed: boolean; newOffset: number } {
     if (!this.inSpecialMode || !this.specialModeType) {
-      return false;
+      return { processed: false, newOffset: offset };
     }
 
     const content = this.extractIndentedBlock(text, offset, this.specialModeIndent);
@@ -149,15 +149,23 @@ export class ModeManager {
       
       // Update position
       positionTracker.updateFromOffset(text, content.endOffset);
+      
+      // Exit special mode
+      this.inSpecialMode = false;
+      this.specialModeType = null;
+      this.specialModeIndent = 0;
+      this.popMode();
+      
+      return { processed: true, newOffset: content.endOffset };
     }
 
-    // Exit special mode
+    // Exit special mode even if no content found
     this.inSpecialMode = false;
     this.specialModeType = null;
     this.specialModeIndent = 0;
     this.popMode();
 
-    return content !== null;
+    return { processed: false, newOffset: offset };
   }
 
   private pushMode(mode: LexerMode): void {

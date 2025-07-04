@@ -3,7 +3,7 @@ import type { CompletionAcceptor, CompletionContext, NextFeature } from 'langium
 import { DefaultCompletionProvider } from 'langium/lsp';
 import type { Section } from './generated/ast.js';
 import { isSection } from './generated/ast.js';
-import type { SectionTypeRegistry } from './services/section-registry.js';
+import { SectionTypeRegistry } from './services/section-registry.js';
 import type { RclServices } from './rcl-module.js';
 import { KW } from './constants.js';
 
@@ -30,7 +30,7 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
 
   constructor(services: RclServices) {
     super(services);
-    this.registry = services.meta.SectionTypeRegistry;
+    this.registry = new SectionTypeRegistry();
   }
 
   protected override async completionFor(

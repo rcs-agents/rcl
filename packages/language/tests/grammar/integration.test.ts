@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { RclCustomLexer } from '../../src/parser/rcl-custom-lexer.js';
-import { RclCustomParser } from '../../src/parser/rcl-custom-parser.js';
+import { RclLexer } from '../../src/parser/lexer.ts';
+import { RclParser } from '../../src/parser/parser.ts';
 import { AstUtils } from '../../src/parser/rcl-simple-ast.js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -28,14 +28,14 @@ messages:
         text: "How can we help you today?"`;
 
       // Test lexer
-      const lexer = new RclCustomLexer();
+      const lexer = new RclLexer();
       const lexResult = lexer.tokenize(input);
       
       expect(lexResult.errors).toHaveLength(0);
       expect(lexResult.tokens.length).toBeGreaterThan(0);
       
       // Test parser
-      const parser = new RclCustomParser();
+      const parser = new RclParser();
       const parseResult = parser.parse(input);
       
       // Debug: show what errors are generated
@@ -97,7 +97,7 @@ messages Messages:
   text "Please provide your information"
   text "Welcome to our service!"`;
 
-      const parser = new RclCustomParser();
+      const parser = new RclParser();
       const result = parser.parse(input);
       
       // Debug: show what errors are generated
@@ -159,7 +159,7 @@ messages Messages:
         text: "Welcome to BMW Premium Support"
         category: "Premium Customer Service"`;
 
-      const parser = new RclCustomParser();
+      const parser = new RclParser();
       const result = parser.parse(input);
       
       // Debug: show what errors are generated
@@ -217,7 +217,7 @@ messages Messages:
         priority: 1
         urgent: False`;
 
-      const parser = new RclCustomParser();
+      const parser = new RclParser();
       const result = parser.parse(input);
       
       // Debug: show what errors are generated
@@ -277,7 +277,7 @@ agent Another Good Agent:
     description: "This should still parse"
     enabled: True`;
 
-      const parser = new RclCustomParser();
+      const parser = new RclParser();
       const result = parser.parse(input);
       
       // Should have errors but still parse valid parts
@@ -317,7 +317,7 @@ agent Another Good Agent:
       
       const startTime = Date.now();
       
-      const parser = new RclCustomParser();
+      const parser = new RclParser();
       const result = parser.parse(input);
       
       const endTime = Date.now();
@@ -338,7 +338,7 @@ agent Another Good Agent:
         const examplePath = join(process.cwd(), 'examples', 'example.rcl');
         const content = readFileSync(examplePath, 'utf-8');
         
-        const parser = new RclCustomParser();
+        const parser = new RclParser();
         const result = parser.parse(content);
         
         // Should parse without critical errors
@@ -360,7 +360,7 @@ agent Another Good Agent:
         const minimalPath = join(process.cwd(), 'examples', 'minimal.rcl');
         const content = readFileSync(minimalPath, 'utf-8');
         
-        const parser = new RclCustomParser();
+        const parser = new RclParser();
         const result = parser.parse(content);
         
         // Should parse without critical errors

@@ -1,17 +1,17 @@
 import { describe, test, expect, beforeAll } from 'vitest';
-import { RclCustomParser } from '../../src/parser/rcl-custom-parser.js';
-import { RclCustomLexer } from '../../src/parser/rcl-custom-lexer.js';
+import { RclParser } from '../../src/parser/parser.ts';
+import { RclLexer } from '../../src/parser/lexer.ts';
 import { EmptyFileSystem } from 'langium';
 import { createRclServices } from '../../src/rcl-module.js';
 
 describe('RCL Language Performance Tests', () => {
-  let parser: RclCustomParser;
-  let lexer: RclCustomLexer;
+  let parser: RclParser;
+  let lexer: RclLexer;
   let services: ReturnType<typeof createRclServices>;
 
   beforeAll(() => {
-    parser = new RclCustomParser();
-    lexer = new RclCustomLexer();
+    parser = new RclParser();
+    lexer = new RclLexer();
     services = createRclServices(EmptyFileSystem);
   });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclCustomParser } from '../../src/parser/rcl-custom-parser.js';
+import { RclParser } from '../../src/parser/parser.ts';
 import { EmbeddedExpression, EmbeddedCodeBlock } from '../../src/parser/rcl-simple-ast.js';
 
 /**
@@ -9,10 +9,10 @@ import { EmbeddedExpression, EmbeddedCodeBlock } from '../../src/parser/rcl-simp
  * without executing or parsing the embedded language content.
  */
 describe('RCL Embedded Code Storage', () => {
-  let parser: RclCustomParser;
+  let parser: RclParser;
 
   beforeEach(() => {
-    parser = new RclCustomParser();
+    parser = new RclParser();
   });
 
   describe('Single-line Embedded Expressions', () => {

@@ -1,8 +1,8 @@
-import { RclCustomLexer, RclToken } from '../../src/parser/rcl-custom-lexer.js';
+import { RclLexer, RclToken } from '../../src/parser/lexer.ts';
 import { describe, it, expect, beforeEach } from 'vitest';
 
 /**
- * Test suite to demonstrate the RclCustomLexer functionality
+ * Test suite to demonstrate the RclLexer functionality
  * This is not connected to Langium yet - it's a standalone test
  */
 
@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 function testBasicTokenization() {
   console.log('=== Testing Basic Tokenization ===');
   
-  const lexer = new RclCustomLexer();
+  const lexer = new RclLexer();
   const input = `agent Test Agent
   displayName: "My Test Agent"
   brandName: "Test Brand"`;
@@ -35,7 +35,7 @@ function testBasicTokenization() {
 function testIndentation() {
   console.log('=== Testing Indentation ===');
   
-  const lexer = new RclCustomLexer();
+  const lexer = new RclLexer();
   const input = `agent Test Agent
   displayName: "Test"
   flow Welcome Flow
@@ -59,7 +59,7 @@ function testIndentation() {
 function testEmbeddedExpressions() {
   console.log('=== Testing Embedded Expressions ===');
   
-  const lexer = new RclCustomLexer();
+  const lexer = new RclLexer();
   const input = `agent Test Agent
   displayName: $js> "Hello " + context.user.name
   description: $ts> calculateDescription(context)`;
@@ -81,7 +81,7 @@ function testEmbeddedExpressions() {
 function testTypeTags() {
   console.log('=== Testing Type Tags ===');
   
-  const lexer = new RclCustomLexer();
+  const lexer = new RclLexer();
   const input = `contact:
   email: <email user@example.com>
   phone: <phone +1234567890>
@@ -104,7 +104,7 @@ function testTypeTags() {
 function testKeywords() {
   console.log('=== Testing Keywords ===');
   
-  const lexer = new RclCustomLexer();
+  const lexer = new RclLexer();
   const input = `config:
   enabled: True
   debug: False
@@ -128,7 +128,7 @@ function testKeywords() {
 function testMessageShortcuts() {
   console.log('=== Testing Message Shortcuts ===');
   
-  const lexer = new RclCustomLexer();
+  const lexer = new RclLexer();
   const input = `messages Messages
   text "Welcome to our service!"
   richCard "Product Info"
@@ -153,7 +153,7 @@ function testMessageShortcuts() {
 function testSpaceSeparatedIdentifiers() {
   console.log('=== Testing Space-Separated Identifiers ===');
   
-  const lexer = new RclCustomLexer();
+  const lexer = new RclLexer();
   const input = `agent BMW Customer Service
   flow Contact Support Flow
   agentMessage Welcome Message
@@ -176,7 +176,7 @@ function testSpaceSeparatedIdentifiers() {
 function testErrorHandling() {
   console.log('=== Testing Error Handling ===');
   
-  const lexer = new RclCustomLexer();
+  const lexer = new RclLexer();
   const input = `agent Test Agent
   displayName: "Unclosed string
   invalidChar: @#$%`;
@@ -227,11 +227,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   runAllTests();
 }
 
-describe('RclCustomLexer', () => {
-  let lexer: RclCustomLexer;
+describe('RclLexer', () => {
+  let lexer: RclLexer;
 
   beforeEach(() => {
-    lexer = new RclCustomLexer();
+    lexer = new RclLexer();
   });
 
   describe('Basic Tokenization', () => {

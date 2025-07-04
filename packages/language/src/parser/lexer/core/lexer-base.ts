@@ -5,8 +5,7 @@
  * Handles indentation-sensitive parsing, multi-mode lexing, and proper error recovery.
  */
 
-import type { IToken, TokenType, ILexingError, IMultiModeLexerDefinition } from 'chevrotain';
-import { Lexer } from 'chevrotain';
+import type { IToken, TokenType, IMultiModeLexerDefinition } from 'chevrotain';
 import { RclTokens } from '../tokens/token-definitions.js';
 import { IndentationHandler } from './indentation-handler.js';
 import { PositionTracker } from './position-tracker.js';
@@ -93,13 +92,21 @@ export class RclLexer {
   private tryMatchToken(): boolean {
     // Handle multi-line blocks in special modes
     if (this.modeManager.isInSpecialMode()) {
-      return this.modeManager.handleSpecialModeContent(
+      const result = this.modeManager.handleSpecialModeContent(
         this.text,
         this.offset,
         this.tokens,
         this.positionTracker,
         this.errorHandler
       );
+      
+      if (result.processed) {
+        this.offset = result.newOffset;
+        this.positionTracker.updateFromOffset(this.text, result.newOffset);
+        return true;
+      }
+      
+      return false;
     }
 
     // Handle indentation at start of line

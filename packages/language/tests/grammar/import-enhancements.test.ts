@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclCustomParser } from '../../src/parser/rcl-custom-parser.js';
+import { RclParser } from '../../src/parser/parser.ts';
 import { ImportStatement } from '../../src/parser/rcl-simple-ast.js';
 import { resolveImportPath, findProjectRoot, type FileSystemInterface, webFileSystemMock } from '../../src/utils/filesystem.js';
 
@@ -11,10 +11,10 @@ import { resolveImportPath, findProjectRoot, type FileSystemInterface, webFileSy
  * Updated to comply with RCL formal specification (no 'from' clause).
  */
 describe('RCL Import Statement Enhancements', () => {
-  let parser: RclCustomParser;
+  let parser: RclParser;
 
   beforeEach(() => {
-    parser = new RclCustomParser();
+    parser = new RclParser();
   });
 
   describe('Basic Import Statements (Already Working)', () => {

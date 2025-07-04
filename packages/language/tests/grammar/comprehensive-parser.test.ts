@@ -1,13 +1,13 @@
 import { describe, test, expect, beforeAll } from 'vitest';
-import { RclCustomParser } from '../../src/parser/rcl-custom-parser.js';
+import { RclParser } from '../../src/parser/parser.ts';
 import { AstUtils } from '../../src/parser/rcl-simple-ast.js';
 import type { RclFile, Section, Value } from '../../src/parser/rcl-simple-ast.js';
 
 describe('Comprehensive RCL Parser Tests', () => {
-  let parser: RclCustomParser;
+  let parser: RclParser;
 
   beforeAll(() => {
-    parser = new RclCustomParser();
+    parser = new RclParser();
   });
 
   describe('Agent Section Parsing', () => {

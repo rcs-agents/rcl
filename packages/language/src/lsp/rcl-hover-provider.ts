@@ -12,14 +12,14 @@ import {
   type TypeConversion 
 } from '../generated/ast.js';
 import type { RclServices } from '../rcl-module.js';
-import type { SectionTypeRegistry } from '../services/section-registry.js';
+import { SectionTypeRegistry } from '../services/section-registry.js';
 
 export class RclHoverProvider extends AstNodeHoverProvider {
   protected readonly sectionRegistry: SectionTypeRegistry;
 
   constructor(services: RclServices) {
     super(services);
-    this.sectionRegistry = services.meta.SectionTypeRegistry;
+    this.sectionRegistry = new SectionTypeRegistry();
   }
 
   protected override getAstNodeHoverContent(node: AstNode, cancelToken?: CancellationToken): MaybePromise<Hover | undefined> {
