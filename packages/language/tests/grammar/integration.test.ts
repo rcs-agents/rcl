@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { RclLexer } from '../../src/parser/lexer.ts';
-import { RclParser } from '../../src/parser/parser.ts';
+import { RclLexer } from '../../src/parser/lexer/index.js';
+import { RclParser } from '../../src/parser/parser/index.js';
 import { AstUtils } from '../../src/parser/rcl-simple-ast.js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

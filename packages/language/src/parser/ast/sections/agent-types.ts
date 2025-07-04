@@ -4,9 +4,11 @@
  * Types for agent definitions, configurations, and defaults according to the formal specification.
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 import type { FlowSection } from './flow-types.js';
 import type { MessagesSection } from './message-types.js';
+import type { Section } from './section-base.js';
 
 /**
  * Agent Definition according to formal specification:
@@ -19,7 +21,7 @@ import type { MessagesSection } from './message-types.js';
  *   MessagesSection
  *   DEDENT
  */
-export interface AgentDefinition extends AstNode {
+export interface AgentDefinition extends Section {
   type: 'AgentDefinition';
   name: string;
   displayName: string | null;  // Required per specification

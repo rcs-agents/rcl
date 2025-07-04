@@ -235,7 +235,7 @@ describe('Error Handling Improvements', () => {
     
     // Should not crash and should report helpful errors
     expect(result.errors.length).toBeGreaterThan(0);
-    expect(result.errors[0].message).toContain('Unexpected character');
+    expect(result.errors[0].message).toContain('Malformed embedded expression');
   });
 
   test('should recover from indentation errors gracefully', () => {

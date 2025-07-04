@@ -6,15 +6,20 @@
     "rootDir": ".",
     "allowImportingTsExtensions": true,
     "paths": {
-      "#src": ["./src/index.ts"],
+      "#src": [
+        "./src/index.ts",
+        "./src/index.js"
+      ],
       "#src/*": [
         "./src/*/index.ts",
         "./src/*.ts",
-        "./src/*.js"
+        "./src/*.js",
+        "./src/*"
       ],
       "#tests/*": [
         "./tests/*.ts",
-        "./tests/*.js"
+        "./tests/*.js",
+        "./tests/*"
       ]
     },
   },

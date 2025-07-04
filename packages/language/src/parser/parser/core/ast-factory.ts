@@ -23,11 +23,12 @@ export class AstFactory {
   /**
    * Create RclFile node
    */
-  createRclFile(imports: ImportStatement[], agentDefinition: AgentDefinition | null): RclFile {
+  createRclFile(imports: ImportStatement[], agentSection: AgentDefinition | null): RclFile {
     return {
+      $type: 'RclFile',
       type: 'RclFile',
       imports,
-      agentDefinition
+      agentSection
     };
   }
 
@@ -41,6 +42,7 @@ export class AstFactory {
     location?: Location
   ): ImportStatement {
     return {
+      $type: 'ImportStatement',
       type: 'ImportStatement',
       importPath,
       alias,
@@ -63,6 +65,7 @@ export class AstFactory {
     location?: Location
   ): AgentDefinition {
     return {
+      $type: 'AgentDefinition',
       type: 'AgentDefinition',
       name,
       displayName,
@@ -84,6 +87,7 @@ export class AstFactory {
     location?: Location
   ): AgentConfig {
     return {
+      $type: 'AgentConfig',
       type: 'AgentConfig',
       name,
       properties,
@@ -100,6 +104,7 @@ export class AstFactory {
     location?: Location
   ): AgentDefaults {
     return {
+      $type: 'AgentDefaults',
       type: 'AgentDefaults',
       name,
       properties,
@@ -116,6 +121,7 @@ export class AstFactory {
     location?: Location
   ): ConfigProperty {
     return {
+      $type: 'ConfigProperty',
       type: 'ConfigProperty',
       key,
       value,
@@ -132,6 +138,7 @@ export class AstFactory {
     location?: Location
   ): DefaultProperty {
     return {
+      $type: 'DefaultProperty',
       type: 'DefaultProperty',
       key,
       value,
@@ -148,6 +155,7 @@ export class AstFactory {
     location?: Location
   ): FlowSection {
     return {
+      $type: 'FlowSection',
       type: 'FlowSection',
       name,
       rules,
@@ -164,6 +172,7 @@ export class AstFactory {
     location?: Location
   ): MessagesSection {
     return {
+      $type: 'MessagesSection',
       type: 'MessagesSection',
       name,
       messages,

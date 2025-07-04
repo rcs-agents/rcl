@@ -16,38 +16,30 @@ export const scopes = scopesFor({
 }, {
   // Custom meta scopes for RCL language structures
   meta: {
-    section: {
-      agent: null,
-      agentConfig: null,
-      agentDefaults: null,
-      flow: null,
-      flows: null,
-      messages: null,
-    },
-    message: {
-      definition: null,
-      shortcut: null,
-    },
-    flow: {
-      transition: null,
-      rule: null,
-    },
-    when: {
-      clause: null,
-    },
-    with: {
-      clause: null,
-    },
-    interpolation: {
-      single: null,
-      multi: null,
-    },
-    import: {
-      statement: null,
-    },
-    type: {
-      tag: null,
-    },
+    section: null,
+    section_agent: null,
+    section_agentConfig: null,
+    section_agentDefaults: null,
+    section_flow: null,
+    section_flows: null,
+    section_messages: null,
+    message: null,
+    message_definition: null,
+    message_shortcut: null,
+    flow: null,
+    flow_transition: null,
+    flow_rule: null,
+    when: null,
+    when_clause: null,
+    with: null,
+    with_clause: null,
+    interpolation: null,
+    interpolation_single: null,
+    interpolation_multi: null,
+    import: null,
+    import_statement: null,
+    type: null,
+    type_tag: null,
   },
   
   // Custom entity scopes for RCL identifiers and names
@@ -74,21 +66,47 @@ export const scopes = scopesFor({
   // Custom keyword scopes for RCL-specific concepts
   keyword: {
     control: {
+      import: null,
       section: null,
       message: null,
       action: null,
       flow: null,
+      conditional: null,
       comparison: null,
     },
     operator: {
+      logical: null,
+      comparison: null,
       arrow: null,
     },
   },
   
   // Custom constant scopes for RCL literals
   constant: {
-    numeric: {
-      duration: null,
+    language: null,
+    numeric: null,
+    numeric_duration: null,
+    other: null,
+  },
+  
+  // Storage scopes
+  storage: {
+    type: null,
+    modifier: null,
+  },
+  
+  // String scopes
+  string: {
+    quoted: {
+      double: null,
+    },
+    unquoted: null,
+  },
+  
+  // Comment scopes
+  comment: {
+    line: {
+      number_sign: null,
     },
   },
   
@@ -135,7 +153,7 @@ export const scopeGroups = {
       unquoted: scopes.string.unquoted,
     },
     number: scopes.constant.numeric,
-    duration: scopes.constant.numeric.duration,
+    duration: scopes.constant.numeric_duration,
     boolean: scopes.constant.language,
     null: scopes.constant.language,
     atom: scopes.constant.other,
@@ -162,16 +180,17 @@ export const scopeGroups = {
   // Meta scopes for structure
   meta: {
     section: scopes.meta.section, // Base section
-    messageDefinition: scopes.meta.message,
-    messageShortcut: scopes.meta.message,
-    flowTransition: scopes.meta.flow,
-    flowRule: scopes.meta.flow,
-    whenClause: scopes.meta.when,
-    withClause: scopes.meta.with,
+    section_agentConfig: scopes.meta.section_agentConfig,
+    section_agentDefaults: scopes.meta.section_agentDefaults,
+    messageDefinition: scopes.meta.message_definition,
+    messageShortcut: scopes.meta.message_shortcut,
+    flowTransition: scopes.meta.flow_transition,
+    flowRule: scopes.meta.flow_rule,
+    whenClause: scopes.meta.when_clause,
+    withClause: scopes.meta.with_clause,
     interpolation: scopes.meta.interpolation,
-    importStatement: scopes.meta.import,
-    typeTag: scopes.meta.type,
-
+    importStatement: scopes.meta.import_statement,
+    typeTag: scopes.meta.type_tag,
   },
   
   // Punctuation

@@ -1,6 +1,6 @@
 import type { ValidationAcceptor } from 'langium';
-import type { EmbeddedCodeExpression } from '../generated/ast.js';
-import { KW } from '../constants.js'; // Import KW
+import type { EmbeddedCodeExpression } from '#src/parser/ast';
+import { KW } from '#src/constants.js'; // Import KW
 
 // Define SyntaxError locally as in the plan if not imported from a general utility
 class SyntaxError extends Error { // Basic error classes as per plan

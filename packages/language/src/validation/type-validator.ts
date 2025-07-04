@@ -1,7 +1,6 @@
 import type { ValidationAcceptor } from 'langium';
-import type { TypeConversion } from '../generated/ast.js';
-import { isTypeConversion } from '../generated/ast.js';
-import { KW } from '../constants.js';
+import type { TypeConversion } from '#src/parser/ast';
+import { KW } from '#src/constants.js';
 
 /**
  * Validates type conversions and type constraints.
@@ -15,13 +14,13 @@ export class TypeValidator {
    * Validate a TypeConversion node
    */
   checkTypeConversion(typeConversion: TypeConversion, accept: ValidationAcceptor): void {
-    const typeName = typeConversion.target;
+    const typeName = typeConversion.typeName;
     const value = this.getTypeConversionValue(typeConversion);
 
     if (!typeName) {
       accept('error', 'Type conversion must specify a target type', {
         node: typeConversion,
-        property: 'target',
+        property: 'typeName',
         code: 'missing-type'
       });
       return;
@@ -31,7 +30,7 @@ export class TypeValidator {
     if (!validator) {
       accept('error', `Unknown type: ${typeName}`, {
         node: typeConversion,
-        property: 'target',
+        property: 'typeName',
         code: 'unknown-type'
       });
       return;
@@ -60,25 +59,7 @@ export class TypeValidator {
    * Get the string value from SimpleValue
    */
   private getTypeConversionValue(typeConversion: TypeConversion): string | undefined {
-    const value = typeConversion.value;
-    if (!value) return undefined;
-
-    // Handle SimpleValue with a value property
-    if (value.value) {
-      return value.value;
-    }
-
-    // For nested TypeConversion
-    if (isTypeConversion(value)) {
-      return this.getTypeConversionValue(value);
-    }
-
-    // Try to extract from CST if available
-    if (value.$cstNode) {
-      return value.$cstNode.text;
-    }
-
-    return undefined;
+    return typeConversion.value;
   }
 
   /**

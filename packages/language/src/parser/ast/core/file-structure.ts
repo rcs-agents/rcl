@@ -4,7 +4,8 @@
  * Types for the top-level RCL file structure according to the formal specification.
  */
 
-import type { AstNode, Location } from './base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from './base-types.js';
 import type { AgentDefinition } from '../sections/agent-types.js';
 
 /**
@@ -14,7 +15,7 @@ import type { AgentDefinition } from '../sections/agent-types.js';
 export interface RclFile extends AstNode {
   type: 'RclFile';
   imports: ImportStatement[];
-  agentDefinition: AgentDefinition | null;
+  agentSection: AgentDefinition | null;
 }
 
 /**

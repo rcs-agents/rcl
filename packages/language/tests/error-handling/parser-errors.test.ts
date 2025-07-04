@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeAll, afterEach } from 'vitest';
-import { RclParser } from '../../src/parser/parser.ts';
-import { RclLexer } from '../../src/parser/lexer.ts';
+import { RclParser } from '../../src/parser/parser/index.js';
+import { RclLexer } from '../../src/parser/lexer/index.js';
 
 describe('RCL Parser Error Handling Tests', () => {
   let parser: RclParser;

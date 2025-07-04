@@ -1,28 +1,32 @@
-import type { ValidationAcceptor } from 'langium';
-import type { LangiumDocument } from 'langium';
-import type { CancellationToken } from 'vscode-languageserver-protocol';
-import type { RclFile, Section, FlowRule, TypeConversion } from './generated/ast.js';
+import type { Section, TypeConversion } from './parser/ast/index.js';
+import { isRclFile } from './parser/ast/type-guards.js';
+import type { RclFile } from './parser/ast/core/file-structure.js';
+import type { FlowRule } from './parser/ast/flow-system/index.js';
+import { ValidationAcceptor } from 'langium';
+import { DependencyValidator } from './validation/dependency-validator.js';
+import { SectionValidator } from './validation/section-validator.js';
+import { TypeValidator } from './validation/type-validator.js';
+import { ConstraintValidator } from './validation/constraint-validator.js';
+import { ReferenceResolver } from './validation/reference-resolver.js';
 import type { RclServices } from './rcl-module.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
-import { SectionValidator } from './validation/section-validator.js';
-import { DependencyValidator } from './validation/dependency-validator.js';
-import { TypeValidator } from './validation/type-validator.js';
-import { KW } from './constants.js';
 
 /**
  * Registry for custom validation checks.
  */
 export class RclValidator {
-  private sectionRegistry: SectionTypeRegistry;
   private sectionValidator: SectionValidator;
   private dependencyValidator: DependencyValidator;
   private typeValidator: TypeValidator;
+  private constraintValidator: ConstraintValidator;
+  private referenceResolver: ReferenceResolver;
 
   constructor(services: RclServices) {
-    this.sectionRegistry = new SectionTypeRegistry();
-    this.sectionValidator = new SectionValidator(this.sectionRegistry);
+    this.sectionValidator = new SectionValidator(new SectionTypeRegistry());
     this.dependencyValidator = new DependencyValidator();
     this.typeValidator = new TypeValidator();
+    this.constraintValidator = new ConstraintValidator();
+    this.referenceResolver = new ReferenceResolver();
   }
 
   /**
@@ -36,22 +40,28 @@ export class RclValidator {
    * Validate RCL file structure
    */
   checkRclFile(rclFile: RclFile, accept: ValidationAcceptor): void {
-    // Ensure there is exactly one agent section at the root
-    if (!rclFile.agentSection) {
-      accept('error', 'RCL file must contain exactly one agent section', {
-        node: rclFile
-      });
-      return;
-    }
-
-    // Ensure the root section is an agent section
-    let rootSectionType = rclFile.agentSection.type;
-
-    if (rootSectionType !== KW.Agent) {
-      accept('error', `Root section must be of type '${KW.Agent}', found '${rootSectionType || 'unknown'}'`, {
-        node: rclFile.agentSection,
-        property: 'type'
-      });
+    if (isRclFile(rclFile)) {
+      const rootSection = rclFile.agentSection;
+      if (rootSection) {
+        const rootSectionType = rootSection.type;
+        if (rootSectionType !== 'AgentDefinition') {
+          accept('error', 'The root of an RCL file must be an "Agent" section.', { node: rootSection });
+        }
+        
+        // Run comprehensive validation on the agent definition
+        this.constraintValidator.validateAgentDefinition(rootSection, accept);
+      } else {
+        accept('error', 'RCL file must contain an Agent section.', { node: rclFile });
+      }
+      
+      // Resolve and validate all references
+      this.referenceResolver.resolveFileReferences(rclFile, accept);
+      
+      // Check for circular dependencies if agent section exists
+      if (rclFile.agentSection) {
+        const resolution = this.referenceResolver.resolveFileReferences(rclFile, accept);
+        this.referenceResolver.checkCircularDependencies(rclFile.agentSection, resolution, accept);
+      }
     }
   }
 
@@ -61,6 +71,7 @@ export class RclValidator {
   checkFlowRule(flowRule: FlowRule, accept: ValidationAcceptor): void {
     this.dependencyValidator.checkFlowRuleCycles(flowRule, accept);
     this.dependencyValidator.checkFlowReachability(flowRule, accept);
+    this.dependencyValidator.checkFlowReferences(flowRule, accept);
   }
 
   /**
@@ -68,14 +79,6 @@ export class RclValidator {
    */
   checkTypeConversion(typeConversion: TypeConversion, accept: ValidationAcceptor): void {
     this.typeValidator.checkTypeConversion(typeConversion, accept);
-  }
-
-  protected checkDocument(
-    document: LangiumDocument<RclFile>,
-    cancelToken: CancellationToken
-  ): Promise<void> {
-    // Implementation placeholder
-    return Promise.resolve();
   }
 }
 

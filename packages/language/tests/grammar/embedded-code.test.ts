@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclParser } from '../../src/parser/parser.ts';
+import { RclParser } from '../../src/parser/parser/index.js';
 import { EmbeddedExpression, EmbeddedCodeBlock } from '../../src/parser/rcl-simple-ast.js';
 
 /**

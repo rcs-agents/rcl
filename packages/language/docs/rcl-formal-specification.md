@@ -49,7 +49,7 @@ _Note on Whitespace within Rules:_ The `WS` hidden terminal allows for optional 
 ### 2.3 Common Terminals
 ```ebnf
 IDENTIFIER ::= /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*/  // Title/Proper Noun names (TitleCase with spaces and hyphens). Each word starts with uppercase letter or number.
-ATTRIBUTE_KEY ::= /[a-z][a-zA-Z0-9_]*/              // Used for common noun attribute/property keys (lowercase start, letters, numbers, underscore).
+ATTRIBUTE_KEY ::= /[a-z][a-zA-Z0-9_]*(?=\s*:)/              // Used for common noun attribute/property keys (lowercase start, letters, numbers, underscore).
 SECTION_TYPE ::= /[a-z][a-zA-Z0-9]*/               // Used for section type keywords (lowercase start).
 ATOM ::= /:([_a-zA-Z][\w_]*|"[^"\\]*")/ // e.g., :symbol or :"quoted symbol". Enum values are lowercase (e.g., :transactional, :promotional).
 STRING ::= /"(\\.|[^"\\])*"/           // Double-quoted strings with standard escape sequences. Single quotes are reserved for 's accessor operator.
@@ -277,6 +277,11 @@ FlowSection ::=
 FlowRule ::=
     FlowOperandOrExpression ('->' FlowOperandOrExpression)+ // One or more steps in the rule.
     (WithClause)?
+    (WhenClause)*
+
+WhenClause ::=
+    'when' EmbeddedCode
+
 
 FlowOperand ::= ATOM | IDENTIFIER | STRING // Literal operands in a flow.
 

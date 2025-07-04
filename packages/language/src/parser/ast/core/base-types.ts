@@ -24,7 +24,13 @@ export interface Location {
 /**
  * Base interface for all AST nodes
  */
-export interface AstNode {
+export interface BaseAstNode {
   type: string;
   location?: Location;
+}
+
+export interface Attribute {
+  $type: string;
+  key: string;
+  value: any;
 }

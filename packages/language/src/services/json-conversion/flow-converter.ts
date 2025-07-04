@@ -1,30 +1,27 @@
-import type { Section, FlowRule } from '../../generated/ast.js';
-import { isFlowRule } from '../../generated/ast.js';
-import { ValueConverter } from './value-converter.js';
+import type { FlowSection } from '../../parser/ast/index.js';
+import { isFlowRule } from '../../parser/ast/type-guards.js';
+import type { FlowRule, FlowOperand } from '../../parser/ast/index.js';
 
 /**
  * Converts RCL flow sections to XState-compatible configurations
  * Note: Simplified implementation for current grammar structure
  */
 export class FlowConverter {
-  private valueConverter: ValueConverter;
-
   constructor() {
-    this.valueConverter = new ValueConverter();
   }
 
   /**
    * Convert a flow section to XState configuration
    */
-  convert(flowSection: Section): Record<string, any> {
+  convert(flowSection: FlowSection): Record<string, any> {
     const states: Record<string, any> = {};
     const transitions: Record<string, any> = {};
     
-    // Extract flow attributes for configuration
-    const flowAttributes = this.valueConverter.convertAttributes(flowSection.attributes);
+    // Extract flow attributes for configuration (FlowSection doesn't have attributes)
+    const flowAttributes = {};
     
     // Process flow content to find flow rules
-    for (const flowContent of flowSection.flowContent) {
+    for (const flowContent of flowSection.rules) {
       if (isFlowRule(flowContent)) {
         this.processFlowRule(flowContent, states, transitions);
       }
@@ -52,54 +49,39 @@ export class FlowConverter {
    * Process a single flow rule and update states/transitions
    */
   private processFlowRule(rule: FlowRule, states: Record<string, any>, transitions: Record<string, any>): void {
-    const sourceState = this.getStateFromOperand(rule.source);
+    for (let i = 0; i < rule.operands.length - 1; i++) {
+      const sourceOperand = rule.operands[i];
+      const targetOperand = rule.operands[i+1];
 
-    // Ensure source state exists
-    if (!states[sourceState]) {
-      states[sourceState] = {
-        on: {}
-      };
-    }
+      const sourceState = this.getStateFromOperand(sourceOperand);
+      const targetState = this.getStateFromOperand(targetOperand);
 
-    // Process each transition
-    if (rule.destination?.ref) {
-      const targetState = this.getStateFromOperand(rule.destination.ref.name);
-
-      // Ensure target state exists
+      if (!states[sourceState]) {
+        states[sourceState] = { on: {} };
+      }
       if (!states[targetState]) {
-        states[targetState] = {
-          on: {}
-        };
+        states[targetState] = { on: {} };
       }
 
-      // Create transition
-      const transitionEvent = this.createTransitionEvent(rule.source, rule.destination.ref.name);
-      
+      const transitionEvent = this.createTransitionEvent(sourceState, targetState);
       if (!states[sourceState].on[transitionEvent]) {
         states[sourceState].on[transitionEvent] = {
           target: targetState,
-          actions: this.createTransitionActions(rule.source, rule.destination.ref.name)
+          actions: this.createTransitionActions(sourceState, targetState)
         };
       }
     }
   }
 
   /**
-   * Extract state name from flow operand (now a string)
+   * Extract state name from flow operand
    */
-  private getStateFromOperand(operand: string): string {
-    if (!operand) return 'unknown';
+  private getStateFromOperand(operand: FlowOperand): string {
+    if (!operand || !operand.value) return 'unknown';
     
-    // Handle special prefixes
-    if (operand.startsWith(':')) {
-      return this.sanitizeStateName(operand.slice(1));
-    }
-    
-    // Remove quotes if present
-    let cleaned = operand;
-    if ((operand.startsWith('"') && operand.endsWith('"')) || 
-        (operand.startsWith("'") && operand.endsWith("'"))) {
-      cleaned = operand.slice(1, -1);
+    let cleaned = operand.value;
+    if (operand.operandType === 'atom') {
+      cleaned = cleaned.slice(1);
     }
     
     return this.sanitizeStateName(cleaned);
@@ -119,27 +101,8 @@ export class FlowConverter {
    * Create transition event name
    */
   private createTransitionEvent(source: string, target: string): string {
-    const targetStr = this.operandToString(target);
-    return `TO_${this.sanitizeStateName(targetStr).toUpperCase()}`;
-  }
-
-  /**
-   * Convert operand to string representation (simplified)
-   */
-  private operandToString(operand: string): string {
-    if (!operand) return 'unknown';
-    
-    // Remove special prefixes and quotes
-    let result = operand;
-    if (result.startsWith(':')) {
-      result = result.slice(1);
-    }
-    if ((result.startsWith('"') && result.endsWith('"')) || 
-        (result.startsWith("'") && result.endsWith("'"))) {
-      result = result.slice(1, -1);
-    }
-    
-    return result || 'unknown';
+    const targetStr = this.sanitizeStateName(target);
+    return `TO_${targetStr.toUpperCase()}`;
   }
 
   /**
@@ -148,8 +111,8 @@ export class FlowConverter {
   private createTransitionActions(source: string, target: string): any[] {
     const actions: any[] = [];
 
-    const sourceStr = this.operandToString(source);
-    const targetStr = this.operandToString(target);
+    const sourceStr = this.sanitizeStateName(source);
+    const targetStr = this.sanitizeStateName(target);
 
     // Add logging action
     actions.push({
@@ -162,7 +125,9 @@ export class FlowConverter {
     });
 
     // Add message handling if operands suggest messaging
-    if (this.isMessageOperand(source) || this.isMessageOperand(target)) {
+    const sourceOperand = { value: source, $type: 'FlowOperand', type: 'FlowOperand', operandType: 'identifier' } as FlowOperand;
+    const targetOperand = { value: target, $type: 'FlowOperand', type: 'FlowOperand', operandType: 'identifier' } as FlowOperand;
+    if (this.isMessageOperand(sourceOperand) || this.isMessageOperand(targetOperand)) {
       actions.push({
         type: 'handleMessage',
         params: {
@@ -179,8 +144,8 @@ export class FlowConverter {
   /**
    * Check if an operand represents a message (simplified)
    */
-  private isMessageOperand(operand: string): boolean {
-    const str = this.operandToString(operand).toLowerCase();
+  private isMessageOperand(operand: FlowOperand): boolean {
+    const str = (operand.value || '').toLowerCase();
     return str.includes('message') || 
            str.includes('reply') || 
            str.includes('response') ||

@@ -474,7 +474,7 @@ terminal TRUE_KW: /\b(True|On|Yes|Active|Enabled)\b/;
 terminal FALSE_KW: /\b(False|Off|No|Inactive|Disabled)\b/;
 terminal NULL_KW: /\b(Null|None|Void|null)\b/;
 
-terminal IDENTIFIER: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*\b/;
+terminal IDENTIFIER: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9]))*/;
 
 terminal ATTRIBUTE_KEY: /[a-z][a-zA-Z0-9_]*(?=\s*:)/;
 

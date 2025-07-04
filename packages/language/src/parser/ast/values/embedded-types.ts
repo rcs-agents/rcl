@@ -4,7 +4,8 @@
  * Types for embedded JavaScript/TypeScript expressions in RCL.
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 
 /**
  * Single-line embedded expression: $js> code, $ts> code, $> code

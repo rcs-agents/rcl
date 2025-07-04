@@ -1,0 +1,625 @@
+agent "BMW Conversational Agent"
+    displayName: "BMW"
+    brandName: "BMW"
+
+    agentConfig Config
+        description: "BMW assistant for exploring the brand's vision and products."
+        logoUri: "<url https://www.bmw.com/favicon.ico>"
+        color: "#0066B1"
+
+    messages Messages
+        agentMessage MsgWelcome
+            contentMessage
+                richCard
+                    standaloneCard
+                        cardContent
+                            text: |
+                                We're excited to connect with you
+
+                                BMW is more than a car brand. It's a commitment to today's world and tomorrow's possibilities, respecting the environment we share and honoring the people who craft our ultimate driving machines. BMW embodies vision, creativity, and the joy of innovation. It carries a rich history and fuels the promise of the future. We invite you to truly get to know us. Welcome to BMW.
+                            suggestion
+                                reply text: "CIRCULAR WORLD"
+                            suggestion
+                                reply text: "DIGITAL JOURNEY"
+                            suggestion
+                                reply text: "ELECTRIC FUTURE"
+                            suggestion
+                                reply text: "FREUD"
+                            suggestion
+                                reply text: "QUIZ"
+
+        agentMessage MsgCircularWorld
+            contentMessage
+                richCard
+                    standaloneCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image1.png>"
+                            text: |
+                                We believe the ultimate driving experience happens in a bond between driver and car, but there is also a third part of this equation: the road. You deserve to see the paths carved everywhere around the world through the best possible light. There are many variables that affect this experience, that's why BMW works to protect the environment that hosts the landscapes you watch through your window.
+                                The work of today is the energy of tomorrow, and that energy will power us through roads of a cleaner world.
+
+                                As you explore our initiatives, you'll notice references to several of the 17 Sustainable Development Goals (SDGs) outlined in the UN's Agenda 2030. This global action plan guides us toward a more livable future, and at BMW, we are committed to making a meaningful impact in achieving these goals.
+                            suggestion
+                                reply text: "What we aim"
+                            suggestion
+                                reply text: "What already impacts the present"
+
+        agentMessage MsgCircularWorldAim
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            title: "What we aim"
+                            media
+                                file fileUrl: "<url https://example.com/image2.png>"
+                            text: |
+                                BMW aims to establish a circular economy that enables high-quality recycling. We continuously look for and implement ways to improve our recycling processes, no matter how small, because every possibility can make a difference.
+
+                                We are fully committed to the Paris Climate Agreement and achieving net-zero emissions by 2050. To get there, we've set ambitious, science-based targets to cut CO₂e emissions by at least 40 million tonnes by 2030 compared to 2019.
+
+                                Our efforts include ramping up sales of fully electric vehicles, which rose from 215,752 in 2022 to 426,594 in 2024. We expect at least 50% of global sales to be fully electric by 2030, putting about 10 million electric BMWs on the road.
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image3.png>"
+                            text: |
+                                Every journey on the road is shaped by countless people, and their rights also deserve protection. That's why BMW is committed to safeguarding human rights throughout the entire supply chain, long before materials arrive at our factories. This is how we take responsibility at every step to build a truly circular world. Discover more about our efforts in these countries:
+                            suggestion
+                                reply text: "CONGO"
+                            suggestion
+                                reply text: "CHILE"
+                            suggestion
+                                reply text: "INDONESIA"
+                            suggestion
+                                reply text: "INDIA"
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image4.png>"
+                            text: "While taking responsibility for our raw material supply, we also continuously elevate the use of secondary materials to power sustainable progress."
+                            suggestion
+                                reply text: "Our responsibility towards raw materials"
+                            suggestion
+                                reply text: "CIRCULAR ECONOMY – Secondary materials become the protagonist"
+
+        agentMessage MsgCircularWorldPresent
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            title: "What already impacts the present"
+                            media
+                                file fileUrl: "<url https://example.com/image5.png>"
+                            text: "All energy used in BMW Group production comes from renewable sources, and we are increasing direct purchases from specific renewable plants through Power Purchase Agreements. By combining circularity, electrification, and renewable energy, BMW Group is advancing toward a more sustainable, low-carbon future."
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image6.png>"
+                            text: |
+                                We're increasing the number of **emission-free kilometers** driven by expanding **eDrive Zones**. We're also reducing fuel consumption and extending vehicle range through our **Efficient Dynamics** innovations. Importantly, we remain **open to all technologies** in our pursuit of sustainable mobility. The BMW Group continues to aggressively advance its fleet electrification. In **2024**, our sales of **electrified vehicles reached 593,215 units**, making up **24.2% of our total sales**. Of those, **fully electric vehicles accounted for 17.4%** of our total sales.
+
+                                In **2025**, the BMW Group expects to offer **fully electric cars in almost every key market segment**, with **more than 15 all-electric models** across our various brands available.
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image7.png>"
+                            text: "We take responsibility for the chain that supplies us with raw materials, continuously advancing the use of secondary materials to drive sustainable progress. Learn more about it:"
+                            suggestion
+                                reply text: "Our responsibility towards raw materials"
+                            suggestion
+                                reply text: "CIRCULAR ECONOMY"
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image8.png>"
+                            text: "Behind every road trip are many hands and lives that must be respected and protected. BMW ensures human rights are upheld across our supply chain, starting well before production begins. This holistic approach drives our mission to create a sustainable, circular future. Explore our work in these countries:"
+                            suggestion
+                                reply text: "CONGO"
+                            suggestion
+                                reply text: "CHILE"
+                            suggestion
+                                reply text: "INDONESIA"
+                            suggestion
+                                reply text: "INDIA"
+
+        agentMessage MsgRawMaterialsResponsibility
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image9.png>"
+                            text: |
+                                Raw material extraction affects workers throughout the entire supply chain, not just those closest to the BMW Group. We are committed to caring for both the materials in our vehicles and the people who extract them, recognizing that ethical responsibility goes beyond supply: it's about people.
+
+                                BMW Group participates in multiple initiatives to promote responsible raw material management and ensures environmental and social compliance through a rigorous, multi-stage due diligence process.
+
+                                Learn about our initiatives: open in webview
+                            suggestion
+                                action
+                                    text: "Initiative for Responsible Mining Assurance (IRMA)"
+                                    openUrlAction
+                                        url: "<url https://responsiblemining.net/>"
+                            suggestion
+                                action
+                                    text: "Responsible Minerals Initiative (RMI)"
+                                    openUrlAction
+                                        url: "<url https://www.responsiblemineralsinitiative.org/>"
+                            suggestion
+                                action
+                                    text: "Towards Sustainable Mining Initiative (TSM)"
+                                    openUrlAction
+                                        url: "<url https://mining.ca/towards-sustainable-mining/>"
+                            suggestion
+                                action
+                                    text: "Drive Sustainability"
+                                    openUrlAction
+                                        url: "<url https://www.drivesustainability.org/>"
+                            suggestion
+                                action
+                                    text: "Consolidated Mining Standards Initiative"
+                                    openUrlAction
+                                        url: "<url https://miningstandardinitiative.org/>"
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image10.png>"
+                            text: "The BMW Group actively supports the **responsible sourcing of raw materials** for its production, and also engages in **field projects** with partners and local stakeholders for specific materials, adhering to the principle of **empowerment before withdrawal**. Currently, these projects focus on materials such as **cobalt, lithium, mica, and natural rubber**."
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image11.png>"
+                            text: "As we said, many people impact your journey on the roads, and they must be protected. That's why BMW works on taking care of the human rights in the supply chain, even before they reach our factories. That's how BMW works on each point necessary for building a circular world. Learn about our work in:"
+                            suggestion
+                                reply text: "CONGO"
+                            suggestion
+                                reply text: "CHILE"
+                            suggestion
+                                reply text: "INDONESIA"
+                            suggestion
+                                reply text: "INDIA"
+
+        agentMessage MsgCongo
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image12.png>"
+                            text: |
+                                The "Cobalt for Development (C4D)" project is an initiative that aims to formalize artisanal and small-scale cobalt mining (ASM) in the Democratic Republic of the Congo, specifically in the Kolwezi region of Lualaba Province.
+
+                                The Democratic Republic of Congo holds the world's largest cobalt reserves and leads global production. Approximately 20% of its cobalt is extracted through artisanal and small-scale mining (ASM), which, despite its inherent risks, remains a vital source of income for the region. Over one million people depend on ASM, making it one of the region's most significant livelihoods.
+                        cardContent
+                            title: "Training and Awareness"
+                            media
+                                file fileUrl: "<url https://example.com/image13.png>"
+                            text: |
+                                Artisanal miners often work without adequate protective equipment, facing daily risks such as mine collapses, landslides, toxic dust exposure, and frequent accidents.
+                                *To address this, C4D develops targeted training and awareness programs to improve occupational health and safety, and promotes better environmental management at mine sites.*
+                        cardContent
+                            title: "Access to education and Alternative Livelihoods"
+                            media
+                                file fileUrl: "<url https://example.com/image14.png>"
+                            text: |
+                                In Lualaba Province, widespread poverty means many rely on artisanal mining as their main, though precarious, source of income. The absence of viable alternatives deepens dependence on mining and limits household savings.
+                                *C4D supports access to education and the development of alternative livelihoods, such as farming and small businesses, empowering families to diversify their income and strengthen financial resilience.*
+                                Although primary schooling is officially free, costs for books and uniforms often prevent attendance. Many children leave school early to support their families, fueling child labor in mines.
+                                *C4D promotes education by supporting school construction, teacher training, and initiatives that help children stay in school, reducing reliance on child labor.*
+                        cardContent
+                            title: "Improve living conditions"
+                            media
+                                file fileUrl: "<url https://example.com/image15.png>"
+                            text: |
+                                The influx of miners and mining-related activities can create social challenges, including increased substance abuse, prostitution, and community conflict.
+                                *C4D works to improve overall living conditions for ASM workers and their communities, fostering social cohesion and well-being.*
+                        cardContent
+                            title: "Environmental Awareness"
+                            media
+                                file fileUrl: "<url https://example.com/image16.png>"
+                            text: |
+                                Mining activities frequently lead to pollution of water, soil, and air, with improper waste disposal and lack of environmental management harming local communities.
+                                *C4D raises awareness of environmental risks and introduces better environmental management practices to reduce the sector's ecological footprint.*
+                        cardContent
+                            title: "Strengthen legal compliance"
+                            media
+                                file fileUrl: "<url https://example.com/image17.png>"
+                            text: |
+                                A significant share of cobalt comes from the informal ASM sector, where weak regulation and oversight make it difficult to ensure compliance with labor, environmental, and human rights standards. *C4D collaborates with mining cooperatives, local authorities, and civil society to strengthen legal compliance, improve management systems, and promote transparency across the supply chain.*
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image18.png>"
+                            text: "Just as we care deeply for the people and processes throughout our supply chain, we know that BMW thrives because of the dedicated individuals who bring our vision to life. Also, our commitment to a better world doesn't stop at responsibly sourcing raw materials, it extends to how we handle secondary materials as well. By continuing our efforts beyond the initial supply chain, we ensure that our planet remains at the heart of everything we do."
+                            suggestion
+                                reply text: "Employees"
+                            suggestion
+                                reply text: "CIRCULAR ECONOMY"
+
+        agentMessage MsgChile
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image19.png>"
+                            text: |
+                                The Responsible Lithium Partnership, supported by BMW Group, is a multi-stakeholder initiative promoting sustainable lithium extraction in Chile's Salar de Atacama. This region, part of the Lithium Triangle, holds vast lithium reserves but faces environmental risks, especially to local water sources and fragile ecosystems, due to extraction methods.
+
+                                Lithium is crucial for batteries, but protecting drinking water and the environment is equally important. The initiative focuses on sustainable mining practices, open dialogue, and cooperation among local communities, indigenous groups, and mining companies to balance resource needs with ecosystem and community protection.
+                        cardContent
+                            title: "Collaborative Engagement"
+                            media
+                                file fileUrl: "<url https://example.com/image20.png>"
+                            text: |
+                                This initiative unites a diverse group of stakeholders, including the BMW Group, leading automotive companies such as Mercedes-Benz Group, Daimler Truck AG, and Volkswagen Group, as well as BASF SE and technology company Fairphone. Together, we are committed to advancing sustainable lithium mining practices.
+
+                                **Multi-Stakeholder Platform: Mesa Multiactor**
+                                Coordinated by the Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ), the project has established the "Mesa Multiactor", a multi-stakeholder platform that brings together around 20 organizations. This includes representatives from indigenous communities, civil society, academia, and both public and private sectors. Their shared mission: to build a common understanding of current conditions and to shape a sustainable vision for the future of the Salar de Atacama watershed.
+                        cardContent
+                            title: "Dialogue Driven by Science"
+                            media
+                                file fileUrl: "<url https://example.com/image21.png>"
+                            text: "The partnership centers on fostering open dialogue among local stakeholders, grounded in scientific evidence. By deepening our understanding of the complex relationship between freshwater and lithium brine layers, we can better evaluate technologies and strengthen expertise for responsible resource management."
+                        cardContent
+                            title: "Addressing Environmental and Social Risks"
+                            media
+                                file fileUrl: "<url https://example.com/image22.png>"
+                            text: "The partnership is dedicated to identifying and mitigating environmental and social risks linked to lithium mining, with a particular focus on water management and its impact on local ecosystems and communities."
+                        cardContent
+                            title: "Joint Action Plan"
+                            media
+                                file fileUrl: "<url https://example.com/image23.png>"
+                            text: "Members of the Mesa Multiactor have developed a Joint Action Plan aimed at improving the long-term stewardship of natural resources and implementing concrete initial measures."
+                        cardContent
+                            title: "Sole Focus on Sustainability"
+                            media
+                                file fileUrl: "<url https://example.com/image24.png>"
+                            text: "It is important to note that the Responsible Lithium Partnership is not involved in lithium procurement or the purchase and sale of mineral resources. Its exclusive focus is on promoting sustainable resource management for the benefit of people and the environment."
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image25.png>"
+                            text: "Just as we care deeply for the people and processes throughout our supply chain, we know that BMW thrives because of the dedicated individuals who bring our vision to life. Also, our commitment to a better world doesn't stop at responsibly sourcing raw materials, it extends to how we handle secondary materials as well. By continuing our efforts beyond the initial supply chain, we ensure that our planet remains at the heart of everything we do."
+                            suggestion
+                                reply text: "Employees"
+                            suggestion
+                                reply text: "CIRCULAR ECONOMY"
+
+        agentMessage MsgIndonesia
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image26.png>"
+                            text: |
+                                The Living Rubber project in Sumatra, Indonesia, focuses on protecting Hutan Harapan. This is the island's last large lowland rainforest on mineral soil, spanning about 100,000 hectares. This unique forest is home to hundreds of rare species, including critically endangered Sumatran tigers, Asian elephants, and hornbills.
+
+                                Since 2007, local communities, PT Restoration Ecosystem Indonesia (PT REKI, a legal entity of Burung Indonesia), the Royal Society for the Protection of Birds (RSPB), BirdLife International, and KfW Development Bank (2019–2026) have worked together to protect and restore Hutan Harapan. The project contributes to the UN Decade on Ecosystem Restoration (2021–2030) and is supported by the International Climate Initiative (IKI) of the German Federal Ministry for the Environment, Nature Conservation, Nuclear Safety and Consumer Protection (BMUV).
+                        cardContent
+                            title: "Biodiversity Conservation"
+                            media
+                                file fileUrl: "<url https://example.com/image27.png>"
+                            text: |
+                                Sumatra's lowland forests have been drastically reduced by agricultural expansion (including rubber and palm oil) and infrastructure projects, threatening biodiversity and endangered species such as the Sumatran tiger and Helmeted Hornbill.
+                                *The Living Rubber project focuses on conserving biodiversity by protecting a 2,700-hectare deforestation-free area within Hutan Harapan and promoting sustainable land management.*
+                        cardContent
+                            title: "Livelihood Improvement"
+                            media
+                                file fileUrl: "<url https://example.com/image28.png>"
+                            text: |
+                                Local and indigenous communities rely on natural rubber for income but face low productivity, inconsistent quality, limited market access, and price volatility, increasing economic insecurity.
+                                *The project aims to improve livelihoods by professionalizing traditional cultivation, promoting agroforestry for income diversification, and supporting the development of socially and environmentally resilient supply chains.*
+                        cardContent
+                            title: "Land Rights Protection"
+                            media
+                                file fileUrl: "<url https://example.com/image29.png>"
+                            text: |
+                                Land tenure conflicts are common, with many farmers lacking official land certificates and facing risks of displacement.
+                                *The project works to identify, respect, and help protect farmers' land rights, supporting secure access to land and resources.*
+                        cardContent
+                            title: "Training and Empowerment"
+                            media
+                                file fileUrl: "<url https://example.com/image30.png>"
+                            text: |
+                                Monoculture farming and limited access to technology or infrastructure restrict development and income diversification.
+                                *Living Rubber provides training on good agricultural practices, plantation management, and environmental stewardship, empowering farmers and offering skill-building opportunities, especially for women.*
+                        cardContent
+                            title: "Sustainable agriculture"
+                            media
+                                file fileUrl: "<url https://example.com/image31.png>"
+                            text: |
+                                Forest destruction threatens traditional livelihoods and access to resources for local communities.
+                                *By supporting sustainable agriculture and forest conservation, the project helps preserve community livelihoods and cultural heritage.*
+                        cardContent
+                            title: "Traceability and Sustainability Standards"
+                            media
+                                file fileUrl: "<url https://example.com/image32.png>"
+                            text: |
+                                Much of smallholder rubber production lacks traceability, making it difficult to ensure compliance with environmental and social standards.
+                                *The project supports the creation of natural rubber Growers' Cooperatives and introduces documentation systems to improve traceability from plantation to processor.*
+                        cardContent
+                            title: "Group Collaboration"
+                            media
+                                file fileUrl: "<url https://example.com/image33.png>"
+                            text: |
+                                Sustainable progress requires coordinated action across the value chain.
+                                *Involves multiple stakeholders, including local communities, government agencies, and the entire natural rubber value chain, to align efforts towards sustainable management.*
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image34.png>"
+                            text: "Just as we care deeply for the people and processes throughout our supply chain, we know that BMW thrives because of the dedicated individuals who bring our vision to life. Also, our commitment to a better world doesn't stop at responsibly sourcing raw materials, it extends to how we handle secondary materials as well. By continuing our efforts beyond the initial supply chain, we ensure that our planet remains at the heart of everything we do."
+                            suggestion
+                                reply text: "Employees"
+                            suggestion
+                                reply text: "CIRCULAR ECONOMY"
+
+        agentMessage MsgIndia
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image35.png>"
+                            text: "The BMW Group actively supports this project by helping KSCF implement its "Child-friendly Village" model in **20 villages** within Jharkhand and Bihar, India's Mica Belt. This partnership contributes to the overall goal of creating an ecosystem where children's rights are protected, ensuring they are safe, free, healthy, and educated."
+                        cardContent
+                            title: "Children's Protection"
+                            media
+                                file fileUrl: "<url https://example.com/image36.png>"
+                            text: |
+                                In Jharkhand and Bihar's mica belt, widespread poverty forces many children into hazardous labor, including mica mining, to support their families.
+                                *The project's core objective is to end child labor by ensuring children have regular access to education and attend school, breaking the cycle of economic exploitation.* Alongside child labor, child trafficking and early marriage are prevalent, further endangering vulnerable children.
+                                *The initiative provides holistic child protection, acting as a one-stop solution to address not only child labor but also child trafficking, child marriage, and child sexual abuse.*
+                        cardContent
+                            title: "Access to education"
+                            media
+                                file fileUrl: "<url https://example.com/image37.png>"
+                            text: |
+                                Children are often denied schooling due to work obligations or inadequate educational infrastructure, such as distant schools, a shortage of teachers, or lack of basic facilities.
+                                *The project promotes education by mainstreaming children into schools and working to improve school infrastructure, making education accessible and appealing.*
+                        cardContent
+                            title: "Healthier environment"
+                            media
+                                file fileUrl: "<url https://example.com/image38.png>"
+                            text: |
+                                Many communities lack adequate water, sanitation, and hygiene (WASH) facilities, negatively impacting children's health and well-being.
+                                *By advocating for improved school infrastructure and community facilities, the project helps create safer, healthier environments for children.*
+                        cardContent
+                            title: "Rights Awareness"
+                            media
+                                file fileUrl: "<url https://example.com/image39.png>"
+                            text: |
+                                There is often limited awareness of basic human rights, child rights, and access to government welfare schemes among community members.
+                                *The project empowers community-based stakeholders through a rights-based approach, enabling democratic participation and helping communities overcome systemic barriers to justice and welfare.*
+
+                                **Political Awareness**
+                                Marginalized communities have faced discrimination for generations, perpetuating cycles of poverty and child labor.
+                                *Through awareness campaigns, KSCF brings issues like forced labor and violence against children to the attention of political and social institutions, while empowering communities to claim their rights and build a better future.*
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image40.png>"
+                            text: "Just as we care deeply for the people and processes throughout our supply chain, we know that BMW thrives because of the dedicated individuals who bring our vision to life. Also, our commitment to a better world doesn't stop at responsibly sourcing raw materials, it extends to how we handle secondary materials as well. By continuing our efforts beyond the initial supply chain, we ensure that our planet remains at the heart of everything we do."
+                            suggestion
+                                reply text: "Employees"
+                            suggestion
+                                reply text: "CIRCULAR ECONOMY"
+        
+        agentMessage MsgCircularEconomy
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image41.png>"
+                            text: "Raw materials are only part of the story. Secondary materials play an equally crucial role in our vision for the future and that's where the circular economy comes in. We've brought this concept to life with vehicles like the BMW i Vision Circular, which demonstrated how a car could be produced entirely from secondary materials. This pioneering initiative not only showcased the possibilities, but also highlighted the complexities and challenges involved in making large-scale use of recycled materials in automotive manufacturing."
+                        cardContent
+                            title: "Reducing Environmental Impact"
+                            media
+                                file fileUrl: "<url https://example.com/image42.png>"
+                            text: |
+                                We aim to lower CO₂e emissions and minimize the environmental and social impacts of raw material extraction.
+
+                                **Maximizing Resource Efficiency**
+                                We keep materials in use as long as possible, maintaining their value in a continuous cycle.
+
+                                **Design for Circularity**
+                                We integrate circular design by using more recycled materials without compromising quality or safety, selecting materials for easy recovery, and designing components for simple, cost-effective disassembly and recycling.
+                        cardContent
+                            title: "Vehicle and Component Recycling"
+                            media
+                                file fileUrl: "<url https://example.com/image43.png>"
+                            text: |
+                                For over 30 years, our Recycling and Dismantling Centre (RDZ) has developed advanced recycling processes, directly influencing new vehicle design. We work with global partners and maintain a recycling database used by 3,000 businesses in 23 countries to guide efficient dismantling and material recovery.
+
+                                **Battery Recycling**
+                                Since late 2024, our closed-loop battery system recovers and reuses critical materials like cobalt, nickel, and lithium, feeding them back into new battery production.
+                        cardContent
+                            title: "Resource-Efficient Production"
+                            media
+                                file fileUrl: "<url https://example.com/image44.png>"
+                            text: |
+                                We have consistently reduced non-recyclable waste and water consumption per vehicle, water use dropped from 1.90 m³ in 2022 to 1.67 m³ in 2024, and non-recyclable waste from 2.74 kg to 1.68 kg.
+
+                                Through these measures, we are building a more sustainable future, one innovation at a time.
+                            suggestion
+                                reply text: "Employees"
+
+        agentMessage MsgEmployees
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image45.png>"
+                            text: |
+                                The BMW Group embraces people of all personalities, backgrounds, abilities, perspectives, and lifestyles, believing that diversity is key to meeting future challenges. Every employee identifies with our company's vision, bringing passion, initiative, and team spirit to achieve extraordinary results. Their commitment and enthusiasm are the foundation of our innovation, performance, and customer satisfaction.
+
+                                At BMW Group, our 154,000 employees are the driving force behind our pioneering spirit and sustainable future. We invest in their growth, well-being, and inclusion, knowing their passion and expertise shape the premium mobility of tomorrow.
+                        cardContent
+                            title: "Valuing and Supporting Our People"
+                            media
+                                file fileUrl: "<url https://example.com/image46.png>"
+                            text: |
+                                We celebrate our employees' skills and commitment, offering secure, future-oriented jobs in an environment built on respect and inclusion. Discrimination has no place here. Every individual is empowered to reach their full potential.
+
+                                **Diversity and Inclusion**
+                                Diversity is key to our success. We embrace people of all backgrounds, abilities, and lifestyles, supporting gender parity, intergenerational cooperation, and the LGBTIQ+ community. Our global workforce represents over 110 nations, fostering cultural exchange and understanding.
+                        cardContent
+                            title: "Training, Development, and Career Growth"
+                            media
+                                file fileUrl: "<url https://example.com/image47.png>"
+                            text: "Continuous learning is at our core. The BMW Group Academy provides over a million training opportunities annually, from e-mobility and data analytics to language skills. We support young talent with vocational training in 30 professions and 20 dual-study courses, and offer targeted programs like ProMotion PhD, AcceleratiON, and FastLane to develop future leaders."
+                        cardContent
+                            title: "Well-being and Work Environment"
+                            media
+                                file fileUrl: "<url https://example.com/image48.png>"
+                            text: |
+                                Employee health is a top priority. We provide health-friendly workplaces, in-house fitness centers, flexible work models, and comprehensive support for work-life balance. Our centrally located offices ensure easy access, and we uphold the highest standards in health and safety.
+
+                                **Social and Cultural Engagement**
+                                We encourage employees to give back through volunteering, supported by our SOCIAL DRIVE platform and the BMW Group Award for Social Engagement. Our vibrant cultural life includes employee-led initiatives like the BMW Chamber Orchestra, Dixi Drivers band, and the Kulturmobile program.
+
+                                Our commitment doesn't stop at our factory gates. Every step we take to care for something comes full circle, giving back in ways that strengthen the whole. That's the essence of a circular world: each action becomes part of a greater system, where responsibility and progress continuously reinforce one another, driving us all forward. That's why we encourage our employees to extend their care to society as a whole, nurturing the communities in which we live and work.
+                            suggestion
+                                reply text: "HOW DO THE EMPLOYEES ENGAGE?"
+
+        agentMessage MsgEmployeesEngage
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            title: "BMW Group Award for Social Engagement"
+                            media
+                                file fileUrl: "<url https://example.com/image49.png>"
+                            text: "Under the motto "We Love What You Do!"", the BMW Group has honored outstanding volunteers with the BMW Group Awards for Social Engagement since 2011. These awards recognize employees who show exceptional commitment to social and environmental projects."
+                        cardContent
+                            title: "Social Drive Platform"
+                            media
+                                file fileUrl: "<url https://example.com/image50.png>"
+                            text: "The SOCIAL DRIVE platform supports employee volunteering by listing a wide range of opportunities and activities, making it easy for employees to get involved and connect with like-minded partners for their projects."
+                        cardContent
+                            title: "Kulturmobile"
+                            media
+                                file fileUrl: "<url https://example.com/image51.png>"
+                            text: "For over 50 years, the BMW Group has supported diverse cultural initiatives worldwide. Through the Kulturmobile platform, employees can stay informed about cultural events (both public and company-organized) including exclusive partner events."
+                        cardContent
+                            title: "Cultural Employee Initiatives"
+                            media
+                                file fileUrl: "<url https://example.com/image52.png>"
+                            text: "BMW employees actively contribute to the company's cultural life. The BMW Chamber Orchestra has delighted audiences since 1996, while the Dixi Drivers band (named after BMW's first car) has been playing Dixieland and blues since 1983. Many other employee-led initiatives span music and the performing arts, enriching the company's vibrant cultural community."
+        
+        agentMessage MsgDigitalJourney
+            contentMessage
+                richCard
+                    standaloneCard
+                        cardContent
+                            media
+                                file fileUrl: "<url https://example.com/image53.png>"
+                            text: |
+                                Throughout history, humanity has always lived for "firsts". From the moment we lightened our load with the invention of the wheel, every breakthrough set us on a path of invention, each new "first" building on the last, sometimes in leaps, sometimes in small but vital steps.
+
+                                Since the turn of the millennium, digital innovation has accelerated at an unprecedented pace, transforming the way we live and drive. The journey that began with a wheel led to the very first car, and now, our cars have crossed a new threshold, blending mechanical mastery with digital brilliance.
+
+                                Sheer driving pleasure isn't just preserved, it's reimagined, expanded, and electrified by every new breakthrough. At BMW, we live for these moments. Every innovation, every "first," is another chapter in our story. We are always moving forward, always driven by joy.
+                            suggestion
+                                reply text: "Explore our creations"
+        
+        agentMessage MsgDigitalJourneyExplore
+            contentMessage
+                richCard
+                    carouselCard
+                        cardContent
+                            title: "Inside Neue Klasse"
+                            description: "The Heart of Joy – Redefining driving pleasure"
+                            media
+                                file fileUrl: "<url https://example.com/image54.png>"
+                        cardContent
+                            title: "Innovation"
+                            description: "BMW Intelligence"
+                            media
+                                file fileUrl: "<url https://example.com/image57.png>"
+                        cardContent
+                            title: "Incomplete Card"
+                            text: "Content for this card is incomplete in the provided markdown."
+                            media
+                                file fileUrl: "<url https://example.com/image_incomplete.png>"
+
+        agentMessage MsgElectricFuture
+            contentMessage
+                text: "Content for 'ELECTRIC FUTURE' is not provided in the markdown. This is a placeholder message."
+
+        agentMessage MsgFreud
+            contentMessage
+                text: "Content for 'FREUD' is not provided in the markdown. This is a placeholder message."
+
+        agentMessage MsgQuiz
+            contentMessage
+                text: "Content for 'QUIZ' is not provided in the markdown. This is a placeholder message."
+
+    flow MainFlow
+        :start -> MsgWelcome
+        MsgWelcome ->
+            "circular_world" -> MsgCircularWorld
+            "digital_journey" -> MsgDigitalJourney
+            "electric_future" -> MsgElectricFuture
+            "freud" -> MsgFreud
+            "quiz" -> MsgQuiz
+
+    flow CircularWorldFlow
+        :start -> MsgCircularWorld
+        MsgCircularWorld ->
+            "what_we_aim" -> MsgCircularWorldAim
+            "what_already_impacts_the_present" -> MsgCircularWorldPresent
+
+    flow CircularWorldAimFlow
+        :start -> MsgCircularWorldAim
+        MsgCircularWorldAim ->
+            "congo" -> MsgCongo
+            "chile" -> MsgChile
+            "indonesia" -> MsgIndonesia
+            "india" -> MsgIndia
+            "our_responsibility_towards_raw_materials" -> MsgRawMaterialsResponsibility
+            "circular_economy_–_secondary_materials_become_the_protagonist" -> MsgCircularEconomy
+
+    flow CircularWorldPresentFlow
+        :start -> MsgCircularWorldPresent
+        MsgCircularWorldPresent ->
+            "our_responsibility_towards_raw_materials" -> MsgRawMaterialsResponsibility
+            "circular_economy" -> MsgCircularEconomy
+            "congo" -> MsgCongo
+            "chile" -> MsgChile
+            "indonesia" -> MsgIndonesia
+            "india" -> MsgIndia
+
+    flow RawMaterialsResponsibilityFlow
+        :start -> MsgRawMaterialsResponsibility
+        MsgRawMaterialsResponsibility ->
+            "congo" -> MsgCongo
+            "chile" -> MsgChile
+            "indonesia" -> MsgIndonesia
+            "india" -> MsgIndia
+
+    flow CountrySpecificFlow
+        :start -> MsgCongo
+        MsgCongo ->
+            "employees" -> MsgEmployees
+            "circular_economy" -> MsgCircularEconomy
+        
+        :start -> MsgChile
+        MsgChile ->
+            "employees" -> MsgEmployees
+            "circular_economy" -> MsgCircularEconomy
+
+        :start -> MsgIndonesia
+        MsgIndonesia ->
+            "employees" -> MsgEmployees
+            "circular_economy" -> MsgCircularEconomy
+
+        :start -> MsgIndia
+        MsgIndia ->
+            "employees" -> MsgEmployees
+            "circular_economy" -> MsgCircularEconomy
+
+    flow PostActivityFlow
+        :start -> MsgCircularEconomy
+        MsgCircularEconomy -> "employees" -> MsgEmployees
+        
+        :start -> MsgEmployees
+        MsgEmployees -> "how_do_the_employees_engage?" -> MsgEmployeesEngage
+
+    flow DigitalJourneyFlow
+        :start -> MsgDigitalJourney
+        MsgDigitalJourney -> "explore_our_creations" -> MsgDigitalJourneyExplore

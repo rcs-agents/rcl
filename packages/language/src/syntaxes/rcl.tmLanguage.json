@@ -44,10 +44,10 @@
     "agent-config-section": {
       "begin": "\\bagentConfig\\b",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "undefined",
+      "name": "meta.section.agentConfig.rcl",
       "beginCaptures": {
         "0": {
-          "name": "undefined"
+          "name": "keyword.control.section.rcl"
         }
       },
       "patterns": [
@@ -77,10 +77,10 @@
     "agent-defaults-section": {
       "begin": "\\bagentDefaults\\b",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "undefined",
+      "name": "meta.section.agentDefaults.rcl",
       "beginCaptures": {
         "0": {
-          "name": "undefined"
+          "name": "keyword.control.section.rcl"
         }
       },
       "patterns": [
@@ -110,10 +110,10 @@
     "agent-section": {
       "begin": "(\\bagent\\b)\\s+([A-Z]([A-Za-z0-9-_]|(\\s(?=[A-Z0-9])))*)",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "undefined",
+      "name": "meta.section.agent.rcl",
       "beginCaptures": {
         "1": {
-          "name": "undefined"
+          "name": "keyword.control.section.agent.rcl"
         },
         "2": {
           "name": "entity.name.section.rcl"
@@ -315,10 +315,10 @@
     "flow-section": {
       "begin": "\\bflow\\b",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "undefined",
+      "name": "meta.section.flow.rcl",
       "beginCaptures": {
         "0": {
-          "name": "undefined"
+          "name": "keyword.control.section.flow.rcl"
         }
       },
       "patterns": [
@@ -683,10 +683,10 @@
     "messages-section": {
       "begin": "\\bmessages\\b",
       "end": "(?=^[a-z][a-zA-Z0-9_]*:)|(?=^import\\b)|(?=\\Z)",
-      "name": "undefined",
+      "name": "meta.section.messages.rcl",
       "beginCaptures": {
         "0": {
-          "name": "undefined"
+          "name": "keyword.control.section.messages.rcl"
         }
       },
       "patterns": [

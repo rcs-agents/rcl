@@ -4,7 +4,8 @@
  * Types for suggestion shortcuts according to the formal specification.
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 
 export type SuggestionShortcut = 
   | ReplyShortcut 

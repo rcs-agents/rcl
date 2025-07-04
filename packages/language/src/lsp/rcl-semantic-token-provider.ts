@@ -1,11 +1,12 @@
-import { AbstractSemanticTokenProvider, type SemanticTokenAcceptor } from 'langium/lsp';
-import type { AstNode } from 'langium';
+import { AbstractSemanticTokenProvider } from 'langium/lsp';
+import type { SemanticTokenAcceptor } from 'langium/lsp';
 import { SemanticTokenTypes } from 'vscode-languageserver-protocol';
-import { isSection, type Section, isAttribute, type Attribute } from '../generated/ast.js';
+import { isSection, isAttribute } from '../parser/ast/type-guards.js';
+import type { Section, Attribute } from '../parser/ast/index.js';
 
 export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
 
-  protected override highlightElement(node: AstNode, acceptor: SemanticTokenAcceptor): void {
+  protected override highlightElement(node: any, acceptor: SemanticTokenAcceptor): void {
     if (isSection(node)) {
       this.highlightSection(node, acceptor);
     } else if (isAttribute(node)) {
@@ -19,19 +20,11 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
 
   private highlightSection(section: Section, acceptor: SemanticTokenAcceptor): void {
     if (section.type) {
-      acceptor({
-        node: section,
-        property: 'type',
-        type: SemanticTokenTypes.type
-      });
+      acceptor({ node: section, property: 'type', type: SemanticTokenTypes.type });
     }
 
     if (section.name) {
-      acceptor({
-        node: section,
-        property: 'name',
-        type: SemanticTokenTypes.class
-      });
+      acceptor({ node: section, property: 'name', type: SemanticTokenTypes.class });
     }
 
     // TODO: Re-enable when reservedName property is available on Section type
@@ -48,11 +41,7 @@ export class RclSemanticTokenProvider extends AbstractSemanticTokenProvider {
 
   private highlightAttribute(attribute: Attribute, acceptor: SemanticTokenAcceptor): void {
     if (attribute.key) {
-      acceptor({
-        node: attribute,
-        property: 'key',
-        type: SemanticTokenTypes.property
-      });
+      acceptor({ node: attribute, property: 'key', type: SemanticTokenTypes.property });
     }
   }
 

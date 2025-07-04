@@ -371,6 +371,42 @@ agent Test Agent:
       expect(result.ast).toBeDefined();
     });
 
+    test('should parse inline dictionaries', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  config: {debug: true, timeout: 5000}
+  
+  messages Messages:
+    Hello: text: "Hi"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+
+    test('should parse block dictionaries', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  user:
+    name: "John Doe"
+    email: <email john@example.com>
+  
+  messages Messages:
+    Hello: text: "Hi"
+  
+  flow Flow:
+    :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+
     test('should parse mapped types', () => {
       const input = `agent Test:
   displayName: "Test"
@@ -426,6 +462,61 @@ agent Test Agent:
   
   flow Flow:
     :start -> Hello`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+  });
+
+  describe('Multi-line String Parsing', () => {
+    test('should parse clean multi-line strings', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Clean:
+      text: |
+        This is a clean multi-line string
+        with proper indentation handling
+  
+  flow Flow:
+    :start -> Clean`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+
+    test('should parse trimmed multi-line strings', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Trimmed:
+      text: |-
+        This text has no trailing newline
+  
+  flow Flow:
+    :start -> Trimmed`;
+
+      const result = parser.parse(input);
+      
+      expect(result.ast).toBeDefined();
+    });
+
+    test('should parse preserved multi-line strings', () => {
+      const input = `agent Test:
+  displayName: "Test"
+  
+  messages Messages:
+    Preserved:
+      text: +|+
+        This preserves    all whitespace
+           including leading spaces
+  
+  flow Flow:
+    :start -> Preserved`;
 
       const result = parser.parse(input);
       

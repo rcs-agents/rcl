@@ -4,7 +4,8 @@
  * Types for message definitions and content according to the formal specification.
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 import type { MessageShortcut } from '../shortcuts/message-shortcut-types.js';
 
 /**

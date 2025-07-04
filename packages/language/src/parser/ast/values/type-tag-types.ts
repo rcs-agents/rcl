@@ -4,7 +4,8 @@
  * Types for type tag constructs like <email user@domain.com>
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 
 /**
  * Type Tag according to formal specification:

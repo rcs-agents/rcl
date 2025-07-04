@@ -94,7 +94,7 @@ export class RclParser {
       const ast = this.parseRclFile();
 
       // If there are critical errors, return null AST
-      if (this.errors.length > 0 && !ast.agentDefinition && ast.imports.length === 0) {
+      if (this.errors.length > 0 && !ast.agentSection && ast.imports.length === 0) {
         return { ast: null, errors: this.errors };
       }
 
@@ -208,22 +208,24 @@ export class RclParser {
     
     const name = this.parseSpaceSeparatedIdentifier();
     this.tokenStream.consume(RclTokens.COLON);
-    this.consumeNewlineOrEnd();
-    
+    this.skipWhitespaceAndNewlines(); // Consume any whitespace and newlines after the colon
+
     // Parse required INDENT
     this.tokenStream.consume(RclTokens.INDENT);
     
     // Parse required displayName
     let displayName: string | null = null;
-    if (this.checkAttributeKey('displayName')) {
+    if (this.tokenStream.check(RclTokens.ATTRIBUTE_KEY) && this.tokenStream.peek()?.image === 'displayName') {
+      this.tokenStream.advance(); // Consume 'displayName' ATTRIBUTE_KEY
       displayName = this.parseStringAttribute('displayName');
     } else {
-      this.addError('Agent displayName is required');
+      throw new Error('Agent definition must have displayName');
     }
     
     // Parse optional brandName
     let brandName: string | null = null;
-    if (this.checkAttributeKey('brandName')) {
+    if (this.tokenStream.check(RclTokens.ATTRIBUTE_KEY) && this.tokenStream.peek()?.image === 'brandName') {
+      this.tokenStream.advance(); // Consume 'brandName' ATTRIBUTE_KEY
       brandName = this.parseStringAttribute('brandName');
     }
     
@@ -368,15 +370,9 @@ export class RclParser {
     return parts.join(' ');
   }
 
-  private checkAttributeKey(key: string): boolean {
-    const token = this.tokenStream.peek();
-    return !!(token && token.tokenType === RclTokens.ATTRIBUTE_KEY && token.image === key);
-  }
+  
 
   private parseStringAttribute(key: string): string {
-    // Consume ATTRIBUTE_KEY token
-    this.tokenStream.advance();
-    
     // Now consume the colon that follows
     this.tokenStream.consume(RclTokens.COLON);
     this.skipWhitespace();

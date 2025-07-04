@@ -4,7 +4,8 @@
  * Types for flow control constructs according to the formal specification.
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 import type { EmbeddedExpression } from '../values/embedded-types.js';
 import type { Parameter } from './parameter-types.js';
 

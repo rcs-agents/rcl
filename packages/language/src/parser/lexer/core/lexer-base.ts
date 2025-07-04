@@ -90,6 +90,11 @@ export class RclLexer {
   }
 
   private tryMatchToken(): boolean {
+    // Check for malformed embedded expressions before normal token matching
+    if (this.detectMalformedEmbeddedExpression()) {
+      return true; // Error was reported, advance handled
+    }
+
     // Handle multi-line blocks in special modes
     if (this.modeManager.isInSpecialMode()) {
       const result = this.modeManager.handleSpecialModeContent(
@@ -233,6 +238,30 @@ export class RclLexer {
     );
     
     this.advance(1);
+  }
+
+  private detectMalformedEmbeddedExpression(): boolean {
+    // Look for patterns like $js>>, $ts>>, $>> etc. (exactly 2 > characters)
+    const malformedPattern = /^\$((js|ts)?)>{2}(?!>)/;
+    const match = this.text.substring(this.offset).match(malformedPattern);
+    
+    if (match) {
+      const position = this.positionTracker.getPosition();
+      const matchLength = match[0].length;
+      
+      this.errorHandler.addError(
+        `Malformed embedded expression '${match[0]}'. Use '$${match[1] || ''}>' for single-line or '$${match[1] || ''}>>>' for multi-line expressions.`,
+        this.offset,
+        matchLength,
+        position.line,
+        position.column
+      );
+      
+      this.advance(matchLength);
+      return true;
+    }
+    
+    return false;
   }
 
   /**

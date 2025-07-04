@@ -1,11 +1,10 @@
-import { AstNode, AstUtils, NameProvider } from 'langium';
-import { CstUtils } from 'langium';
+import { AstUtils, CstUtils } from 'langium';
+import type { NameProvider, LangiumDocument } from 'langium';
 import { DefaultDefinitionProvider } from 'langium/lsp';
-import type { LangiumDocument } from 'langium';
 import type { CancellationToken, DefinitionParams, Location, LocationLink } from 'vscode-languageserver-protocol';
 
+import { isSection } from '#src/parser/ast';
 import type { RclServices } from '../rcl-module.js';
-import { isSection } from '../generated/ast.js';
 
 export class RclDefinitionProvider extends DefaultDefinitionProvider {
 
@@ -40,7 +39,7 @@ export class RclDefinitionProvider extends DefaultDefinitionProvider {
 
     // Check if we're clicking on a section name that's part of a larger context
     const enclosingSection = AstUtils.getContainerOfType(astNodeForLeaf, isSection);
-    if (enclosingSection?.name && cstLeaf.text === enclosingSection.name) {
+    if (enclosingSection && enclosingSection.name && cstLeaf.text === enclosingSection.name) {
       const nameCstNode = this.nameProvider.getNameNode(enclosingSection);
       const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(enclosingSection, document);
       return loc ? [{ targetUri: loc.uri, targetRange: loc.range, targetSelectionRange: loc.range }] : undefined;
@@ -58,7 +57,7 @@ export class RclDefinitionProvider extends DefaultDefinitionProvider {
     return undefined;
   }
 
-  protected getNodeLocation(node: AstNode, document: LangiumDocument): Location | undefined {
+  protected getNodeLocation(node: any, document: LangiumDocument): Location | undefined {
     const nodeRange = node.$cstNode?.range;
     if (!nodeRange) {
       return undefined;
@@ -66,7 +65,7 @@ export class RclDefinitionProvider extends DefaultDefinitionProvider {
     return { uri: document.uri.toString(), range: nodeRange };
   }
 
-  protected getNodeLocationFromCst(cstNode: AstNode['$cstNode'], document: LangiumDocument): Location | undefined {
+  protected getNodeLocationFromCst(cstNode: any, document: LangiumDocument): Location | undefined {
     if (!cstNode) return undefined;
     return { uri: document.uri.toString(), range: cstNode.range };
   }

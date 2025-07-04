@@ -2,7 +2,7 @@ import type { AstNode, LangiumDocument, MaybePromise } from 'langium';
 import { AstUtils } from 'langium'; // For AstUtils.streamAllContents
 import type { FoldingRangeProvider } from 'langium/lsp';
 import { FoldingRange, FoldingRangeKind, type CancellationToken, type FoldingRangeParams } from 'vscode-languageserver-protocol';
-import { isSection } from '../generated/ast.js';
+import { isSection } from '../parser/ast/index.js';
 import type { RclServices } from '../rcl-module.js';
 
 export class RclFoldingRangeProvider implements FoldingRangeProvider {

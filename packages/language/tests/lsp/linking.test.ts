@@ -3,7 +3,7 @@ import { EmptyFileSystem, type LangiumDocument } from "langium";
 import { expandToString as s } from "langium/generate";
 import { clearDocuments, parseHelper } from "langium/test";
 import { createRclTestServices } from '../../src/rcl-module.js';
-import { type RclTestFile } from '../../src/generated/ast.js';
+import { type RclFile as RclTestFile } from '../../s../parser/ast';
 
 let testServices: ReturnType<typeof createRclTestServices>;
 let parseTest: ReturnType<typeof parseHelper<RclTestFile>>;

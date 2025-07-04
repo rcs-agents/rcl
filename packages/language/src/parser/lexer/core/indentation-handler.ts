@@ -58,7 +58,7 @@ export class IndentationHandler {
         text[currentOffset] === '\n' || 
         text[currentOffset] === '\r' || 
         text[currentOffset] === '#') {
-      return { tokensAdded: 0, newOffset: startOffset };
+      return { tokensAdded: 0, newOffset: currentOffset }; // Always advance past whitespace
     }
 
     const prevIndentLevel = this.indentationStack[this.indentationStack.length - 1];

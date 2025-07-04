@@ -4,7 +4,8 @@
  * Types for RCS message shortcuts according to the formal specification.
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 import type { Suggestion } from '../sections/message-types.js';
 
 export type MessageShortcut = 

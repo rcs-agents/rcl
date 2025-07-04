@@ -2,8 +2,9 @@ import type { LangiumDocument, MaybePromise } from 'langium';
 import type { DocumentSymbolProvider } from 'langium/lsp';
 import { type DocumentSymbol, SymbolKind } from 'vscode-languageserver-protocol';
 import type { CancellationToken, DocumentSymbolParams } from 'vscode-languageserver-protocol';
-import type { ImportStatement, Section, Attribute } from '../generated/ast.js';
-import { isRclFile } from '../generated/ast.js';
+import type { ImportStatement, RclFile } from '../parser/ast/core/file-structure.js';
+import { isRclFile, type Section } from '../parser/ast/type-guards.js';
+import type { Attribute } from '../parser/ast/core/base-types.js';
 import type { RclServices } from '../rcl-module.js';
 
 export class RclDocumentSymbolProvider implements DocumentSymbolProvider {
@@ -20,17 +21,19 @@ export class RclDocumentSymbolProvider implements DocumentSymbolProvider {
       return Promise.resolve([]);
     }
 
+    const rclFile = rootNode as RclFile;
+
     const symbols: DocumentSymbol[] = [];
 
-    for (const importStmt of rootNode.imports) {
+    for (const importStmt of rclFile.imports) {
       const importSymbol = this.getImportSymbol(importStmt);
       if (importSymbol) {
         symbols.push(importSymbol);
       }
     }
 
-    if (rootNode.agentSection) {
-      const agentSymbol = this.getSectionSymbol(rootNode.agentSection);
+    if (rclFile.agentSection) {
+      const agentSymbol = this.getSectionSymbol(rclFile.agentSection);
       if (agentSymbol) {
         symbols.push(agentSymbol);
       }
@@ -70,15 +73,21 @@ export class RclDocumentSymbolProvider implements DocumentSymbolProvider {
     }
 
     const children: DocumentSymbol[] = [];
-    for (const attr of section.attributes) {
-      const attrSymbol = this.getAttributeSymbol(attr);
-      if (attrSymbol) children.push(attrSymbol);
+    if ('attributes' in section && Array.isArray(section.attributes)) {
+      for (const attr of section.attributes) {
+        const attrSymbol = this.getAttributeSymbol(attr as Attribute);
+        if (attrSymbol) children.push(attrSymbol);
+      }
     }
-    for (const subSection of section.subSections) {
-      const subSectionSymbol = this.getSectionSymbol(subSection);
-      if (subSectionSymbol) children.push(subSectionSymbol);
+    if ('subSections' in section && Array.isArray(section.subSections)) {
+      for (const subSection of section.subSections) {
+        const subSectionSymbol = this.getSectionSymbol(subSection as Section);
+        if (subSectionSymbol) children.push(subSectionSymbol);
+      }
     }
-    // TODO: Add flow rules if applicable later
+    if ('flowContent' in section && Array.isArray((section as any).flowContent)) {
+      // TODO: Add flow rules if applicable later
+    }
 
     return {
       name: name,
@@ -90,14 +99,13 @@ export class RclDocumentSymbolProvider implements DocumentSymbolProvider {
   }
 
   private getAttributeSymbol(attribute: Attribute): DocumentSymbol | undefined {
-    const range = attribute.$cstNode?.range;
-    if (!range || !attribute.key) return undefined;
+    // Attribute doesn't have $cstNode since it's not a Langium AstNode
+    if (!attribute.key) return undefined;
 
-    let selectionRange = range;
-    const keyCstNode = this.services.references.NameProvider.getNameNode(attribute);
-    if (keyCstNode) {
-      selectionRange = keyCstNode.range;
-    }
+    // Create a default range - this would need to be properly implemented
+    // with actual position information from the parser
+    const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } };
+    const selectionRange = range;
 
     let detail = 'attribute';
     if (attribute.value?.$type) {

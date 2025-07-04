@@ -137,7 +137,7 @@ export const TTL_TYPE = createToken({ name: 'ttl', pattern: /ttl\b/ });
 // Identifiers (after keywords to avoid conflicts) - Must start with uppercase per formal spec
 export const IDENTIFIER = createToken({
     name: 'IDENTIFIER',
-    pattern: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*\b/,  // Must start with uppercase letter, allow hyphens and underscores
+    pattern: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*/,  // Must start with uppercase letter, allow hyphens and underscores
     line_breaks: false
 });
 export const ATTRIBUTE_KEY = createToken({
@@ -171,12 +171,12 @@ export const ATOM = createToken({
 // Embedded expressions (fixed to match formal spec exactly)
 export const MULTI_LINE_EXPRESSION_START = createToken({
     name: 'MULTI_LINE_EXPRESSION_START',
-    pattern: /\$((js|ts)?)>>>\s*\{[\s\S]*?\}/
+    pattern: /\$((js|ts)?)>>>/
 });
 
 export const EMBEDDED_CODE = createToken({
     name: 'EMBEDDED_CODE',
-    pattern: /\$((js|ts)?>)\s*[^\r\n]*/
+    pattern: /\$((js|ts)?>)(?!>)\s*[^\r\n]*/
 });
 
 // Multi-line expression content (for indented content after >>>)

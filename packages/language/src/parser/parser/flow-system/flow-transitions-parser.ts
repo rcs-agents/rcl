@@ -67,6 +67,7 @@ export class FlowTransitionsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'FlowRule',
       type: 'FlowRule',
       operands,
       withClause,
@@ -88,6 +89,7 @@ export class FlowTransitionsParser {
       const token = tokenStream.advance();
       const end = getPosition();
       return {
+        $type: 'FlowOperand',
         type: 'FlowOperand',
         operandType: 'atom',
         value: token.image,
@@ -100,6 +102,7 @@ export class FlowTransitionsParser {
       const value = token.image.slice(1, -1); // Remove quotes
       const end = getPosition();
       return {
+        $type: 'FlowOperand',
         type: 'FlowOperand',
         operandType: 'string',
         value,
@@ -112,6 +115,7 @@ export class FlowTransitionsParser {
     const end = getPosition();
     
     return {
+      $type: 'FlowOperand',
       type: 'FlowOperand',
       operandType: 'identifier',
       value,
@@ -160,6 +164,7 @@ export class FlowTransitionsParser {
     const location: Location = { start, end };
     
     return {
+      $type: 'WithClause',
       type: 'WithClause',
       parameters,
       location
@@ -212,6 +217,7 @@ export class FlowTransitionsParser {
     const location: Location = { start, end };
     
     return {
+      $type: 'WhenClause',
       type: 'WhenClause',
       condition,
       transitions,
@@ -250,6 +256,7 @@ export class FlowTransitionsParser {
     const location: Location = { start, end };
     
     return {
+      $type: 'FlowTransition',
       type: 'FlowTransition',
       source,
       destination,

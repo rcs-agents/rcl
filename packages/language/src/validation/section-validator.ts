@@ -1,7 +1,7 @@
 import type { ValidationAcceptor } from 'langium';
-import type { Section, Attribute } from '../generated/ast.js';
-import { SectionTypeRegistry } from '../services/section-registry.js';
-import { type SectionTypeConstants } from '../services/section-type-constants.js';
+import type { Section, Attribute } from '#src/parser/ast';
+import type { SectionTypeRegistry } from '#src/services/section-registry.js';
+import type { SectionTypeConstants } from '#src/services/section-type-constants.js';
 
 /**
  * Validation result for section validation
@@ -26,11 +26,11 @@ export class SectionValidator {
      * Validate a section against its type configuration
      */
     validateSection(section: Section, accept: ValidationAcceptor): void {
-        const sectionType = this.getSectionType(section);
+        const sectionType = section.type;
         if (!sectionType) {
             accept('error', 'Unable to determine section type', {
                 node: section,
-                property: 'sectionType'
+                property: 'type'
             });
             return;
         }
@@ -39,7 +39,7 @@ export class SectionValidator {
         if (!config) {
             accept('error', `Unknown section type: ${sectionType}`, {
                 node: section,
-                property: 'sectionType'
+                property: 'type'
             });
             return;
         }
@@ -61,25 +61,20 @@ export class SectionValidator {
     }
     
     /**
-     * Extract section type from section node
-     */
-    private getSectionType(section: Section): string | undefined {
-        return section.sectionType;
-    }
-    
-    /**
      * Validate that only allowed attributes are present
      */
     private validateAttributes(section: Section, config: SectionTypeConstants, accept: ValidationAcceptor): void {
         const allowedAttributes = config.allowedAttributes || [];
         
-        for (const attribute of (section.attributes || [])) {
-            const attrKey = (attribute as Attribute).key;
-            if (attrKey && !allowedAttributes.includes(attrKey)) {
-                accept('error', `Attribute '${attrKey}' is not allowed in ${config.name} section`, {
-                    node: attribute,
-                    property: 'key'
-                });
+        if ('attributes' in section && Array.isArray(section.attributes)) {
+            for (const attribute of section.attributes) {
+                const attrKey = (attribute as Attribute).key;
+                if (attrKey && !allowedAttributes.includes(attrKey)) {
+                    accept('error', `Attribute '${attrKey}' is not allowed in ${config.name} section`, {
+                        node: section,
+                        property: 'attributes'
+                    });
+                }
             }
         }
     }
@@ -89,15 +84,15 @@ export class SectionValidator {
      */
     private validateRequiredAttributes(section: Section, config: SectionTypeConstants, accept: ValidationAcceptor): void {
         const requiredAttributes = config.requiredAttributes || [];
-        const presentAttributes = (section.attributes || [])
-            .map(attr => (attr as Attribute).key)
-            .filter(key => key !== undefined);
+        const presentAttributes = ('attributes' in section && Array.isArray(section.attributes))
+            ? section.attributes.map(attr => (attr as Attribute).key).filter(key => key !== undefined)
+            : [];
         
         for (const required of requiredAttributes) {
             if (!presentAttributes.includes(required)) {
                 accept('error', `Missing required attribute '${required}' in ${config.name} section`, {
                     node: section,
-                    property: 'attributes'
+                    property: 'name'
                 });
             }
         }
@@ -108,14 +103,15 @@ export class SectionValidator {
      */
     private validateAllowedSubSections(section: Section, config: SectionTypeConstants, accept: ValidationAcceptor): void {
         const allowedSubSections = config.allowedSubSections || [];
-        
-        for (const subSection of (section.subSections || [])) {
-            const subSectionType = this.getSectionType(subSection);
+        const subSections = this.getSubSections(section);
+
+        for (const subSection of subSections) {
+            const subSectionType = subSection.type;
             
             if (subSectionType && !allowedSubSections.includes(subSectionType)) {
                 accept('error', `Subsection type '${subSectionType}' is not allowed in ${config.name} section`, {
                     node: subSection,
-                    property: 'sectionType'
+                    property: 'type'
                 });
             }
         }
@@ -127,10 +123,11 @@ export class SectionValidator {
     private validateMinRequiredSubSections(section: Section, config: SectionTypeConstants, accept: ValidationAcceptor): void {
         const minRequired = config.minRequiredSubSections || {};
         const subSectionCounts: Record<string, number> = {};
+        const subSections = this.getSubSections(section);
         
         // Count subsections by type
-        for (const subSection of (section.subSections || [])) {
-            const subSectionType = this.getSectionType(subSection);
+        for (const subSection of subSections) {
+            const subSectionType = subSection.type;
             if (subSectionType) {
                 subSectionCounts[subSectionType] = (subSectionCounts[subSectionType] || 0) + 1;
             }
@@ -142,7 +139,7 @@ export class SectionValidator {
             if (actualCount < minCount) {
                 accept('error', `${config.name} section requires at least ${minCount} ${requiredType} subsection(s), found ${actualCount}`, {
                     node: section,
-                    property: 'subSections'
+                    property: 'name'
                 });
             }
         }
@@ -155,8 +152,9 @@ export class SectionValidator {
         if (!config.uniqueSubSectionIds) return;
         
         const seenIds = new Set<string>();
+        const subSections = this.getSubSections(section);
         
-        for (const subSection of (section.subSections || [])) {
+        for (const subSection of subSections) {
             const subSectionId = this.getSectionName(subSection);
             if (subSectionId) {
                 if (seenIds.has(subSectionId)) {
@@ -168,6 +166,16 @@ export class SectionValidator {
                 seenIds.add(subSectionId);
             }
         }
+    }
+    
+    private getSubSections(section: Section): Section[] {
+        if ('flows' in section && Array.isArray((section as any).flows)) {
+            return (section as any).flows;
+        }
+        if ('messages' in section && Array.isArray((section as any).messages)) {
+            return (section as any).messages;
+        }
+        return [];
     }
     
     /**

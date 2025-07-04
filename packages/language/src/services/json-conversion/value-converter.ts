@@ -1,21 +1,21 @@
 import type { 
-  SimpleValue,
-  TypeConversion,
-  Attribute,
-  ParenthesesList,
-  InlineList,
-  IndentedList,
-  BraceObject,
-  IndentedObject
-} from '../../generated/ast.js';
+  Value,
+  TypeTag as TypeConversion,
+  ConfigProperty as Attribute,
+  DefaultProperty,
+  ListValue,
+  DictionaryValue
+} from '../../parser/ast/index.js';
 import { 
-  isTypeConversion,
-  isParenthesesList,
-  isInlineList,
-  isIndentedList,
-  isBraceObject,
-  isIndentedObject
-} from '../../generated/ast.js';
+  isTypeTag as isTypeConversion,
+  isListValue,
+  isDictionaryValue,
+  isStringValue,
+  isNumberValue,
+  isBooleanValue,
+  isNullValue,
+  isAtomValue
+} from '../../parser/ast/index.js';
 
 /**
  * Converts RCL AST values to JSON-compatible values
@@ -24,9 +24,9 @@ import {
 export class ValueConverter {
   
   /**
-   * Convert any RCL SimpleValue to a JSON-compatible value
+   * Convert any RCL Value to a JSON-compatible value
    */
-  convertValue(value: SimpleValue | undefined): any {
+  convertValue(value: Value | undefined): any {
     if (!value) {
       return null;
     }
@@ -35,21 +35,37 @@ export class ValueConverter {
       return this.convertTypeConversion(value);
     }
 
-    if (isBraceObject(value) || isIndentedObject(value)) {
+    if (isDictionaryValue(value)) {
       return this.convertObject(value);
     }
 
-    if (isParenthesesList(value) || isInlineList(value) || isIndentedList(value)) {
+    if (isListValue(value)) {
       return this.convertList(value);
     }
 
-    // Handle simple string values
-    if (value.value !== undefined) {
+    // Handle typed values based on their type
+    if (isStringValue(value)) {
       return this.convertStringValue(value.value);
     }
 
-    // Fallback: return string representation from CST
-    return value.$cstNode?.text?.trim() || null;
+    if (isNumberValue(value)) {
+      return value.value;
+    }
+
+    if (isBooleanValue(value)) {
+      return value.value;
+    }
+
+    if (isNullValue(value)) {
+      return null;
+    }
+
+    if (isAtomValue(value)) {
+      return value.value;
+    }
+
+    // Fallback: return as string
+    return String(value);
   }
 
   /**
@@ -92,25 +108,27 @@ export class ValueConverter {
    * Convert RCL TypeConversion to JSON value
    */
   private convertTypeConversion(typeConversion: TypeConversion): any {
-    const value = this.convertValue(typeConversion.value);
+    // TypeTag.value is already a string, not a Value object
+    const value = typeConversion.value;
     
     // Create a placeholder object for type conversions that need post-processing
     return {
-      target: typeConversion.target,
+      target: typeConversion.typeName,
       value: value,
       __rclTypeConversion: true
     };
   }
 
   /**
-   * Convert RCL Object (BraceObject or IndentedObject) to JSON object
+   * Convert RCL Object (DictionaryValue) to JSON object
    */
-  private convertObject(obj: BraceObject | IndentedObject): Record<string, any> {
+  private convertObject(obj: DictionaryValue): Record<string, any> {
     const result: Record<string, any> = {};
     
-    for (const pair of obj.pairs || []) {
-      const key = this.convertValue(pair.key);
-      const value = this.convertValue(pair.value);
+    for (const entry of obj.entries || []) {
+      // entry.key is already a string in the new AST
+      const key = entry.key;
+      const value = this.convertValue(entry.value);
       if (key && typeof key === 'string') {
         result[key] = value;
       }
@@ -122,7 +140,7 @@ export class ValueConverter {
   /**
    * Convert RCL List to JSON array
    */
-  private convertList(list: ParenthesesList | InlineList | IndentedList): any[] {
+  private convertList(list: ListValue): any[] {
     const result: any[] = [];
     
     for (const item of list.items || []) {
@@ -135,7 +153,7 @@ export class ValueConverter {
   /**
    * Convert array of attributes to JSON object
    */
-  convertAttributes(attributes: Attribute[]): Record<string, any> {
+  convertAttributes(attributes: (Attribute | DefaultProperty)[]): Record<string, any> {
     const result: Record<string, any> = {};
     
     for (const attr of attributes) {
@@ -159,8 +177,8 @@ export class ValueConverter {
       return this.extractStringValue(value.value);
     }
     
-    if (value && value.$cstNode) {
-      return value.$cstNode.text?.trim() || null;
+    if (value && isStringValue(value)) {
+      return value.value;
     }
     
     return value ? String(value) : null;

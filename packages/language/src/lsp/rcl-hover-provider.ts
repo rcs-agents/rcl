@@ -1,16 +1,8 @@
-import type { AstNode, MaybePromise } from 'langium';
-import { AstUtils } from 'langium';
 import { AstNodeHoverProvider } from 'langium/lsp';
+import type { MaybePromise } from 'langium';
 import type { Hover, CancellationToken } from 'vscode-languageserver-protocol';
 import { MarkupKind } from 'vscode-languageserver-types';
-import { 
-  isSection, 
-  isAttribute, 
-  isTypeConversion,
-  type Section, 
-  type Attribute, 
-  type TypeConversion 
-} from '../generated/ast.js';
+import { isSection, type Section } from '../parser/ast/index.js';
 import type { RclServices } from '../rcl-module.js';
 import { SectionTypeRegistry } from '../services/section-registry.js';
 
@@ -22,26 +14,10 @@ export class RclHoverProvider extends AstNodeHoverProvider {
     this.sectionRegistry = new SectionTypeRegistry();
   }
 
-  protected override getAstNodeHoverContent(node: AstNode, cancelToken?: CancellationToken): MaybePromise<Hover | undefined> {
+  protected override getAstNodeHoverContent(node: any, cancelToken?: CancellationToken): MaybePromise<Hover | undefined> {
     if (isSection(node)) {
       return this.getSectionHoverDetails(node);
     }
-    if (isAttribute(node)) {
-      return this.getAttributeHoverDetails(node);
-    }
-    if (isTypeConversion(node)) {
-      return this.getTypeConversionHover(node);
-    }
-    // TODO: Re-enable when types are available in grammar
-    // if (isBooleanValue(node)) {
-    //   return this.getBooleanValueHover(node);
-    // }
-    // if (isEmbeddedCodeBlock(node)) {
-    //   return this.getEmbeddedCodeHover(node);
-    // }
-    // if (isIdentifier(node)) {
-    //   return this.getIdentifierHover(node);
-    // }
     return undefined;
   }
 
@@ -50,70 +26,24 @@ export class RclHoverProvider extends AstNodeHoverProvider {
   }
 
   private getSectionHoverDetails(section: Section): Hover | undefined {
-    const actualSectionType: string | undefined = section.type;
-    const sectionTitle = section.name || section.type || "Section";
-    const markdownLines: string[] = [];
-
-    const typeForDisplay = actualSectionType || 'Generic Section';
-    markdownLines.push(`\`\`\`rcl
-${sectionTitle} (type: ${typeForDisplay})
+    const typeName = section.type;
+    const name = section.name || typeName || 'Section';
+    const lines: string[] = [];
+    lines.push(`\`\`\`rcl
+${name} (type: ${typeName})
 \`\`\``);
-
-    if (actualSectionType) {
-      const constants = this.sectionRegistry.getConstants(actualSectionType);
-      markdownLines.push('\n\n---\n');
-      markdownLines.push(constants?.name ? `Definition for section type: **${constants.name}**.` : 'Details for this section type.');
-
+    if (typeName) {
+      const constants = this.sectionRegistry.getConstants(typeName);
+      lines.push('\n\n---\n');
+      lines.push(constants?.name ? `Definition for section type: **${constants.name}**.` : 'Details for this section type.');
       if (constants?.allowedAttributes?.length) {
-        markdownLines.push('\n\n**Allowed attributes:**');
+        lines.push('\n\n**Allowed attributes:**');
         for (const attrKey of constants.allowedAttributes) {
           const required = constants.requiredAttributes?.includes(attrKey) ? ' (required)' : '';
-          markdownLines.push(`\n- \`${attrKey}\`${required}`);
+          lines.push(`\n- \`${attrKey}\`${required}`);
         }
       }
-    } else {
-      markdownLines.push('\nA section definition.');
     }
-    return { contents: { kind: MarkupKind.Markdown, value: this.buildMarkdown(...markdownLines) } };
+    return { contents: { kind: MarkupKind.Markdown, value: this.buildMarkdown(...lines) } };
   }
-
-  private getAttributeHoverDetails(attribute: Attribute): Hover | undefined {
-    const attributeName = attribute.key;
-    if (!attributeName) return undefined;
-    const markdownLines: string[] = [];
-    markdownLines.push(`\`\`\`rcl
-${attributeName}
-\`\`\``);
-
-    const parentSection = AstUtils.getContainerOfType(attribute, isSection);
-    const parentSectionTypeName = parentSection?.type;
-
-    if (parentSectionTypeName) {
-      markdownLines.push(`\nAttribute of section type **${parentSectionTypeName}**.`);
-    } else {
-      markdownLines.push('\n(Attribute not within a known section context)');
-    }
-    markdownLines.push('\nAn attribute definition.');
-    return { contents: { kind: MarkupKind.Markdown, value: this.buildMarkdown(...markdownLines) } };
-  }
-
-  private getTypeConversionHover(tc: TypeConversion): Hover | undefined {
-    const typeName = tc.target; // Current grammar uses 'target' not 'type'
-    let valueText = 'unknown_value';
-    if (tc.value?.value) {
-      valueText = tc.value.value;
-    }
-
-    const markdown = this.buildMarkdown(
-      `**Type Conversion:** \`<${typeName}>\``,
-      `**Value:** \`${valueText}\``,
-      `Converts input to the **${typeName}** type.`
-    ).trim();
-    return { contents: { kind: MarkupKind.Markdown, value: markdown } };
-  }
-
-  // TODO: Enhanced hover for specific language features
-  // private getHoverForTypeConversion(node: TypeConversion): Hover | undefined {
-  //   return undefined;
-  // }
 }

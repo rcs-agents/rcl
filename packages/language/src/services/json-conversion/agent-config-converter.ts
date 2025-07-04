@@ -1,4 +1,4 @@
-import type { Section } from '../../generated/ast.js';
+import type { AgentDefinition, ConfigProperty, DefaultProperty } from '../../parser/ast/index.js';
 import { ValueConverter } from './value-converter.js';
 
 /**
@@ -15,33 +15,21 @@ export class AgentConfigConverter {
   /**
    * Convert agent configuration to JSON
    */
-  convert(agentSection: Section): Record<string, any> {
+  convert(agentSection: AgentDefinition): Record<string, any> {
     const config: Record<string, any> = {};
     
-    // Convert main attributes
-    const agentAttributes = this.valueConverter.convertAttributes(agentSection.attributes);
-    Object.assign(config, agentAttributes);
+    // Convert main attributes from AgentDefinition
+    config.displayName = agentSection.displayName;
+    config.brandName = agentSection.brandName;
     
     // Process configuration properties
-    if (agentSection.configProperties && agentSection.configProperties.length > 0) {
-      config.properties = this.processConfigProperties(agentSection.configProperties);
+    if (agentSection.config) {
+      config.properties = this.processConfigProperties(agentSection.config.properties);
     }
 
     // Process default properties  
-    if (agentSection.defaultProperties && agentSection.defaultProperties.length > 0) {
-      config.defaults = this.processDefaultProperties(agentSection.defaultProperties);
-    }
-
-    // Process subsections (simplified)
-    if (agentSection.subSections && agentSection.subSections.length > 0) {
-      config.subSections = agentSection.subSections.map(section => {
-        const sectionConfig: Record<string, any> = {
-          type: section.sectionType || 'unknown',
-          name: section.name,
-          attributes: this.valueConverter.convertAttributes(section.attributes)
-        };
-        return sectionConfig;
-      });
+    if (agentSection.defaults) {
+      config.defaults = this.processDefaultProperties(agentSection.defaults.properties);
     }
 
     return config;
@@ -50,7 +38,7 @@ export class AgentConfigConverter {
   /**
    * Process configuration properties from current grammar
    */
-  private processConfigProperties(configProperties: any[]): Record<string, any> {
+  private processConfigProperties(configProperties: ConfigProperty[]): Record<string, any> {
     const result: Record<string, any> = {};
     
     for (const prop of configProperties) {
@@ -65,7 +53,7 @@ export class AgentConfigConverter {
   /**
    * Process default properties from current grammar
    */
-  private processDefaultProperties(defaultProperties: any[]): Record<string, any> {
+  private processDefaultProperties(defaultProperties: DefaultProperty[]): Record<string, any> {
     const result: Record<string, any> = {};
     
     for (const prop of defaultProperties) {

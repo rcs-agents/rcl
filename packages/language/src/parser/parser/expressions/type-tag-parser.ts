@@ -50,6 +50,7 @@ export class TypeTagParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'TypeTag',
       type: 'TypeTag',
       typeName,
       value,
@@ -73,6 +74,7 @@ export class TypeTagParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'TypedValue',
       type: 'TypedValue',
       typeTag,
       location

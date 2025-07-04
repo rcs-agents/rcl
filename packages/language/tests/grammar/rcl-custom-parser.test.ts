@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclParser } from '../../src/parser/parser.ts';
+import { RclParser } from '../../src/parser/parser/index.js';
 // Import removed as the types are not used in tests
 
 describe('RclParser', () => {

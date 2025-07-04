@@ -91,6 +91,7 @@ export class MessageShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'TextShortcut',
       type: 'TextShortcut',
       text,
       messageTrafficType,
@@ -200,6 +201,7 @@ export class MessageShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'RichCardShortcut',
       type: 'RichCardShortcut',
       title,
       orientation,
@@ -275,6 +277,7 @@ export class MessageShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'CarouselShortcut',
       type: 'CarouselShortcut',
       size,
       cards,
@@ -328,6 +331,7 @@ export class MessageShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'RbmFileShortcut',
       type: 'RbmFileShortcut',
       fileUrl: fileUrlTag.value,
       thumbnailUrl,
@@ -371,6 +375,7 @@ export class MessageShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'FileShortcut',
       type: 'FileShortcut',
       fileUrl: fileUrlTag.value,
       messageTrafficType,

@@ -1,11 +1,16 @@
 import type { AstNode } from 'langium';
-import type { CompletionAcceptor, CompletionContext, NextFeature } from 'langium/lsp';
-import { DefaultCompletionProvider } from 'langium/lsp';
-import type { Section } from './generated/ast.js';
-import { isSection } from './generated/ast.js';
+// AbstractElement and NextFeature not needed for this implementation
+import { CompletionItemKind } from 'vscode-languageserver-protocol';
+
+
+import { DefaultCompletionProvider, type CompletionAcceptor, type CompletionContext } from 'langium/lsp';
+
+
+import { isSection, type Section } from './parser/ast/index.js';
 import { SectionTypeRegistry } from './services/section-registry.js';
 import type { RclServices } from './rcl-module.js';
 import { KW } from './constants.js';
+import { Attribute } from './parser/ast/core/base-types.js';
 
 /**
  * Context information for completion
@@ -26,22 +31,28 @@ interface CompletionContextInfo {
  * based on section types and their allowed attributes/subsections
  */
 export class RclCompletionProvider extends DefaultCompletionProvider {
-  private registry: SectionTypeRegistry;
+  protected readonly services: RclServices;
+  private sectionRegistry: SectionTypeRegistry;
 
   constructor(services: RclServices) {
     super(services);
-    this.registry = new SectionTypeRegistry();
+    this.services = services;
+    this.sectionRegistry = new SectionTypeRegistry();
   }
 
   protected override async completionFor(
     context: CompletionContext,
-    next: NextFeature,
+    next: any, // NextFeature<AbstractElement> not available in this Langium version
     acceptor: CompletionAcceptor
   ): Promise<void> {
-
-    // Call default completion first
-    await super.completionFor(context, next, acceptor);
-
+    const root = context.document.parseResult.value;
+    if (!root) {
+        return;
+    }
+    const cst = root.$cstNode;
+    if (!cst) {
+        return;
+    }
     // Determine completion context based on AST structure and cursor position
     const completionContext = this.analyzeCompletionContext(context);
 
@@ -83,8 +94,8 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
  * Analyze completion context based on AST structure and cursor position
  */
   private analyzeCompletionContext(context: CompletionContext): CompletionContextInfo {
-    const text = context.textDocument.getText();
-    const offset = context.offset;
+    const text = context.document.textDocument.getText();
+    const offset = context.document.textDocument.offsetAt(context.position);
     const lineStart = text.lastIndexOf('\n', offset - 1) + 1;
     const currentLine = text.substring(lineStart, offset);
     const lineText = currentLine.trim();
@@ -166,13 +177,14 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
     const sectionType = this.getSectionType(contextInfo.currentSection);
     if (!sectionType) return;
 
-    const allowedAttributes = this.registry.getAllowedAttributes(sectionType);
-    const requiredAttributes = this.registry.getRequiredAttributes(sectionType);
+    const allowedAttributes = this.sectionRegistry.getAllowedAttributes(sectionType);
+    const requiredAttributes = this.sectionRegistry.getRequiredAttributes(sectionType);
 
     // Get already used attributes
-    const usedAttributes = contextInfo.currentSection.attributes
-      .map(attr => attr.key)
-      .filter(key => key !== undefined);
+    const usedAttributes = ((contextInfo.currentSection as any)?.attributes ?? [])
+      .filter((attr: Attribute): attr is Attribute => attr !== undefined)
+      .map((attr: Attribute) => attr.key)
+      .filter((key: string): key is string => key !== undefined);
 
     // Create completions for unused attributes
     for (const attr of allowedAttributes) {
@@ -181,7 +193,7 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
 
         acceptor(contextInfo.context, {
           label: attr,
-          kind: 10, // Property
+          kind: CompletionItemKind.Property,
           detail: `${attr}: value${isRequired ? ' (required)' : ''}`,
           documentation: this.getAttributeDocumentation(sectionType, attr),
           insertText: `${attr}: `,
@@ -190,6 +202,7 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
       }
     }
   }
+
 
   /**
  * Complete section types based on current context
@@ -218,7 +231,7 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
       const sectionType = this.getSectionType(sectionForContext);
       if (sectionType) {
         // Suggest allowed subsections
-        const allowedSubSections = this.registry.getAllowedSubSections(sectionType);
+        const allowedSubSections = this.sectionRegistry.getAllowedSubSections(sectionType);
         for (const sub of allowedSubSections) {
           acceptor(contextInfo.context, {
             label: sub,
@@ -290,3 +303,5 @@ export class RclCompletionProvider extends DefaultCompletionProvider {
     return sectionDocs[sectionType] || `${sectionType} section`;
   }
 }
+
+  

@@ -1,4 +1,4 @@
-import { RclLexer, RclToken } from '../../src/parser/lexer.ts';
+import { RclLexer, RclTokens } from '../../src/parser/lexer/index.js';
 import { describe, it, expect, beforeEach } from 'vitest';
 
 /**
@@ -242,13 +242,13 @@ describe('RclLexer', () => {
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
       
-      expect(tokenTypes).toContain(RclToken.AGENT_KW);
-      expect(tokenTypes).toContain(RclToken.IMPORT_KW);
-      expect(tokenTypes).toContain(RclToken.AS_KW);
-      expect(tokenTypes).toContain(RclToken.FROM_KW);
-      expect(tokenTypes).toContain(RclToken.FLOW_KW);
-      expect(tokenTypes).toContain(RclToken.FLOWS_KW);
-      expect(tokenTypes).toContain(RclToken.MESSAGES_KW);
+      expect(tokenTypes).toContain(RclTokens.AGENT_KW);
+      expect(tokenTypes).toContain(RclTokens.IMPORT_KW);
+      expect(tokenTypes).toContain(RclTokens.AS_KW);
+      expect(tokenTypes).toContain(RclTokens.FROM_KW);
+      expect(tokenTypes).toContain(RclTokens.FLOW_KW);
+      expect(tokenTypes).toContain(RclTokens.FLOWS_KW);
+      expect(tokenTypes).toContain(RclTokens.MESSAGES_KW);
     });
 
     it('should tokenize boolean literals', () => {
@@ -258,16 +258,16 @@ describe('RclLexer', () => {
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
       
-      expect(tokenTypes).toContain(RclToken.TRUE_KW);
-      expect(tokenTypes).toContain(RclToken.FALSE_KW);
-      expect(tokenTypes).toContain(RclToken.YES_KW);
-      expect(tokenTypes).toContain(RclToken.NO_KW);
-      expect(tokenTypes).toContain(RclToken.ON_KW);
-      expect(tokenTypes).toContain(RclToken.OFF_KW);
-      expect(tokenTypes).toContain(RclToken.ENABLED_KW);
-      expect(tokenTypes).toContain(RclToken.DISABLED_KW);
-      expect(tokenTypes).toContain(RclToken.ACTIVE_KW);
-      expect(tokenTypes).toContain(RclToken.INACTIVE_KW);
+      expect(tokenTypes).toContain(RclTokens.TRUE_KW);
+      expect(tokenTypes).toContain(RclTokens.FALSE_KW);
+      expect(tokenTypes).toContain(RclTokens.YES_KW);
+      expect(tokenTypes).toContain(RclTokens.NO_KW);
+      expect(tokenTypes).toContain(RclTokens.ON_KW);
+      expect(tokenTypes).toContain(RclTokens.OFF_KW);
+      expect(tokenTypes).toContain(RclTokens.ENABLED_KW);
+      expect(tokenTypes).toContain(RclTokens.DISABLED_KW);
+      expect(tokenTypes).toContain(RclTokens.ACTIVE_KW);
+      expect(tokenTypes).toContain(RclTokens.INACTIVE_KW);
     });
 
     it('should tokenize null literals', () => {
@@ -277,9 +277,9 @@ describe('RclLexer', () => {
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
       
-      expect(tokenTypes).toContain(RclToken.NULL_KW);
-      expect(tokenTypes).toContain(RclToken.NONE_KW);
-      expect(tokenTypes).toContain(RclToken.VOID_KW);
+      expect(tokenTypes).toContain(RclTokens.NULL_KW);
+      expect(tokenTypes).toContain(RclTokens.NONE_KW);
+      expect(tokenTypes).toContain(RclTokens.VOID_KW);
     });
 
     it('should tokenize type names', () => {
@@ -289,12 +289,12 @@ describe('RclLexer', () => {
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
       
-      expect(tokenTypes).toContain(RclToken.EMAIL_TYPE);
-      expect(tokenTypes).toContain(RclToken.PHONE_TYPE);
-      expect(tokenTypes).toContain(RclToken.URL_TYPE);
-      expect(tokenTypes).toContain(RclToken.DATETIME_TYPE);
-      expect(tokenTypes).toContain(RclToken.DURATION_TYPE);
-      expect(tokenTypes).toContain(RclToken.ZIPCODE_TYPE);
+      expect(tokenTypes).toContain(RclTokens.EMAIL_TYPE);
+      expect(tokenTypes).toContain(RclTokens.PHONE_TYPE);
+      expect(tokenTypes).toContain(RclTokens.URL_TYPE);
+      expect(tokenTypes).toContain(RclTokens.DATETIME_TYPE);
+      expect(tokenTypes).toContain(RclTokens.DURATION_TYPE);
+      expect(tokenTypes).toContain(RclTokens.ZIPCODE_TYPE);
     });
 
     it('should tokenize punctuation', () => {
@@ -304,24 +304,24 @@ describe('RclLexer', () => {
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
       
-      expect(tokenTypes).toContain(RclToken.COLON);
-      expect(tokenTypes).toContain(RclToken.COMMA);
-      expect(tokenTypes).toContain(RclToken.DOT);
-      expect(tokenTypes).toContain(RclToken.SLASH);
-      expect(tokenTypes).toContain(RclToken.HYPHEN);
-      expect(tokenTypes).toContain(RclToken.PIPE);
-      expect(tokenTypes).toContain(RclToken.DOLLAR);
-      expect(tokenTypes).toContain(RclToken.PERCENT);
-      expect(tokenTypes).toContain(RclToken.AT);
-      expect(tokenTypes).toContain(RclToken.CARET);
-      expect(tokenTypes).toContain(RclToken.LPAREN);
-      expect(tokenTypes).toContain(RclToken.RPAREN);
-      expect(tokenTypes).toContain(RclToken.LBRACE);
-      expect(tokenTypes).toContain(RclToken.RBRACE);
-      expect(tokenTypes).toContain(RclToken.LBRACKET);
-      expect(tokenTypes).toContain(RclToken.RBRACKET);
-      expect(tokenTypes).toContain(RclToken.LT);
-      expect(tokenTypes).toContain(RclToken.GT);
+      expect(tokenTypes).toContain(RclTokens.COLON);
+      expect(tokenTypes).toContain(RclTokens.COMMA);
+      expect(tokenTypes).toContain(RclTokens.DOT);
+      expect(tokenTypes).toContain(RclTokens.SLASH);
+      expect(tokenTypes).toContain(RclTokens.HYPHEN);
+      expect(tokenTypes).toContain(RclTokens.PIPE);
+      expect(tokenTypes).toContain(RclTokens.DOLLAR);
+      expect(tokenTypes).toContain(RclTokens.PERCENT);
+      expect(tokenTypes).toContain(RclTokens.AT);
+      expect(tokenTypes).toContain(RclTokens.CARET);
+      expect(tokenTypes).toContain(RclTokens.LPAREN);
+      expect(tokenTypes).toContain(RclTokens.RPAREN);
+      expect(tokenTypes).toContain(RclTokens.LBRACE);
+      expect(tokenTypes).toContain(RclTokens.RBRACE);
+      expect(tokenTypes).toContain(RclTokens.LBRACKET);
+      expect(tokenTypes).toContain(RclTokens.RBRACKET);
+      expect(tokenTypes).toContain(RclTokens.LT);
+      expect(tokenTypes).toContain(RclTokens.GT);
     });
 
     it('should tokenize strings and numbers', () => {
@@ -329,18 +329,18 @@ describe('RclLexer', () => {
       const result = lexer.tokenize(input);
       
       expect(result.errors).toHaveLength(0);
-      const tokens = result.tokens.filter(t => t.tokenType !== RclToken.WS);
+      const tokens = result.tokens.filter(t => t.tokenType !== RclTokens.WS);
       
-      expect(tokens[0].tokenType).toBe(RclToken.STRING);
+      expect(tokens[0].tokenType).toBe(RclTokens.STRING);
       expect(tokens[0].image).toBe('"hello world"');
       
-      expect(tokens[1].tokenType).toBe(RclToken.NUMBER);
+      expect(tokens[1].tokenType).toBe(RclTokens.NUMBER);
       expect(tokens[1].image).toBe('42');
       
-      expect(tokens[2].tokenType).toBe(RclToken.NUMBER);
+      expect(tokens[2].tokenType).toBe(RclTokens.NUMBER);
       expect(tokens[2].image).toBe('3.14');
       
-      expect(tokens[3].tokenType).toBe(RclToken.IDENTIFIER);
+      expect(tokens[3].tokenType).toBe(RclTokens.IDENTIFIER);
       expect(tokens[3].image).toBe('SomeIdentifier');
     });
   });
@@ -355,8 +355,8 @@ describe('RclLexer', () => {
       expect(result.errors).toHaveLength(0);
       
       const tokenTypes = result.tokens.map(t => t.tokenType);
-      expect(tokenTypes).toContain(RclToken.INDENT);
-      expect(tokenTypes).toContain(RclToken.DEDENT);
+      expect(tokenTypes).toContain(RclTokens.INDENT);
+      expect(tokenTypes).toContain(RclTokens.DEDENT);
     });
 
     it('should handle multiple indent levels', () => {
@@ -371,8 +371,8 @@ describe('RclLexer', () => {
       const result = lexer.tokenize(input);
       expect(result.errors).toHaveLength(0);
       
-      const indentCount = result.tokens.filter(t => t.tokenType === RclToken.INDENT).length;
-      const dedentCount = result.tokens.filter(t => t.tokenType === RclToken.DEDENT).length;
+      const indentCount = result.tokens.filter(t => t.tokenType === RclTokens.INDENT).length;
+      const dedentCount = result.tokens.filter(t => t.tokenType === RclTokens.DEDENT).length;
       
       expect(indentCount).toBeGreaterThan(0);
       expect(dedentCount).toBeGreaterThan(0);
@@ -393,7 +393,7 @@ describe('RclLexer', () => {
       expect(result.errors).toHaveLength(0);
       
       // Should still produce tokens despite mixed indentation
-      const tokens = result.tokens.filter(t => t.tokenType !== RclToken.WS && t.tokenType !== RclToken.NL);
+      const tokens = result.tokens.filter(t => t.tokenType !== RclTokens.WS && t.tokenType !== RclTokens.NL);
       expect(tokens.length).toBeGreaterThan(0);
     });
   });
@@ -407,7 +407,7 @@ agent Test: # Another comment
       const result = lexer.tokenize(input);
       expect(result.errors).toHaveLength(0);
       
-      const comments = result.tokens.filter(t => t.tokenType === RclToken.SL_COMMENT);
+      const comments = result.tokens.filter(t => t.tokenType === RclTokens.SL_COMMENT);
       expect(comments.length).toBe(2);
       expect(comments[0].image).toBe('# This is a comment');
       expect(comments[1].image).toBe('# Another comment');
@@ -418,7 +418,7 @@ agent Test: # Another comment
       const result = lexer.tokenize(input);
       
       expect(result.errors).toHaveLength(0);
-      const comment = result.tokens.find(t => t.tokenType === RclToken.SL_COMMENT);
+      const comment = result.tokens.find(t => t.tokenType === RclTokens.SL_COMMENT);
       expect(comment?.image).toBe('# Comment with special chars: !@#$%^&*()');
     });
   });
@@ -429,7 +429,7 @@ agent Test: # Another comment
       const result = lexer.tokenize(input);
       
       expect(result.errors).toHaveLength(0);
-      const expression = result.tokens.find(t => t.tokenType === RclToken.EMBEDDED_CODE);
+      const expression = result.tokens.find(t => t.tokenType === RclTokens.EMBEDDED_CODE);
       expect(expression).toBeDefined();
     });
   });
@@ -444,10 +444,10 @@ agent Test: # Another comment
       expect(result.errors).toHaveLength(0);
       
       const multilineMarker = result.tokens.find(t => 
-        t.tokenType === RclToken.MULTILINE_STR_PRESERVE ||
-        t.tokenType === RclToken.MULTILINE_STR_TRIM ||
-        t.tokenType === RclToken.MULTILINE_STR_CLEAN ||
-        t.tokenType === RclToken.MULTILINE_STR_PRESERVE_ALL
+        t.tokenType === RclTokens.MULTILINE_STR_PRESERVE ||
+        t.tokenType === RclTokens.MULTILINE_STR_TRIM ||
+        t.tokenType === RclTokens.MULTILINE_STR_CLEAN ||
+        t.tokenType === RclTokens.MULTILINE_STR_PRESERVE_ALL
       );
       expect(multilineMarker).toBeDefined();
     });
@@ -472,9 +472,9 @@ messages:
       
       // Verify we have the main structure tokens
       const tokenTypes = result.tokens.map(t => t.tokenType);
-      expect(tokenTypes).toContain(RclToken.AGENT_KW);
-      expect(tokenTypes).toContain(RclToken.FLOWS_KW);
-      expect(tokenTypes).toContain(RclToken.MESSAGES_KW);
+      expect(tokenTypes).toContain(RclTokens.AGENT_KW);
+      expect(tokenTypes).toContain(RclTokens.FLOWS_KW);
+      expect(tokenTypes).toContain(RclTokens.MESSAGES_KW);
     });
 
     it('should tokenize space-separated identifiers correctly', () => {
@@ -483,9 +483,9 @@ messages:
       
       expect(result.errors).toHaveLength(0);
       
-      const tokens = result.tokens.filter(t => t.tokenType !== RclToken.WS);
-      expect(tokens[0].tokenType).toBe(RclToken.AGENT_KW);
-      expect(tokens[1].tokenType).toBe(RclToken.IDENTIFIER);
+      const tokens = result.tokens.filter(t => t.tokenType !== RclTokens.WS);
+      expect(tokens[0].tokenType).toBe(RclTokens.AGENT_KW);
+      expect(tokens[1].tokenType).toBe(RclTokens.IDENTIFIER);
       expect(tokens[1].image).toBe('BMW Customer Service');
       // The lexer correctly produces space-separated identifiers as single tokens
     });
@@ -500,7 +500,7 @@ messages:
       expect(result.tokens.length).toBeGreaterThan(0);
       
       // Should identify the agent keyword
-      const agentToken = result.tokens.find(t => t.tokenType === RclToken.AGENT_KW);
+      const agentToken = result.tokens.find(t => t.tokenType === RclTokens.AGENT_KW);
       expect(agentToken).toBeDefined();
     });
 
@@ -516,7 +516,7 @@ messages:
       
       // Should contain whitespace and newline tokens
       const hasWhitespace = result.tokens.some(t => 
-        t.tokenType === RclToken.WS || t.tokenType === RclToken.NL
+        t.tokenType === RclTokens.WS || t.tokenType === RclTokens.NL
       );
       expect(hasWhitespace).toBe(true);
     });
@@ -529,10 +529,10 @@ messages:
       
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
-      expect(tokenTypes).toContain(RclToken.EMAIL_TYPE);
-      expect(tokenTypes).toContain(RclToken.DURATION_TYPE);
-      expect(tokenTypes).toContain(RclToken.LT);
-      expect(tokenTypes).toContain(RclToken.GT);
+      expect(tokenTypes).toContain(RclTokens.EMAIL_TYPE);
+      expect(tokenTypes).toContain(RclTokens.DURATION_TYPE);
+      expect(tokenTypes).toContain(RclTokens.LT);
+      expect(tokenTypes).toContain(RclTokens.GT);
     });
   });
 
@@ -542,7 +542,7 @@ messages:
       const result = lexer.tokenize(input);
       
       expect(result.errors).toHaveLength(0);
-      const durationTokens = result.tokens.filter(t => t.tokenType === RclToken.ISO_DURATION_LITERAL);
+      const durationTokens = result.tokens.filter(t => t.tokenType === RclTokens.ISO_DURATION_LITERAL);
       expect(durationTokens.length).toBe(2);
       expect(durationTokens[0].image).toBe('PT5M');
       expect(durationTokens[1].image).toBe('P1DT2H30M');
@@ -555,7 +555,7 @@ messages:
       const result = lexer.tokenize(input);
       
       expect(result.errors).toHaveLength(0);
-      const arrowToken = result.tokens.find(t => t.tokenType === RclToken.ARROW);
+      const arrowToken = result.tokens.find(t => t.tokenType === RclTokens.ARROW);
       expect(arrowToken).toBeDefined();
       expect(arrowToken?.image).toBe('->');
     });
@@ -569,11 +569,11 @@ messages:
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
       
-      expect(tokenTypes).toContain(RclToken.DIAL_KW);
-      expect(tokenTypes).toContain(RclToken.OPEN_URL_KW);
-      expect(tokenTypes).toContain(RclToken.SHARE_LOCATION_KW);
-      expect(tokenTypes).toContain(RclToken.CREATE_CALENDAR_EVENT_ACTION_KW);
-      expect(tokenTypes).toContain(RclToken.COMPOSE_ACTION_KW);
+      expect(tokenTypes).toContain(RclTokens.DIAL_KW);
+      expect(tokenTypes).toContain(RclTokens.OPEN_URL_KW);
+      expect(tokenTypes).toContain(RclTokens.SHARE_LOCATION_KW);
+      expect(tokenTypes).toContain(RclTokens.CREATE_CALENDAR_EVENT_ACTION_KW);
+      expect(tokenTypes).toContain(RclTokens.COMPOSE_ACTION_KW);
     });
   });
 
@@ -585,11 +585,11 @@ messages:
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
       
-      expect(tokenTypes).toContain(RclToken.AGENT_MESSAGE_KW);
-      expect(tokenTypes).toContain(RclToken.CONTENT_MESSAGE_KW);
-      expect(tokenTypes).toContain(RclToken.SUGGESTION_KW);
-      expect(tokenTypes).toContain(RclToken.RICH_CARD_KW);
-      expect(tokenTypes).toContain(RclToken.CAROUSEL_KW);
+      expect(tokenTypes).toContain(RclTokens.AGENT_MESSAGE_KW);
+      expect(tokenTypes).toContain(RclTokens.CONTENT_MESSAGE_KW);
+      expect(tokenTypes).toContain(RclTokens.SUGGESTION_KW);
+      expect(tokenTypes).toContain(RclTokens.RICH_CARD_KW);
+      expect(tokenTypes).toContain(RclTokens.CAROUSEL_KW);
     });
   });
 
@@ -601,18 +601,18 @@ messages:
       expect(result.errors).toHaveLength(0);
       const tokenTypes = result.tokens.map(t => t.tokenType);
       
-      expect(tokenTypes).toContain(RclToken.IF_KW);
-      expect(tokenTypes).toContain(RclToken.THEN_KW);
-      expect(tokenTypes).toContain(RclToken.ELSE_KW);
-      expect(tokenTypes).toContain(RclToken.WHEN_KW);
-      expect(tokenTypes).toContain(RclToken.UNLESS_KW);
-      expect(tokenTypes).toContain(RclToken.WITH_KW);
-      expect(tokenTypes).toContain(RclToken.AND_KW);
-      expect(tokenTypes).toContain(RclToken.OR_KW);
-      expect(tokenTypes).toContain(RclToken.NOT_KW);
-      expect(tokenTypes).toContain(RclToken.IS_KW);
-      expect(tokenTypes).toContain(RclToken.DO_KW);
-      expect(tokenTypes).toContain(RclToken.END_KW);
+      expect(tokenTypes).toContain(RclTokens.IF_KW);
+      expect(tokenTypes).toContain(RclTokens.THEN_KW);
+      expect(tokenTypes).toContain(RclTokens.ELSE_KW);
+      expect(tokenTypes).toContain(RclTokens.WHEN_KW);
+      expect(tokenTypes).toContain(RclTokens.UNLESS_KW);
+      expect(tokenTypes).toContain(RclTokens.WITH_KW);
+      expect(tokenTypes).toContain(RclTokens.AND_KW);
+      expect(tokenTypes).toContain(RclTokens.OR_KW);
+      expect(tokenTypes).toContain(RclTokens.NOT_KW);
+      expect(tokenTypes).toContain(RclTokens.IS_KW);
+      expect(tokenTypes).toContain(RclTokens.DO_KW);
+      expect(tokenTypes).toContain(RclTokens.END_KW);
     });
   });
 }); 

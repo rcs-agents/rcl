@@ -1,7 +1,8 @@
 import type { ValidationAcceptor, AstNode } from 'langium';
-import type { FlowRule, Section } from '../generated/ast.js';
-import { isSection, isFlowRule } from '../generated/ast.js';
-import { KW } from '../constants.js';
+import type { FlowRule, FlowOperand } from '#src/parser/ast';
+import { isSection, isFlowRule } from '#src/parser/ast';
+import type { Section } from '#src/parser/ast';
+import { KW } from '#src/constants.js';
 
 /**
  * Validates dependencies and detects circular references in flow rules and sections.
@@ -22,14 +23,13 @@ export class DependencyValidator {
 
     const flowRules = this.getAllFlowRules(parentSection);
     const flowGraph = this.buildFlowGraph(flowRules);
-
     const cycles = this.detectCycles(flowGraph);
 
     cycles.forEach(cycle => {
       const cycleDescription = cycle.join(' -> ');
       accept('error', `Circular dependency detected in flow: ${cycleDescription}`, {
         node: flowRule,
-        property: 'source',
+        property: 'operands',
         code: 'circular-flow-dependency'
       });
     });
@@ -54,19 +54,15 @@ export class DependencyValidator {
       if (!reachableNodes.has(node) && node !== KW.Start && node !== KW.End) {
         // Find the first flow rule that references this unreachable node
         const ruleWithUnreachableNode = flowRules.find(rule => {
-          if (!rule.source) {
-            return false; // Skip malformed flow rules
-          }
-          return this.getFlowOperandValue(rule.source) === node ||
-            (rule.destination?.ref && this.getFlowOperandValue(rule.destination.ref.name) === node);
+          return rule.operands.some(op => this.getFlowOperandValue(op) === node);
         });
 
-        if (ruleWithUnreachableNode && ruleWithUnreachableNode.source) {
-          const isSource = this.getFlowOperandValue(ruleWithUnreachableNode.source) === node;
-          const property = isSource ? 'source' : 'destination';
+        if (ruleWithUnreachableNode) {
+          const operandIndex = ruleWithUnreachableNode.operands.findIndex(op => this.getFlowOperandValue(op) === node);
           accept('warning', `Flow operand '${node}' appears to be unreachable`, {
             node: ruleWithUnreachableNode,
-            property,
+            property: 'operands',
+            index: operandIndex,
             code: 'unreachable-flow-operand'
           });
         }
@@ -75,32 +71,85 @@ export class DependencyValidator {
   }
 
   /**
+   * Check for undefined references in flow rules
+   */
+  checkFlowReferences(flowRule: FlowRule, accept: ValidationAcceptor): void {
+    const parentSection = this.getParentFlowSection(flowRule);
+    if (!parentSection) {
+      return;
+    }
+
+    const messagesSection = this.getMessagesSection(parentSection);
+    if (!messagesSection) {
+      return;
+    }
+
+    const definedMessages = this.getDefinedMessages(messagesSection);
+
+    for (const operand of flowRule.operands) {
+      const operandValue = this.getFlowOperandValue(operand);
+      if (operandValue && !definedMessages.has(operandValue) && operandValue !== KW.Start && operandValue !== KW.End) {
+        accept('error', `Reference to undefined message '${operandValue}'`, {
+          node: operand,
+          property: 'value',
+          code: 'undefined-flow-reference'
+        });
+      }
+    }
+  }
+
+  /**
+   * Get the messages section from the root section
+   */
+  private getMessagesSection(section: Section): Section | undefined {
+    let current: AstNode | undefined = section;
+    while (current.$container) {
+      current = current.$container;
+    }
+
+    if (isSection(current) && 'messages' in current) {
+      return (current as any).messages;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Get all defined message names from a messages section
+   */
+  private getDefinedMessages(messagesSection: Section): Set<string> {
+    const definedMessages = new Set<string>();
+
+    if ('messages' in messagesSection && Array.isArray((messagesSection as any).messages)) {
+      for (const message of (messagesSection as any).messages) {
+        if (message.name) {
+          definedMessages.add(message.name);
+        }
+      }
+    }
+
+    return definedMessages;
+  }
+
+  /**
    * Build a directed graph from flow rules
    */
   private buildFlowGraph(flowRules: FlowRule[]): FlowGraph {
     const graph = new Map<string, Set<string>>();
 
-    const processRule = (rule: FlowRule) => {
-        const source = this.getFlowOperandValue(rule.source);
-        if (!source) return;
+    for (const rule of flowRules) {
+        for (let i = 0; i < rule.operands.length - 1; i++) {
+            const source = this.getFlowOperandValue(rule.operands[i]);
+            const target = this.getFlowOperandValue(rule.operands[i + 1]);
 
-        if (!graph.has(source)) {
-            graph.set(source, new Set());
-        }
-
-        if (rule.destination?.ref?.name) {
-            const target = this.getFlowOperandValue(rule.destination.ref.name);
-            if (target) {
+            if (source && target) {
+                if (!graph.has(source)) {
+                    graph.set(source, new Set());
+                }
                 graph.get(source)!.add(target);
             }
         }
-
-        if (rule.rules) {
-            rule.rules.forEach(processRule);
-        }
-    };
-
-    flowRules.forEach(processRule);
+    }
 
     return graph;
   }
@@ -202,19 +251,18 @@ export class DependencyValidator {
   private getAllFlowRules(section: Section): FlowRule[] {
     const flowRules: FlowRule[] = [];
 
-    if (section.flowContent) {
-      for (const content of section.flowContent) {
-        if (isFlowRule(content)) {
-          flowRules.push(content);
+    if ('rules' in section && Array.isArray((section as any).rules)) {
+        for (const content of (section as any).rules) {
+            if (isFlowRule(content)) {
+                flowRules.push(content);
+            }
         }
-      }
     }
-
-    // Also check subsections for flow rules
-    if (section.subSections) {
-      for (const subSection of section.subSections) {
-        flowRules.push(...this.getAllFlowRules(subSection));
-      }
+    
+    if ('flows' in section && Array.isArray((section as any).flows)) {
+        for (const subSection of (section as any).flows) {
+            flowRules.push(...this.getAllFlowRules(subSection));
+        }
     }
 
     return flowRules;
@@ -226,20 +274,14 @@ export class DependencyValidator {
   private getAllFlowOperands(flowRules: FlowRule[]): string[] {
     const operands = new Set<string>();
     
-    const processRule = (rule: FlowRule) => {
-        const source = this.getFlowOperandValue(rule.source);
-        if (source) operands.add(source);
-
-        if (rule.destination?.ref?.name) {
-            const target = this.getFlowOperandValue(rule.destination.ref.name);
-            if (target) operands.add(target);
+    for (const rule of flowRules) {
+        for (const operand of rule.operands) {
+            const value = this.getFlowOperandValue(operand);
+            if (value) {
+                operands.add(value);
+            }
         }
-        if (rule.rules) {
-            rule.rules.forEach(processRule);
-        }
-    };
-
-    flowRules.forEach(processRule);
+    }
 
     return Array.from(operands);
   }
@@ -247,11 +289,15 @@ export class DependencyValidator {
   /**
    * Extract string value from a FlowOperand
    */
-  private getFlowOperandValue(operand: string | undefined): string | undefined {
+  private getFlowOperandValue(operand: FlowOperand | undefined): string | undefined {
     if (!operand) {
-      return undefined;
+        return undefined;
     }
-    return operand.startsWith(':') ? operand.substring(1) : operand;
+    let value = operand.value;
+    if (operand.operandType === 'atom') {
+        value = value.slice(1);
+    }
+    return value;
   }
 }
 

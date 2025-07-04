@@ -4,7 +4,8 @@
  * Types for flow definitions and flow rules according to the formal specification.
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 import type { FlowOperand, WithClause, WhenClause } from '../flow-system/flow-control-types.js';
 
 // Re-export FlowTransition for external use

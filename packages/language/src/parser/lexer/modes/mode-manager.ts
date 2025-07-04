@@ -12,6 +12,7 @@ import type { ErrorHandler } from '../core/error-handler.js';
 import { DefaultMode } from './default-mode.js';
 import { TypeTagMode } from './type-tag-mode.js';
 import { StringContentMode } from './string-content-mode.js';
+import { StringChomper, type ChompingMarker } from '../utils/string-chomper.js';
 
 export type LexerMode = 'default' | 'type_tag' | 'type_tag_modifier' | 'string_content' | 'expression_content';
 
@@ -33,6 +34,7 @@ export class ModeManager {
   private inSpecialMode: boolean = false;
   private specialModeType: 'string' | 'expression' | 'type_tag' | null = null;
   private specialModeIndent: number = 0;
+  private chompingMarker: ChompingMarker | null = null;
 
   constructor() {
     this.defaultMode = new DefaultMode();
@@ -46,6 +48,7 @@ export class ModeManager {
     this.inSpecialMode = false;
     this.specialModeType = null;
     this.specialModeIndent = 0;
+    this.chompingMarker = null;
   }
 
   /**
@@ -86,6 +89,8 @@ export class ModeManager {
 
     // Handle multi-line string markers
     if (this.isMultiLineStringMarker(tokenType)) {
+      // Capture the chomping marker from the token type
+      this.chompingMarker = this.getChompingMarkerFromTokenType(tokenType);
       return { startedSpecialMode: true, modeType: 'string' };
     }
 
@@ -139,12 +144,18 @@ export class ModeManager {
     const content = this.extractIndentedBlock(text, offset, this.specialModeIndent);
     
     if (content) {
+      // Apply chomping for string content
+      let processedText = content.text;
+      if (this.specialModeType === 'string' && this.chompingMarker) {
+        processedText = StringChomper.processStringContent(content.text, this.chompingMarker);
+      }
+      
       // Create appropriate token for the content
       const tokenType = this.specialModeType === 'expression' 
         ? RclTokens.MULTI_LINE_EXPRESSION_CONTENT
         : RclTokens.STRING_CONTENT;
       
-      const token = this.createContentToken(tokenType, content.text, content.startOffset, positionTracker);
+      const token = this.createContentToken(tokenType, processedText, content.startOffset, positionTracker);
       tokens.push(token);
       
       // Update position
@@ -154,6 +165,7 @@ export class ModeManager {
       this.inSpecialMode = false;
       this.specialModeType = null;
       this.specialModeIndent = 0;
+      this.chompingMarker = null;
       this.popMode();
       
       return { processed: true, newOffset: content.endOffset };
@@ -163,6 +175,7 @@ export class ModeManager {
     this.inSpecialMode = false;
     this.specialModeType = null;
     this.specialModeIndent = 0;
+    this.chompingMarker = null;
     this.popMode();
 
     return { processed: false, newOffset: offset };
@@ -186,6 +199,19 @@ export class ModeManager {
            tokenType === RclTokens.MULTILINE_STR_TRIM ||
            tokenType === RclTokens.MULTILINE_STR_PRESERVE ||
            tokenType === RclTokens.MULTILINE_STR_PRESERVE_ALL;
+  }
+
+  private getChompingMarkerFromTokenType(tokenType: TokenType): ChompingMarker {
+    if (tokenType === RclTokens.MULTILINE_STR_CLEAN) {
+      return 'clean';
+    } else if (tokenType === RclTokens.MULTILINE_STR_TRIM) {
+      return 'trim';
+    } else if (tokenType === RclTokens.MULTILINE_STR_PRESERVE) {
+      return 'preserve';
+    } else if (tokenType === RclTokens.MULTILINE_STR_PRESERVE_ALL) {
+      return 'preserve_all';
+    }
+    return 'clean'; // Default fallback
   }
 
   private calculateNextLineIndentation(text: string, offset: number): number {

@@ -51,6 +51,7 @@ export class EmbeddedCodeParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'EmbeddedExpression',
       type: 'EmbeddedExpression',
       language,
       content,
@@ -123,6 +124,7 @@ export class EmbeddedCodeParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'EmbeddedCodeBlock',
       type: 'EmbeddedCodeBlock',
       language,
       content: contentLines,

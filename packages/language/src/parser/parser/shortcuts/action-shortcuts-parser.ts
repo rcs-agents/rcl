@@ -100,6 +100,7 @@ export class ActionShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'ReplyShortcut',
       type: 'ReplyShortcut',
       text,
       postbackData,
@@ -139,6 +140,7 @@ export class ActionShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'DialShortcut',
       type: 'DialShortcut',
       text,
       phoneNumber: phoneTag.value,
@@ -178,6 +180,7 @@ export class ActionShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'OpenUrlShortcut',
       type: 'OpenUrlShortcut',
       text,
       url: urlTag.value,
@@ -209,6 +212,7 @@ export class ActionShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'ShareLocationShortcut',
       type: 'ShareLocationShortcut',
       text,
       location
@@ -262,6 +266,7 @@ export class ActionShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'ViewLocationShortcut',
       type: 'ViewLocationShortcut',
       text,
       latitude,
@@ -330,6 +335,7 @@ export class ActionShortcutsParser {
     const location: Location = { start, end };
 
     return {
+      $type: 'SaveEventShortcut',
       type: 'SaveEventShortcut',
       text,
       title,

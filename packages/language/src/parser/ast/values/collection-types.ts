@@ -4,7 +4,8 @@
  * Types for lists, dictionaries, and mapped types in RCL.
  */
 
-import type { AstNode, Location } from '../core/base-types.js';
+import type { AstNode } from 'langium';
+import type { Location } from '../core/base-types.js';
 import type { Value } from './literal-types.js';
 
 /**

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RclParser } from '../../src/parser/parser.ts';
-import { ImportStatement } from '../../src/parser/rcl-simple-ast.js';
+import { RclParser } from '../../src/parser/parser/index.js';
+import type { ImportStatement } from '../../src/parser/ast/index.js';
 import { resolveImportPath, findProjectRoot, type FileSystemInterface, webFileSystemMock } from '../../src/utils/filesystem.js';
 
 /**
@@ -19,7 +19,16 @@ describe('RCL Import Statement Enhancements', () => {
 
   describe('Basic Import Statements (Already Working)', () => {
     it('should parse simple import statements', () => {
-      const input = `import Utils`;
+      const input = `import Utils
+
+agent Test:
+  displayName: "Test Agent"
+  
+  flow Main:
+    :start -> :end
+    
+  messages Messages:
+    welcome: "Hello"`;
 
       const result = parser.parse(input);
       
@@ -27,18 +36,27 @@ describe('RCL Import Statement Enhancements', () => {
       expect(result.ast?.imports).toHaveLength(1);
       
       const importStmt = result.ast!.imports[0];
-      expect(importStmt.importedNames).toEqual(['Utils']);
+      expect(importStmt.importPath).toEqual(['Utils']);
       expect(importStmt.alias).toBeUndefined();
     });
 
     it('should parse import statements with aliases', () => {
-      const input = `import Utils as Helpers`;
+      const input = `import Utils as Helpers
+
+agent Test:
+  displayName: "Test Agent"
+  
+  flow Main:
+    :start -> :end
+    
+  messages Messages:
+    welcome: "Hello"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       const importStmt = result.ast!.imports[0];
-      expect(importStmt.importedNames).toEqual(['Utils']);
+      expect(importStmt.importPath).toEqual(['Utils']);
       expect(importStmt.alias).toBe('Helpers');
     });
   });

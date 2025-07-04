@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeAll } from 'vitest';
-import { RclParser } from '../../src/parser/parser.ts';
-import { RclLexer } from '../../src/parser/lexer.ts';
+import { RclParser } from '../../src/parser/parser/index.js';
+import { RclLexer } from '../../src/parser/lexer/index.js';
 import { EmptyFileSystem } from 'langium';
 import { createRclServices } from '../../src/rcl-module.js';
 

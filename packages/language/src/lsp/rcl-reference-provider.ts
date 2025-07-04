@@ -1,92 +1,57 @@
-import { AstUtils, AstNode, type LangiumDocument, MaybePromise, CstUtils, GrammarUtils } from 'langium';
-import { Location, type ReferenceParams, type CancellationToken } from 'vscode-languageserver-protocol';
+import { AstUtils, CstUtils, type LangiumDocument, type MaybePromise } from 'langium';
+import { Location, type ReferenceParams, CancellationToken } from 'vscode-languageserver-protocol';
 import { DefaultReferencesProvider } from 'langium/lsp';
-import { isSection, type Section, isFlowRule } from '../generated/ast.js';
+import { isSection, isFlowRule } from '../parser/ast/type-guards.js';
+import type { FlowRule } from '../parser/ast/index.js';
 import type { RclServices } from '../rcl-module.js';
 
 export class RclReferenceProvider extends DefaultReferencesProvider {
 
-  protected readonly services: RclServices;
-
   constructor(services: RclServices) {
     super(services);
-    this.services = services;
   }
 
-  override findReferences(document: LangiumDocument, params: ReferenceParams, cancelToken?: CancellationToken): MaybePromise<Location[]> {
-    const rootAstNode = document.parseResult.value;
-    if (!rootAstNode?.$cstNode) {
-      return [];
+  override findReferences(document: LangiumDocument, params: ReferenceParams, cancelToken = CancellationToken.None): MaybePromise<Location[]> {
+    const root = document.parseResult.value;
+    if (!root?.$cstNode) {
+        return [];
     }
-    const offset = document.textDocument.offsetAt(params.position);
-    const cstNode = CstUtils.findLeafNodeAtOffset(rootAstNode.$cstNode, offset);
-
-    if (!cstNode?.element) {
-      return [];
+    const cstNode = CstUtils.findLeafNodeAtOffset(root.$cstNode, document.textDocument.offsetAt(params.position));
+    if (!cstNode) {
+        return [];
     }
-
-    const astNodeForLeaf = cstNode.element;
-
-    if (isSection(astNodeForLeaf) && astNodeForLeaf.name && cstNode.text === astNodeForLeaf.name) {
-      return this.findSectionReferences(astNodeForLeaf, document, params.context.includeDeclaration, cancelToken);
+    const targetNode = this.references.findDeclaration(cstNode);
+    if (!targetNode) {
+        return [];
     }
 
-    const enclosingSection = AstUtils.getContainerOfType(astNodeForLeaf, isSection);
-
-    if (enclosingSection?.name && cstNode.text === enclosingSection.name) {
-      return this.findSectionReferences(enclosingSection, document, params.context.includeDeclaration, cancelToken);
-    }
-
-    return [];
-  }
-
-  protected findSectionReferences(sectionNode: Section, document: LangiumDocument, includeDeclaration: boolean, cancelToken?: CancellationToken): Location[] {
     const locations: Location[] = [];
-    const targetName = sectionNode.name;
-    if (!targetName) return [];
 
-    if (includeDeclaration) {
-      const nameCstNode = this.services.references.NameProvider.getNameNode(sectionNode);
-      const loc = nameCstNode ? this.getNodeLocationFromCst(nameCstNode, document) : this.getNodeLocation(sectionNode, document);
-      if (loc) locations.push(loc);
-    }
-
-    // Find all references to this section
-    for (const node of AstUtils.streamAllContents(document.parseResult.value)) {
-      if (cancelToken?.isCancellationRequested) return locations;
-      if (node === sectionNode) continue;
-
-      // Check for flow rule references
-      if (isFlowRule(node)) {
-        if (node.destination?.ref === sectionNode) {
-          const destCstNode = GrammarUtils.findNodeForProperty(node.$cstNode, 'destination');
-          const loc = this.getNodeLocationFromCst(destCstNode, document);
-          if (loc) {
-            locations.push(loc);
-          }
+    if (isSection(targetNode)) {
+        for(const node of AstUtils.streamAllContents(root)) {
+            if (isFlowRule(node)) {
+                const flowRule = node as FlowRule;
+                for (const operand of flowRule.operands) {
+                    if (operand.$cstNode) {
+                        const declaration = this.references.findDeclaration(operand.$cstNode);
+                        if (declaration === targetNode) {
+                            locations.push(Location.create(document.uri.toString(), operand.$cstNode.range));
+                        }
+                    }
+                }
+            }
         }
-      }
-
-      // Check other sections with the same name (duplicates)
-      if (isSection(node) && node.name === targetName && node !== sectionNode) {
-        const loc = this.getNodeLocation(node, document);
-        if (loc) locations.push(loc);
-      }
     }
+    
+    const nameNode = this.nameProvider.getNameNode(targetNode);
+    if (nameNode) {
+        locations.push(Location.create(document.uri.toString(), nameNode.range));
+    }
+
     return locations;
   }
 
-  protected getNodeLocation(node: AstNode, document: LangiumDocument): Location | undefined {
-    if (node.$cstNode) {
-      return Location.create(
-        document.uri.toString(),
-        node.$cstNode.range
-      );
-    }
-    return undefined;
-  }
-
-  protected getNodeLocationFromCst(cstNode: AstNode['$cstNode'], document: LangiumDocument): Location | undefined {
+  protected getNodeLocationFromCst(cstNode: any, document: LangiumDocument): Location | undefined {
     if (!cstNode) return undefined;
     return { uri: document.uri.toString(), range: cstNode.range };
   }

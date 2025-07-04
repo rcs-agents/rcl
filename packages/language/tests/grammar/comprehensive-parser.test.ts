@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeAll } from 'vitest';
-import { RclParser } from '../../src/parser/parser.ts';
+import { RclParser } from '../../src/parser/parser/index.js';
 import { AstUtils } from '../../src/parser/rcl-simple-ast.js';
 import type { RclFile, Section, Value } from '../../src/parser/rcl-simple-ast.js';
 

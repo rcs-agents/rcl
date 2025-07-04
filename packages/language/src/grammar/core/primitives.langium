@@ -30,7 +30,7 @@ terminal NULL_KW: /\b(Null|None|Void|null)\b/;
 
 // ======== Identifier Terminals ========
 // Must start with uppercase letter per RCL spec, allow hyphens and underscores
-terminal IDENTIFIER: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9])))*\b/;
+terminal IDENTIFIER: /[A-Z]([A-Za-z0-9-_]|(\s(?=[A-Z0-9]))*/;
 
 // Attribute keys start with lowercase
 terminal ATTRIBUTE_KEY: /[a-z][a-zA-Z0-9_]*(?=\s*:)/;

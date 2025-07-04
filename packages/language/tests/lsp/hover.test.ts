@@ -2,7 +2,7 @@ import { describe, test, expect, beforeAll, afterEach } from 'vitest';
 import { EmptyFileSystem, type LangiumDocument } from 'langium';
 import { clearDocuments, parseHelper } from 'langium/test';
 import { createRclServices } from '../../src/rcl-module.js';
-import type { RclFile } from '../../src/generated/ast.js';
+import type { RclFile } from '../../s../parser/ast';
 import { HoverParams, Position } from 'vscode-languageserver';
 
 let services: ReturnType<typeof createRclServices>;
