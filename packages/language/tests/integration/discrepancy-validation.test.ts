@@ -179,10 +179,10 @@ describe('Discrepancy Validation', () => {
     test('FIXED: Required displayName is enforced', () => {
       const input = `agent Test:
   # Missing displayName
-  messages Messages:
-    Hello: text "Hi"
   flow Flow:
-    :start -> Hello`;
+    :start -> Hello
+  messages Messages:
+    text "Hi"`;
 
       const result = parser.parse(input);
       
@@ -193,7 +193,7 @@ describe('Discrepancy Validation', () => {
       const input = `agent Test:
   displayName: "Test"
   messages Messages:
-    Hello: text "Hi"`;
+    text "Hi"`;
 
       const result = parser.parse(input);
       

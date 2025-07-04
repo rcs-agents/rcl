@@ -782,7 +782,123 @@ MessageDefinition returns MessageDefinition:
     attributes+=Attribute*
     DEDENT?;
 
+// ======== Agent Definition ========
+// Main agent structure following RCL specification
+AgentDefinition returns AgentDefinition:
+    AGENT_KW __ name=IDENTIFIER ':'
+    INDENT
+    'displayName' ':' __ displayName=STRING // Required
+    ('brandName' ':' __ brandName=STRING)? // Optional
+    (configSection=ConfigSection)?
+    (defaultsSection=DefaultsSection)?
+    (flowSections+=FlowSection)+ // At least one flow required
+    messagesSection=MessagesSection // Required
+    DEDENT;
+
+ConfigSection returns ConfigSection:
+    AGENT_CONFIG_KW __ 'Config' ':'
+    INDENT
+    (properties+=ConfigProperty)*
+    DEDENT;
+
+DefaultsSection returns DefaultsSection:
+    AGENT_DEFAULTS_KW __ 'Defaults' ':'
+    INDENT
+    (properties+=DefaultProperty)*
+    DEDENT;
+
+FlowSection returns FlowSection:
+    FLOW_KW __ name=IDENTIFIER ':'
+    INDENT
+    (rules+=FlowRule)*
+    DEDENT;
+
+MessagesSection returns MessagesSection:
+    MESSAGES_KW __ 'Messages' ':'
+    INDENT
+    (messages+=MessageDefinition | shortcuts+=MessageShortcut)*
+    DEDENT;
+
+// Message shortcuts
+MessageShortcut returns MessageShortcut:
+    TextShortcut | RichCardShortcut | CarouselShortcut | FileShortcut;
+
+TextShortcut returns TextShortcut:
+    'text' __ value=SimpleValue;
+
+RichCardShortcut returns RichCardShortcut:
+    'richCard' __ value=SimpleValue
+    (INDENT
+        (attributes+=ShortcutAttribute)*
+    DEDENT)?;
+
+CarouselShortcut returns CarouselShortcut:
+    'carousel'
+    (INDENT
+        (attributes+=ShortcutAttribute)*
+    DEDENT)?;
+
+FileShortcut returns FileShortcut:
+    'file' __ value=SimpleValue;
+
+ShortcutAttribute returns ShortcutAttribute:
+    key=ATTRIBUTE_KEY ':' __ value=SimpleValue;
+
+// Define the missing interfaces
+interface AgentDefinition {
+    name: string;
+    displayName: string;
+    brandName?: string;
+    configSection?: ConfigSection;
+    defaultsSection?: DefaultsSection;
+    flowSections: FlowSection[];
+    messagesSection: MessagesSection;
+}
+
+interface ConfigSection {
+    properties: ConfigProperty[];
+}
+
+interface DefaultsSection {
+    properties: DefaultProperty[];
+}
+
+interface FlowSection {
+    name: string;
+    rules: FlowRule[];
+}
+
+interface MessagesSection {
+    messages: MessageDefinition[];
+    shortcuts: MessageShortcut[];
+}
+
+interface MessageShortcut {
+}
+
+interface TextShortcut extends MessageShortcut {
+    value: SimpleValue;
+}
+
+interface RichCardShortcut extends MessageShortcut {
+    value: SimpleValue;
+    attributes: ShortcutAttribute[];
+}
+
+interface CarouselShortcut extends MessageShortcut {
+    attributes: ShortcutAttribute[];
+}
+
+interface FileShortcut extends MessageShortcut {
+    value: SimpleValue;
+}
+
+interface ShortcutAttribute {
+    key: string;
+    value: SimpleValue;
+}
+
 entry RclFile:
     (imports+=ImportStatement)*
-    (sections+=Section)*;
+    agentDefinition=AgentDefinition;
 

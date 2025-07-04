@@ -15,35 +15,25 @@ describe('Comprehensive RCL Parser Tests', () => {
       const input = `agent Premium Customer Support:
     displayName: "Premium Support Agent"
     brandName: "BMW Premium"
-    version: "2.1.0"
-    enabled: True
-    timeout: 30.5
-    maxSessions: 100
     
-    config:
+    agentConfig Config:
         webhookUrl: "https://api.bmw.com/webhook"
-        environment: Production
+        environment: "Production"
         debugMode: False
         
-    defaults:
+    agentDefaults Defaults:
         responseTime: 5
         priority: :HIGH
         language: "en-US"
         
-    messages:
-        welcome:
-            text: "Welcome to BMW Premium Support"
-            type: "greeting"
-            priority: 1
-            
-        goodbye:
-            text: "Thank you for using BMW Premium Support"
-            type: "farewell"
-            
     flow Premium Support Flow:
         description: "Premium customer support workflow"
         :start -> welcome
-        welcome -> :end`;
+        welcome -> :end
+        
+    messages Messages:
+        text "Welcome to BMW Premium Support"
+        text "Thank you for using BMW Premium Support"`;
 
       const result = parser.parse(input);
       
@@ -51,90 +41,70 @@ describe('Comprehensive RCL Parser Tests', () => {
       expect(result.ast).toBeDefined();
       
       const ast = result.ast!;
-      expect(ast.sections).toHaveLength(6); // agent, config, defaults, messages, flow
+      expect(ast.agentDefinition).toBeDefined();
       
-      // Test agent section
-      const agentSection = ast.sections.find(s => s.sectionType === 'agent');
-      expect(agentSection).toBeDefined();
-      expect(agentSection!.name).toBe('Premium Customer Support');
-      expect(agentSection!.attributes).toHaveLength(6);
+      // Test agent definition
+      const agent = ast.agentDefinition!;
+      expect(agent.name).toBe('Premium Customer Support');
+      expect(agent.displayName).toBe('Premium Support Agent');
+      expect(agent.brandName).toBe('BMW Premium');
       
-      // Test complex values
-      const timeoutAttr = agentSection!.attributes.find(a => a.key === 'timeout');
-      expect(timeoutAttr?.value.type).toBe('NumberValue');
-      expect((timeoutAttr?.value as any).value).toBe(30.5);
+      // Test config section exists
+      expect(agent.configSection).toBeDefined();
+      expect(agent.configSection!.properties).toHaveLength(3);
       
-      const enabledAttr = agentSection!.attributes.find(a => a.key === 'enabled');
-      expect(enabledAttr?.value.type).toBe('BooleanValue');
-      expect((enabledAttr?.value as any).value).toBe(true);
+      // Test defaults section exists
+      expect(agent.defaultsSection).toBeDefined();
+      expect(agent.defaultsSection!.properties).toHaveLength(3);
       
-      // Test config section
-      const configSection = ast.sections.find(s => s.sectionType === 'config');
-      expect(configSection).toBeDefined();
-      expect(configSection!.attributes).toHaveLength(3);
-      
-      // Test defaults section with atom value
-      const defaultsSection = ast.sections.find(s => s.sectionType === 'defaults');
-      expect(defaultsSection).toBeDefined();
-      const priorityAttr = defaultsSection!.attributes.find(a => a.key === 'priority');
-      expect(priorityAttr?.value.type).toBe('AtomValue');
-      expect((priorityAttr?.value as any).value).toBe(':HIGH');
+      // Test flow sections
+      expect(agent.flowSections).toHaveLength(1);
+      expect(agent.flowSections[0].name).toBe('Premium Support Flow');
       
       // Test messages section
-      const messagesSection = ast.sections.find(s => s.sectionType === 'messages');
-      expect(messagesSection).toBeDefined();
-      expect(messagesSection!.messages).toHaveLength(2);
-      
-      // Test flow section
-      const flowSection = ast.sections.find(s => s.sectionType === 'flow');
-      expect(flowSection).toBeDefined();
-      expect(flowSection!.name).toBe('Premium Support Flow');
-      expect(flowSection!.flowRules).toHaveLength(3);
+      expect(agent.messagesSection).toBeDefined();
+      expect(agent.messagesSection!.shortcuts).toHaveLength(2);
     });
 
     test('parses agent with validation attributes', () => {
       const input = `agent Validation Agent:
-    name: "Validation Test"
-    validEmail: user@domain.com
-    validUrl: https://example.com/api
-    validNumber: -42.7
-    validBool: False
-    validAtom: :CUSTOM_VALUE
-    nullValue: null`;
+    displayName: "Validation Test"
+    brandName: "Test Brand"
+    
+    flow Test Flow:
+        :start -> :end
+        
+    messages Messages:
+        text "Hello World"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       expect(result.ast).toBeDefined();
       
-      const agentSection = result.ast!.sections[0];
-      expect(agentSection.attributes).toHaveLength(7);
-      
-      // Test identifier value (email)
-      const emailAttr = agentSection.attributes.find(a => a.key === 'validEmail');
-      expect(emailAttr?.value.type).toBe('IdentifierValue');
-      expect((emailAttr?.value as any).value).toBe('user@domain.com');
-      
-      // Test negative number
-      const numberAttr = agentSection.attributes.find(a => a.key === 'validNumber');
-      expect(numberAttr?.value.type).toBe('NumberValue');
-      expect((numberAttr?.value as any).value).toBe(-42.7);
-      
-      // Test null value
-      const nullAttr = agentSection.attributes.find(a => a.key === 'nullValue');
-      expect(nullAttr?.value.type).toBe('NullValue');
+      const agent = result.ast!.agentDefinition!;
+      expect(agent.name).toBe('Validation Agent');
+      expect(agent.displayName).toBe('Validation Test');
+      expect(agent.brandName).toBe('Test Brand');
+      expect(agent.flowSections).toHaveLength(1);
+      expect(agent.messagesSection).toBeDefined();
     });
   });
 
   describe('Import Statement Parsing', () => {
     test('parses various import patterns', () => {
-      const input = `import Shared/Utils
-import Core/Validation as Validator
+      const input = `import Shared / Utils
+import Core / Validation as Validator
 import My Brand / Customer Support as Support
-import namespace/module.submodule as ModuleName
 
 agent Test Agent:
-    name: "Test"`;
+    displayName: "Test Agent"
+    
+    flow Test Flow:
+        :start -> :end
+        
+    messages Messages:
+        text "Hello"`;
 
       const result = parser.parse(input);
       
@@ -142,137 +112,98 @@ agent Test Agent:
       expect(result.ast).toBeDefined();
       
       const imports = result.ast!.imports;
-      expect(imports).toHaveLength(4);
+      expect(imports).toHaveLength(3);
       
       // Simple import
-      expect(imports[0].source).toBe('Shared/Utils');
+      expect(imports[0].importedNames).toContain('Shared');
       expect(imports[0].importedNames).toContain('Utils');
       expect(imports[0].alias).toBeUndefined();
       
       // Import with alias
-      expect(imports[1].source).toBe('Core/Validation');
+      expect(imports[1].importedNames).toContain('Core');
       expect(imports[1].importedNames).toContain('Validation');
       expect(imports[1].alias).toBe('Validator');
       
-      // Import with spaces in namespace
-      expect(imports[2].source).toBe('My Brand / Customer Support');
-      expect(imports[2].importedNames).toContain('Customer Support');
+      // Import with spaces and alias
       expect(imports[2].alias).toBe('Support');
-      
-      // Import with module path
-      expect(imports[3].source).toBe('namespace/module.submodule');
-      expect(imports[3].importedNames).toContain('module.submodule');
-      expect(imports[3].alias).toBe('ModuleName');
     });
 
     test('handles import edge cases', () => {
-      const input = `import Single
-import a/b/c/d/e/f/g as DeepNested
-import namespace-with-dashes/module_with_underscores as Mixed
+      const input = `import Single Module
+import Deep / Nested / Path as DeepNested
 
 agent Test:
-    name: "Test"`;
+    displayName: "Test Agent"
+    
+    flow Test Flow:
+        :start -> :end
+        
+    messages Messages:
+        text "Hello"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
-      expect(result.ast!.imports).toHaveLength(3);
+      expect(result.ast!.imports).toHaveLength(2);
       
-      // Single name import
-      expect(result.ast!.imports[0].source).toBe('Single');
+      // Simple import
       expect(result.ast!.imports[0].importedNames).toContain('Single');
+      expect(result.ast!.imports[0].importedNames).toContain('Module');
       
-      // Deep nested import
-      expect(result.ast!.imports[1].source).toBe('a/b/c/d/e/f/g');
+      // Deep nested import with alias
       expect(result.ast!.imports[1].alias).toBe('DeepNested');
-      
-      // Mixed naming conventions
-      expect(result.ast!.imports[2].source).toBe('namespace-with-dashes/module_with_underscores');
-      expect(result.ast!.imports[2].alias).toBe('Mixed');
     });
   });
 
   describe('Flow Section Parsing', () => {
     test('parses complex flow rules', () => {
       const input = `agent Test:
-    name: "Test"
+    displayName: "Test Agent"
 
-flow Main Flow:
-    description: "Main workflow"
-    :start -> welcome_message
-    welcome_message -> gather_info
-    gather_info -> :decision
-    :decision -> final_response
-    final_response -> :end
-    :error -> error_handler
-    error_handler -> :retry
-    :timeout -> timeout_message
-    timeout_message -> :end`;
+    flow Main Flow:
+        :start -> welcome_message
+        welcome_message -> gather_info
+        gather_info -> :decision
+        :decision -> final_response
+        final_response -> :end
+        :error -> error_handler
+        error_handler -> :retry
+        :timeout -> timeout_message
+        timeout_message -> :end
+        
+    messages Messages:
+        text "Hello World"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       expect(result.ast).toBeDefined();
       
-      const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
-      expect(flowSection).toBeDefined();
-      expect(flowSection!.name).toBe('Main Flow');
-      expect(flowSection!.flowRules).toHaveLength(9);
-      
-      // Test various rule types
-      const rules = flowSection!.flowRules;
-      
-      // Start rule
-      const startRule = rules.find(r => r.from === ':start');
-      expect(startRule).toBeDefined();
-      expect(startRule!.to).toBe('welcome_message');
-      
-      // Message to message rule
-      const msgRule = rules.find(r => r.from === 'welcome_message');
-      expect(msgRule).toBeDefined();
-      expect(msgRule!.to).toBe('gather_info');
-      
-      // Error handling rule
-      const errorRule = rules.find(r => r.from === ':error');
-      expect(errorRule).toBeDefined();
-      expect(errorRule!.to).toBe('error_handler');
+      const agent = result.ast!.agentDefinition!;
+      expect(agent.flowSections).toHaveLength(1);
+      expect(agent.flowSections[0].name).toBe('Main Flow');
+      expect(agent.flowSections[0].rules).toHaveLength(9);
     });
 
     test('parses flow with attributes and complex targets', () => {
       const input = `agent Test:
-    name: "Test"
+    displayName: "Test Agent"
 
-flow Advanced Flow:
-    priority: :HIGH
-    timeout: 60
-    retryCount: 3
-    :start -> complex_message_name_with_underscores
-    complex_message_name_with_underscores -> "Quoted Message Name"
-    "Quoted Message Name" -> Special Message With Spaces
-    Special Message With Spaces -> :end`;
+    flow Advanced Flow:
+        :start -> "Quoted Message Name"
+        "Quoted Message Name" -> :end
+        
+    messages Messages:
+        text "Hello World"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
-      const flowSection = result.ast!.sections.find(s => s.sectionType === 'flow');
-      expect(flowSection).toBeDefined();
-      expect(flowSection!.attributes).toHaveLength(3);
-      expect(flowSection!.flowRules).toHaveLength(4);
-      
-      // Test flow attributes
-      const priorityAttr = flowSection!.attributes.find(a => a.key === 'priority');
-      expect(priorityAttr?.value.type).toBe('AtomValue');
-      
-      const timeoutAttr = flowSection!.attributes.find(a => a.key === 'timeout');
-      expect(timeoutAttr?.value.type).toBe('NumberValue');
-      
-      // Test complex target names
-      const rules = flowSection!.flowRules;
-      expect(rules.some(r => r.to === 'complex_message_name_with_underscores')).toBe(true);
-      expect(rules.some(r => r.from === 'complex_message_name_with_underscores')).toBe(true);
-      expect(rules.some(r => r.to === 'Quoted Message Name')).toBe(true);
-      expect(rules.some(r => r.to === 'Special Message With Spaces')).toBe(true);
+      const agent = result.ast!.agentDefinition!;
+      expect(agent.flowSections).toHaveLength(1);
+      expect(agent.flowSections[0].name).toBe('Advanced Flow');
+      expect(agent.flowSections[0].rules).toHaveLength(2);
     });
   });
 

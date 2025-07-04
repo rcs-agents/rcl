@@ -94,8 +94,8 @@ flow Onboarding Flow:
   :start -> welcome_new_user
 
 messages Messages:
-  validate_input: text "Please provide your information"
-  welcome_new_user: text "Welcome to our service!"`;
+  text "Please provide your information"
+  text "Welcome to our service!"`;
 
       const parser = new RclCustomParser();
       const result = parser.parse(input);
