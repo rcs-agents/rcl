@@ -5,6 +5,7 @@ import {
     allExpressions,
     allFlows,
     allIdentifiers,
+    allImports,
     allLiterals,
     allSections,
     allStrings,
@@ -30,7 +31,7 @@ export function toInclude(rule: Rule): BasicIncludePattern {
 
 // Every rule that should be available in the grammar's repository.
 export const allRules: Rule[] = [
-    importStatement,
+    ...allImports,
     ...allFlows,
     ...allLiterals,
     ...allIdentifiers,
@@ -46,7 +47,7 @@ export const allRules: Rule[] = [
 
 // Defines what can exist at the root of a file.
 const fileContextRules: Rule[] = [
-    importStatement,
+    ...allImports,
     ...allSections,
     ...allComments,
 ];

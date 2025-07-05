@@ -1,5 +1,6 @@
 import { type Module, inject } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
+import type { LanguageMetaData } from 'langium';
 import { RclCompletionProvider } from './rcl-completion-provider.js';
 import { RclSemanticTokenProvider } from './lsp/rcl-semantic-token-provider.js';
 import { RclHoverProvider } from './lsp/rcl-hover-provider.js';
@@ -45,6 +46,12 @@ export type RclTestServices = LangiumServices & RclAddedServices
  * selected services, while the custom services must be fully specified.
  */
 export const RclModule: Module<RclServices, PartialLangiumServices> = {
+  LanguageMetaData: (): LanguageMetaData => ({
+    languageId: 'rcl',
+    fileExtensions: ['.rcl'],
+    caseInsensitive: false,
+    mode: 'development'
+  }),
   lsp: {
     CompletionProvider: (services: RclServices) => new RclCompletionProvider(services),
     SemanticTokenProvider: (services: RclServices) => new RclSemanticTokenProvider(services),

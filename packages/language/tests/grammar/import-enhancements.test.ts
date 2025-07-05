@@ -63,77 +63,136 @@ agent Test:
 
   describe('Namespace Imports with Spaces', () => {
     it('should parse namespace imports with spaces in names', () => {
-      const input = `import My Brand / Samples as Sample One`;
+      const input = `import My Brand / Samples as Sample One
+
+agent Test:
+    displayName: "Test Agent"
+    
+    flow Main:
+      :start -> :end
+      
+    messages Messages:
+      welcome: "Hello"`;
 
       const result = parser.parse(input);
+      
+      // Debug: show what errors are generated
+      if (result.errors.length > 0) {
+        console.log('Import namespace errors:', result.errors);
+      }
       
       expect(result.errors).toHaveLength(0);
       expect(result.ast?.imports).toHaveLength(1);
       
       const importStmt = result.ast!.imports[0];
-      expect(importStmt.importedNames).toEqual(['My Brand', 'Samples']);
+      expect(importStmt.importPath).toEqual(['My Brand', 'Samples']);
       expect(importStmt.alias).toBe('Sample One');
     });
 
     it('should parse multi-level namespace paths', () => {
-      const input = `import Shared / Common Flows / Support`;
+      const input = `import Shared / Common Flows / Support
+
+agent Test:
+    displayName: "Test Agent"
+    
+    flow Main:
+      :start -> :end
+      
+    messages Messages:
+      welcome: "Hello"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
       const importStmt = result.ast!.imports[0];
-      expect(importStmt.importedNames).toEqual(['Shared', 'Common Flows', 'Support']);
+      expect(importStmt.importPath).toEqual(['Shared', 'Common Flows', 'Support']);
       expect(importStmt.alias).toBeUndefined();
     });
 
     it('should parse complex namespace with spaces and alias', () => {
-      const input = `import Premium Customer / Support Flows as Customer Support`;
+      const input = `import Premium Customer / Support Flows as Customer Support
+
+agent Test:
+    displayName: "Test Agent"
+    
+    flow Main:
+      :start -> :end
+      
+    messages Messages:
+      welcome: "Hello"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
       const importStmt = result.ast!.imports[0];
-      expect(importStmt.importedNames).toEqual(['Premium Customer', 'Support Flows']);
+      expect(importStmt.importPath).toEqual(['Premium Customer', 'Support Flows']);
       expect(importStmt.alias).toBe('Customer Support');
     });
   });
 
   describe('Edge Cases and Error Handling', () => {
     it('should handle namespace paths without alias', () => {
-      const input = `import Brand / Agent Templates`;
+      const input = `import Brand / Agent Templates
+
+agent Test:
+    displayName: "Test Agent"
+    
+    flow Main:
+      :start -> :end
+      
+    messages Messages:
+      welcome: "Hello"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
       const importStmt = result.ast!.imports[0];
-      expect(importStmt.importedNames).toEqual(['Brand', 'Agent Templates']);
+      expect(importStmt.importPath).toEqual(['Brand', 'Agent Templates']);
       expect(importStmt.alias).toBeUndefined();
     });
 
     it('should handle single namespace with spaces', () => {
-      const input = `import Premium Support as Support`;
+      const input = `import Premium Support as Support
+
+agent Test:
+    displayName: "Test Agent"
+    
+    flow Main:
+      :start -> :end
+      
+    messages Messages:
+      welcome: "Hello"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
       const importStmt = result.ast!.imports[0];
-      expect(importStmt.importedNames).toEqual(['Premium Support']);
+      expect(importStmt.importPath).toEqual(['Premium Support']);
       expect(importStmt.alias).toBe('Support');
     });
 
     it('should handle imports without source', () => {
-      const input = `import Local Utils / Helpers`;
+      const input = `import Local Utils / Helpers
+
+agent Test:
+    displayName: "Test Agent"
+    
+    flow Main:
+      :start -> :end
+      
+    messages Messages:
+      welcome: "Hello"`;
 
       const result = parser.parse(input);
       
       expect(result.errors).toHaveLength(0);
       
       const importStmt = result.ast!.imports[0];
-      expect(importStmt.importedNames).toEqual(['Local Utils', 'Helpers']);
+      expect(importStmt.importPath).toEqual(['Local Utils', 'Helpers']);
       expect(importStmt.alias).toBeUndefined();
     });
   });
@@ -142,23 +201,37 @@ agent Test:
     it('should parse multiple different import types', () => {
       const input = `import Utils
 import My Brand / Samples as Samples  
-import Local Helper`;
+import Local Helper
+
+agent Test:
+    displayName: "Test Agent"
+    
+    flow Main:
+      :start -> :end
+      
+    messages Messages:
+      welcome: "Hello"`;
 
       const result = parser.parse(input);
+      
+      // Debug: show what errors are generated
+      if (result.errors.length > 0) {
+        console.log('Mixed import errors:', result.errors);
+      }
       
       expect(result.errors).toHaveLength(0);
       expect(result.ast?.imports).toHaveLength(3);
       
       // First import: simple
-      expect(result.ast!.imports[0].importedNames).toEqual(['Utils']);
+      expect(result.ast!.imports[0].importPath).toEqual(['Utils']);
       expect(result.ast!.imports[0].alias).toBeUndefined();
       
       // Second import: namespace with alias
-      expect(result.ast!.imports[1].importedNames).toEqual(['My Brand', 'Samples']);
+      expect(result.ast!.imports[1].importPath).toEqual(['My Brand', 'Samples']);
       expect(result.ast!.imports[1].alias).toBe('Samples');
       
       // Third import: local without source
-      expect(result.ast!.imports[2].importedNames).toEqual(['Local Helper']);
+      expect(result.ast!.imports[2].importPath).toEqual(['Local Helper']);
       expect(result.ast!.imports[2].alias).toBeUndefined();
     });
   });

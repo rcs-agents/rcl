@@ -1,0 +1,24 @@
+bun test v1.2.18 (0d4089ea)
+
+tests/lexer/multi-line-expressions.test.ts:
+(pass) Lexer - Multi-line Expressions (Critical Fix) > should tokenize multi-line expressions with indentation syntax [6.00ms]
+(pass) Lexer - Multi-line Expressions (Critical Fix) > should support both $js>>> and $ts>>> syntax [2.00ms]
+(pass) Lexer - Multi-line Expressions (Critical Fix) > should handle single-line embedded expressions [1.00ms]
+130 | 
+131 |     const parser = new RclParser();
+132 |     const parseResult = parser.parse(testInput);
+133 | 
+134 |     expect(parseResult.ast).toBeTruthy();
+135 |     expect(parseResult.ast!.agentDefinition).toBeTruthy();
+                                                   ^
+error: expect(received).toBeTruthy()
+
+Received: undefined
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/lexer/multi-line-expressions.test.ts:135:46)
+(fail) Lexer - Multi-line Expressions (Critical Fix) > should parse agents with multi-line expressions successfully
+
+ 3 pass
+ 1 fail
+ 15 expect() calls
+Ran 4 tests across 1 file. [150.00ms]

@@ -1,0 +1,39 @@
+bun test v1.2.18 (0d4089ea)
+
+tests/lexer/type-tags.test.ts:
+(pass) Lexer - Type Tags Implementation > should tokenize type tag components correctly [2361.02ms]
+(pass) Lexer - Type Tags Implementation > should recognize all type tag names [25.00ms]
+(pass) Lexer - Type Tags Implementation > should handle type tag modifiers with pipe [6.00ms]
+93 | 
+94 |     const parser = new RclParser();
+95 |     const parseResult = parser.parse(testInput);
+96 | 
+97 |     expect(parseResult.ast).toBeTruthy();
+98 |     expect(parseResult.ast!.agentDefinition).toBeTruthy();
+                                                  ^
+error: expect(received).toBeTruthy()
+
+Received: undefined
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/lexer/type-tags.test.ts:98:46)
+(fail) Lexer - Type Tags Implementation > should parse agents with type tags successfully [15.00ms]
+120 | 
+121 |     const lexer = new RclLexer();
+122 |     const lexResult = lexer.tokenize(testInput);
+123 | 
+124 |     // Should successfully tokenize without errors
+125 |     expect(lexResult.errors.length).toBe(0);
+                                          ^
+error: expect(received).toBe(expected)
+
+Expected: 0
+Received: 4
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/lexer/type-tags.test.ts:125:37)
+(fail) Lexer - Type Tags Implementation > should handle various type tag formats [32.00ms]
+(pass) Lexer - Type Tags Implementation > should handle type tags in different contexts [2.00ms]
+
+ 4 pass
+ 2 fail
+ 10 expect() calls
+Ran 6 tests across 1 file. [4.18s]

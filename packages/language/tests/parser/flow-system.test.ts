@@ -56,10 +56,10 @@ agent Flow Agent:
     const parseResult = parser.parse(testInput);
 
     expect(parseResult.ast).toBeTruthy();
-    expect(parseResult.ast!.agentDefinition).toBeTruthy();
-    expect(parseResult.ast!.agentDefinition!.name).toBe('Flow Agent');
-    expect(parseResult.ast!.agentDefinition!.flows.length).toBe(1);
-    expect(parseResult.ast!.agentDefinition!.flows[0].name).toBe('Complex Flow');
+    expect(parseResult.ast!.agentSection).toBeTruthy();
+    expect(parseResult.ast!.agentSection!.name).toBe('Flow Agent');
+    expect(parseResult.ast!.agentSection!.flows.length).toBe(1);
+    expect(parseResult.ast!.agentSection!.flows[0].name).toBe('Complex Flow');
   });
 
   it('should handle flow operand types correctly', () => {
@@ -131,10 +131,10 @@ agent Multi Flow Agent:
     const parseResult = parser.parse(testInput);
 
     expect(parseResult.ast).toBeTruthy();
-    expect(parseResult.ast!.agentDefinition).toBeTruthy();
-    expect(parseResult.ast!.agentDefinition!.flows.length).toBe(2);
-    expect(parseResult.ast!.agentDefinition!.flows[0].name).toBe('First Flow');
-    expect(parseResult.ast!.agentDefinition!.flows[1].name).toBe('Second Flow');
+    expect(parseResult.ast!.agentSection).toBeTruthy();
+    expect(parseResult.ast!.agentSection!.flows.length).toBe(2);
+    expect(parseResult.ast!.agentSection!.flows[0].name).toBe('First Flow');
+    expect(parseResult.ast!.agentSection!.flows[1].name).toBe('Second Flow');
   });
 
   it('should handle space-separated flow identifiers', () => {
@@ -154,7 +154,7 @@ agent Space Flow:
     const parseResult = parser.parse(testInput);
 
     expect(parseResult.ast).toBeTruthy();
-    expect(parseResult.ast!.agentDefinition!.flows[0].name).toBe('Order Processing Flow');
+    expect(parseResult.ast!.agentSection!.flows[0].name).toBe('Order Processing Flow');
   });
 
   it('should validate arrow syntax in complex chains', () => {

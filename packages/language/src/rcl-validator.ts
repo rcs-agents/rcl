@@ -41,7 +41,7 @@ export class RclValidator {
    */
   checkRclFile(rclFile: RclFile, accept: ValidationAcceptor): void {
     if (isRclFile(rclFile)) {
-      const rootSection = rclFile.agentSection;
+      const rootSection = rclFile.agentDefinition;
       if (rootSection) {
         const rootSectionType = rootSection.type;
         if (rootSectionType !== 'AgentDefinition') {
@@ -58,9 +58,9 @@ export class RclValidator {
       this.referenceResolver.resolveFileReferences(rclFile, accept);
       
       // Check for circular dependencies if agent section exists
-      if (rclFile.agentSection) {
+      if (rclFile.agentDefinition) {
         const resolution = this.referenceResolver.resolveFileReferences(rclFile, accept);
-        this.referenceResolver.checkCircularDependencies(rclFile.agentSection, resolution, accept);
+        this.referenceResolver.checkCircularDependencies(rclFile.agentDefinition, resolution, accept);
       }
     }
   }

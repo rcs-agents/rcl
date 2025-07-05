@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeAll } from 'vitest';
 import { RclParser } from '../../src/parser/parser/index.js';
-import { AstUtils } from '../../src/parser/rcl-simple-ast.js';
-import type { RclFile, Section, Value } from '../../src/parser/rcl-simple-ast.js';
+import type { RclFile } from '../../src/parser/ast/index.js';
 
 describe('Comprehensive RCL Parser Tests', () => {
   let parser: RclParser;
@@ -41,10 +40,10 @@ describe('Comprehensive RCL Parser Tests', () => {
       expect(result.ast).toBeDefined();
       
       const ast = result.ast!;
-      expect(ast.agentDefinition).toBeDefined();
+      expect(ast.agentSection).toBeDefined();
       
       // Test agent definition
-      const agent = ast.agentDefinition!;
+      const agent = ast.agentSection!;
       expect(agent.name).toBe('Premium Customer Support');
       expect(agent.displayName).toBe('Premium Support Agent');
       expect(agent.brandName).toBe('BMW Premium');
@@ -82,7 +81,7 @@ describe('Comprehensive RCL Parser Tests', () => {
       expect(result.errors).toHaveLength(0);
       expect(result.ast).toBeDefined();
       
-      const agent = result.ast!.agentDefinition!;
+      const agent = result.ast!.agentSection!;
       expect(agent.name).toBe('Validation Agent');
       expect(agent.displayName).toBe('Validation Test');
       expect(agent.brandName).toBe('Test Brand');
@@ -115,13 +114,13 @@ agent Test Agent:
       expect(imports).toHaveLength(3);
       
       // Simple import
-      expect(imports[0].importedNames).toContain('Shared');
-      expect(imports[0].importedNames).toContain('Utils');
+      expect(imports[0].importPath).toContain('Shared');
+      expect(imports[0].importPath).toContain('Utils');
       expect(imports[0].alias).toBeUndefined();
       
       // Import with alias
-      expect(imports[1].importedNames).toContain('Core');
-      expect(imports[1].importedNames).toContain('Validation');
+      expect(imports[1].importPath).toContain('Core');
+      expect(imports[1].importPath).toContain('Validation');
       expect(imports[1].alias).toBe('Validator');
       
       // Import with spaces and alias
@@ -147,8 +146,8 @@ agent Test:
       expect(result.ast!.imports).toHaveLength(2);
       
       // Simple import
-      expect(result.ast!.imports[0].importedNames).toContain('Single');
-      expect(result.ast!.imports[0].importedNames).toContain('Module');
+      expect(result.ast!.imports[0].importPath).toContain('Single');
+      expect(result.ast!.imports[0].importPath).toContain('Module');
       
       // Deep nested import with alias
       expect(result.ast!.imports[1].alias).toBe('DeepNested');
@@ -179,7 +178,7 @@ agent Test:
       expect(result.errors).toHaveLength(0);
       expect(result.ast).toBeDefined();
       
-      const agent = result.ast!.agentDefinition!;
+      const agent = result.ast!.agentSection!;
       expect(agent.flowSections).toHaveLength(1);
       expect(agent.flowSections[0].name).toBe('Main Flow');
       expect(agent.flowSections[0].rules).toHaveLength(9);
@@ -200,7 +199,7 @@ agent Test:
       
       expect(result.errors).toHaveLength(0);
       
-      const agent = result.ast!.agentDefinition!;
+      const agent = result.ast!.agentSection!;
       expect(agent.flowSections).toHaveLength(1);
       expect(agent.flowSections[0].name).toBe('Advanced Flow');
       expect(agent.flowSections[0].rules).toHaveLength(2);

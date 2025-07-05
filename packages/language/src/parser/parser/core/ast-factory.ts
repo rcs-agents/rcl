@@ -23,12 +23,12 @@ export class AstFactory {
   /**
    * Create RclFile node
    */
-  createRclFile(imports: ImportStatement[], agentSection: AgentDefinition | null): RclFile {
+  createRclFile(imports: ImportStatement[], agentDefinition: AgentDefinition | null): RclFile {
     return {
       $type: 'RclFile',
       type: 'RclFile',
       imports,
-      agentSection
+      agentDefinition
     };
   }
 

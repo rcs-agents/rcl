@@ -47,6 +47,7 @@ export const FLOWS_KW = createToken({ name: 'flows', pattern: /flows\b/ });
 export const MESSAGES_KW = createToken({ name: 'messages', pattern: /messages\b/ });
 
 // Message keywords
+export const MESSAGE_KW = createToken({ name: 'message', pattern: /message\b/ });
 export const AGENT_MESSAGE_KW = createToken({ name: 'agentMessage', pattern: /agentMessage\b/ });
 export const CONTENT_MESSAGE_KW = createToken({ name: 'contentMessage', pattern: /contentMessage\b/ });
 export const SUGGESTION_KW = createToken({ name: 'suggestion', pattern: /suggestion\b/ });
@@ -188,19 +189,19 @@ export const MULTI_LINE_EXPRESSION_CONTENT = createToken({
 // Multi-line string markers (fixed to match formal spec exactly)
 export const MULTILINE_STR_PRESERVE_ALL = createToken({
     name: 'MULTILINE_STR_PRESERVE_ALL',
-    pattern: /\+\|\+(?=\s*(?:\r?\n|$))/
+    pattern: /\+\|\+(?=\s*\r?\n)/
 });
 export const MULTILINE_STR_PRESERVE = createToken({
     name: 'MULTILINE_STR_PRESERVE',
-    pattern: /\+\|(?=\s*(?:\r?\n|$))/
+    pattern: /\+\|(?=\s*\r?\n)/
 });
 export const MULTILINE_STR_TRIM = createToken({
     name: 'MULTILINE_STR_TRIM',
-    pattern: /\|-(?=\s*(?:\r?\n|$))/
+    pattern: /\|-(?=\s*\r?\n)/
 });
 export const MULTILINE_STR_CLEAN = createToken({
     name: 'MULTILINE_STR_CLEAN',
-    pattern: /\|(?=\s*(?:\r?\n|$))/
+    pattern: /\|(?=\s*\r?\n)/
 });
 export const STRING_CONTENT = createToken({
     name: 'STRING_CONTENT',
@@ -267,6 +268,7 @@ export const allTokens = [
     // Message keywords
     AGENT_MESSAGE_KW,
     CONTENT_MESSAGE_KW,
+    MESSAGE_KW,
     SUGGESTION_KW,
 
     // Message type keywords
@@ -432,6 +434,7 @@ export const RclTokens = {
     MESSAGES_KW,
 
     // Message keywords
+    MESSAGE_KW,
     AGENT_MESSAGE_KW,
     CONTENT_MESSAGE_KW,
     SUGGESTION_KW,
