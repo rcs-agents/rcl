@@ -37,16 +37,10 @@
 	"scripts": {
 		"clean": "tsc -b tsconfig.build.json --clean",
 		"build": "nr clean && nr build:lsp",
-		"bundle:grammar": "bun run scripts/bundle-grammar.ts",
-		"bundle:grammar-test": "bun run scripts/bundle-grammar.ts --test",
-		"build:lang": "nr bundle:grammar && langium generate",
-		"build:lang-test": "nr bundle:grammar-test && langium generate",
 		"build:lsp": "tsc -p tsconfig.build.json",
 		"build:syntax": "bun syntaxes/build-syntax.ts",
 		"check:syntaxes": "tsc -p syntaxes/tsconfig.json --noEmit",
-		"dev": "concurrently -k -n lang,lsp,syntax -c blue,yellow,green 'nr dev:lang' 'nr dev:lsp' 'nr dev:syntax'",
-		"dev:lang": "chokidar 'src/grammar/**/*' -c 'nr bundle:grammar && langium generate'",
-		"dev:lang-test": "chokidar 'src/grammar/**/*' -c 'nr bundle:grammar-test && langium generate'",
+		"dev": "concurrently -k -n lsp,syntax -c yellow,green 'nr dev:lsp' 'nr dev:syntax'",
 		"dev:lsp": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
 		"dev:syntax": "chokidar 'syntaxes/**/*' -c 'nr build:syntax'",
 		"test": "bun test; echo \"\n\"",
@@ -58,14 +52,11 @@
 		"visualize:grammar": "bun run scripts/visualize-grammar-rules.ts"
 	},
 	"dependencies": {
-		"commander": "^14.0.0",
-		"langium": "^3.5.0",
-		"langium-ast-helper": "^0.1.2"
+		"commander": "^14.0.0"
 	},
 	"devDependencies": {
 		"chokidar-cli": "~3.0.0",
 		"concurrently": "~8.2.1",
-		"langium-cli": "~3.5.0",
 		"shx": "~0.3.4",
 		"tmgrammar-toolkit": "workspace:*",
 		"vitest": "~3.1.3",

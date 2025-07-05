@@ -1,0 +1,14 @@
+bun test v1.2.18 (0d4089ea)
+
+tests/grammar/comprehensive-parser.test.ts:
+
+# Unhandled error between tests
+-------------------------------
+error: Cannot find module '../../src/parser/rcl-simple-ast.js' from '/home/ubuntu/rcl/packages/language/tests/grammar/comprehensive-parser.test.ts'
+-------------------------------
+
+
+ 0 pass
+ 1 fail
+ 1 error
+Ran 1 test across 1 file. [26.00ms]

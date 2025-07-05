@@ -25,8 +25,8 @@ export class RclToJsonConverter {
   convertDocument(document: LangiumDocument<RclFile>): Record<string, any> {
     const rclFile = document.parseResult.value;
     
-    if (!rclFile || !rclFile.agentSection) {
-      throw new Error('Invalid RCL file: missing agent section');
+    if (!rclFile || !rclFile.agentDefinition) {
+      throw new Error('Invalid RCL file: missing agent definition');
     }
 
     const result: Record<string, any> = {
@@ -36,16 +36,16 @@ export class RclToJsonConverter {
     };
 
     // Convert agent configuration
-    result.agent = this.agentConfigConverter.convert(rclFile.agentSection);
+    result.agent = this.agentConfigConverter.convert(rclFile.agentDefinition);
 
     // Process subsections for flows and messages
-    if (rclFile.agentSection.flows) {
-        for (const flow of rclFile.agentSection.flows) {
+    if (rclFile.agentDefinition.flows) {
+        for (const flow of rclFile.agentDefinition.flows) {
             result.flows[this.getFlowId(flow)] = this.flowConverter.convert(flow);
         }
     }
-    if (rclFile.agentSection.messages) {
-        result.messages = this.messageConverter.convert(rclFile.agentSection.messages);
+    if (rclFile.agentDefinition.messages) {
+        result.messages = this.messageConverter.convert(rclFile.agentDefinition.messages);
     }
 
     return result;

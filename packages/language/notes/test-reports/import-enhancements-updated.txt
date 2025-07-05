@@ -1,0 +1,38 @@
+bun test v1.2.18 (0d4089ea)
+
+tests/grammar/import-enhancements.test.ts:
+(pass) RCL Import Statement Enhancements > Basic Import Statements (Already Working) > should parse simple import statements [5.00ms]
+(pass) RCL Import Statement Enhancements > Basic Import Statements (Already Working) > should parse import statements with aliases
+(pass) RCL Import Statement Enhancements > Namespace Imports with Spaces > should parse namespace imports with spaces in names [1.00ms]
+(pass) RCL Import Statement Enhancements > Namespace Imports with Spaces > should parse multi-level namespace paths [1.00ms]
+(pass) RCL Import Statement Enhancements > Namespace Imports with Spaces > should parse complex namespace with spaces and alias [1.00ms]
+(pass) RCL Import Statement Enhancements > Edge Cases and Error Handling > should handle namespace paths without alias [3.00ms]
+(pass) RCL Import Statement Enhancements > Edge Cases and Error Handling > should handle single namespace with spaces [1.00ms]
+(pass) RCL Import Statement Enhancements > Edge Cases and Error Handling > should handle imports without source
+212 |     messages Messages:
+213 |       welcome: "Hello"`;
+214 | 
+215 |       const result = parser.parse(input);
+216 | 
+217 |       expect(result.errors).toHaveLength(0);
+                                  ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 0
+Received length: 1
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/grammar/import-enhancements.test.ts:217:29)
+(fail) RCL Import Statement Enhancements > Mixed Import Statements > should parse multiple different import types [1.00ms]
+(pass) Import Resolution Logic > should resolve a simple file import (case-insensitive) [2.00ms]
+(pass) Import Resolution Logic > should resolve a multi-level namespace to a file [1.00ms]
+(pass) Import Resolution Logic > should resolve a section in a parent file [14.00ms]
+(pass) Import Resolution Logic > should throw on ambiguity (multiple files) [2.00ms]
+(pass) Import Resolution Logic > should throw if not found [1.00ms]
+(pass) Import Resolution Logic > should use project root detection [1.00ms]
+(pass) Import Resolution Logic > should work in web environment with filesystem mock
+(pass) Import Resolution Logic > should fallback gracefully when files dont exist in web environment
+
+ 16 pass
+ 1 fail
+ 40 expect() calls
+Ran 17 tests across 1 file. [322.00ms]

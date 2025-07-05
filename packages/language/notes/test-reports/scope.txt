@@ -1,0 +1,837 @@
+bun test v1.2.18 (0d4089ea)
+
+tests/textmate/scope.test.ts:
+Testing: Sequential token map for example.rcl - when all text segments are concatenated, they should reproduce the original file exactly
+Coverage: Covers imports, agent declaration, config, defaults, flow start, and beginning of Messages section including message and agentMessage keywords
+Checking if mapped tokens appear in sequence at file start...
+Mapped segment length: 420, File length: 6926
+❌ Missing expected token: "import" with scope "keyword.control.import.rcl"
+   No tokens found with text: "import"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "My Brand" with scope "entity.name.namespace.rcl"
+   Found 3 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, meta.section.agent.rcl, entity.name.section.rcl
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "/" with scope "punctuation.separator.namespace.rcl"
+   No tokens found with text: "/"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Samples.one" with scope "entity.name.module.rcl"
+   No tokens found with text: "Samples.one"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "as" with scope "keyword.control.import.as.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Sample One" with scope "entity.name.alias.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+❌ Missing expected token: "
+" with scope "text.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "import" with scope "keyword.control.import.rcl"
+   No tokens found with text: "import"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "My Brand" with scope "entity.name.namespace.rcl"
+   Found 3 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, meta.section.agent.rcl, entity.name.section.rcl
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "/" with scope "punctuation.separator.namespace.rcl"
+   No tokens found with text: "/"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Samples.two" with scope "entity.name.module.rcl"
+   No tokens found with text: "Samples.two"
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "as" with scope "keyword.control.import.as.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+❌ Missing expected token: " " with scope "meta.import.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Sample Two" with scope "entity.name.alias.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+❌ Missing expected token: "
+
+" with scope "text.rcl"
+   No tokens found with text: "
+
+"
+❌ Missing expected token: " " with scope "meta.section.agent.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "My Brand" with scope "entity.name.section.agent.rcl"
+   Found 3 tokens with that text but different scopes:
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, entity.name.section.rcl
+     - source.rcl, meta.section.agent.rcl, entity.name.section.rcl
+❌ Missing expected token: "
+" with scope "meta.section.agent.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "  " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "  "
+❌ Missing expected token: "brandName" with scope "variable.other.property.rcl"
+   No tokens found with text: "brandName"
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, undefined
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Sample Brand" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Sample Brand"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+" with scope "meta.section.agent.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "  " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "  "
+❌ Missing expected token: "displayName" with scope "variable.other.property.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, undefined
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Sample Agent" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Sample Agent"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+
+" with scope "meta.section.agent.rcl"
+   No tokens found with text: "
+
+"
+❌ Missing expected token: "  " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "  "
+❌ Missing expected token: "Config" with scope "keyword.control.section.config.rcl"
+   No tokens found with text: "Config"
+❌ Missing expected token: "
+" with scope "meta.subsection.config.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "    " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "    "
+❌ Missing expected token: "message" with scope "keyword.control.section.message.rcl"
+   No tokens found with text: "message"
+❌ Missing expected token: " " with scope "meta.message.declaration.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Welcome" with scope "entity.name.section.message.rcl"
+   No tokens found with text: "Welcome"
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "      " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "      "
+❌ Missing expected token: "text" with scope "variable.other.property.rcl"
+   Found 20 tokens with that text but different scopes:
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, undefined
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Hello! This is a transactional message with various suggestions. How can I help you today?" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Hello! This is a transactional message with various suggestions. How can I help you today?"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "      " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "      "
+❌ Missing expected token: "suggestions" with scope "variable.other.property.rcl"
+   No tokens found with text: "suggestions"
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "        " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "        "
+❌ Missing expected token: "reply" with scope "keyword.control.action.property.rcl"
+   Found 7 tokens with that text but different scopes:
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, undefined
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Tell me more" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Tell me more"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "        " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "        "
+❌ Missing expected token: "dialAction" with scope "keyword.control.action.property.rcl"
+   Found 3 tokens with that text but different scopes:
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+     - source.rcl, undefined, entity.other.attribute-name.rcl
+❌ Missing expected token: ":" with scope "punctuation.separator.key-value.rcl"
+   Found 1 tokens with that text but different scopes:
+     - source.rcl, undefined
+❌ Missing expected token: " " with scope "meta.value.single-line.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "Call Us" with scope "string.quoted.double.rcl"
+   No tokens found with text: "Call Us"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: ", " with scope "meta.value.single-line.rcl"
+   Found 19 tokens with that text but different scopes:
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+     - source.rcl, undefined
+❌ Missing expected token: """ with scope "punctuation.definition.string.begin.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "+1234567890" with scope "string.quoted.double.rcl"
+   No tokens found with text: "+1234567890"
+❌ Missing expected token: """ with scope "punctuation.definition.string.end.rcl"
+   No tokens found with text: """
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+❌ Missing expected token: "    " with scope "punctuation.whitespace.leading.rcl"
+   No tokens found with text: "    "
+❌ Missing expected token: "agentMessage" with scope "keyword.control.section.agentmessage.rcl"
+   No tokens found with text: "agentMessage"
+❌ Missing expected token: " " with scope "meta.agentmessage.declaration.rcl"
+   No tokens found with text: " "
+❌ Missing expected token: "Welcome Full" with scope "entity.name.section.agentmessage.rcl"
+   No tokens found with text: "Welcome Full"
+❌ Missing expected token: "
+" with scope "meta.subsection.messages.rcl"
+   No tokens found with text: "
+"
+✅ Scope validation: 1/88 tokens correctly scoped (1%)
+242 | 
+243 |       console.log(`✅ Scope validation: ${passedTokens}/${totalTokens} tokens correctly scoped (${Math.round(passedTokens/totalTokens*100)}%)`);
+244 | 
+245 |       // We expect high success rate for our mapped tokens since they represent the key elements we've fixed
+246 |       const successRate = passedTokens / totalTokens;
+247 |       expect(successRate).toBeGreaterThanOrEqual(0.85); // 85% threshold for partial mapping
+                                ^
+error: expect(received).toBeGreaterThanOrEqual(expected)
+
+Expected: >= 0.85
+Received: 0.011363636363636364
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:247:27)
+(fail) RCL TextMate Grammar Scope Tests > Example File Scope Validation > example.rcl file matches expected scopes for mapped tokens [28.00ms]
+
+Testing: message Welcome
+  Token: "message " -> source.rcl
+  Token: "Welcome" -> source.rcl, entity.name.section.rcl
+  Token "message" not found!
+  Expected "Welcome" to have "entity.name.section.message.rcl": FAIL
+    Actual scopes: source.rcl, entity.name.section.rcl
+
+Testing: agentMessage Welcome Full
+  Token: "agent" -> source.rcl
+  Token: "Message Welcome Full" -> source.rcl, entity.name.section.rcl
+  Token "agentMessage" not found!
+  Token "Welcome Full" not found!
+
+Testing:     reply: "Tell me more"
+  Token: "    reply" -> source.rcl
+  Token: ":" -> source.rcl, undefined
+  Token: " "" -> source.rcl
+  Token: "Tell" -> source.rcl, entity.name.section.rcl
+  Token: " me more"" -> source.rcl
+  Token "reply" not found!
+  Token ""Tell me more"" not found!
+
+Testing:     dialAction: "Call Us", "+1234567890"
+  Token: "    dial" -> source.rcl
+  Token: "Action" -> source.rcl, undefined, undefined
+  Token: ":" -> source.rcl, undefined
+  Token: ""Call Us"" -> source.rcl, undefined, string.quoted.double.rcl
+  Token: ", " -> source.rcl, undefined
+  Token: ""+1234567890"" -> source.rcl, undefined, string.quoted.double.rcl
+  Token "dialAction" not found!
+  Expected ""Call Us"" to have "string.quoted.double.rcl": PASS
+(pass) RCL TextMate Grammar Scope Tests > Example File Scope Validation > critical scope issues debugging [1.00ms]
+318 | 
+319 |       if (agentKeyword) {
+320 |         expect(hasExpectedScope(agentKeyword, 'keyword.control.section.agent.rcl')).toBe(true);
+321 |       }
+322 |       if (agentName) {
+323 |         expect(hasExpectedScope(agentName, 'entity.name.section.agent.rcl')).toBe(true);
+                                                                                   ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:323:78)
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > agent declaration scopes correctly
+346 |       }
+347 | 
+348 |       // Test config section (should be available within agent context)
+349 |       expect(configKeyword).toBeDefined();
+350 |       if (configKeyword) {
+351 |         expect(hasExpectedScope(configKeyword, 'keyword.control.section.config.rcl')).toBe(true);
+                                                                                            ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:351:87)
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > agent with config section scopes correctly
+377 | 
+378 |       const configTokens = tokenizeCode(configCode);
+379 |       const configKeyword = configTokens.find(t => t.text === KW.Config);
+380 |       expect(configKeyword).toBeDefined();
+381 |       if (configKeyword) {
+382 |         expect(hasExpectedScope(configKeyword, 'keyword.control.section.config.rcl')).toBe(true);
+                                                                                            ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:382:87)
+(fail) RCL TextMate Grammar Scope Tests > Agent Section Scoping > properly separated subsections scope correctly
+432 |       const separator = tokens.find(t => t.text === '/');
+433 |       const module = tokens.find(t => t.text === 'Samples.one');
+434 |       const asKeyword = tokens.find(t => t.text === KW.As);
+435 |       const alias = tokens.find(t => t.text === 'Sample One');
+436 | 
+437 |       expect(importKeyword).toBeDefined();
+                                  ^
+error: expect(received).toBeDefined()
+
+Received: undefined
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:437:29)
+(fail) RCL TextMate Grammar Scope Tests > Import Statement Scoping > import statement scopes correctly
+(pass) RCL TextMate Grammar Scope Tests > Data Type Scoping > primitive values scope correctly within config [1.00ms]
+526 |       if (arrow) {
+527 |         expect(hasExpectedScope(arrow, 'keyword.operator.flow.arrow.rcl')).toBe(true);
+528 |       }
+529 | 
+530 |       if (target) {
+531 |         expect(hasExpectedScope(target, 'variable.other.flow.target.rcl')).toBe(true);
+                                                                                 ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:531:76)
+(fail) RCL TextMate Grammar Scope Tests > Flow Section Scoping > flow declarations and rules scope correctly
+(pass) RCL TextMate Grammar Scope Tests > Context Limitation > properties only appear in proper contexts
+(pass) RCL TextMate Grammar Scope Tests > Context Limitation > flow rules only appear in flow contexts
+582 |     enabled: ${KW.True}`;
+583 | 
+584 |       const tokens = tokenizeCode(code);
+585 | 
+586 |       // Test import
+587 |       expect(tokens.some(t => t.text === KW.Import && hasExpectedScope(t, 'keyword.control.import.rcl'))).toBe(true);
+                                                                                                                ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:587:107)
+(fail) RCL TextMate Grammar Scope Tests > Basic Import and Agent Pattern > import + simple agent scopes correctly
+Import tokens: [
+  {
+    text: "import ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " / ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Samples",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ".one as ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Sample One",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "import ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " / ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Samples",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ".two as ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Sample Two",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }
+]
+605 | 
+606 |       const tokens = tokenizeCode(importCode);
+607 |       console.log('Import tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+608 | 
+609 |       // Test first import
+610 |       expect(tokens.some(t => t.text === KW.Import && hasExpectedScope(t, 'keyword.control.import.rcl'))).toBe(true);
+                                                                                                                ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:610:107)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > import statements with spaces parse correctly [1.00ms]
+Agent tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "keyword.control.section.agent.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "  brand",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Name",
+    scopes: [ "source.rcl", "undefined", "undefined" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "\"Sample Brand\"",
+    scopes: [ "source.rcl", "undefined", "string.quoted.double.rcl" ],
+  }, {
+    text: "displayName",
+    scopes: [ "source.rcl", "undefined", "entity.other.attribute-name.rcl" ],
+  }, {
+    text: ": ",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "\"Sample Agent\"",
+    scopes: [ "source.rcl", "undefined", "string.quoted.double.rcl" ],
+  }
+]
+622 | 
+623 |       const tokens = tokenizeCode(agentCode);
+624 |       console.log('Agent tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+625 | 
+626 |       expect(tokens.some(t => t.text === KW.Agent && hasExpectedScope(t, 'keyword.control.section.agent.rcl'))).toBe(true);
+627 |       expect(tokens.some(t => t.text === 'My Brand' && hasExpectedScope(t, 'entity.name.section.agent.rcl'))).toBe(true);
+                                                                                                                    ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:627:111)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > agent section with spaces in name parses correctly
+Atom tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "keyword.control.section.agent.rcl" ],
+  }, {
+    text: "Test",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "Config",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "    agent",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "UseCase",
+    scopes: [ "source.rcl", "undefined", "undefined" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: " :TRANSACTIONAL",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "hostingRegion",
+    scopes: [ "source.rcl", "undefined", "entity.other.attribute-name.rcl" ],
+  }, {
+    text: ": :NORTH_AMERICA",
+    scopes: [ "source.rcl", "undefined" ],
+  }
+]
+636 |     hostingRegion: :NORTH_AMERICA`;
+637 | 
+638 |       const tokens = tokenizeCode(atomCode);
+639 |       console.log('Atom tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+640 | 
+641 |       expect(tokens.some(t => t.text === ':TRANSACTIONAL' && hasExpectedScope(t, 'constant.other.atom.rcl'))).toBe(true);
+                                                                                                                    ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:641:111)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > atom values parse correctly
+Embedded tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "keyword.control.section.agent.rcl" ],
+  }, {
+    text: "Test",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "Defaults",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "    postback",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Data",
+    scopes: [ "source.rcl", "undefined", "undefined" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: " $js> format @selectedOption.text ",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "as",
+    scopes: [ "source.rcl", "undefined", "entity.other.attribute-name.rcl" ],
+  }, {
+    text: " :dash_case",
+    scopes: [ "source.rcl", "undefined" ],
+  }
+]
+648 |     postbackData: $js> format @selectedOption.text as :dash_case`;
+649 | 
+650 |       const tokens = tokenizeCode(embeddedCode);
+651 |       console.log('Embedded tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+652 | 
+653 |       expect(tokens.some(t => t.text === KW.JsPrefix && hasExpectedScope(t, 'keyword.control.embedded.marker.js.rcl'))).toBe(true);
+                                                                                                                              ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:653:121)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > embedded expressions parse correctly
+Flow tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "keyword.control.section.agent.rcl" ],
+  }, {
+    text: "Test",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "flow",
+    scopes: [ "source.rcl", "meta.section.flow.rcl", "keyword.control.section.flow.rcl" ],
+  }, {
+    text: " Default",
+    scopes: [ "source.rcl", "meta.section.flow.rcl" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "start -> ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Welcome",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "error -> ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Error Message",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }
+]
+661 | 
+662 |       const tokens = tokenizeCode(flowCode);
+663 |       console.log('Flow tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+664 | 
+665 |       expect(tokens.some(t => t.text === KW.Flow && hasExpectedScope(t, 'keyword.control.section.flow.rcl'))).toBe(true);
+666 |       expect(tokens.some(t => t.text === 'Default' && hasExpectedScope(t, 'entity.name.section.flow.rcl'))).toBe(true);
+                                                                                                                  ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:666:109)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > flow rules with atoms parse correctly
+AgentMessage tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "keyword.control.section.agent.rcl" ],
+  }, {
+    text: "Test",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "Messages",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "    agent",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Message Welcome Full",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "      message",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "TrafficType",
+    scopes: [ "source.rcl", "undefined", "undefined" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: " :TRANSACTION",
+    scopes: [ "source.rcl", "undefined" ],
+  }
+]
+676 |       messageTrafficType: :TRANSACTION`;
+677 | 
+678 |       const tokens = tokenizeCode(agentMessageCode);
+679 |       console.log('AgentMessage tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+680 | 
+681 |       expect(tokens.some(t => t.text === KW.AgentMessage && hasExpectedScope(t, 'keyword.control.section.agentmessage.rcl'))).toBe(true);
+                                                                                                                                    ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:681:127)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > agentMessage keyword recognition [1.00ms]
+Action tokens: [
+  {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "keyword.control.section.agent.rcl" ],
+  }, {
+    text: "Test",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "Messages",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "    message ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Welcome",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "      suggestions",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "        reply",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: " \"",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Tell",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " me more\"",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "        dial",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Action",
+    scopes: [ "source.rcl", "undefined", "undefined" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "\"Call Us\"",
+    scopes: [ "source.rcl", "undefined", "string.quoted.double.rcl" ],
+  }, {
+    text: ", ",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "\"+1234567890\"",
+    scopes: [ "source.rcl", "undefined", "string.quoted.double.rcl" ],
+  }, {
+    text: "shareLocation",
+    scopes: [ "source.rcl", "undefined", "entity.other.attribute-name.rcl" ],
+  }, {
+    text: ": ",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "\"Share Location\"",
+    scopes: [ "source.rcl", "undefined", "string.quoted.double.rcl" ],
+  }
+]
+693 |         shareLocation: "Share Location"`;
+694 | 
+695 |       const tokens = tokenizeCode(actionCode);
+696 |       console.log('Action tokens:', tokens.map(t => ({ text: t.text, scopes: t.scopes })));
+697 | 
+698 |       expect(tokens.some(t => t.text === KW.Message && hasExpectedScope(t, 'keyword.control.section.message.rcl'))).toBe(true);
+                                                                                                                          ^
+error: expect(received).toBe(expected)
+
+Expected: true
+Received: false
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/textmate/scope.test.ts:698:117)
+(fail) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > action keywords parse correctly
+Example file tokens (first 20): [
+  {
+    text: "import ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " / ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Samples",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ".one as ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Sample One",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "import ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: " / ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Samples",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: ".two as ",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Sample Two",
+    scopes: [ "source.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "agent",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "keyword.control.section.agent.rcl" ],
+  }, {
+    text: "My Brand",
+    scopes: [ "source.rcl", "meta.section.agent.rcl", "entity.name.section.rcl" ],
+  }, {
+    text: "  brand",
+    scopes: [ "source.rcl" ],
+  }, {
+    text: "Name",
+    scopes: [ "source.rcl", "undefined", "undefined" ],
+  }, {
+    text: ":",
+    scopes: [ "source.rcl", "undefined" ],
+  }, {
+    text: "\"Sample Brand\"",
+    scopes: [ "source.rcl", "undefined", "string.quoted.double.rcl" ],
+  }, {
+    text: "displayName",
+    scopes: [ "source.rcl", "undefined", "entity.other.attribute-name.rcl" ],
+  }, {
+    text: ": ",
+    scopes: [ "source.rcl", "undefined" ],
+  }
+]
+Import keywords found: 2
+Agent keywords found: 1
+First import keyword scopes: [ "source.rcl" ]
+First agent keyword scopes: [ "source.rcl", "meta.section.agent.rcl", "keyword.control.section.agent.rcl" ]
+(pass) RCL TextMate Grammar Scope Tests > Example.rcl Comprehensive Testing > complete example file sections [11.00ms]
+
+ 5 pass
+ 14 fail
+ 30 expect() calls
+Ran 19 tests across 1 file. [89.00ms]

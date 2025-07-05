@@ -38,10 +38,10 @@ export class ReferenceResolver {
     // Resolve import references
     this.resolveImportReferences(file, resolution, accept);
     
-    // Resolve flow references if agent section exists
-    if (file.agentSection) {
-      this.resolveFlowReferences(file.agentSection, resolution, accept);
-      this.resolveMessageReferences(file.agentSection, resolution, accept);
+    // Resolve flow references if agent definition exists
+    if (file.agentDefinition) {
+      this.resolveFlowReferences(file.agentDefinition, resolution, accept);
+      this.resolveMessageReferences(file.agentDefinition, resolution, accept);
     }
 
     return resolution;
@@ -309,10 +309,10 @@ export class ReferenceResolver {
   getAllReferencedIdentifiers(file: RclFile): Set<string> {
     const references = new Set<string>();
     
-    if (file.agentSection) {
+    if (file.agentDefinition) {
       // Collect flow operand references
-      if (file.agentSection.flows) {
-        for (const flow of file.agentSection.flows) {
+      if (file.agentDefinition.flows) {
+        for (const flow of file.agentDefinition.flows) {
           for (const rule of flow.rules) {
             for (const operand of rule.operands) {
               references.add(operand.value);

@@ -1,0 +1,48 @@
+bun test v1.2.18 (0d4089ea)
+
+tests/parser/flow-system.test.ts:
+(pass) Parser - Flow System with Multi-Arrow Support > should tokenize multi-arrow flow sequences [11.00ms]
+54 | 
+55 |     const parser = new RclParser();
+56 |     const parseResult = parser.parse(testInput);
+57 | 
+58 |     expect(parseResult.ast).toBeTruthy();
+59 |     expect(parseResult.ast!.agentDefinition).toBeTruthy();
+                                                  ^
+error: expect(received).toBeTruthy()
+
+Received: undefined
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/parser/flow-system.test.ts:59:46)
+(fail) Parser - Flow System with Multi-Arrow Support > should parse complex flow transitions [3.00ms]
+(pass) Parser - Flow System with Multi-Arrow Support > should handle flow operand types correctly
+(pass) Parser - Flow System with Multi-Arrow Support > should recognize flow control keywords [1.00ms]
+129 | 
+130 |     const parser = new RclParser();
+131 |     const parseResult = parser.parse(testInput);
+132 | 
+133 |     expect(parseResult.ast).toBeTruthy();
+134 |     expect(parseResult.ast!.agentDefinition).toBeTruthy();
+                                                   ^
+error: expect(received).toBeTruthy()
+
+Received: undefined
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/parser/flow-system.test.ts:134:46)
+(fail) Parser - Flow System with Multi-Arrow Support > should parse multiple flow sections [1.00ms]
+152 | 
+153 |     const parser = new RclParser();
+154 |     const parseResult = parser.parse(testInput);
+155 | 
+156 |     expect(parseResult.ast).toBeTruthy();
+157 |     expect(parseResult.ast!.agentDefinition!.flows[0].name).toBe('Order Processing Flow');
+                                  ^
+TypeError: undefined is not an object (evaluating 'parseResult.ast.agentDefinition.flows')
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/parser/flow-system.test.ts:157:29)
+(fail) Parser - Flow System with Multi-Arrow Support > should handle space-separated flow identifiers [1.00ms]
+(pass) Parser - Flow System with Multi-Arrow Support > should validate arrow syntax in complex chains [1.00ms]
+
+ 4 pass
+ 3 fail
+ 16 expect() calls
+Ran 7 tests across 1 file. [123.00ms]

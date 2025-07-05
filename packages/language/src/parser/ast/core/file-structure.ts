@@ -15,7 +15,7 @@ import type { AgentDefinition } from '../sections/agent-types.js';
 export interface RclFile extends AstNode {
   type: 'RclFile';
   imports: ImportStatement[];
-  agentSection: AgentDefinition | null;
+  agentDefinition: AgentDefinition | null;
 }
 
 /**

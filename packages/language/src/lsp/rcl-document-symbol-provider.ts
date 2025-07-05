@@ -32,8 +32,8 @@ export class RclDocumentSymbolProvider implements DocumentSymbolProvider {
       }
     }
 
-    if (rclFile.agentSection) {
-      const agentSymbol = this.getSectionSymbol(rclFile.agentSection);
+    if (rclFile.agentDefinition) {
+      const agentSymbol = this.getSectionSymbol(rclFile.agentDefinition);
       if (agentSymbol) {
         symbols.push(agentSymbol);
       }

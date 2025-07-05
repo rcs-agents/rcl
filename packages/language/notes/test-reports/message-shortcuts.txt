@@ -1,0 +1,25 @@
+bun test v1.2.18 (0d4089ea)
+
+tests/parser/message-shortcuts.test.ts:
+(pass) Parser - Message Shortcuts (Critical Feature) > should tokenize message shortcut keywords correctly [7.00ms]
+63 | 
+64 |     const parser = new RclParser();
+65 |     const parseResult = parser.parse(testInput);
+66 | 
+67 |     expect(parseResult.ast).toBeTruthy();
+68 |     expect(parseResult.ast!.agentDefinition).toBeTruthy();
+                                                  ^
+error: expect(received).toBeTruthy()
+
+Received: undefined
+
+      at <anonymous> (/home/ubuntu/rcl/packages/language/tests/parser/message-shortcuts.test.ts:68:46)
+(fail) Parser - Message Shortcuts (Critical Feature) > should parse agents with message shortcuts [2.00ms]
+(pass) Parser - Message Shortcuts (Critical Feature) > should recognize all main shortcut types [1.00ms]
+(pass) Parser - Message Shortcuts (Critical Feature) > should handle message traffic type prefixes
+(pass) Parser - Message Shortcuts (Critical Feature) > should parse shortcut modifiers and atoms [1.00ms]
+
+ 4 pass
+ 1 fail
+ 14 expect() calls
+Ran 5 tests across 1 file. [100.00ms]

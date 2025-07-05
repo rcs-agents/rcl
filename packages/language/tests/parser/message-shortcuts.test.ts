@@ -65,10 +65,10 @@ agent Shortcuts Agent:
     const parseResult = parser.parse(testInput);
 
     expect(parseResult.ast).toBeTruthy();
-    expect(parseResult.ast!.agentDefinition).toBeTruthy();
-    expect(parseResult.ast!.agentDefinition!.name).toBe('Shortcuts Agent');
-    expect(parseResult.ast!.agentDefinition!.flows.length).toBe(1);
-    expect(parseResult.ast!.agentDefinition!.messages).toBeTruthy();
+    expect(parseResult.ast!.agentSection).toBeTruthy();
+    expect(parseResult.ast!.agentSection!.name).toBe('Shortcuts Agent');
+    expect(parseResult.ast!.agentSection!.flows.length).toBe(1);
+    expect(parseResult.ast!.agentSection!.messages).toBeTruthy();
   });
 
   it('should recognize all main shortcut types', () => {

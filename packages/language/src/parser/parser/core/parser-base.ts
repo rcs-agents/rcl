@@ -94,7 +94,7 @@ export class RclParser {
       const ast = this.parseRclFile();
 
       // If there are critical errors, return null AST
-      if (this.errors.length > 0 && !ast.agentSection && ast.imports.length === 0) {
+      if (this.errors.length > 0 && !ast.agentDefinition && ast.imports.length === 0) {
         return { ast: null, errors: this.errors };
       }
 
@@ -120,6 +120,8 @@ export class RclParser {
       try {
         const importStmt = this.parseImportStatement();
         imports.push(importStmt);
+        // Skip whitespace and newlines between imports
+        this.skipWhitespaceAndNewlines();
       } catch (error) {
         this.addError(`Import parsing error: ${error}`);
         this.errorRecovery.synchronize(this.tokenStream);
@@ -243,13 +245,14 @@ export class RclParser {
         this.tokenStream.advance(); // consume colon
         this.skipWhitespace();
         
-        // Skip the value (could be string, number, boolean, atom, etc.)
+        // Skip the value (could be string, number, boolean, atom, embedded code, etc.)
         if (this.tokenStream.check(RclTokens.STRING) ||
             this.tokenStream.check(RclTokens.NUMBER) ||
             this.tokenStream.check(RclTokens.TRUE_KW) ||
             this.tokenStream.check(RclTokens.FALSE_KW) ||
             this.tokenStream.check(RclTokens.NULL_KW) ||
-            this.tokenStream.check(RclTokens.ATOM)) {
+            this.tokenStream.check(RclTokens.ATOM) ||
+            this.tokenStream.check(RclTokens.EMBEDDED_CODE)) {
           this.tokenStream.advance(); // consume value
         }
         this.consumeNewlineOrEnd();
@@ -259,14 +262,14 @@ export class RclParser {
     // Parse optional config section
     this.skipWhitespaceAndNewlines();
     let config: any = null;
-    if (this.tokenStream.check(RclTokens.AGENT_CONFIG_KW)) {
+    if (this.tokenStream.check(RclTokens.CONFIG_KW)) {
       config = this.parseAgentConfig();
     }
     
     // Parse optional defaults section
     this.skipWhitespaceAndNewlines();
     let defaults: any = null;
-    if (this.tokenStream.check(RclTokens.AGENT_DEFAULTS_KW)) {
+    if (this.tokenStream.check(RclTokens.DEFAULTS_KW)) {
       defaults = this.parseAgentDefaults();
     }
     
@@ -466,12 +469,7 @@ export class RclParser {
    * Parse agentConfig section
    */
   private parseAgentConfig(): any {
-    this.tokenStream.consume(RclTokens.AGENT_CONFIG_KW);
-    this.skipWhitespace();
-    
-    // Parse section name (should be "Config")
-    const name = this.parseSpaceSeparatedIdentifier();
-    this.tokenStream.consume(RclTokens.COLON);
+    this.tokenStream.consume(RclTokens.CONFIG_KW);
     this.consumeNewlineOrEnd();
     
     // Parse INDENT
@@ -499,19 +497,14 @@ export class RclParser {
     
     this.tokenStream.consume(RclTokens.DEDENT);
     
-    return this.astFactory.createAgentConfig(name, properties);
+    return this.astFactory.createAgentConfig('Config', properties);
   }
 
   /**
    * Parse agentDefaults section
    */
   private parseAgentDefaults(): any {
-    this.tokenStream.consume(RclTokens.AGENT_DEFAULTS_KW);
-    this.skipWhitespace();
-    
-    // Parse section name (should be "Defaults")
-    const name = this.parseSpaceSeparatedIdentifier();
-    this.tokenStream.consume(RclTokens.COLON);
+    this.tokenStream.consume(RclTokens.DEFAULTS_KW);
     this.consumeNewlineOrEnd();
     
     // Parse INDENT
@@ -542,7 +535,7 @@ export class RclParser {
     
     this.tokenStream.consume(RclTokens.DEDENT);
     
-    return this.astFactory.createAgentDefaults(name, properties);
+    return this.astFactory.createAgentDefaults('Defaults', properties);
   }
 
   /**
@@ -618,10 +611,29 @@ export class RclParser {
     // Parse INDENT
     this.tokenStream.consume(RclTokens.INDENT);
     
-    // Parse messages (simple implementation for now)
+    // Parse messages (enhanced to handle message and agentMessage keywords)
     const messages: any = {};
     while (!this.tokenStream.check(RclTokens.DEDENT) && !this.tokenStream.isAtEnd()) {
-      if (this.tokenStream.check(RclTokens.IDENTIFIER)) {
+      this.skipWhitespaceAndNewlines();
+      
+      // Handle "message" keyword declarations
+      if (this.tokenStream.check(RclTokens.MESSAGE_KW)) {
+        this.tokenStream.advance(); // consume 'message'
+        this.skipWhitespace();
+        
+        const messageName = this.parseSpaceSeparatedIdentifier();
+        messages[messageName] = this.parseMessageDefinition('message');
+      }
+      // Handle "agentMessage" keyword declarations
+      else if (this.tokenStream.check(RclTokens.AGENT_MESSAGE_KW)) {
+        this.tokenStream.advance(); // consume 'agentMessage'
+        this.skipWhitespace();
+        
+        const messageName = this.parseSpaceSeparatedIdentifier();
+        messages[messageName] = this.parseMessageDefinition('agentMessage');
+      }
+      // Handle identifier-based messages (legacy or shortcut format)
+      else if (this.tokenStream.check(RclTokens.IDENTIFIER)) {
         const messageName = this.parseSpaceSeparatedIdentifier();
         if (this.tokenStream.check(RclTokens.COLON)) {
           this.tokenStream.advance(); // consume colon
@@ -636,9 +648,14 @@ export class RclParser {
               this.tokenStream.advance(); // consume 'text'
               this.skipWhitespace();
               
-              if (this.tokenStream.check(RclTokens.STRING)) {
-                const text = this.tokenStream.advance().image.slice(1, -1);
-                messages[messageName] = { type: 'text', content: text };
+              if (this.tokenStream.check(RclTokens.COLON)) {
+                this.tokenStream.advance(); // consume colon
+                this.skipWhitespace();
+                
+                if (this.tokenStream.check(RclTokens.STRING)) {
+                  const text = this.tokenStream.advance().image.slice(1, -1);
+                  messages[messageName] = { type: 'text', content: text };
+                }
               }
             }
             
@@ -650,7 +667,18 @@ export class RclParser {
             this.tokenStream.consume(RclTokens.DEDENT);
           }
         }
-      } else {
+      }
+      // Handle other message keywords like text, richCard, etc. (shortcuts)
+      else if (this.tokenStream.check(RclTokens.TEXT_KW) ||
+               this.tokenStream.check(RclTokens.RICH_CARD_KW) ||
+               this.tokenStream.check(RclTokens.CAROUSEL_KW) ||
+               this.tokenStream.check(RclTokens.RBM_FILE_KW) ||
+               this.tokenStream.check(RclTokens.FILE_KW)) {
+        
+        // Parse message shortcuts - for now, skip until we have full implementation
+        this.skipMessageShortcut();
+      }
+      else if (!this.tokenStream.check(RclTokens.DEDENT)) {
         this.tokenStream.advance(); // skip unknown tokens
       }
     }
@@ -658,5 +686,71 @@ export class RclParser {
     this.tokenStream.consume(RclTokens.DEDENT);
     
     return this.astFactory.createMessagesSection(name, messages);
+  }
+
+  /**
+   * Parse a message definition (message or agentMessage)
+   */
+  private parseMessageDefinition(messageType: 'message' | 'agentMessage'): any {
+    if (this.tokenStream.check(RclTokens.COLON)) {
+      this.tokenStream.advance(); // consume colon
+      this.consumeNewlineOrEnd();
+      
+      // Parse message content
+      if (this.tokenStream.check(RclTokens.INDENT)) {
+        this.tokenStream.advance(); // consume indent
+        
+        const messageContent: any = { type: messageType };
+        
+        // Parse message properties
+        while (!this.tokenStream.check(RclTokens.DEDENT) && !this.tokenStream.isAtEnd()) {
+          if (this.tokenStream.check(RclTokens.ATTRIBUTE_KEY)) {
+            const key = this.tokenStream.advance().image;
+            
+            if (this.tokenStream.check(RclTokens.COLON)) {
+              this.tokenStream.advance(); // consume colon
+              this.skipWhitespace();
+              
+              // Parse value
+              if (this.tokenStream.check(RclTokens.STRING)) {
+                const value = this.tokenStream.advance().image.slice(1, -1);
+                messageContent[key] = value;
+              } else if (this.tokenStream.check(RclTokens.ATOM)) {
+                const value = this.tokenStream.advance().image;
+                messageContent[key] = value;
+              }
+              
+              this.consumeNewlineOrEnd();
+            }
+          } else {
+            this.tokenStream.advance(); // skip unknown tokens
+          }
+        }
+        
+        this.tokenStream.consume(RclTokens.DEDENT);
+        return messageContent;
+      }
+    }
+    
+    return { type: messageType };
+  }
+
+  /**
+   * Skip a message shortcut declaration (placeholder)
+   */
+  private skipMessageShortcut(): void {
+    // Skip the shortcut keyword
+    this.tokenStream.advance();
+    
+    // Skip until newline or dedent
+    while (!this.tokenStream.isAtEnd() && 
+           !this.tokenStream.check(RclTokens.NL) && 
+           !this.tokenStream.check(RclTokens.DEDENT)) {
+      this.tokenStream.advance();
+    }
+    
+    if (this.tokenStream.check(RclTokens.NL)) {
+      this.tokenStream.advance();
+    }
   }
 }
