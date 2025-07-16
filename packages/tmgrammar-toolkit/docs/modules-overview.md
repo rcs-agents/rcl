@@ -460,49 +460,30 @@ This toolkit is designed to grow with your needs. We're constantly adding new te
 
 If you find yourself writing the same pattern multiple times, consider contributing it back to the terminals library. And if you run into edge cases our validation doesn't catch, let us know - we want this toolkit to save you from the same mistakes we made.
 
-## Bun Integration and CLI
+## CLI Architecture
 
-### Seamless TypeScript Development
+The `tmt` CLI is designed for a seamless development experience, especially when working with TypeScript.
 
-**The toolkit's CLI seamlessly integrates with Bun** to handle TypeScript files on-the-fly without requiring a separate build step. This is a major developer experience improvement:
+### Key Features
 
-```bash
-# Works directly with TypeScript - no build step needed!
-bunx tmt emit my-grammar.ts -o output.json
-bunx tmt validate my-grammar.ts specificExport
-bunx tmt test 'tests/**/*.test' -g my-grammar.ts
-```
+- **Modular Design**: The CLI is architected with a clear separation of concerns, with each command residing in its own module under `src/cli/commands`. This makes the CLI easy to maintain and extend.
+- **Direct TypeScript Execution**: Powered by Bun, the CLI can execute `.ts` grammar files directly, eliminating the need for a separate build step.
+- **Automatic Runtimes**: It gracefully falls back to Node.js for `.js` files, so you can use the toolkit in any JavaScript environment.
+- **Smart Grammar Loading**: The CLI automatically detects and loads the correct grammar export from a file, whether it's a default export, a named `grammar` export, or another named export you specify.
 
-### CLI Design Philosophy
+### Workflow Example
 
-The CLI is designed around the principle that **grammar development should be as frictionless as possible**:
+The refactored CLI streamlines the grammar development workflow:
 
-- **Direct TypeScript Support**: Import and execute `.ts` files directly
-- **Named Export Support**: Validate or emit specific exports from files  
-- **Rich Error Messages**: Clear, actionable error messages with source locations
-- **Multiple Output Formats**: JSON, Plist, and YAML emission
+1. **Write your grammar** in a TypeScript file (`my-grammar.ts`).
+2. **Generate the grammar file** directly from the source:
+   ```bash
+   bunx tmt emit my-grammar.ts -o mylang.tmLanguage.json
+   ```
+3. **Run tests** against your source file or the generated grammar:
+   ```bash
+   bunx tmt test 'tests/**/*.test.lang' -g mylang.tmLanguage.json
+   ```
+4. **Iterate quickly**. Since there's no build step, you can make changes and re-run commands instantly.
 
-```bash
-# Emit specific named export
-tmt emit grammar.ts mySpecialGrammar --plist -o output.tmLanguage
-
-# Validate with helpful output
-tmt validate grammar.ts --verbose
-```
-
-### Why This Matters
-
-Traditional TextMate grammar development involves:
-1. Write TypeScript
-2. Build to JavaScript
-3. Generate grammar JSON
-4. Test in editor
-5. Debug issues
-6. Repeat
-
-With our toolkit:
-1. Write TypeScript
-2. Test directly: `tmt emit grammar.ts | code --stdin`
-3. Iterate
-
-The goal isn't just to make TextMate grammars easier to write - it's to make them easier to maintain, test, and understand. Because at the end of the day, code that other people (including future you) can actually work with is code that ships. 
+This architecture is designed to reduce friction and keep you focused on what matters: building a high-quality grammar. 

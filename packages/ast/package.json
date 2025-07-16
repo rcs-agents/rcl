@@ -1,0 +1,26 @@
+{
+  "name": "@rcl/ast",
+  "version": "1.0.0",
+  "description": "Parser-independent AST type definitions for RCL language",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint src",
+    "format": "biome format src --write"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/minimatch": "^6.0.0",
+    "@types/node": "^24.0.13",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

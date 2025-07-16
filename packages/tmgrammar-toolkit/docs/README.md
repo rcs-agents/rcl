@@ -45,6 +45,7 @@ This documentation suite covers everything you need to know about the TextMate T
 | Use type-safe scopes | [Using Scopes](using-scopes.md) |
 | Fix highlighting issues | [Troubleshooting Guide](troubleshooting.md) |
 | Learn scope conventions | [TextMate Scopes Reference](textmate-scopes.md) |
+| Understand the CLI | [Modules Overview](modules-overview.md#cli-architecture) |
 
 ## 🏗️ Architecture Overview
 
@@ -57,9 +58,9 @@ Grammar Definition (TypeScript)
          ↓
     Rule System (Match/BeginEnd/Include)
          ↓
-    Validation & Testing
+    Validation (during emit/load)
          ↓
-    Emission (JSON/Plist/YAML)
+    Emission (JSON/Plist)
          ↓
     TextMate Grammar File
 ```
@@ -69,9 +70,10 @@ Grammar Definition (TypeScript)
 - **Type-Safe Scopes** - Prevent typos and ensure consistency
 - **Regex Helpers** - Readable pattern construction
 - **Terminal Patterns** - Pre-built patterns for common constructs
-- **Validation System** - Catch errors before they become problems
+- **Validation System** - On-demand validation during emission and loading
 - **Testing Framework** - Programmatic and declarative testing
-- **Emission System** - Convert TypeScript to TextMate JSON
+- **Emission System** - Convert TypeScript to TextMate JSON/Plist
+- **CLI** - A modular and maintainable command-line interface
 
 ## 📖 Documentation Categories
 
@@ -145,7 +147,7 @@ import { createTesterFromContent } from 'tmgrammar-toolkit/testing';
 import { validateRegex, validateGrammar } from 'tmgrammar-toolkit/validation';
 
 // Emission
-import { emitJSON, emitPlist, emitYAML } from 'tmgrammar-toolkit';
+import { emitJSON, emitPList } from 'tmgrammar-toolkit';
 ```
 
 ### Common Patterns

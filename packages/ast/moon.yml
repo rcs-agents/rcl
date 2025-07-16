@@ -1,0 +1,35 @@
+type: library
+language: typescript
+fileGroups:
+  sources:
+    - "src/**/*"
+    - "package.json"
+    - "tsconfig.json"
+  tests:
+    - "tests/**/*"
+
+tasks:
+  build:
+    command: npm run build
+    inputs:
+      - "@group(sources)"
+    outputs:
+      - "dist"
+
+  clean:
+    command: npm run clean
+
+  typecheck:
+    command: npm run typecheck
+    inputs:
+      - "@group(sources)"
+
+  lint:
+    command: npm run lint
+    inputs:
+      - "@group(sources)"
+
+  format:
+    command: npm run format
+    inputs:
+      - "@group(sources)"

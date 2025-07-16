@@ -3,12 +3,26 @@
  * Handles validation, repository management, and output generation
  */
 
-import { readFile } from "node:fs/promises";
-import { loadWASM, OnigRegExp } from "onigasm";
-import { dirname, resolve } from "node:path";
-import * as plist from "plist";
-import type { Grammar, Rule, EmitOptions, MatchRule, BeginEndRule, IncludeRule, Pattern } from './types.js';
+import type {
+  BeginEndRule,
+  GrammarInput,
+  MatchRule,
+  Rule,
+  IncludeRule,
+  Grammar,
+  EmitOptions,
+  TMLanguageGrammar,
+  Pattern,
+} from './types.js';
 import { meta } from './types.js';
+import { ErrorCodes, errorFactory } from './errors.js';
+import { ok, error, type StringResult } from './result.js';
+
+import { readFile } from 'node:fs/promises';
+import { loadWASM, OnigRegExp } from 'onigasm';
+import { dirname, resolve } from 'node:path';
+import * as plist from 'plist';
+import * as yaml from 'js-yaml';
 
 let initialized = false;
 
@@ -20,8 +34,8 @@ let initialized = false;
  */
 async function initialize(): Promise<void> {
   if (!initialized) {
-    const onigasmPath = require.resolve("onigasm");
-    const wasmPath = resolve(dirname(onigasmPath), "onigasm.wasm");
+    const onigasmPath = require.resolve('onigasm');
+    const wasmPath = resolve(dirname(onigasmPath), 'onigasm.wasm');
     const wasm = await readFile(wasmPath);
     await loadWASM(wasm.buffer as ArrayBuffer);
     initialized = true;
@@ -51,11 +65,16 @@ async function initialize(): Promise<void> {
  * await writeFile('my-grammar.tmLanguage.json', grammarJson);
  * ```
  */
-export async function emitJSON(grammar: Grammar, options: EmitOptions = {}): Promise<string> {
-  await initialize();
-  const indent = 2;
-  const processed = await processGrammar(grammar, options);
-  return JSON.stringify(processed, undefined, indent);
+export async function emitJSON(processedGrammar: Grammar, options: EmitOptions = {}): Promise<StringResult<string>> {
+  try {
+    await initialize();
+    const indent = 2;
+    const processed = await processGrammarToTM(processedGrammar.grammar, options);
+    const jsonString = JSON.stringify(processed, undefined, indent);
+    return ok(jsonString);
+  } catch (err) {
+    return error(err instanceof Error ? err.message : String(err));
+  }
 }
 
 /**
@@ -75,17 +94,36 @@ export async function emitJSON(grammar: Grammar, options: EmitOptions = {}): Pro
  * await writeFile('my-grammar.tmLanguage', grammarPlist);
  * ```
  */
-export async function emitPList(grammar: Grammar, options: EmitOptions = {}): Promise<string> {
-  await initialize();
-  const processed = await processGrammar(grammar, options);
-  return plist.build(processed);
+export async function emitPList(processedGrammar: Grammar, options: EmitOptions = {}): Promise<StringResult<string>> {
+  try {
+    await initialize();
+    const processed = await processGrammarToTM(processedGrammar.grammar, options);
+    const plistString = plist.build(processed as any);
+    return ok(plistString);
+  } catch (err) {
+    return error(err instanceof Error ? err.message : String(err));
+  }
+}
+
+/**
+ * Converts a processed grammar to YAML format.
+ */
+export async function emitYAML(processedGrammar: Grammar, options: EmitOptions = {}): Promise<StringResult<string>> {
+  try {
+    await initialize();
+    const processed = await processGrammarToTM(processedGrammar.grammar, options);
+    const yamlString = yaml.dump(processed, { indent: 2, lineWidth: -1 });
+    return ok(yamlString);
+  } catch (err) {
+    return error(err instanceof Error ? err.message : String(err));
+  }
 }
 
 /**
  * Convert the grammar from our representation to the tmlanguage schema.
  * Perform validation in the process.
  */
-async function processGrammar(grammar: Grammar, options: EmitOptions): Promise<any> {
+async function processGrammarToTM(grammar: GrammarInput, options: EmitOptions): Promise<TMLanguageGrammar> {
   await initialize();
 
   const internalRepositoryMap = new Map<string, [Rule, any]>(); // Maps rule key to [originalRule, processedRuleDefinition]
@@ -104,18 +142,24 @@ async function processGrammar(grammar: Grammar, options: EmitOptions): Promise<a
         } else {
           const existingEntry = internalRepositoryMap.get(keyedRule.key);
           if (existingEntry && existingEntry[0] !== keyedRule) {
-            throw new Error(
-              `Duplicate key found in repositoryItems: '${keyedRule.key}'. \nThe same key is used for different rule objects.`);
+            const factory = errorFactory.withLocation({ 
+              filePath: options.errorSourceFilePath,
+              ruleKey: keyedRule.key,
+              contextPath: 'repositoryItems'
+            });
+            throw factory.reference(
+              `Duplicate key found in repositoryItems: '${keyedRule.key}'. The same key is used for different rule objects.`,
+              keyedRule.key,
+              ErrorCodes.DUPLICATE_KEY
+            );
           }
         }
       }
     }
   } else {
-    // eslint-disable-next-line no-console
-    console.warn(
-      'Warning: grammar.repositoryItems not provided. Repository discovery will be on-the-fly, which might be incomplete for complex grammars. ' +
-      'It is recommended to list all keyed rules in repositoryItems for reliable repository generation.'
-    );
+    // Note: This is an informational message, not an error
+    // Repository discovery will be on-the-fly, which might be incomplete for complex grammars
+    // It is recommended to list all keyed rules in repositoryItems for reliable repository generation
   }
 
   // 2. Process the main grammar structure. processNode for the grammar object will handle its top-level fields

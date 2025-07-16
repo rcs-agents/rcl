@@ -1,6 +1,6 @@
 import type { MatchRule } from 'tmgrammar-toolkit';
 import { R } from '../regex.js';
-import { scopeGroups } from '../scopes.js';
+import { scopes } from '../scopes.js';
 
 /**
  * Hash-style comments (# comment)
@@ -8,7 +8,7 @@ import { scopeGroups } from '../scopes.js';
 export const hashComment: MatchRule = {
   key: 'hash-comment',
   match: R.SL_COMMENT,
-  scope: scopeGroups.comments.line
+  scope: scopes.comments.line
 };
 
 /**

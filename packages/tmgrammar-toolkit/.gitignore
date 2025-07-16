@@ -1,1 +1,17 @@
 lib/
+node_modules/
+.tsc/
+
+# Jekyll build artifacts
+_site/
+site/_internal_docs/
+site/_user_docs/
+site/Gemfile
+site/Gemfile.lock
+site/.jekyll-cache/
+site/_site/
+site/llms.txt
+site/llms-full.txt
+
+# GitHub Pages
+.github-pages-cache

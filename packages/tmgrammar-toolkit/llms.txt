@@ -1,0 +1,75 @@
+# tmgrammar-toolkit
+
+A modern, type-safe toolkit for creating TextMate grammars with TypeScript.
+
+Version: 0.0.1
+Repository: N/A
+License: MIT
+Generated: 2025-07-06T20:47:26.975Z
+
+## Overview
+
+TextMate Toolkit is a modern, type-safe toolkit for creating TextMate grammars with TypeScript. It provides:
+
+- Type-safe grammar authoring with comprehensive validation
+- Testing framework for grammar verification
+- CLI tools for development workflow
+- Pre-built patterns for common language constructs
+- Advanced scope management system
+
+## Quick Start
+
+```bash
+# Install
+npm install tmgrammar-toolkit
+
+# Create grammar
+import { createGrammar, scopes, regex } from 'tmgrammar-toolkit';
+
+const grammar = createGrammar('MyLang', 'source.mylang', ['mylang'], [
+  { key: 'keywords', match: regex.keywords(['if', 'else']), scope: scopes.keyword.control }
+]);
+
+# Generate JSON
+bunx tmt emit grammar.ts -o grammar.json
+```
+
+## Key Files
+
+### Documentation
+- README.md: Main project documentation
+- docs/getting-started.md: First grammar tutorial
+- docs/api-reference.md: Complete API documentation
+- docs/modules-overview.md: Architecture deep dive
+
+### Core Implementation
+- src/types.ts: TypeScript interface definitions
+- src/factory.ts: Grammar creation functions
+- src/emit.ts: JSON/PList generation
+- src/scopes/: Type-safe scope management
+- src/helpers/: Regex construction utilities
+- src/terminals/: Pre-built language patterns
+
+### CLI
+- src/cli/: Command-line interface
+- src/cli/commands/: Individual CLI commands (emit, test, validate, snap)
+
+## Architecture
+
+The toolkit follows a layered architecture:
+1. Types layer (types.ts) - Core TextMate grammar interfaces
+2. Factory layer (factory.ts) - Clean construction APIs
+3. Processing layer (emit.ts, validation/) - Grammar processing and validation
+4. Helper layer (scopes/, helpers/, terminals/) - Developer convenience APIs
+5. CLI layer (cli/) - Command-line interface
+
+## Usage Patterns
+
+Most common workflow:
+1. Define rules using TypeScript interfaces
+2. Create grammar with createGrammar()
+3. Test with built-in testing framework
+4. Emit to JSON/PList format
+5. Integrate with VS Code or other editors
+
+The toolkit emphasizes type safety, developer experience, and performance.

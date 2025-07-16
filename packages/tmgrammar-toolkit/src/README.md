@@ -72,7 +72,7 @@ export function createGrammar(
     foldingStopMarker?: RegexValue;
     repositoryItems?: Rule[];
   }
-): Grammar
+): GrammarResult<Grammar>
 ```
 
 **Why Factory Functions:**
@@ -100,18 +100,15 @@ TypeScript Grammar → Rule Processing → Repository Building → Validation �
 ```
 
 ### `cli.ts` - Command Line Interface
-Unified CLI that wraps all toolkit functionality:
+The toolkit's command-line interface, now refactored into a modular architecture within the `src/cli` directory.
 
-**Commands:**
-- `tmt emit` - Grammar emission (supports TypeScript and JavaScript)
-- `tmt test` - Declarative testing via vscode-tmgrammar-test
-- `tmt snap` - Snapshot testing via vscode-tmgrammar-snap
-- `tmt validate` - Grammar validation
+**Key Features:**
+- **Modular Commands**: Each command (`emit`, `test`, `snap`, `validate`) is a separate module in `src/cli/commands`.
+- **Bun-powered**: Uses Bun for seamless execution of TypeScript grammar files.
+- **Graceful Fallback**: Falls back to Node.js for JavaScript files.
+- **Auto-discovery**: Automatically finds and loads grammar exports.
 
-**TypeScript Support:**
-- Uses Bun for TypeScript execution when available
-- Falls back to Node.js for JavaScript files
-- Automatic export detection (default, grammar, or named exports)
+The new structure makes the CLI easier to maintain, test, and extend.
 
 ## Module Directories
 
@@ -206,6 +203,12 @@ Catch errors before they become runtime problems:
 ### `/utils` - Utility Functions
 Supporting functionality for file operations and other common tasks.
 
+### `/cli` - Command-Line Interface
+The complete implementation of the `tmt` CLI tool.
+- `index.ts`: The main entry point that sets up `commander`.
+- `commands/`: Individual files for each command (`emit.ts`, `test.ts`, etc.).
+- `utils/`: Helper functions for loading grammars and interacting with Bun.
+
 ## Data Flow
 
 ### Grammar Creation Flow
@@ -226,10 +229,11 @@ Supporting functionality for file operations and other common tasks.
 
 ### CLI Flow
 ```
-1. Parse command and arguments
-2. Load grammar from TypeScript/JavaScript
-3. Execute requested operation (emit/test/validate)
-4. Output results or errors
+1. User runs `tmt <command>`
+2. `src/cli.ts` imports and runs `src/cli/index.ts`
+3. The main command in `src/cli/index.ts` delegates to a command module in `src/cli/commands`
+4. The command module executes its logic (e.g., loading a grammar, calling `emitJSON`)
+5. Results are printed to the console
 ```
 
 ## Key Design Principles

@@ -4,11 +4,13 @@
  */
 
 import type {
-  Grammar,
+  GrammarInput,
   Rule,
-  RegexValue
+  RegexValue,
+  Grammar
 } from './types.js';
-import { schema } from './types.js';
+import { processGrammar } from './validation/grammar.js';
+import type { GrammarResult } from './result.js';
 
 /**
  * Creates a complete TextMate grammar with automatic repository management.
@@ -26,7 +28,6 @@ import { schema } from './types.js';
  * @param options.firstLineMatch - Regex to match first line for grammar detection
  * @param options.foldingStartMarker - Regex marking start of foldable sections
  * @param options.foldingStopMarker - Regex marking end of foldable sections
- * @param options.repositoryItems - Explicitly declare all repository rules for reliable processing
  * @returns Complete grammar ready for emission to TextMate format
  * 
  * @example
@@ -37,11 +38,22 @@ import { schema } from './types.js';
  *   ['mylang', 'ml'],
  *   [keywordRule, stringRule, commentRule],
  *   {
- *     repositoryItems: [keywordRule, stringRule, commentRule],
  *     firstLineMatch: /^#!/
  *   }
  * );
  * ```
+ */
+/**
+ * Creates and processes a complete TextMate grammar with automatic repository management.
+ * 
+ * Returns a Result that forces you to check for validation errors before using the grammar.
+ * 
+ * @param name - Human-readable name for the grammar
+ * @param scopeName - Root scope identifier (e.g., "source.typescript")
+ * @param fileTypes - File extensions this grammar applies to
+ * @param patterns - Top-level grammar patterns/rules
+ * @param options - Optional configuration
+ * @returns Result containing processed Grammar or validation errors
  */
 export function createGrammar(
   name: string,
@@ -49,23 +61,23 @@ export function createGrammar(
   fileTypes: string[],
   patterns: Rule[],
   options?: {
-    variables?: Record<string, string>;
     firstLineMatch?: RegexValue;
     foldingStartMarker?: RegexValue;
     foldingStopMarker?: RegexValue;
-    repositoryItems?: Rule[];
+    uuid?: string;
+    filePath?: string;
   }
-): Grammar {
-  return {
-    $schema: schema,
+): GrammarResult<Grammar> {
+  const grammarInput: GrammarInput = {
     name,
     scopeName,
     fileTypes,
     patterns,
-    repositoryItems: options?.repositoryItems,
-    variables: options?.variables,
     firstLineMatch: options?.firstLineMatch,
     foldingStartMarker: options?.foldingStartMarker,
     foldingStopMarker: options?.foldingStopMarker,
+    uuid: options?.uuid,
   };
+  
+  return processGrammar(grammarInput, options?.filePath);
 } 

@@ -1,6 +1,6 @@
 import type { MatchRule, BeginEndRule } from 'tmgrammar-toolkit';
 import { R } from '../regex.js';
-import { scopeGroups } from '../scopes.js';
+import { scopes } from '../scopes.js';
 
 /**
  * Regular quoted strings
@@ -9,7 +9,7 @@ import { scopeGroups } from '../scopes.js';
 export const quotedString: MatchRule = {
   key: 'quoted-string',
   match: R.STRING,
-  scope: scopeGroups.literals.string.quoted
+  scope: scopes.literals.string.quoted
 };
 
 /**
@@ -22,9 +22,9 @@ export const multiLineStringClean: BeginEndRule = {
   key: 'multiline-string-clean',
   begin: R.MULTILINE_STR_CLEAN,
   end: /(?=^(?![ \t]))/m,
-  scope: scopeGroups.literals.string.unquoted,
+  scope: scopes.literals.string.unquoted,
   patterns: [
-    { match: /.*/, scope: scopeGroups.literals.string.unquoted }
+    { match: /.*/, scope: scopes.literals.string.unquoted }
   ]
 };
 
@@ -38,9 +38,9 @@ export const multiLineStringTrim: BeginEndRule = {
   key: 'multiline-string-trim',
   begin: R.MULTILINE_STR_TRIM,
   end: /(?=^(?![ \t]))/m,
-  scope: scopeGroups.literals.string.unquoted,
+  scope: scopes.literals.string.unquoted,
   patterns: [
-    { match: /.*/, scope: scopeGroups.literals.string.unquoted }
+    { match: /.*/, scope: scopes.literals.string.unquoted }
   ]
 };
 
@@ -54,9 +54,9 @@ export const multiLineStringPreserve: BeginEndRule = {
   key: 'multiline-string-preserve',
   begin: R.MULTILINE_STR_PRESERVE,
   end: /(?=^(?![ \t]))/m,
-  scope: scopeGroups.literals.string.unquoted,
+  scope: scopes.literals.string.unquoted,
   patterns: [
-    { match: /.*/, scope: scopeGroups.literals.string.unquoted }
+    { match: /.*/, scope: scopes.literals.string.unquoted }
   ]
 };
 
@@ -70,9 +70,9 @@ export const multiLineStringPreserveAll: BeginEndRule = {
   key: 'multiline-string-preserve-all',
   begin: R.MULTILINE_STR_PRESERVE_ALL,
   end: /(?=^(?![ \t]))/m,
-  scope: scopeGroups.literals.string.unquoted,
+  scope: scopes.literals.string.unquoted,
   patterns: [
-    { match: /.*/, scope: scopeGroups.literals.string.unquoted }
+    { match: /.*/, scope: scopes.literals.string.unquoted }
   ]
 };
 

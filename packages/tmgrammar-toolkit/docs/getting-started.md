@@ -35,7 +35,7 @@ Create a new file `mylang-grammar.ts`:
 ```typescript
 import { createGrammar, scopesFor, regex } from 'tmgrammar-toolkit';
 import { COMMENT } from 'tmgrammar-toolkit/terminals';
-import type { Grammar, MatchRule, BeginEndRule } from 'tmgrammar-toolkit';
+import type { MatchRule, BeginEndRule } from 'tmgrammar-toolkit';
 
 // Create static scopes for performance (recommended)
 const scopes = scopesFor({ suffix: 'mylang', allowScopeExtension: false });
@@ -70,7 +70,7 @@ const stringRule: BeginEndRule = {
 };
 
 // Create the complete grammar
-export const myLangGrammar: Grammar = createGrammar(
+export const myLangGrammar = createGrammar(
   'MyLang',              // Human-readable name
   'source.mylang',       // Root scope identifier
   ['mylang', 'ml'],      // File extensions
@@ -92,22 +92,39 @@ bunx tmt emit mylang-grammar.ts -o mylang.tmLanguage.json
 
 # Or with npx
 npx tmt emit mylang-grammar.ts -o mylang.tmLanguage.json
-
-# Or programmatically
 ```
 
+Or programmatically:
+
 ```typescript
-import { emitJSON } from 'tmgrammar-toolkit';
+import { emitJSON, isError } from 'tmgrammar-toolkit';
 import { myLangGrammar } from './mylang-grammar.js';
 import { writeFile } from 'node:fs/promises';
 
-const grammarJson = await emitJSON(myLangGrammar);
-await writeFile('mylang.tmLanguage.json', grammarJson);
+// emitJSON accepts a Result and handles the unwrapping
+const result = await emitJSON(myLangGrammar);
+if (isError(result)) {
+  console.error('Grammar validation failed:', result.error);
+  process.exit(1);
+}
+
+await writeFile('mylang.tmLanguage.json', result.value);
 ```
 
 ### Step 3: Test Your Grammar
 
-Create a test file to verify your grammar works:
+Create a test file to verify your grammar works. The CLI provides a handy test runner:
+
+```bash
+# Create a test file with assertions
+# See the testing documentation for more details
+# tests/mylang.test.lang
+
+# Run the test command
+bunx tmt test 'tests/**/*.test.lang' -g mylang.tmLanguage.json
+```
+
+Or test programmatically:
 
 ```typescript
 // mylang-test.ts
@@ -201,7 +218,10 @@ export const myLangGrammar = createGrammar(
   'source.mylang',
   ['mylang'],
   [keywordRule, stringRule],
-  { repositoryItems: [keywordRule, stringRule] }  // Explicitly declare all rules
+  {
+    repositoryItems: [keywordRule, stringRule], // Explicitly declare all rules
+    firstLineMatch: /^#!/
+  }
 );
 ```
 

@@ -1,4 +1,4 @@
-import type { BuildScopeOptions, Scope } from '../types.js';
+import type { BuildScopeOptions, Scope, ScopePath } from './types.js';
 
 /**
  * Creates a scope function that implements the Scope interface.
@@ -6,12 +6,12 @@ import type { BuildScopeOptions, Scope } from '../types.js';
  * @param path The full scope path string
  * @returns A callable scope function with proper toString and toPrimitive methods
  */
-function createScope<TPath extends string>(path: TPath): Scope<TPath> {
-  const scopeFunction = ((extension: string) => `${path}.${extension}`) as Scope<TPath>;
+function createScope<const P extends string, const K extends string, const S extends string>(path: P, key: K, suffix: S): Scope<P, K, S> {
+  const scopeFunction = (<const E extends string>(extension: E) => `${path}.${key}.${extension}.${suffix}` as ScopePath<ScopePath<P, K, "">, E, S>) as Scope<P, K, S>;
   
   scopeFunction.toString = () => path;
   scopeFunction[Symbol.toPrimitive] = (hint: 'string' | 'default' | 'number') =>
-    hint === 'string' || hint === 'default' ? path : null;
+    hint === 'string' || hint === 'default' ? `${path}.${key}.${suffix}` as ScopePath<P, K, S>: null;
   
   return scopeFunction;
 }
@@ -37,19 +37,12 @@ export function createScopeNode(
   // Build the path components, filtering out empty strings
   const pathParts = [prefix, kebabKey, suffix].filter(Boolean);
   const fullPath = pathParts.join('.');
-  
-  // Determine if this is a leaf node
-  const isLeaf = !children || Object.keys(children).length === 0;
-  
-  // Determine if this node should be callable based on extension mode
-  const shouldBeCallable = allowScopeExtension === true || 
-                          (allowScopeExtension === "on-leafs" && isLeaf);
-  
+    
   let scopeNode: any;
   
-  if (shouldBeCallable) {
+  if (allowScopeExtension) {
     // Create a callable scope
-    scopeNode = createScope(fullPath);
+    scopeNode = createScope(prefix, kebabKey, suffix);
   } else {
     // For non-callable scopes, start with a simple object
     scopeNode = {};

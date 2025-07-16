@@ -4,7 +4,7 @@ Complete reference for all public APIs in the TextMate Toolkit.
 
 ## Core Factory Functions
 
-### `createGrammar(name, scopeName, fileTypes, patterns, repository?)`
+### `createGrammar(name, scopeName, fileTypes, patterns, options?)`
 
 Creates a new TextMate grammar.
 
@@ -13,9 +13,13 @@ Creates a new TextMate grammar.
 - `scopeName: string` - Root scope name (e.g., 'source.typescript')
 - `fileTypes: string[]` - File extensions this grammar applies to
 - `patterns: Rule[]` - Top-level patterns/rules
-- `repository?: Record<string, Rule>` - Optional additional repository rules
+- `options?: object` - Optional grammar configuration
+  - `firstLineMatch?: RegexValue` - Regex to match first line for grammar detection
+  - `foldingStartMarker?: RegexValue` - Regex marking start of foldable sections
+  - `foldingStopMarker?: RegexValue` - Regex marking end of foldable sections
+  - `repositoryItems?: Rule[]` - Explicitly declare all repository rules for reliable processing
 
-**Returns:** `Grammar`
+**Returns:** `GrammarResult<Grammar>` - Result type requiring error checking
 
 **Example:**
 ```typescript
@@ -23,7 +27,11 @@ const grammar = createGrammar(
   'My Language',
   'source.mylang',
   ['mylang', 'ml'],
-  [keywordRule, commentRule]
+  [keywordRule, commentRule],
+  {
+    firstLineMatch: /^#!/,
+    repositoryItems: [keywordRule, commentRule]
+  }
 );
 ```
 
@@ -47,7 +55,7 @@ Converts a grammar to JSON format.
 - `grammar: Grammar` - The grammar to emit
 - `options?: EmitOptions` - Optional emission configuration
 
-**Returns:** `Promise<string>`
+**Returns:** `Promise<StringResult<string>>` - Result type with potential validation errors
 
 **Options:**
 ```typescript
@@ -66,17 +74,24 @@ Converts a grammar to Plist format.
 - `grammar: Grammar` - The grammar to emit
 - `options?: EmitOptions` - Optional emission configuration
 
-**Returns:** `Promise<string>`
+**Returns:** `Promise<StringResult<string>>` - Result type with potential validation errors
 
-### `emitYAML(grammar, options?)`
+### `prepareGrammarForEmit(grammar, options?)`
 
-Converts a grammar to YAML format.
+Processes a grammar for emission without serializing it. This is useful for validating a grammar and then emitting it to multiple formats.
 
 **Parameters:**
-- `grammar: Grammar` - The grammar to emit
+- `grammar: Grammar` - The grammar to process
 - `options?: EmitOptions` - Optional emission configuration
 
-**Returns:** `Promise<string>`
+**Returns:** `Promise<any>` - The processed grammar object
+
+**Example:**
+```typescript
+const processedGrammar = await prepareGrammarForEmit(myGrammar);
+const jsonOutput = JSON.stringify(processedGrammar, null, 2);
+const plistOutput = plist.build(processedGrammar);
+```
 
 ## Rule Types
 
@@ -232,7 +247,9 @@ regex.nonCapture('text')         // "(?:text)"
 
 // Escaping
 regex.escape('text.with.dots')   // "text\\.with\\.dots"
-```
+
+// Wrapping
+regex.wrap('foo', '"')           // "\\"foo\\""
 
 ### Pattern Construction
 
@@ -251,6 +268,9 @@ regex.notAfter('pattern')        // "(?<!pattern)"
 regex.anyOf('abc')               // "[abc]"
 regex.range('a', 'z')            // "[a-z]"
 regex.notAnyOf('abc')            // "[^abc]"
+
+// Concatenation
+regex.concat('a', /b/, 'c')      // "(?:abc)"
 ```
 
 ## Terminal Patterns
@@ -344,7 +364,7 @@ tester.expectTokenLength(tokens, 5);
 
 ### Declarative Testing
 
-**Note:** The correct function names are `declarativeTest` and `snapshot`, not `runDeclarativeTests` and `runSnapshotTests`.
+**Note:** The correct function names are `declarativeTest` and `snapshot`.
 
 ```typescript
 import { declarativeTest, snapshot } from 'tmgrammar-toolkit/testing';
@@ -399,16 +419,14 @@ const scopeResult = validateScopeName('keyword.control.conditional');
 ### Grammar Emission
 
 ```bash
-# Basic emission
-tmt emit grammar.ts
+# Basic emission to JSON
+tmt emit grammar.ts -o output.json
 
 # Specific export
 tmt emit grammar.ts myGrammarExport
 
-# Different formats
-tmt emit grammar.ts --json -o output.json
-tmt emit grammar.ts --plist -o output.tmLanguage
-tmt emit grammar.ts --yaml -o output.yaml
+# The CLI currently only supports JSON output.
+# For other formats like Plist, use the programmatic API.
 ```
 
 ### Testing

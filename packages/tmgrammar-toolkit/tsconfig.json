@@ -1,8 +1,11 @@
 {
-  "extends": "../../tsconfig.options.json",
+  "extends": "./tsconfig.options.json",
   "compilerOptions": {
-    "outDir": "../../.moon/cache/types/packages/tmgrammar-toolkit",
+    "outDir": "./lib",
     "rootDir": "./src",
+    "tsBuildInfoFile": "./.tsc/tmgrammar-toolkit.tsbuildinfo",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -21,11 +24,7 @@
     }
   },
   "include": [
-    "src/**/*"
-, "tests/regex.test.ts"  ],
-  "exclude": [
-    "dist",
-    "node_modules",
-    "**/*.test.ts"
+    "src/**/*",
+    "tests/**/*"
   ]
 }

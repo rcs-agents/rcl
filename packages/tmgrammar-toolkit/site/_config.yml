@@ -1,0 +1,109 @@
+# GitHub Pages configuration for tmgrammar-toolkit
+title: TextMate Toolkit Documentation
+description: Modern, type-safe toolkit for creating TextMate grammars with TypeScript
+baseurl: "/tmgrammar-toolkit"
+url: "https://svallory.github.io"
+
+# Jekyll configuration
+theme: minima
+markdown: kramdown
+highlighter: none
+permalink: pretty
+
+# Markdown configuration
+kramdown:
+  syntax_highlighter_opts:
+    disable: true
+
+# Plugin configuration
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Collections for organized documentation
+collections:
+  user_docs:
+    output: true
+    permalink: /docs/:name/
+  internal_docs:
+    output: true
+    permalink: /internal/:name/
+
+# Default layouts for different content types
+defaults:
+  - scope:
+      path: ""
+      type: "user_docs"
+    values:
+      layout: "user_doc"
+      nav_group: "user"
+  - scope:
+      path: ""
+      type: "internal_docs"
+    values:
+      layout: "internal_doc"
+      nav_group: "internal"
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+
+# Navigation configuration
+nav_sections:
+  user:
+    title: "How to Use"
+    description: "User guides and documentation"
+    items:
+      - title: "Getting Started"
+        url: "/docs/getting-started/"
+      - title: "API Reference"
+        url: "/docs/api-reference/"
+      - title: "Using Scopes"
+        url: "/docs/using-scopes/"
+      - title: "TextMate Scopes Reference"
+        url: "/docs/textmate-scopes/"
+      - title: "Modules Overview"
+        url: "/docs/modules-overview/"
+      - title: "Troubleshooting"
+        url: "/docs/troubleshooting/"
+  internal:
+    title: "How it Works"
+    description: "Internal architecture and contributor guides"
+    items:
+      - title: "Source Code Architecture"
+        url: "/internal/src/"
+      - title: "Helpers Module"
+        url: "/internal/helpers/"
+      - title: "Scopes Architecture"
+        url: "/internal/scopes/"
+      - title: "Well-Known Scopes"
+        url: "/internal/well-known-scopes/"
+      - title: "Terminals Module"
+        url: "/internal/terminals/"
+      - title: "Testing Framework"
+        url: "/internal/testing/"
+      - title: "Validation System"
+        url: "/internal/validation/"
+
+# Exclude files from Jekyll processing
+exclude:
+  - node_modules/
+  - package.json
+  - package-lock.json
+  - bun.lockb
+  - .gitignore
+  - README.md
+  - src/
+  - tests/
+  - examples/
+  - scripts/
+  - .github/
+  - tsconfig.json
+  - vitest.config.ts
+
+# Include LLMs.txt files
+include:
+  - llms.txt
+  - llms-full.txt

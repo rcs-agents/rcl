@@ -1,0 +1,191 @@
+agent CoffeeShop
+  displayName: "Quick Coffee"
+  start: OrderFlow
+
+  config
+    # defines the properties of the RcsBusinessMessagingAgent object from agent.schema.json
+    description: "Order your favorite coffee for pickup"
+    logoUri: <url https://quickcoffee.com/logo.png>
+    color: "#6F4E37"
+
+    phoneNumber: <phone +1-555-0123>
+    phoneLabel: "Call Store"
+
+  defaults
+    # override the values in the rcl.config.json file
+    fallbackMessage: "I didn't understand that. Please choose from the available options."
+    messageTrafficType: :promotion
+    postbackData: $js> (suggestion) => suggestion?.text?.toLowerCase().replace(/[^a-z0-9]/g, '_')
+
+  flow OrderFlow
+    # the `start` attribute is required and must be the ID of a state
+    start: Welcome
+
+    # states are now sections of type `on`
+    on InvalidOption
+      # This state returns to the state specified in the 'next' context variable
+      @next
+
+    on Welcome
+      # the `match` section is a list of Ma
+      match @reply.text
+        "Order Coffee" -> ChooseSize
+        "View Menu" -> ShowMenu
+        "Store Hours" -> StoreInfo
+        :default -> Welcome
+
+    on ChooseSize
+      match @reply.text
+        "Small" -> ChooseDrink with size: "small", price: <money 3.50>
+        "Medium" -> ChooseDrink with size: "medium", price: <money 4.50>
+        "Large" -> ChooseDrink with size: "large", price: <money 5.50>
+        :default -> InvalidOption with property: "size", next: ChooseSize
+
+    on ChooseDrink
+      match @reply.text
+        "Espresso" -> Customize with drink: "espresso"
+        "Cappuccino" -> Customize with drink: "cappuccino"
+        "Latte" -> Customize with drink: "latte"
+        "Americano" -> Customize with drink: "americano"
+        :default -> InvalidOption with property: "drink", next: ChooseDrink
+
+    on Customize
+      match @reply.text
+        "Regular" -> ConfirmOrder with milk: "regular"
+        "Skim" -> ConfirmOrder with milk: "skim"
+        "Soy" -> ConfirmOrder with milk: "soy", extraCharge: 0.60
+        "Oat" -> ConfirmOrder with milk: "oat", extraCharge: 0.60
+        "No Milk" -> ConfirmOrder with milk: "none"
+        :default -> InvalidOption with property: "milk", next: Customize
+
+    on ConfirmOrder
+      match @reply.text
+        "Confirm" -> ProcessPayment
+        "Cancel" -> OrderCancelled
+        :default -> ConfirmOrder
+
+    on ProcessPayment
+      -> OrderComplete
+
+    on OrderCancelled
+      -> ShowMenu
+
+    on OrderComplete
+      -> ThankYou
+
+    on ThankYou
+      -> ShowMenu
+
+    on ShowMenu
+      -> Welcome
+
+    on StoreInfo
+      Welcome
+
+  messages Messages
+    richCard Welcome "Welcome to Quick Coffee!" :large
+      description: "Get your favorite coffee ready for pickup in minutes!"
+      media: <url https://quickcoffee.com/welcome.jpg>
+      suggestions
+        reply "Order Coffee"
+        reply "View Menu"
+        reply "Store Hours"
+
+    text ChooseSize "What size would you like?"
+      suggestions
+        reply "Small $3.50"
+        reply "Medium $4.50"
+        reply "Large $5.50"
+
+    text Invalid Size "Please choose a valid size."
+      suggestions
+        reply "Small $3.50"
+        reply "Medium $4.50"
+        reply "Large $5.50"
+
+    # String interpolation is now supported in any string using the #{variable} syntax
+    # The `@` symbol is used to reference the current state's context properties
+    text ChooseDrink "Great! A #{@size} coffee. What type would you like?"
+      suggestions
+        reply "Espresso"
+        reply "Cappuccino"
+        reply "Latte"
+        reply "Americano"
+
+    text Invalid Drink "Please choose from our available drinks."
+      suggestions
+        reply "Espresso"
+        reply "Cappuccino"
+        reply "Latte"
+        reply "Americano"
+
+    text Customize "Perfect! A #{context.size} #{context.drink}. How would you like your milk?"
+      suggestions
+        reply "Regular"
+        reply "Skim"
+        reply "Soy +$0.60"
+        reply "Oat +$0.60"
+        reply "No Milk"
+
+    text Invalid Milk "Please choose a valid milk option."
+      suggestions
+        reply "Regular"
+        reply "Skim"
+        reply "Soy +$0.60"
+        reply "Oat +$0.60"
+        reply "No Milk"
+
+    richCard ConfirmOrder "Confirm Your Order" :medium
+      description: "#{context.size} #{context.drink} with #{context.milk} milk\nTotal: $#{(context.price + (context.extraCharge || 0)).toFixed(2)}"
+      media: <url https://quickcoffee.com/coffee.jpg>
+      suggestions
+        reply "Confirm"
+        reply "Cancel"
+
+    text ProcessPayment "Processing your payment..."
+
+    richCard OrderComplete "Order Confirmed!" :large
+      description: """
+        Your order will be ready for pickup in 5-7 minutes.
+        Show this confirmation at the counter.
+      """
+      media: <url https://quickcoffee.com/confirmed.jpg>
+      suggestions
+        saveEvent "Add to Calendar"
+          title: "Coffee Pickup"
+          startTime: <datetime +5m>
+          endTime: <datetime +15m>
+          description: "Pick up #{@size} #{@drink}"
+
+    text OrderCancelled "Your order has been cancelled. Thank you!"
+
+    text ThankYou """
+      Thank you for your order!
+      Your order will be ready for pickup in 5-7 minutes.
+      Show this confirmation at the counter.
+    """
+
+    carousel ShowMenu "Our Coffee Menu" :medium
+      richCard EspressoCard "Espresso" :compact
+        description: "Rich, bold shot of coffee"
+        media: <url https://quickcoffee.com/espresso.jpg>
+
+      richCard CappuccinoCard "Cappuccino" :compact
+        description: "Espresso with steamed milk foam"
+        media: <url https://quickcoffee.com/cappuccino.jpg>
+
+      richCard LatteCard "Latte" :compact
+        description: "Espresso with steamed milk"
+        media: <url https://quickcoffee.com/latte.jpg>
+
+      richCard AmericanoCard "Americano" :compact
+        description: "Espresso with hot water"
+        media: <url https://quickcoffee.com/americano.jpg>
+
+    text StoreInfo "We're open Monday-Friday 6am-7pm, weekends 7am-6pm."
+
+    # multi-line strings can now be defined with """
+    text InvalidOption """
+      Sorry, that's not a valid option for #{@property}.
+      Please choose from the available options.
+    """

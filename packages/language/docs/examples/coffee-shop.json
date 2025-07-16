@@ -1,0 +1,319 @@
+{
+  "agent": {
+    "name": "CoffeeShop",
+    "displayName": "Quick Coffee"
+  },
+  "messages": {
+    "richCard Welcome \"Welcome to Quick Coffee!\"": "large",
+    "description": "Espresso with hot water",
+    "media": "<url https://quickcoffee.com/americano.jpg>",
+    "richCard ConfirmOrder \"Confirm Your Order\"": "medium",
+    "richCard OrderComplete \"Order Confirmed!\"": "large",
+    "title": "Coffee Pickup",
+    "startTime": "<datetime +5m>",
+    "endTime": "<datetime +15m>",
+    "carousel ShowMenu \"Our Coffee Menu\"": "medium",
+    "richCard EspressoCard \"Espresso\"": "compact",
+    "richCard CappuccinoCard \"Cappuccino\"": "compact",
+    "richCard LatteCard \"Latte\"": "compact",
+    "richCard AmericanoCard \"Americano\"": "compact"
+  },
+  "flows": {
+    "OrderFlow": {
+      "id": "OrderFlow",
+      "initial": "Welcome",
+      "states": {
+        "InvalidOption": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "InvalidOption"
+            }
+          },
+          "on": {}
+        },
+        "Welcome": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "Welcome"
+            }
+          },
+          "on": {
+            "Order Coffee": {
+              "target": "ChooseSize"
+            },
+            "View Menu": {
+              "target": "ShowMenu"
+            },
+            "Store Hours": {
+              "target": "StoreInfo"
+            },
+            "*": {
+              "target": "Welcome"
+            }
+          }
+        },
+        "ChooseSize": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "ChooseSize"
+            }
+          },
+          "on": {
+            "Small": {
+              "target": "ChooseDrink",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "size": "small",
+                  "price": "<money 3.50>"
+                }
+              }
+            },
+            "Medium": {
+              "target": "ChooseDrink",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "size": "medium",
+                  "price": "<money 4.50>"
+                }
+              }
+            },
+            "Large": {
+              "target": "ChooseDrink",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "size": "large",
+                  "price": "<money 5.50>"
+                }
+              }
+            },
+            "*": {
+              "target": "InvalidOption",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "property": "size",
+                  "next": "ChooseSize"
+                }
+              }
+            }
+          }
+        },
+        "ChooseDrink": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "ChooseDrink"
+            }
+          },
+          "on": {
+            "Espresso": {
+              "target": "Customize",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "drink": "espresso"
+                }
+              }
+            },
+            "Cappuccino": {
+              "target": "Customize",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "drink": "cappuccino"
+                }
+              }
+            },
+            "Latte": {
+              "target": "Customize",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "drink": "latte"
+                }
+              }
+            },
+            "Americano": {
+              "target": "Customize",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "drink": "americano"
+                }
+              }
+            },
+            "*": {
+              "target": "InvalidOption",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "property": "drink",
+                  "next": "ChooseDrink"
+                }
+              }
+            }
+          }
+        },
+        "Customize": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "Customize"
+            }
+          },
+          "on": {
+            "Regular": {
+              "target": "ConfirmOrder",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "milk": "regular"
+                }
+              }
+            },
+            "Skim": {
+              "target": "ConfirmOrder",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "milk": "skim"
+                }
+              }
+            },
+            "Soy": {
+              "target": "ConfirmOrder",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "milk": "soy",
+                  "extraCharge": "0.60"
+                }
+              }
+            },
+            "Oat": {
+              "target": "ConfirmOrder",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "milk": "oat",
+                  "extraCharge": "0.60"
+                }
+              }
+            },
+            "No Milk": {
+              "target": "ConfirmOrder",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "milk": "none"
+                }
+              }
+            },
+            "*": {
+              "target": "InvalidOption",
+              "actions": {
+                "type": "xstate.assign",
+                "assignment": {
+                  "property": "milk",
+                  "next": "Customize"
+                }
+              }
+            }
+          }
+        },
+        "ConfirmOrder": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "ConfirmOrder"
+            }
+          },
+          "on": {
+            "Confirm": {
+              "target": "ProcessPayment"
+            },
+            "Cancel": {
+              "target": "OrderCancelled"
+            },
+            "*": {
+              "target": "ConfirmOrder"
+            }
+          }
+        },
+        "ProcessPayment": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "ProcessPayment"
+            }
+          },
+          "on": {}
+        },
+        "OrderCancelled": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "OrderCancelled"
+            }
+          },
+          "on": {}
+        },
+        "OrderComplete": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "OrderComplete"
+            }
+          },
+          "on": {}
+        },
+        "ThankYou": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "ThankYou"
+            }
+          },
+          "on": {}
+        },
+        "ShowMenu": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "ShowMenu"
+            }
+          },
+          "on": {}
+        },
+        "StoreInfo": {
+          "entry": {
+            "type": "sendParent",
+            "event": {
+              "type": "DISPLAY_MESSAGE",
+              "messageId": "StoreInfo"
+            }
+          },
+          "on": {}
+        }
+      },
+      "context": {}
+    }
+  }
+}

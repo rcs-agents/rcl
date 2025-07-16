@@ -1,0 +1,44 @@
+---
+layout: default
+---
+
+<article class="user-doc">
+  <header class="doc-header">
+    <div class="doc-badge user-doc-badge">📖 User Guide</div>
+    <h1>{{ page.title }}</h1>
+    {% if page.description %}
+    <p class="doc-description">{{ page.description }}</p>
+    {% endif %}
+  </header>
+
+  <div class="doc-content">
+    {{ content }}
+  </div>
+
+  <footer class="doc-footer">
+    <div class="doc-navigation">
+      {% assign sorted_docs = site.user_docs | sort: 'order' %}
+      {% for doc in sorted_docs %}
+        {% if doc.order == page.order %}
+          {% assign current_index = forloop.index0 %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+
+      {% if current_index > 0 %}
+        {% assign prev_doc = sorted_docs[current_index - 1] %}
+        <a href="{{ prev_doc.url | relative_url }}" class="doc-nav-link prev">
+          ← {{ prev_doc.title }}
+        </a>
+      {% endif %}
+
+      {% assign next_index = current_index | plus: 1 %}
+      {% if next_index < sorted_docs.size %}
+        {% assign next_doc = sorted_docs[next_index] %}
+        <a href="{{ next_doc.url | relative_url }}" class="doc-nav-link next">
+          {{ next_doc.title }} →
+        </a>
+      {% endif %}
+    </div>
+  </footer>
+</article>

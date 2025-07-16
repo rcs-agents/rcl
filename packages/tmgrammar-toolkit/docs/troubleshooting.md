@@ -303,33 +303,18 @@ npx tmt snap 'tests/**/*.mylang' --update
 npx tmt snap 'tests/keywords.test.mylang' --update
 ```
 
-## CLI Issues
+## CLI Debugging
 
-### Command Not Found
+### Command Issues
 
-**Problem**: `tmt: command not found`
+**Problem**: A CLI command is not behaving as expected.
 
 **Solutions**:
 
-1. **Local installation**
-   ```bash
-   npx tmt emit grammar.ts
-   ```
-
-2. **Global installation**
-   ```bash
-   npm install -g tmgrammar-toolkit
-   tmt emit grammar.ts
-   ```
-
-3. **Use package.json scripts**
-   ```json
-   {
-     "scripts": {
-       "build-grammar": "tmt emit src/grammar.ts -o grammar.json"
-     }
-   }
-   ```
+1.  **Isolate the Command**: Since each command is a module, you can test it in isolation. Look in `src/cli/commands` to find the relevant command file.
+2.  **Check Argument Parsing**: Ensure that the arguments and options you are passing on the command line are correctly defined and parsed in the command's file. The `commander` package handles this, so check the `.argument()` and `.option()` calls.
+3.  **Verify Utility Functions**: Many commands use helpers from `src/cli/utils`. Check these functions (`loadGrammarFromFile`, etc.) to see if the issue lies there.
+4.  **Run with Verbosity**: Add `console.log` statements within the command's action to trace its execution and inspect the values of variables.
 
 ### File Path Issues
 
@@ -337,23 +322,13 @@ npx tmt snap 'tests/keywords.test.mylang' --update
 
 **Solutions**:
 
-1. **Check working directory**
-   ```bash
-   pwd
-   ls -la grammar.ts
-   ```
-
-2. **Use absolute paths**
-   ```bash
-   tmt emit /full/path/to/grammar.ts
-   ```
-
-3. **Check file extensions**
-   ```bash
-   # Include .ts extension
-   tmt emit grammar.ts
-   # Not: tmt emit grammar
-   ```
+1.  **Check Working Directory**: Make sure you are running the `tmt` command from the root of your project.
+    ```bash
+    pwd
+    ls -la grammar.ts
+    ```
+2.  **Use Relative or Absolute Paths**: The CLI should handle both, but if you're having trouble, try providing a full path to the file.
+3.  **Check File Extensions**: Ensure you're including the correct file extension (`.ts`, `.js`, etc.) in the command.
 
 ## Editor Integration Issues
 

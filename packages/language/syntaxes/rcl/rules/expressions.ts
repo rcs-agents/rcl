@@ -3,20 +3,20 @@ import { allIdentifiers } from './identifiers.js';
 import { allLiterals } from './literals.js';
 import { R } from '../regex.js';
 import { typeTag } from './types.js';
-import { scopeGroups } from '../scopes.js';
+import { scopes } from '../scopes.js';
 
 const operators: MatchRule = {
     key: 'operators',
-    scope: scopeGroups.keywords.logical, // Using logical as the base operator scope
+    scope: scopes.keywords.logical, // Using logical as the base operator scope
     match: R.OPERATORS,
 };
 
 const attributeAccess: BeginEndRule = {
     key: 'attribute-access',
-    scope: scopeGroups.meta.path,
+    scope: scopes.meta.path,
     begin: R.DOT,
     beginCaptures: {
-        '0': { scope: scopeGroups.punctuation.accessor },
+        '0': { scope: scopes.punctuation.accessor },
     },
     end: /(?=\s|[,)\]}])/,
     patterns: allIdentifiers,
@@ -24,7 +24,7 @@ const attributeAccess: BeginEndRule = {
 
 export const groupedExpression: BeginEndRule = {
     key: 'grouped-expression',
-    scope: scopeGroups.meta.group,
+    scope: scopes.meta.group,
     begin: /\(/,
     end: /\)/,
     patterns: [
@@ -34,28 +34,28 @@ export const groupedExpression: BeginEndRule = {
 
 const singleLineExpression: BeginEndRule = {
     key: 'single-line-expression',
-    scope: scopeGroups.meta.interpolation,
+    scope: scopes.meta.interpolation,
     begin: R.SINGLE_LINE_EXPRESSION_BEGIN,
     beginCaptures: {
-        '1': { scope: scopeGroups.punctuation.interpolationBegin },
+        '1': { scope: scopes.punctuation.interpolationBegin },
     },
     end: R.SINGLE_LINE_EXPRESSION_END,
     endCaptures: {
-        '1': { scope: scopeGroups.punctuation.interpolationEnd },
+        '1': { scope: scopes.punctuation.interpolationEnd },
     },
     patterns: [...allLiterals],
 };
 
 const multiLineExpression: BeginEndRule = {
     key: 'multi-line-expression',
-    scope: scopeGroups.meta.interpolation,
+    scope: scopes.meta.interpolation,
     begin: R.MULTI_LINE_EXPRESSION_BEGIN,
     beginCaptures: {
-        '1': { scope: scopeGroups.punctuation.interpolationBegin },
+        '1': { scope: scopes.punctuation.interpolationBegin },
     },
     end: R.MULTI_LINE_EXPRESSION_END,
     endCaptures: {
-        '1': { scope: scopeGroups.punctuation.interpolationEnd },
+        '1': { scope: scopes.punctuation.interpolationEnd },
     },
     patterns: [...allLiterals],
 };

@@ -503,4 +503,61 @@ messages Test Messages:
       expect((getValue('spacedIdentifier') as any).value).toBe('Spaced Identifier Value');
     });
   });
+
+  describe('Prefixed Scopes', () => {
+    test('correctly identifies prefixed scopes', () => {
+      const input = `agent Prefixed Scopes Test:
+    name: "Test"
+    description: "Supports prefixed scopes"
+    specialChars: "Special chars: @#$%^&*()[]{}|;:'\\",.<>?/\\\\~"
+    unicodeValue: "価格: ¥1000"`;
+
+      const result = parser.parse(input);
+      
+      expect(result.errors).toHaveLength(0);
+      expect(result.ast).toBeDefined();
+      
+      const agentSection = result.ast!.sections[0];
+      expect(agentSection.attributes).toHaveLength(4);
+      
+      const nameAttr = agentSection.attributes.find(a => a.key === 'name');
+      expect((nameAttr?.value as any).value).toBe('Test');
+      
+      const descriptionAttr = agentSection.attributes.find(a => a.key === 'description');
+      expect((descriptionAttr?.value as any).value).toBe('Supports prefixed scopes');
+      
+      const specialCharsAttr = agentSection.attributes.find(a => a.key === 'specialChars');
+      expect((specialCharsAttr?.value as any).value).toBe('Special chars: @#$%^&*()[]{}|;:\'",.<>?/\\\\~');
+      
+      const unicodeAttr = agentSection.attributes.find(a => a.key === 'unicodeValue');
+      expect((unicodeAttr?.value as any).value).toBe('価格: ¥1000');
+    });
+
+    test('correctly identifies prefixed scopes in flow rules', () => {
+      const input = `agent Prefixed Scopes Flow Test:
+    name: "Test"
+    description: "Supports prefixed scopes in flow rules"
+    specialChars: "Special chars: @#$%^&*()[]{}|;:'\\",.<>?/\\\\~"
+    unicodeValue: "価格: ¥1000"`;
+
+      const result = parser.parse(input);
+      
+      expect(result.errors).toHaveLength(0);
+      expect(result.ast).toBeDefined();
+      
+      const agent = result.ast!.agentSection!;
+      expect(agent.flowSections).toHaveLength(1);
+      expect(agent.flowSections[0].name).toBe('Prefixed Scopes Flow Test');
+      expect(agent.flowSections[0].rules).toHaveLength(1);
+      
+      const flowRule = agent.flowSections[0].rules[0];
+      expect(flowRule.from).toBe(':start');
+      expect(flowRule.to).toBe(':end');
+      
+      const prefixedScopes = flowRule.prefixedScopes;
+      expect(prefixedScopes).toBeDefined();
+      expect(prefixedScopes.keyword.control.conditional.toString())
+        .toBe('source.rcl.keyword.control.conditional.embedded');
+    });
+  });
 });

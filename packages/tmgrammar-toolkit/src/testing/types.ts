@@ -2,7 +2,7 @@
  * Options for declarative testing with vscode-tmgrammar-test
  */
 
-import type { Grammar } from "#src/types";
+import type { GrammarInput } from "#src/types";
 
 export interface DeclarativeTestOptions {
   /** Display output in compact format for VSCode problem matchers */
@@ -58,7 +58,7 @@ export interface GrammarInitOptions {
   /** Path to the grammar file (.tmLanguage.json) */
   grammarPath?: string;
   /** Grammar content as object (alternative to grammarPath) */
-  grammar?: Grammar;
+  grammar?: GrammarInput;
   /** Grammar scope name (e.g., 'source.rcl') */
   scopeName: string;
   /** Additional grammars for embedded languages */

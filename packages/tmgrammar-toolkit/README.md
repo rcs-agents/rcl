@@ -44,7 +44,7 @@ export const grammar = createGrammar('MyLang', 'source.mylang', ['mylang'], [key
 - 🎯 **Type-Safe Development** - Full TypeScript support with comprehensive type definitions
 - 🧪 **Integrated Testing** - Programmatic and declarative testing with snapshot support
 - ✅ **Built-in Validation** - Catch regex errors and scope naming issues before deployment
-- 🔄 **Multiple Output Formats** - Generate JSON, Plist, or YAML grammar files
+- 🔄 **Multiple Output Formats** - Generate JSON or Plist grammar files
 - 🛠️ **Powerful CLI** - Unified command-line interface for all operations
 - 📚 **Rich Ecosystem** - Pre-built patterns, helpers, and comprehensive documentation
 - 🚀 **Performance Optimized** - Smart repository management and efficient pattern generation
@@ -208,9 +208,14 @@ The `tmt` command provides unified access to all toolkit functionality. **Works 
 # Generate JSON (default)
 tmt emit my-grammar.ts
 
-# Generate different formats
-tmt emit my-grammar.ts --plist -o grammar.tmLanguage
-tmt emit my-grammar.ts --yaml -o grammar.yaml
+# Generate Plist format
+tmt emit my-grammar.ts --plist
+
+# Generate YAML format
+tmt emit my-grammar.ts --yaml
+
+# Generate all formats
+tmt emit my-grammar.ts --all
 
 # Emit specific export
 tmt emit my-grammar.ts myGrammarExport
@@ -511,11 +516,35 @@ Works seamlessly with all editors supporting TextMate grammars:
 
 Already have a TextMate grammar? The toolkit makes migration straightforward:
 
-1. **Convert patterns** using our regex helpers
-2. **Replace scope strings** with type-safe scope API
-3. **Add validation** to catch existing issues
-4. **Write tests** to prevent regressions
-5. **Optimize patterns** using our performance tools
+1.  **Convert patterns** using our regex helpers
+2.  **Replace scope strings** with type-safe scope API
+3.  **Add validation** to catch existing issues
+4.  **Write tests** to prevent regressions
+5.  **Optimize patterns** using our performance tools
+
+## 🗺️ Roadmap
+
+The future of `tmgrammar-toolkit` is focused on enhancing the developer experience, expanding authoring capabilities, and integrating with the broader ecosystem. Here's a look at what's planned for upcoming versions.
+
+### Version 2.0: Polishing the Core Experience
+
+The primary goal of v2.0 is to solidify the existing feature set and improve the overall authoring workflow.
+
+- **CLI Enhancements**: A refactored and more maintainable CLI architecture. Full implementation of all documented flags, including `--plist` and other potential emission formats.
+- **Advanced Authoring**: A fluent API for building grammars and improved repository management.
+- **Improved Testing**: Richer test reporting and performance/complexity analysis for grammars.
+- **Test Runner Integration**: Adapters for seamless integration with Jest and Vitest.
+
+### Version 3.0: Advanced Tooling and Ecosystem Integration
+
+Version 3.0 will introduce advanced tools to support large-scale grammar development and deeper integration with the TextMate ecosystem.
+
+- **Developer Experience**: A development server with hot-reloading, project scaffolding, and a dedicated VS Code extension.
+- **Advanced Composition**: Support for grammar inheritance and composition to manage complex language definitions.
+- **Enhanced Quality Assurance**: Test coverage analysis and theme compatibility checks.
+- **Ecosystem Integration**: Tools for converting, optimizing, and sharing grammars.
+
+For a detailed breakdown of our future plans, see the [v2.0](roadmap/v2.0.md) and [v3.0](roadmap/v3.0.md) roadmaps.
 
 ## 🤝 Contributing
 
@@ -527,9 +556,9 @@ We welcome contributions! Whether you're:
 - 🧩 **Adding patterns** - Contribute to the terminal library
 - 🔧 **Fixing issues** - Submit pull requests
 
-See our [contributing guidelines](../../CONTRIBUTING.md) for details.
+See our [contributing guidelines](CONTRIBUTING.md) for details.
 
-## 📦 Related Projects
+## 📦 Credits and Related Projects
 
 This toolkit builds upon and integrates with excellent open-source projects:
 
@@ -538,9 +567,14 @@ This toolkit builds upon and integrates with excellent open-source projects:
 - **[oniguruma](https://github.com/kkos/oniguruma)** - Regular expression engine
 - **[VS Code Language Extensions](https://code.visualstudio.com/api/language-extensions/overview)** - Editor integration
 
+We also vendor the TMLanguage JSON schema, originally created by Martin Ring. You can find the original project [here](https://github.com/martinring/tmlanguage).
+
+We are grateful for the work of everyone that contributed to the projects above!
+
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
 
 ## 🌟 Why Choose TextMate Toolkit?
 

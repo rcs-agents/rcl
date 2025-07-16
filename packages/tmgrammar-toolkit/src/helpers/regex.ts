@@ -28,7 +28,8 @@ const combineFlags = (inputs: RegexValue[]): string => {
     .join('');
   
   // Remove duplicates and sort for consistency
-  return [...new Set(allFlags)].sort().join('');
+  const uniqueFlags = Array.from(new Set(allFlags)).sort();
+  return uniqueFlags.join('');
 };
 
 /**

@@ -8,6 +8,8 @@ export * from './validation/index.js'
 
 //@index(['./*.ts', '!cli.ts', '!*.d.ts'], f => `export * from '${f.path}.js'`)
 export * from './emit.js'
+export * from './errors.js'
 export * from './factory.js'
+export * from './result.js'
 export * from './types.js'
 //@endindex

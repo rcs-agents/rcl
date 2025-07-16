@@ -1,4 +1,4 @@
-import type { Join, Simplify } from 'type-fest';
+import type { Join } from 'type-fest';
 
 /**
  * Configuration options for building scope objects
@@ -9,16 +9,8 @@ export interface BuildScopeOptions {
   /** The suffix to append to all scope names (typically language name) */
   suffix?: string;
   /** Controls which scopes can be called with additional suffixes */
-  allowScopeExtension?: ExtensionMode;
+  allowScopeExtension?: boolean;
 }
-
-/**
- * Extension mode for scopes - controls which scopes are callable
- * - `true`: All scopes are callable (can accept additional suffixes)
- * - `false`: No scopes are callable (plain objects only)  
- * - `"on-leafs"`: Only leaf scopes (terminal nodes) are callable
- */
-export type ExtensionMode = boolean | "on-leafs";
 
 type Filter<T extends readonly any[], U = null | undefined | ""> = T extends []
   ? []
@@ -28,23 +20,27 @@ type Filter<T extends readonly any[], U = null | undefined | ""> = T extends []
     : [F, ...Filter<R, U>]
   : T;
 
-type ScopePath<
+export type ScopePath<
   P extends string,
   K extends string,
   S extends string,
 > = Join<Filter<[P, K, S]>, '.'>;
 
+
 /**
  * Base interface for a callable scope.
  * It provides a call signature to extend the scope path and a primitive converter for string coercion.
  */
-export interface Scope<TPath extends string = string> {
+export interface Scope<
+P extends string,
+K extends string,
+S extends string> {
   /**
    * Extends this scope with the given suffix.
    * @param extension The string to append to the scope path.
    * @returns A new string with the extended scope path.
    */
-  <const E extends string>(extension: E): Join<[TPath, E], '.'>;
+  <const E extends string>(extension: E): ScopePath<ScopePath<P, K, "">, E, S>;
   /**
    * Returns the string representation of the scope path.
    */
@@ -52,34 +48,36 @@ export interface Scope<TPath extends string = string> {
   /**
    * Allows for implicit string conversion.
    */
-  [Symbol.toPrimitive](hint: 'string' | 'default' | 'number'): TPath | null;
+  [Symbol.toPrimitive](hint: 'string' | 'default' | 'number'): ScopePath<P, K, S> | null;
 }
 
 /**
  * Recursively builds a tree of scopes from a definition object.
  * 
  * @template Tree The scope definition object.
- * @template P The current path prefix.
- * @template S The language suffix to apply to all scopes.
+ * @template P The prefix to prepend to all scopes.
+ * @template S The suffix to apply to all scopes.
  * @template E The extension mode, controlling which scopes are callable.
  */
 export type ScopeTree<
   Tree, 
-  P extends string = "", 
-  S extends string = "", 
-  E extends ExtensionMode = false
-> = {
+  P extends string = "",
+  S extends string = "",
+  E extends boolean = false
+> = Tree extends Record<string, any> ? {
   // prettier-ignore
   [K in keyof Tree]: K extends string
-    ? keyof Tree[K] extends never // It's a leaf node (empty object or null).
-      ? E extends false
-        ? ScopePath<P, K, S> // `false` mode: leaf scopes are NOT callable.
-        : Scope<ScopePath<P, K, S>> // `true` or `on-leafs` mode: leaf scopes ARE callable.
-      : E extends true // It's a branch node (has children).
-        ? Scope<ScopePath<P, K, S>> & Simplify<ScopeTree<Tree[K], Join<[P, K], ".">, S, E>> // `true` mode: all scopes are callable.
-        : ScopePath<P, K, S> & Simplify<ScopeTree<Tree[K], Join<[P, K], ".">, S, E>> // `false` or `on-leafs` mode: branch scopes are NOT callable.
+    ? Tree[K] extends null | undefined
+      ? E extends true
+        ? Scope<P, K, S>
+        : ScopePath<P, K, S>
+      : Tree[K] extends Record<string, any>
+        ? E extends true
+          ? Scope<P, K, S> & ScopeTree<Tree[K], ScopePath<P, K, "">, S, E>
+          : ScopePath<P, K, S> & ScopeTree<Tree[K], ScopePath<P, K, "">, S, E>
+        : never
     : never;
-};
+} : never;
 
 /**
  * Simple merge type for combining custom scopes with base scopes.
@@ -134,7 +132,7 @@ export namespace Debug {
     T, 
     P extends string = "",
     S extends string = "",
-    E extends ExtensionMode = false
+    E extends boolean = false
   > = ScopeTree<T, P, S, E>;
 
   /**

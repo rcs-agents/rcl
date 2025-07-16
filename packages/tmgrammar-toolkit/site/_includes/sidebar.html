@@ -1,0 +1,69 @@
+<nav class="docs-sidebar">
+  
+  <!-- User Documentation Section -->
+  <div class="nav-section">
+    <h3 class="nav-section-title">
+      📖 How to Use
+      <span class="nav-section-description">User guides and documentation</span>
+    </h3>
+    <ul class="nav-list">
+      {% assign user_docs = site.user_docs | sort: 'order' %}
+      {% for doc in user_docs %}
+      <li class="nav-item">
+        <a href="{{ doc.url | relative_url }}" 
+           class="nav-link {% if page.url == doc.url %}active{% endif %}">
+          {{ doc.title }}
+        </a>
+        {% if doc.description %}
+        <div class="nav-description">{{ doc.description }}</div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Internal Documentation Section -->
+  <div class="nav-section">
+    <h3 class="nav-section-title">
+      🔧 How it Works
+      <span class="nav-section-description">Internal architecture and contributor guides</span>
+    </h3>
+    <ul class="nav-list">
+      {% assign internal_docs = site.internal_docs | sort: 'order' %}
+      {% for doc in internal_docs %}
+      <li class="nav-item">
+        <a href="{{ doc.url | relative_url }}" 
+           class="nav-link {% if page.url == doc.url %}active{% endif %}">
+          {{ doc.title }}
+        </a>
+        {% if doc.description %}
+        <div class="nav-description">{{ doc.description }}</div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- LLMs.txt Section -->
+  <div class="nav-section">
+    <h3 class="nav-section-title">
+      🤖 LLM Resources
+      <span class="nav-section-description">For AI/LLM analysis</span>
+    </h3>
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a href="{{ '/llms.txt' | relative_url }}" class="nav-link" target="_blank">
+          llms.txt
+        </a>
+        <div class="nav-description">Essential project information</div>
+      </li>
+      <li class="nav-item">
+        <a href="{{ '/llms-full.txt' | relative_url }}" class="nav-link" target="_blank">
+          llms-full.txt
+        </a>
+        <div class="nav-description">Complete codebase</div>
+      </li>
+    </ul>
+  </div>
+
+</nav>

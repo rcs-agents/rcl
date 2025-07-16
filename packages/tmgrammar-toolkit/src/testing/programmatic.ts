@@ -10,7 +10,7 @@ import * as path from 'node:path';
 import { createRequire } from 'node:module';
 import type { GrammarInitOptions, TokenInfo } from './types.js';
 import type { IGrammar, StateStack } from 'vscode-textmate';
-import type { Grammar } from '#src';
+import type { GrammarInput } from '#src';
 import { OnigScanner, OnigString, loadWASM } from 'onigasm';
 
 const createRequireFn = createRequire(__filename);
@@ -63,7 +63,7 @@ export class ProgrammaticTester {
       await loadWASM(wasmBin.buffer as any);
 
       // Load grammar content
-      let grammarContent: Grammar;
+      let grammarContent: GrammarInput;
       if (this.options.grammar) {
         grammarContent = this.options.grammar;
       } else if (this.options.grammarPath) {

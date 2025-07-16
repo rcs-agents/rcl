@@ -1,0 +1,33 @@
+<footer class="site-footer">
+  <div class="wrapper">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>TextMate Toolkit</h4>
+        <p>{{ site.description }}</p>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Documentation</h4>
+        <ul>
+          <li><a href="{{ '/docs/getting-started/' | relative_url }}">Getting Started</a></li>
+          <li><a href="{{ '/docs/api-reference/' | relative_url }}">API Reference</a></li>
+          <li><a href="{{ '/internal/src/' | relative_url }}">Architecture</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="https://github.com/svallory/tmgrammar-toolkit" target="_blank">GitHub Repository</a></li>
+          <li><a href="https://www.npmjs.com/package/tmgrammar-toolkit" target="_blank">npm Package</a></li>
+          <li><a href="{{ '/llms.txt' | relative_url }}" target="_blank">LLMs.txt</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; {{ 'now' | date: "%Y" }} TextMate Toolkit. MIT License.</p>
+      <p>Documentation built with Jekyll and deployed on GitHub Pages.</p>
+    </div>
+  </div>
+</footer>

@@ -1,6 +1,6 @@
 import type { MatchRule } from 'tmgrammar-toolkit';
 import { R } from '../regex.js';
-import { scopeGroups } from '../scopes.js';
+import { scopes } from '../scopes.js';
 
 /**
  * String literals with double quotes
@@ -9,7 +9,7 @@ import { scopeGroups } from '../scopes.js';
 export const stringLiteral: MatchRule = {
 	key: 'string-literal',
 	match: R.STRING,
-	scope: scopeGroups.literals.string.quoted
+	scope: scopes.literals.string.quoted
 };
 
 /**
@@ -19,7 +19,7 @@ export const stringLiteral: MatchRule = {
 export const numberLiteral: MatchRule = {
 	key: 'number-literal',
 	match: R.NUMBER,
-	scope: scopeGroups.literals.number
+	scope: scopes.literals.number
 };
 
 /**
@@ -29,7 +29,7 @@ export const numberLiteral: MatchRule = {
 export const durationLiteral: MatchRule = {
 	key: 'duration-literal',
 	match: R.ISO_DURATION_LITERAL,
-	scope: scopeGroups.literals.duration
+	scope: scopes.literals.duration
 };
 
 /**
@@ -39,7 +39,7 @@ export const durationLiteral: MatchRule = {
 export const atomLiteral: MatchRule = {
 	key: 'atom-literal',
 	match: R.ATOM,
-	scope: scopeGroups.literals.atom
+	scope: scopes.literals.atom
 };
 
 /**
@@ -48,7 +48,7 @@ export const atomLiteral: MatchRule = {
  */
 export const trueLiteral: MatchRule = {
 	key: 'true-literal',
-	scope: scopeGroups.literals.boolean,
+	scope: scopes.literals.boolean,
 	match: R.TRUE_KW
 };
 
@@ -58,7 +58,7 @@ export const trueLiteral: MatchRule = {
  */
 export const falseLiteral: MatchRule = {
 	key: 'false-literal',
-	scope: scopeGroups.literals.boolean,
+	scope: scopes.literals.boolean,
 	match: R.FALSE_KW
 };
 
@@ -69,7 +69,7 @@ export const falseLiteral: MatchRule = {
 export const nullLiteral: MatchRule = {
 	key: 'null-literal',
 	match: R.NULL_KW,
-	scope: scopeGroups.literals.null
+	scope: scopes.literals.null
 };
 
 /**
@@ -78,7 +78,7 @@ export const nullLiteral: MatchRule = {
 export const booleanLiteral: MatchRule = {
 	key: 'boolean-literal',
 	match: /\b(True|Yes|On|Enabled|Active|False|No|Off|Disabled|Inactive)\b/,
-	scope: scopeGroups.literals.boolean
+	scope: scopes.literals.boolean
 };
 
 export const allLiterals = [

@@ -9,6 +9,17 @@
 
 import { scopesFor } from 'tmgrammar-toolkit';
 
+const simpleTest = scopesFor({
+  suffix: 'rcl',
+  allowScopeExtension: false
+}, {
+  meta: {
+    section: null,
+  }
+});
+
+simpleTest.meta.class;
+
 // Create static scopes with RCL suffix and no extension allowed
 export const scopes = scopesFor({ 
   suffix: 'rcl', 
@@ -125,84 +136,5 @@ export const scopes = scopesFor({
   },
 });
 
-// Export commonly used scope groups for convenience
-export const scopeGroups = {
-  // Keywords by category
-  keywords: {
-    import: scopes.keyword.control.import,
-    section: scopes.keyword.control.section,
-    message: scopes.keyword.control.message,
-    action: scopes.keyword.control.action,
-    flow: scopes.keyword.control.flow,
-    conditional: scopes.keyword.control.conditional,
-    logical: scopes.keyword.operator.logical,
-    comparison: scopes.keyword.operator.comparison,
-    arrow: scopes.keyword.operator.arrow,
-  },
-  
-  // Storage and types
-  storage: {
-    type: scopes.storage.type,
-    modifier: scopes.storage.modifier,
-  },
-  
-  // Literals and constants
-  literals: {
-    string: {
-      quoted: scopes.string.quoted.double,
-      unquoted: scopes.string.unquoted,
-    },
-    number: scopes.constant.numeric,
-    duration: scopes.constant.numeric_duration,
-    boolean: scopes.constant.language,
-    null: scopes.constant.language,
-    atom: scopes.constant.other,
-  },
-  
-  // Comments
-  comments: {
-    line: scopes.comment.line.number_sign,
-  },
-  
-  // Identifiers and names
-  identifiers: {
-    spaceSepar: scopes.entity.name.identifier,
-    attributeKey: scopes.entity.other.attribute_name,
-    sectionName: scopes.entity.name.section,
-    messageName: scopes.entity.name.message,
-    flowRuleName: scopes.entity.name.section, // Use section scope for flow rules
-    flowTarget: scopes.entity.name.section, // Use section scope for flow targets
-    typeTagName: scopes.entity.name.type.tag,
-    alias: scopes.entity.name.alias,
-    module: scopes.entity.name.module,
-  },
-  
-  // Meta scopes for structure
-  meta: {
-    section: scopes.meta.section, // Base section
-    section_agentConfig: scopes.meta.section_agentConfig,
-    section_agentDefaults: scopes.meta.section_agentDefaults,
-    messageDefinition: scopes.meta.message_definition,
-    messageShortcut: scopes.meta.message_shortcut,
-    flowTransition: scopes.meta.flow_transition,
-    flowRule: scopes.meta.flow_rule,
-    whenClause: scopes.meta.when_clause,
-    withClause: scopes.meta.with_clause,
-    interpolation: scopes.meta.interpolation,
-    importStatement: scopes.meta.import_statement,
-    typeTag: scopes.meta.type_tag,
-  },
-  
-  // Punctuation
-  punctuation: {
-    colon: scopes.punctuation.separator.colon,
-    slash: scopes.punctuation.separator.slash,
-
-    interpolationBegin: scopes.punctuation.section.interpolation.begin,
-    interpolationEnd: scopes.punctuation.section.interpolation.end,
-  },
-};
-
 // Type definitions for better TypeScript support
 export type RclScopes = typeof scopes;
-export type RclScopeGroups = typeof scopeGroups;
